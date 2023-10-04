@@ -18,18 +18,21 @@ public class GameManager
 		_interpreter = new(_sceneManager, _resourceManager);
 	}
 
-	public SKBitmap GetFrame(int timeoff, bool force = false)
+	public SKBitmap GetFrame(long timeoff, bool force = false)
 	{
+		// Console.WriteLine(timeoff);
 		return _render.GetNextFrame(timeoff, force);
 	}
 
 	#region Debug
 	private readonly Test _test = new();
 
-	public async void DoTest(int timeoff)
+	public async Task DoTest()
 	{
 		await _interpreter.DoTest("testScene");
-		_render.LoadScene("testScene");
+		var timeoff = DateTimeOffset.Now.Ticks / 10000L;
+		Console.WriteLine($"adding time: {timeoff}");
+		_render.LoadScene("testScene", timeoff);
 		_render.GetNextFrame(timeoff);
 	}
 	#endregion

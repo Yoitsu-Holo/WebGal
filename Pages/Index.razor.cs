@@ -8,24 +8,28 @@ namespace WebGal.Pages;
 
 public partial class Index
 {
-	private int _nowDateMillisecond { get => (DateTimeOffset.Now.Minute * 60 + DateTimeOffset.Now.Second) * 1000 + DateTimeOffset.Now.Millisecond; }
 	[Parameter]
-	public string Game { get; set; } = "Yuan Shen";
+	public string? Game { get; set; }
 
 	[Inject]
 	private GameManager Manager { get; set; } = null!;
+
+	protected override void OnParametersSet()
+	{
+		Game ??= "Yuan Shen";
+	}
 
 	protected override void OnAfterRender(bool firstRender)
 	{
 		if (!firstRender)
 			return;
-		Manager.DoTest(_nowDateMillisecond);
+		Manager.DoTest();
 	}
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
-		canvas.DrawBitmap(Manager.GetFrame(_nowDateMillisecond, true), new SKPoint(0, 0));
+		canvas.DrawBitmap(Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L), new SKPoint(0, 0));
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -47,8 +51,6 @@ public partial class Index
 	{
 		_clickPos = $"{e.OffsetX}, {e.OffsetY}";
 	}
-
-	private CancellationTokenSource _cts = new();
 
 	#region Debug
 	private string _text = "", _mousePos = "", _clickPos = "";

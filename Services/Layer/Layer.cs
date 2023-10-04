@@ -1,3 +1,4 @@
+using System.Dynamic;
 using SkiaSharp;
 
 namespace WebGal.Services.Module;
@@ -23,6 +24,7 @@ public class Layer
 {
 	#region  Position
 	public SKPoint Pos { get; set; }
+	public SKPoint PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new SKPoint(Pos.X + OffX, Pos.Y + OffY); }
 	public SKPoint Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
 	public SKPoint AbsolutePos(SKPoint offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
 	public float Left => Pos.X;
@@ -31,39 +33,25 @@ public class Layer
 	public float Bottom => Pos.Y + WinSize.Height;
 	#endregion
 
+
 	#region Window Size
 	public SKSizeI WinSize { get; set; }
 	public SKRect Window => new(Pos.X, Pos.Y, WinSize.Width, WinSize.Height);
 	#endregion
 
+
 	#region Next Frame
 	public SKBitmap? FrameBuffer { get; private set; }
 	public SKPoint FramePosition { get; private set; } = new(0, 0);
-	public void NextFrame(int timeoff, bool force = false)
+	public void GenNextFrame(long timeoff, bool force = false)
 	{
 		if (BackGroundSKBitmap is null)
 			return;
 		if (force || FrameBuffer is null)
 		{
-			Console.WriteLine("Rerendering");
-			FramePosition = Pos;
+			FramePosition = PosAt(timeoff);
 			FrameBuffer = BackGroundSKBitmap.Resize(WinSize, SKFilterQuality.High);
 		}
-	}
-	#endregion
-
-
-	#region Fade
-	private (SKBitmap In, SKBitmap Out) _fadeMask;
-	private (float In, float Out) _fadeTime; //ms
-
-	public void SetFadeIn(SKBitmap mask, float time)
-	{
-		(_fadeMask.In, _fadeTime.In) = (mask, time);
-	}
-	public void SetFadeOut(SKBitmap mask, float time)
-	{
-		(_fadeMask.Out, _fadeTime.Out) = (mask, time);
 	}
 	#endregion
 
@@ -79,7 +67,14 @@ public class Layer
 
 
 	#region Animation
-	public Animation? Anim;
+	public long BeginTime { get => Anim.BeginTime; set => Anim.BeginTime = value; }
+	public Animation Anim = new();
+	public bool HasAnimation(int timeoff)
+	{
+		if (Anim is null)
+			return false;
+		return Anim.HasAnimation(timeoff);
+	}
 	#endregion
 
 

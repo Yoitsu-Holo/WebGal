@@ -13,6 +13,7 @@ public class Scene
 		SceneConfig.DefualtWidth,
 		SceneConfig.DefualtHeight
 	);
+	public bool NeedRendering { get; set; } = true;
 
 	public SortedDictionary<int, Layer> Layers = new();
 	private readonly Dictionary<string, int> _layersId = new();
@@ -35,4 +36,24 @@ public class Scene
 		_layersId.Clear();
 		_layerCount = 0;
 	}
+
+	public void SetBeginTime(long beginTime)
+	{
+		foreach (var (_, layer) in Layers)
+			layer.BeginTime = beginTime;
+	}
+
+	#region Fade
+	private (SKBitmap In, SKBitmap Out) _fadeMask;
+	private (float In, float Out) _fadeTime; //ms
+
+	public void SetFadeIn(SKBitmap mask, float time)
+	{
+		(_fadeMask.In, _fadeTime.In) = (mask, time);
+	}
+	public void SetFadeOut(SKBitmap mask, float time)
+	{
+		(_fadeMask.Out, _fadeTime.Out) = (mask, time);
+	}
+	#endregion
 }

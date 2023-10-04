@@ -1,10 +1,10 @@
-@page "/{game}"
+@page "/{game?}"
 @using SkiaSharp.Views.Blazor
 @using WebGal.Global
 
-<SKGLView @onclick="OnClick" @onmousemove="OnMouseMove" style="border: 2px solid;" EnableRenderLoop="true"
-	IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" width="@SceneConfig.DefualtWidth"
-	height="@SceneConfig.DefualtHeight" />
+<SKGLView @onclick="OnClick" @onmousemove="OnMouseMove"
+	style=@($"width: {SceneConfig.DefualtWidth}px; height: {SceneConfig.DefualtHeight}px; border: 2px solid;")
+	EnableRenderLoop="true" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
 <p>@_text</p>
 <p>@_mousePos</p>
 <p>@_clickPos</p>

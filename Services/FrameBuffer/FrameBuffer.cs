@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SkiaSharp;
-using WebGal.Services.FrameBuffer.Module;
+using WebGal.Services.Module;
 
 namespace WebGal.Services.FrameBuffer;
 
@@ -43,7 +43,7 @@ public class FrameBuffer
 
 			if (layer.BackGroundSKBitmap is SKBitmap image)
 			{
-				using var img = image.Resize(layer.WinSizeI, SKFilterQuality.High);
+				using var img = image.Resize(layer.WinSize, SKFilterQuality.High);
 				_canvas.DrawBitmap(img, layer.Pos);
 			}
 			// Console.WriteLine($"{layer.Pos.X},{layer.Pos.Y}");

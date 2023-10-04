@@ -17,14 +17,14 @@ public class Interpreter
 	public async Task DoTest(string testCaseName = "defualtTest")
 	{
 		// Load Scene 1
-		// List<Task> tasks = new()
-		// {
-		// 	_resourceManager.PullImageAsync("bg1", "Data/game_demo/pack/bg/bg010a.png")
-		// };
+		List<Task> tasks = new()
+		{
+			_resourceManager.PullImageAsync("bg1", "Data/Test/pack/bg/bg010a.png"),
+			_resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png")
+		};
 
-		// Task.WaitAll(tasks.ToArray());
-		await _resourceManager.PullImageAsync("bg1", "Data/Test/pack/bg/bg010a.png");
-		await _resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png");
+		await Task.WhenAll(tasks);
+
 		Scene TestScene = new();
 
 		Layer layer;
@@ -50,6 +50,12 @@ public class Interpreter
 				Pos = new(50, -200),
 				WinSize = new(img.Width, img.Height),
 				BackGroundSKBitmap = img,
+				Anim = new()
+				{
+					BeginPosition = (-500, 0),
+					EndPosition = (0, 0),
+					DelayTime = 4000,
+				}
 			};
 			TestScene.PushLayer("stand", layer);
 		}
@@ -98,7 +104,7 @@ public class Interpreter
 			{
 				layerText = new()
 				{
-					Text = "Hello World",
+					Text = "Hello World..................................................................................",
 					Pos = new SKPoint(100, 50),
 					Paint = new SKPaint
 					{
