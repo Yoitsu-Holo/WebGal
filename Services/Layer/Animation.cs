@@ -1,4 +1,4 @@
-namespace WebGal.Services.Data;
+namespace WebGal.Services.Module;
 
 public class Animation
 {

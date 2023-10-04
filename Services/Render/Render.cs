@@ -2,7 +2,7 @@ namespace WebGal.Services;
 
 using SkiaSharp;
 using WebGal.Global;
-using WebGal.Services.Data;
+using WebGal.Services.Module;
 
 public class Render
 {
@@ -23,26 +23,28 @@ public class Render
 	);
 
 	private readonly SKCanvas _canvas;
-	public Scene RenderScene { get => _renderScene; set { _renderScene = value; _renderFlag = true; } }
+	private Scene _scene = new();
+	private readonly SceneManager _sceneManager = null!;
+
 	#endregion
 
 	private bool _renderFlag = true;
-	private Scene _renderScene = new();
 
-	public Render()
+	public Render(SceneManager sceneManager)
 	{
+		_sceneManager = sceneManager;
 		_canvas = new(_buffer);
 	}
 
 	private void Rendering()
 	{
-		foreach (var (layerId, layer) in RenderScene.Layers)
+		foreach (var (layerId, layer) in _scene.Layers)
 		{
 			Console.WriteLine(layerId);
 
 			if (layer.BackGroundSKBitmap is SKBitmap image)
 			{
-				using var img = image.Resize(layer.WinSizeI, SKFilterQuality.High);
+				using var img = image.Resize(layer.WinSizeI, SKFilterQuality.Medium);
 				_canvas.DrawBitmap(img, layer.Pos);
 			}
 
@@ -52,37 +54,34 @@ public class Render
 
 		}
 
-		#region Debug
+		// #region Debug
 
-		_canvas.DrawRect(20, 20, 100, 100, new SKPaint
-		{
-			Color = SKColors.Aqua,
-			StrokeWidth = 5,
-		});
+		// _canvas.DrawRect(20, 20, 1000, 600, new SKPaint
+		// {
+		// 	Color = SKColors.Aqua,
+		// 	StrokeWidth = 5,
+		// });
 
-		#endregion
+		// #endregion
 
 		_canvas.Flush();
 
-		if (RenderScene is null)
+		if (_scene is null)
 			_renderFlag = false;
-
-		Console.WriteLine("---");
-	}
-
-	/// <summary>
-	/// todo
-	/// </summary>
-	/// <returns>false</returns>
-	private bool NeedRerendering()
-	{
-		return false;
+		_renderFlag = false;
 	}
 
 	public SKBitmap GetNextFrame(int timeoff, bool force = false)
 	{
-		if (NeedRerendering() || force)
+		if (_renderFlag || force)
 			Rendering();
 		return _buffer;
+	}
+
+	public void LoadScene(string sceneName)
+	{
+		Console.WriteLine(_sceneManager.ToString());
+		_scene = _sceneManager.LoadScene(sceneName);
+		_renderFlag = true;
 	}
 }

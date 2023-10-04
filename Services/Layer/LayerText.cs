@@ -1,6 +1,6 @@
 using SkiaSharp;
 
-namespace WebGal.Services.Data;
+namespace WebGal.Services.Module;
 
 public class LayerText
 {
