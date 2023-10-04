@@ -67,7 +67,7 @@ public class Interpreter
 			canvas.DrawRect(new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height), new SKPaint
 			{
 				Color = new SKColor(186, 184, 187, 180),
-				IsAntialias = true
+				// Color = SKColors.Aqua,
 			});
 			canvas.Flush();
 			TestScene.PushLayer("textbox", layer);
@@ -76,13 +76,14 @@ public class Interpreter
 
 		#region Text
 		{
+			layer = new()
+			{
+				Pos = new(30, 570),
+				WinSize = new(1220, 90)
+			};
+
 			#region test1
 			{
-				layer = new()
-				{
-					Pos = new(30, 570),
-					WinSize = new(1220, 90)
-				};
 				layerText = new()
 				{
 					Text = "WebGal",
@@ -101,15 +102,16 @@ public class Interpreter
 					Pos = new SKPoint(100, 50),
 					Paint = new SKPaint
 					{
-						Color = SKColors.Aqua,
+						Color = SKColors.Brown,
 						TextSize = 30,
 						FakeBoldText = true,
 						IsAntialias = true
 					},
 				};
 				layer.Text.Add(layerText);
-				TestScene.PushLayer("text", layer);
 			}
+
+			TestScene.PushLayer("text", layer);
 			#endregion
 		}
 		#endregion

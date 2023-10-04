@@ -36,31 +36,20 @@ public class Render
 		_canvas = new(_buffer);
 	}
 
-	private void Rendering()
+	private void Rendering(int timeoff)
 	{
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
-			if (layer.BackGroundSKBitmap is SKBitmap image)
-			{
-				using var img = image.Resize(layer.WinSizeI, SKFilterQuality.Medium);
-				_canvas.DrawBitmap(img, layer.Pos);
-			}
+			Console.Write($"{DateTimeOffset.Now.Second * 1000 + DateTimeOffset.Now.Millisecond}, ");
+			layer.NextFrame(timeoff);
+			if (layer.BackGroundSKBitmap is not null)
+				_canvas.DrawBitmap(layer.FrameBuffer, layer.FramePosition);
 
 			if (layer.Text is List<LayerText> texts)
 				foreach (var text in texts)
 					_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
-
 		}
-
-		// #region Debug
-
-		// _canvas.DrawRect(20, 20, 1000, 600, new SKPaint
-		// {
-		// 	Color = SKColors.Aqua,
-		// 	StrokeWidth = 5,
-		// });
-
-		// #endregion
+		Console.WriteLine($"{DateTimeOffset.Now.Second * 1000 + DateTimeOffset.Now.Millisecond}");
 
 		_canvas.Flush();
 
@@ -72,7 +61,7 @@ public class Render
 	public SKBitmap GetNextFrame(int timeoff, bool force = false)
 	{
 		if (_renderFlag || force)
-			Rendering();
+			Rendering(timeoff);
 		return _buffer;
 	}
 

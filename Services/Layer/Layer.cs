@@ -23,16 +23,33 @@ public class Layer
 {
 	#region  Position
 	public SKPoint Pos { get; set; }
-	public SKSize WinSize { get; set; }
-	public SKSizeI WinSizeI => new((int)WinSize.Width, (int)WinSize.Height);
-	public SKRect Window => new(Pos.X, Pos.Y, WinSize.Width, WinSize.Height);
 	public SKPoint Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
+	public SKPoint AbsolutePos(SKPoint offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
 	public float Left => Pos.X;
 	public float Right => Pos.X + WinSize.Width;
 	public float Top => Pos.Y;
 	public float Bottom => Pos.Y + WinSize.Height;
+	#endregion
 
-	public SKPoint AbsolutePos(SKPoint offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
+	#region Window Size
+	public SKSizeI WinSize { get; set; }
+	public SKRect Window => new(Pos.X, Pos.Y, WinSize.Width, WinSize.Height);
+	#endregion
+
+	#region Next Frame
+	public SKBitmap? FrameBuffer { get; private set; }
+	public SKPoint FramePosition { get; private set; } = new(0, 0);
+	public void NextFrame(int timeoff, bool force = false)
+	{
+		if (BackGroundSKBitmap is null)
+			return;
+		if (force || FrameBuffer is null)
+		{
+			Console.WriteLine("Rerendering");
+			FramePosition = Pos;
+			FrameBuffer = BackGroundSKBitmap.Resize(WinSize, SKFilterQuality.High);
+		}
+	}
 	#endregion
 
 
@@ -62,7 +79,7 @@ public class Layer
 
 
 	#region Animation
-	public Animation? Ani;
+	public Animation? Anim;
 	#endregion
 
 
