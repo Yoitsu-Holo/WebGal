@@ -36,25 +36,25 @@ public class ResourceManager
 		_scriptList[name] = await _httpClient.GetStringAsync(path);
 	}
 
-	public SKBitmap? GetImage(string name)
+	public SKBitmap GetImage(string name)
 	{
 		if (_imageList.ContainsKey(name))
 			return _imageList[name];
-		return null;
+		throw new Exception($"Image \"{name}\" not find");
 	}
 
-	public object? GetAudio(string name)
+	public object GetAudio(string name)
 	{
 		if (_audioList.ContainsKey(name))
 			return _audioList[name];
-		return null;
+		throw new Exception($"Audio \"{name}\" not find");
 	}
 
-	public string? GetScript(string name = "main")
+	public string GetScript(string name = "main")
 	{
 		if (_scriptList.ContainsKey(name))
 			return _scriptList[name];
-		return null;
+		throw new Exception($"Script \"{name}\" not find");
 	}
 
 	[Obsolete("Only use in Debug")]

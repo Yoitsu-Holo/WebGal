@@ -40,8 +40,6 @@ public class Render
 	{
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
-			Console.WriteLine(layerId);
-
 			if (layer.BackGroundSKBitmap is SKBitmap image)
 			{
 				using var img = image.Resize(layer.WinSizeI, SKFilterQuality.Medium);

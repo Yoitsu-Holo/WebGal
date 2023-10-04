@@ -23,7 +23,8 @@ public class Interpreter
 		// };
 
 		// Task.WaitAll(tasks.ToArray());
-		await _resourceManager.PullImageAsync("bg1", "Data/game_demo/pack/bg/bg010a.png");
+		await _resourceManager.PullImageAsync("bg1", "Data/Test/pack/bg/bg010a.png");
+		await _resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png");
 		Scene TestScene = new();
 
 		Layer layer;
@@ -38,6 +39,19 @@ public class Interpreter
 				BackGroundSKBitmap = _resourceManager.GetImage("bg1")
 			};
 			TestScene.PushLayer("background", layer);
+		}
+		#endregion
+
+		#region Stand
+		{
+			var img = _resourceManager.GetImage("st1-1");
+			layer = new()
+			{
+				Pos = new(50, -200),
+				WinSize = new(img.Width, img.Height),
+				BackGroundSKBitmap = img,
+			};
+			TestScene.PushLayer("stand", layer);
 		}
 		#endregion
 
@@ -60,7 +74,7 @@ public class Interpreter
 		}
 		#endregion
 
-		#region text
+		#region Text
 		{
 			#region test1
 			{
@@ -90,6 +104,7 @@ public class Interpreter
 						Color = SKColors.Aqua,
 						TextSize = 30,
 						FakeBoldText = true,
+						IsAntialias = true
 					},
 				};
 				layer.Text.Add(layerText);
@@ -100,9 +115,6 @@ public class Interpreter
 		#endregion
 
 		_sceneManager.PushScene(testCaseName, TestScene);
-		Console.WriteLine(_sceneManager.ToString());
-		var _scene = _sceneManager.LoadScene(testCaseName);
-		Console.WriteLine(_scene.ToString());
 		return;
 	}
 }
