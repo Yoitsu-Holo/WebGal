@@ -80,6 +80,7 @@ public class Interpreter
 		}
 		#endregion
 
+
 		#region Text
 		{
 			layer = new()

@@ -1,8 +1,9 @@
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
-using WebGal.Global;
 using WebGal.Services;
 
 namespace WebGal.Pages;
@@ -13,16 +14,20 @@ public partial class Index
 	public string? Game { get; set; }
 
 	[Inject]
+	private IJSRuntime JS { get; set; }
+
+	[Inject]
 	private GameManager Manager { get; set; } = null!;
+
+	private Dictionary<string, string> _loopAudios = new();
+	private Dictionary<string, string> _oneShotAudios = new();
+	private string Audio = "/Data/Test/pack/sound/bgm/bgm02_b.ogg";
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Manager.DoTest();
-	}
-
-	protected override void OnParametersSet()
-	{
-		Game ??= "Yuan Shen";
+		Audio = "/Data/Test/pack/sound/bgm/bgm02_b.ogg";
+		_loopAudios.Add("bgm", Audio);
 	}
 
 	protected override void OnAfterRender(bool firstRender)

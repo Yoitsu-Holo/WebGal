@@ -20,8 +20,6 @@ public class GameManager
 
 	public void GetFrame(SKCanvas canvas, long timeoff, bool force = false)
 	{
-		// Console.WriteLine(timeoff);
-		// _render.SetCanvas();
 		_render.GetNextFrame(canvas, timeoff, force);
 	}
 
@@ -32,9 +30,7 @@ public class GameManager
 	{
 		await _interpreter.DoTest("testScene");
 		var timeoff = DateTimeOffset.Now.Ticks / 10000L;
-		Console.WriteLine($"adding time: {timeoff}");
 		_render.LoadScene("testScene", timeoff);
-		// _render.GetNextFrame(timeoff);
 	}
 	#endregion
 }

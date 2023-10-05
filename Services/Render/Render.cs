@@ -63,6 +63,8 @@ public class Render
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
 			// Console.WriteLine($"{timeoff}, {layerId}");
+			Console.Write($"{DateTimeOffset.Now.Ticks / 10000 % 1000}, ");
+
 			layer.GenNextFrame(timeoff);
 
 			if (layer.BackGroundSKBitmap is not null)
@@ -74,7 +76,7 @@ public class Render
 
 			_scene.NeedRendering |= layer.Anim.HasAnimation(timeoff);
 		}
-		// Console.WriteLine(DateTimeOffset.Now.Ticks / 10000);
+		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000 % 1000);
 
 		_canvas.Flush();
 	}

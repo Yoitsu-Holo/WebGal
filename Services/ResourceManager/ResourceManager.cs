@@ -7,7 +7,7 @@ public class ResourceManager
 	private readonly HttpClient _httpClient;
 
 	private readonly Dictionary<string, SKBitmap> _imageList = new();
-	private readonly Dictionary<string, object> _audioList = new();
+	private readonly Dictionary<string, string> _audioList = new();
 	private readonly Dictionary<string, string> _scriptList = new();
 
 	public ResourceManager(HttpClient httpClient)
@@ -25,7 +25,7 @@ public class ResourceManager
 
 	public async Task PullAudioAsync(string name, string path)
 	{
-		throw new NotImplementedException("Todo");
+		_audioList[name] = path;
 		// using var stream = await _httpClient.GetStreamAsync(path);
 		// _audioList[name] = new object();
 		// return;
