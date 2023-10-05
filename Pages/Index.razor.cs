@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
+using WebGal.Global;
 using WebGal.Services;
 
 namespace WebGal.Pages;
@@ -14,6 +15,11 @@ public partial class Index
 	[Inject]
 	private GameManager Manager { get; set; } = null!;
 
+	protected override async Task OnInitializedAsync()
+	{
+		await Manager.DoTest();
+	}
+
 	protected override void OnParametersSet()
 	{
 		Game ??= "Yuan Shen";
@@ -23,13 +29,14 @@ public partial class Index
 	{
 		if (!firstRender)
 			return;
-		Manager.DoTest();
 	}
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
-		canvas.DrawBitmap(Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L), new SKPoint(0, 0));
+		Manager.GetFrame(canvas, DateTimeOffset.Now.Ticks / 10000L);
+		// e.Surface.Draw(canvas, 0, 0, LayerConfig.DefualtTextPaint);
+		// canvas.DrawBitmap(Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L), new SKPoint(0, 0));
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

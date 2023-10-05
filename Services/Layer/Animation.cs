@@ -21,7 +21,7 @@ public class Animation
 			return (0, 0);
 		var (dx, dy) = AniFunction.GetDelta((float)(time - BeginTime) / DelayTime);
 		// Console.WriteLine($"{nameof(Animation)}:{time - BeginTime},{DelayTime}:{dx},{dy}");
-		return ((int)(DeltaX * dx), (int)(DeltaY * dy));
+		return ((int)(BeginPosition.X + (DeltaX * dx)), (int)(BeginPosition.Y + (DeltaY * dy)));
 	}
 
 }

@@ -22,7 +22,7 @@ public class Render
 		SceneConfig.DefualtAlphaType
 	);
 
-	private readonly SKCanvas _canvas;
+	private SKCanvas _canvas;
 	private Scene _scene = new();
 	private readonly SceneManager _sceneManager = null!;
 
@@ -32,11 +32,32 @@ public class Render
 	{
 		_sceneManager = sceneManager;
 		_canvas = new(_buffer);
+		// var context = GRContext.CreateGl();
+		// var surface = SKSurface.Create(context, false, _buffer.Info);
+		// _canvas = surface.Canvas;
+		// surface.Draw()
 	}
+
+	public void LoadScene(string sceneName, long startTime)
+	{
+		Console.WriteLine(_sceneManager.ToString());
+		_scene = _sceneManager.LoadScene(sceneName);
+		_scene.SetBeginTime(startTime);
+	}
+
+
+	public void GetNextFrame(SKCanvas canvas, long timeoff, bool force = false)
+	{
+		_canvas = canvas;
+		if (_scene.NeedRendering || force)
+			Rendering(timeoff);
+	}
+
 
 	private void Rendering(long timeoff)
 	{
 		_canvas.Clear();
+
 		// Console.WriteLine($"rendering time: {timeoff}");
 		_scene.NeedRendering = false;
 		foreach (var (layerId, layer) in _scene.Layers)
@@ -56,19 +77,5 @@ public class Render
 		// Console.WriteLine(DateTimeOffset.Now.Ticks / 10000);
 
 		_canvas.Flush();
-	}
-
-	public SKBitmap GetNextFrame(long timeoff, bool force = false)
-	{
-		if (_scene.NeedRendering || force)
-			Rendering(timeoff);
-		return _buffer;
-	}
-
-	public void LoadScene(string sceneName, long startTime)
-	{
-		Console.WriteLine(_sceneManager.ToString());
-		_scene = _sceneManager.LoadScene(sceneName);
-		_scene.SetBeginTime(startTime);
 	}
 }
