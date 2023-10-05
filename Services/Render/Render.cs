@@ -38,11 +38,9 @@ public class Render
 		// surface.Draw()
 	}
 
-	public void LoadScene(string sceneName, long startTime)
+	public void LoadScene(Scene scene)
 	{
-		Console.WriteLine(_sceneManager.ToString());
-		_scene = _sceneManager.LoadScene(sceneName);
-		_scene.SetBeginTime(startTime);
+		_scene = scene;
 	}
 
 
@@ -63,7 +61,7 @@ public class Render
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
 			// Console.WriteLine($"{timeoff}, {layerId}");
-			Console.Write($"{DateTimeOffset.Now.Ticks / 10000 % 1000}, ");
+			// Console.Write($"{DateTimeOffset.Now.Ticks / 10000 % 1000}, ");
 
 			layer.GenNextFrame(timeoff);
 
@@ -76,7 +74,7 @@ public class Render
 
 			_scene.NeedRendering |= layer.Anim.HasAnimation(timeoff);
 		}
-		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000 % 1000);
+		// Console.WriteLine(DateTimeOffset.Now.Ticks / 10000 % 1000);
 
 		_canvas.Flush();
 	}

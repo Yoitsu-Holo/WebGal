@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -8,26 +7,32 @@ using WebGal.Services;
 
 namespace WebGal.Pages;
 
-public partial class Index
+public partial class Test
 {
 	[Parameter]
 	public string? Game { get; set; }
 
 	[Inject]
-	private IJSRuntime JS { get; set; }
+	private GameManager Manager { get; set; } = null!;
 
 	[Inject]
-	private GameManager Manager { get; set; } = null!;
+	private IJSRuntime JS { get; set; } = null!;
+
+	[Inject]
+	private HttpClient httpClient { get; set; } = null!;
 
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
-	private string Audio = "/Data/Test/pack/sound/bgm/bgm02_b.ogg";
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Manager.DoTest();
-		Audio = "/Data/Test/pack/sound/bgm/bgm02_b.ogg";
-		_loopAudios.Add("bgm", Audio);
+		Manager.LoadMedia(_loopAudios, _oneShotAudios);
+
+		// var audioFile = await httpClient.GetByteArrayAsync("/Data/Test/pack/sound/bgm/bgm02_b.ogg");
+		// Console.WriteLine(Convert.ToBase64String(audioFile));
+		// var audio = await JS.InvokeAsync<string>("audioOggToLink", audioFile);
+		// _loopAudios.Add("bgm1", audio);
 	}
 
 	protected override void OnAfterRender(bool firstRender)
@@ -40,8 +45,7 @@ public partial class Index
 	{
 		SKCanvas canvas = e.Surface.Canvas;
 		Manager.GetFrame(canvas, DateTimeOffset.Now.Ticks / 10000L);
-		// e.Surface.Draw(canvas, 0, 0, LayerConfig.DefualtTextPaint);
-		// canvas.DrawBitmap(Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L), new SKPoint(0, 0));
+
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

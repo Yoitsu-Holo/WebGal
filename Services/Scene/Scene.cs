@@ -14,6 +14,8 @@ public class Scene
 		SceneConfig.DefualtHeight
 	);
 	public bool NeedRendering { get; set; } = true;
+	public Dictionary<string, byte[]> LoopAudiosList = new();
+	public Dictionary<string, byte[]> OneShotAudiosList = new();
 
 	public SortedDictionary<int, Layer> Layers = new();
 	private readonly Dictionary<string, int> _layersId = new();

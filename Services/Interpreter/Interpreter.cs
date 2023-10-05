@@ -20,7 +20,8 @@ public class Interpreter
 		List<Task> tasks = new()
 		{
 			_resourceManager.PullImageAsync("bg1", "Data/Test/pack/bg/bg010a.png"),
-			_resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png")
+			_resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png"),
+			_resourceManager.PullAudioAsync("bgm","/Data/Test/pack/sound/bgm/bgm02_b.ogg")
 		};
 
 		await Task.WhenAll(tasks);
@@ -80,7 +81,6 @@ public class Interpreter
 		}
 		#endregion
 
-
 		#region Text
 		{
 			layer = new()
@@ -122,6 +122,9 @@ public class Interpreter
 			#endregion
 		}
 		#endregion
+
+		// Console.WriteLine(Convert.ToBase64String(_resourceManager.GetAudio("bgm")));
+		TestScene.LoopAudiosList["bgm"] = _resourceManager.GetAudio("bgm");
 
 		_sceneManager.PushScene(testCaseName, TestScene);
 		return;
