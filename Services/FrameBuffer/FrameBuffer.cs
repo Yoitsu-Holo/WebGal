@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SkiaSharp;
 using WebGal.Services.Module;
 
-namespace WebGal.Services.FrameBuffer;
+namespace WebGal.Services.Data;
 
 public class FrameBuffer
 {

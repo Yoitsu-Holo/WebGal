@@ -1,4 +1,4 @@
-namespace WebGal.Services.FrameBuffer;
+namespace WebGal.Services.Data;
 
 public class FrameBufferConfig
 {

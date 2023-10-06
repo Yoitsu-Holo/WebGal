@@ -57,9 +57,10 @@ public class GameManager
 
 	public async Task DoTest()
 	{
-		await _interpreter.DoTest("testScene");
+		// await _interpreter.DoTest("testScene");
+		await _interpreter.ParsingAsync();
 		var timeoff = DateTimeOffset.Now.Ticks / 10000L;
-		LoadScene("testScene", timeoff);
+		LoadScene("TestScene", timeoff);
 		_render.LoadScene(_scene);
 	}
 	#endregion

@@ -12,24 +12,25 @@ public class Animation
 	public long DelayTime;
 	public long BeginTime;
 	public long EndTime { get => BeginTime + DelayTime; }
-	public AnimationFunction AniFunction = new();
+
+	public Func<float, (float, float)> AniFunction = d => (d, d);
 
 	public bool HasAnimation(long timeoff) { return timeoff < EndTime; }
 	public (int X, int Y) GetOffset(long time)
 	{
 		if (DelayTime == 0 || time > EndTime || time < BeginTime)
 			return (0, 0);
-		var (dx, dy) = AniFunction.GetDelta((float)(time - BeginTime) / DelayTime);
+		var (dx, dy) = AniFunction((float)(time - BeginTime) / DelayTime);
 		// Console.WriteLine($"{nameof(Animation)}:{time - BeginTime},{DelayTime}:{dx},{dy}");
 		return ((int)(BeginPosition.X + (DeltaX * dx)), (int)(BeginPosition.Y + (DeltaY * dy)));
 	}
 
 }
 
-public class AnimationFunction
+class AnimationList
 {
-	public virtual (float X, float Y) GetDelta(float deltaTime)
+	public Dictionary<string, Func<float, (float, float)>> Functions = new()
 	{
-		return (deltaTime, deltaTime);
-	}
+		{"Default", d => (d, d)},
+	};
 }
