@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
+using WebGal.Global;
 using WebGal.Services;
+using WebGal.Services.Module;
 
 namespace WebGal.Pages;
 
@@ -16,11 +19,29 @@ public partial class Test
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
 
+	SKBitmap bitmap = new(100, 100);
+
 	protected override async Task OnInitializedAsync()
 	{
 		await Manager.DoTest();
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.LoadMedia();
+
+		#region Test
+		SKColor[] pixs = bitmap.Pixels;
+		for (int row = 0, it = 0; row < 100; row++)
+		{
+			for (int col = 0; col < 100; col++)
+			{
+				int dx = 49 - row;
+				int dy = 49 - col;
+				double delta = Math.Sqrt(dx * dx + dy * dy);
+				pixs[it] = new SKColor(0, 180, 255, (byte)Math.Max(0, 255 - delta * 7));
+				it++;
+			}
+		}
+		bitmap.Pixels = pixs;
+		#endregion
 	}
 
 	protected override void OnAfterRender(bool firstRender)
@@ -33,8 +54,11 @@ public partial class Test
 	{
 		SKCanvas canvas = e.Surface.Canvas;
 		Manager.SetTargetCanvas(canvas);
-		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L);
+		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L, true);
 
+		#region Test 
+		canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
+		#endregion
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -49,16 +73,20 @@ public partial class Test
 
 	private void OnMouseMove(MouseEventArgs e)
 	{
-		_mousePos = $"{e.OffsetX}, {e.OffsetY}";
+		_mousePos = ((int)e.OffsetX, (int)e.OffsetY);
+		_mousePos.X = Math.Max(0, Math.Min(1279, _mousePos.X));
+		_mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
 	}
 
 	private void OnClick(MouseEventArgs e)
 	{
-		_clickPos = $"{e.OffsetX}, {e.OffsetY}";
+		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
+		Manager.OnClick(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
 	}
 
 	#region Debug
-	private string _text = "", _mousePos = "", _clickPos = "";
+	private string _text = "", _clickPos = "";
+	private (int X, int Y) _mousePos;
 	private int _frameCount = 0, _fps = 0, _lastSec;
 	#endregion
 };

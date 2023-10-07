@@ -43,6 +43,11 @@ public class GameManager
 	/// <param name="force">可选参数，忽略渲染器的惰性渲染机制，采用强制渲染</param>
 	public void GetFrame(long timeoff, bool force = false) => _render.GetNextFrame(timeoff, force);
 
+	public void OnClick(SKPoint pos)
+	{
+		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
+	}
+
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
 	{
 		_loopAudiosRef = loopAudiosRef;
