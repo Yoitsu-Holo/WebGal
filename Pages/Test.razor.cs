@@ -9,17 +9,9 @@ namespace WebGal.Pages;
 
 public partial class Test
 {
-	[Parameter]
-	public string? Game { get; set; }
+	[Parameter] public string? Game { get; set; }
 
-	[Inject]
-	private GameManager Manager { get; set; } = null!;
-
-	[Inject]
-	private IJSRuntime JS { get; set; } = null!;
-
-	[Inject]
-	private HttpClient httpClient { get; set; } = null!;
+	[Inject] private GameManager Manager { get; set; } = null!;
 
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
@@ -27,12 +19,8 @@ public partial class Test
 	protected override async Task OnInitializedAsync()
 	{
 		await Manager.DoTest();
-		Manager.LoadMedia(_loopAudios, _oneShotAudios);
-
-		// var audioFile = await httpClient.GetByteArrayAsync("/Data/Test/pack/sound/bgm/bgm02_b.ogg");
-		// Console.WriteLine(Convert.ToBase64String(audioFile));
-		// var audio = await JS.InvokeAsync<string>("audioOggToLink", audioFile);
-		// _loopAudios.Add("bgm1", audio);
+		Manager.SetMediaList(_loopAudios, _oneShotAudios);
+		Manager.LoadMedia();
 	}
 
 	protected override void OnAfterRender(bool firstRender)
@@ -44,7 +32,8 @@ public partial class Test
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
-		Manager.GetFrame(canvas, DateTimeOffset.Now.Ticks / 10000L);
+		Manager.SetTargetCanvas(canvas);
+		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L);
 
 
 		int sec = DateTimeOffset.UtcNow.Second;

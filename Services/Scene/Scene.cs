@@ -10,10 +10,10 @@ namespace WebGal.Services.Module;
 public class Scene
 {
 	public SKSizeI Resolution { set; get; } = new(
-		SceneConfig.DefualtWidth,
-		SceneConfig.DefualtHeight
+		SceneConfig.DefaultWidth,
+		SceneConfig.DefaultHeight
 	);
-	public bool NeedRendering { get; set; } = true;
+	public bool RenderFlag { get; set; } = true;
 	public Dictionary<string, byte[]> LoopAudiosList = new();
 	public Dictionary<string, byte[]> OneShotAudiosList = new();
 

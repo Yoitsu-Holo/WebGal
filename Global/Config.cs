@@ -5,26 +5,25 @@ namespace WebGal.Global;
 
 public static class SceneConfig
 {
-	#region Defualt Settings
-	public const int DefualtWidth = 1280;
-	public const int DefualtHeight = 720;
-	public const SKColorType DefualtColorType = SKColorType.Rgba8888;
-	public const SKAlphaType DefualtAlphaType = SKAlphaType.Unpremul;
+	#region Default Settings
+	public const int DefaultWidth = 1280;
+	public const int DefaultHeight = 720;
+	public const SKColorType DefaultColorType = SKColorType.Rgba8888;
+	public const SKAlphaType DefaultAlphaType = SKAlphaType.Unpremul;
 	#endregion
 }
 
 public static class LayerConfig
 {
-	#region Defualt Settings
-	public readonly static SKPaint DefualtTextPaint = new()
+	#region Default Settings
+	public readonly static SKPaint DefaultTextPaint = new()
 	{
 		Color = SKColors.Black,
 		TextSize = 30,
 		FakeBoldText = true,
 		IsAntialias = true
 	};
-	public const SKColorType DefualtColorType = SKColorType.Rgba8888;
-	public const SKAlphaType DefualtAlphaType = SKAlphaType.Unpremul;
-
+	public const SKColorType DefaultColorType = SKColorType.Rgba8888;
+	public const SKAlphaType DefaultAlphaType = SKAlphaType.Unpremul;
 	#endregion
 }

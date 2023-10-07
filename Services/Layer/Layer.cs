@@ -1,4 +1,3 @@
-using System.Dynamic;
 using SkiaSharp;
 
 namespace WebGal.Services.Module;

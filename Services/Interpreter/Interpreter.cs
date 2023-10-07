@@ -1,5 +1,3 @@
-using System.Linq.Expressions;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SkiaSharp;
 using WebGal.Global;
@@ -11,19 +9,25 @@ namespace WebGal.Services;
 public class Interpreter
 {
 	// private Dictionary<string, List<string>> _nodeName = new();
-	private List<string> _sceneName = new();
-	private Dictionary<string, List<string>> _layerName = new();
-	private Dictionary<string, Layer> _layers = new();
-	private Queue<string> _UnloadedResPackName = new();
-
+	private readonly List<string> _sceneName = new();
+	private readonly Dictionary<string, List<string>> _layerName = new();
+	private readonly Dictionary<string, Layer> _layers = new();
+	private readonly Queue<string> _UnloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
+
+
 	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
 	}
 
+
+	/// <summary>
+	/// 以异步方式加载未加载队列中的资源文件
+	/// </summary>
+	/// <returns></returns>
 	private async Task ProcessResourceAsync()
 	{
 		while (_UnloadedResPackName.Count > 0)
@@ -44,6 +48,14 @@ public class Interpreter
 		}
 	}
 
+
+	// todo 暂只能一次性加载全部流程,无法指定顺序(单场景测试)
+	/// <summary>
+	/// 异步方式加载游戏流程(节点树)
+	/// </summary>
+	/// <param name="nowNodeName"></param>
+	/// <returns></returns>
+	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
 	private async Task ProcessNodeAsync(string nowNodeName)
 	{
 		string partScript = _resourceManager.GetScript(nowNodeName);
@@ -85,6 +97,12 @@ public class Interpreter
 		}
 	}
 
+
+	/// <summary>
+	/// 根据 json 中的描述包装一个图层
+	/// </summary>
+	/// <param name="layerStructure">传入图层 json 描述</param>
+	/// <exception cref="Exception">节点相关资源未被正常加载</exception>
 	private void PackLayer(LayerStructure layerStructure)
 	{
 		if (layerStructure.Name is null)
@@ -117,7 +135,7 @@ public class Interpreter
 			var shapeColor = layerStructure.ShapeColor;
 			(int R, int G, int B, int A) = (shapeColor.R, shapeColor.G, shapeColor.B, shapeColor.A);
 
-			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefualtColorType, LayerConfig.DefualtAlphaType);
+			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 			using SKCanvas canvas = new(layer.BackGroundSKBitmap);
 			canvas.DrawRect(new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height), new SKPaint
 			{
@@ -141,7 +159,7 @@ public class Interpreter
 				{
 					Text = text.Text,
 					Pos = new(text.Offset.X, text.Offset.Y),
-					Paint = LayerConfig.DefualtTextPaint
+					Paint = LayerConfig.DefaultTextPaint
 				};
 
 				var textPaint = text.Paint;
@@ -155,6 +173,8 @@ public class Interpreter
 			}
 		}
 
+		// todo 暂只有默认平移动画
+		// 加载动画
 		if (layerStructure.Animation is not null)
 		{
 			layer.Anim = new()
@@ -167,6 +187,11 @@ public class Interpreter
 		_layers[layerStructure.Name] = layer;
 	}
 
+
+	/// <summary>
+	/// 根据场景和图层的名称映射来包装一个新的场景，并且加入到资源管理器中
+	/// </summary>
+	/// <param name="sceneName"></param>
 	private void PackScene(string sceneName)
 	{
 		Scene scene = new();
@@ -176,6 +201,12 @@ public class Interpreter
 		_sceneManager.PushScene(sceneName, scene);
 	}
 
+
+	/// <summary>
+	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，所有图层打包完成后调用 PackScene(sceneName) 来讲图层打包，并且放入资源管理器
+	/// </summary>
+	/// <returns></returns>
+	/// <exception cref="Exception"></exception>
 	private async Task ProcessSceneAsync()
 	{
 		foreach (var sceneName in _sceneName)
@@ -214,135 +245,17 @@ public class Interpreter
 		}
 	}
 
+
+	// todo 功能不完善，后续会加入实时解析功能
+	/// <summary>
+	/// 开始执行解释流程，唯一公共对外口
+	/// </summary>
+	/// <returns></returns>
 	public async Task ParsingAsync()
 	{
 		await _resourceManager.PullScriptAsync("main", "Data/Test/main.json");
 		await ProcessNodeAsync("main");
 		await ProcessResourceAsync();
 		await ProcessSceneAsync();
-
-		Console.WriteLine("pre load done"); //!
 	}
-
-	// public async Task DoTest(string testCaseName = "defualtTest")
-	// {
-	// 	// Load Scene 1
-	// 	List<Task> tasks = new()
-	// 	{
-	// 		_resourceManager.PullImageAsync("bg1", "Data/Test/pack/bg/bg010a.png"),
-	// 		_resourceManager.PullImageAsync("st1-1", "Data/Test/pack/stand/04/st-aoi_a101.png"),
-	// 		_resourceManager.PullAudioAsync("bgm","Data/Test/pack/sound/bgm/bgm02_b.ogg")
-	// 	};
-
-	// 	await Task.WhenAll(tasks);
-
-	// 	Scene TestScene = new();
-
-	// 	Layer layer;
-	// 	LayerText layerText;
-
-	// 	#region  background
-	// 	{
-	// 		layer = new()
-	// 		{
-	// 			Pos = new(0, 0),
-	// 			WinSize = new(1280, 720),
-	// 			BackGroundSKBitmap = _resourceManager.GetImage("bg1")
-	// 		};
-	// 		TestScene.PushLayer("background", layer);
-	// 	}
-	// 	#endregion
-
-	// 	#region Stand
-	// 	{
-	// 		var img = _resourceManager.GetImage("st1-1");
-	// 		layer = new()
-	// 		{
-	// 			Pos = new(50, -200),
-	// 			WinSize = new(img.Width, img.Height),
-	// 			BackGroundSKBitmap = img,
-	// 			Anim = new()
-	// 			{
-	// 				BeginPosition = (-500, 0),
-	// 				EndPosition = (0, 0),
-	// 				DelayTime = 4000,
-	// 			}
-	// 		};
-	// 		TestScene.PushLayer("stand", layer);
-	// 	}
-	// 	#endregion
-
-	// 	#region  Textbox
-	// 	{
-	// 		layer = new()
-	// 		{
-	// 			Pos = new(20, 550),
-	// 			WinSize = new(1240, 150),
-	// 			BackGroundSKBitmap = new(1240, 150, LayerConfig.DefualtColorType, LayerConfig.DefualtAlphaType)
-	// 		};
-	// 		using SKCanvas canvas = new(layer.BackGroundSKBitmap);
-	// 		canvas.DrawRect(new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height), new SKPaint
-	// 		{
-	// 			Color = new SKColor(186, 184, 187, 180),
-	// 			// Color = SKColors.Aqua,
-	// 		});
-	// 		canvas.Flush();
-	// 		TestScene.PushLayer("textbox", layer);
-	// 	}
-	// 	#endregion
-
-	// 	#region Text
-	// 	{
-	// 		layer = new()
-	// 		{
-	// 			Pos = new(30, 570),
-	// 			WinSize = new(1220, 90)
-	// 		};
-
-	// 		#region test1
-	// 		{
-	// 			layerText = new()
-	// 			{
-	// 				Text = "WebGal",
-	// 				Pos = new SKPoint(60, 20),
-	// 				Paint = LayerConfig.DefualtTextPaint
-	// 			};
-	// 			layer.Text.Add(layerText);
-	// 		}
-	// 		#endregion
-
-	// 		#region test2
-	// 		{
-	// 			layerText = new()
-	// 			{
-	// 				Text = "Hello World..................................................................................",
-	// 				Pos = new SKPoint(100, 50),
-	// 				Paint = new SKPaint
-	// 				{
-	// 					Color = SKColors.Brown,
-	// 					TextSize = 30,
-	// 					FakeBoldText = true,
-	// 					IsAntialias = true
-	// 				},
-	// 			};
-	// 			layer.Text.Add(layerText);
-	// 		}
-
-	// 		TestScene.PushLayer("text", layer);
-	// 		#endregion
-	// 	}
-	// 	#endregion
-
-	// 	TestScene.LoopAudiosList["bgm"] = _resourceManager.GetAudio("bgm");
-	// 	_sceneManager.PushScene(testCaseName, TestScene);
-
-	// 	// TestStructure test = new(new()
-	// 	// {
-	// 	// 	new("Test1", "World"),
-	// 	// 	new("Test2", "Hello")
-	// 	// });
-	// 	// Console.WriteLine(JsonSerializer.Serialize(test));
-
-	// 	return;
-	// }
 }

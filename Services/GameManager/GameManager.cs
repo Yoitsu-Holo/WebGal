@@ -7,13 +7,20 @@ using Microsoft.JSInterop;
 
 public class GameManager
 {
-	private readonly IJSRuntime _js;
-	private readonly SceneManager _sceneManager;
-	private readonly Render _render;
-	private Scene _scene = new();
-	private readonly Interpreter _interpreter;
-	private readonly ResourceManager _resourceManager;
+	private readonly IJSRuntime _js;                      //^ JavaScript 互操作运行时
+	private readonly Interpreter _interpreter;            //^ 脚本解释器
+	private readonly ResourceManager _resourceManager;    //^ 资源管理器
+	private readonly SceneManager _sceneManager;          //^ 场景管理器
+	private readonly Render _render;                      //^ 渲染器
+	private Scene _scene = new();                         //^ 当前加载的场景
+	private Dictionary<string, string> _loopAudiosRef = null!;  //^ 循环音频库
+	private Dictionary<string, string> _oneShotAduioRef = null!;//^ 单次音频库
 
+	/// <summary>
+	/// 构造函数，由系统执行依赖注入
+	/// </summary>
+	/// <param name="httpClient"></param>
+	/// <param name="js"></param>
 	public GameManager(HttpClient httpClient, IJSRuntime js)
 	{
 		_js = js;
@@ -23,45 +30,59 @@ public class GameManager
 		_interpreter = new(_sceneManager, _resourceManager);
 	}
 
-	private void LoadScene(string sceneName, long startTime)
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="canvas"></param>
+	public void SetTargetCanvas(SKCanvas canvas) => _render.SetTargetCanvas(canvas);
+
+	/// <summary>
+	/// 将一个指定的时间的场景渲染到指定画布上
+	/// </summary>
+	/// <param name="timeoff">设定场景时间</param>
+	/// <param name="force">可选参数，忽略渲染器的惰性渲染机制，采用强制渲染</param>
+	public void GetFrame(long timeoff, bool force = false) => _render.GetNextFrame(timeoff, force);
+
+	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
 	{
-		_scene = _sceneManager.LoadScene(sceneName);
-		_scene.SetBeginTime(startTime);
+		_loopAudiosRef = loopAudiosRef;
+		_oneShotAduioRef = oneShotAduioRef;
 	}
 
-	public void GetFrame(SKCanvas canvas, long timeoff, bool force = false)
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="loopAudiosRef"></param>
+	/// <param name="oneShotAduioRef"></param>
+	public async void LoadMedia()
 	{
-		_render.GetNextFrame(canvas, timeoff, force);
-	}
-
-	public async void LoadMedia(Dictionary<string, string> loopAudios, Dictionary<string, string> oneShotAduio)
-	{
-		// loopAduio.Clear();
-		// oneShotAduio.Clear();
-		foreach (var (audioName, byteStream) in _scene.LoopAudiosList)
+		var (loopAudiosList, lneShotAudiosList) = _render.GetSceneAudioMedia();
+		foreach (var (audioName, byteStream) in loopAudiosList)
 		{
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
-			loopAudios.Add(audioName, audio);
+			_loopAudiosRef.Add(audioName, audio);
 		}
-		foreach (var (audioName, byteStream) in _scene.OneShotAudiosList)
+		foreach (var (audioName, byteStream) in lneShotAudiosList)
 		{
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
-			oneShotAduio.Add(audioName, audio);
+			_oneShotAduioRef.Add(audioName, audio);
 		}
 		return;
 	}
 
 	#region Debug
+	[Obsolete("Debug Only")]
 	private readonly Test _test = new();
 
-
+	/// <summary>
+	/// 测试程序接口，内部填入测试流程代码
+	/// </summary>
+	/// <returns></returns>
+	[Obsolete("Debug Only")]
 	public async Task DoTest()
 	{
-		// await _interpreter.DoTest("testScene");
 		await _interpreter.ParsingAsync();
-		var timeoff = DateTimeOffset.Now.Ticks / 10000L;
-		LoadScene("TestScene", timeoff);
-		_render.LoadScene(_scene);
+		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
 	}
 	#endregion
 }
