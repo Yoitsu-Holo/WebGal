@@ -1,0 +1,38 @@
+@startuml
+class Layer {
+	--position--
+	+ SKPoint Pos { get; set; }
+	+ SKPoint PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new SKPoint(Pos.X + OffX, Pos.Y + OffY); }
+	+ SKPoint Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
+	+ SKPoint AbsolutePos(SKPoint offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
+	+ float Left => Pos.X;
+	+ float Right => Pos.X + WinSize.Width;
+	+ float Top => Pos.Y;
+	+ float Bottom => Pos.Y + WinSize.Height;
+	--winSize--
+	+ SKSizeI WinSize { get; set; }
+	+ SKRect Window => new(Pos.X, Pos.Y, WinSize.Width, WinSize.Height);
+	--frame--
+	+ SKBitmap? FrameBuffer { get; private set; }
+	+ SKPoint FramePosition { get; private set; } = new(0, 0);
+	+ void GenNextFrame(long timeoff, bool force = false)
+	--text--
+	+ List<LayerText> Text { get; private set; } = new();
+	--Background--
+	+ SKBitmap? BackGroundSKBitmap { get; set; }
+	--Animation--
+	+ long BeginTime { get => Anim.BeginTime; set => Anim.BeginTime = value; }
+	+ Animation Anim = new();
+	+ bool HasAnimation(int timeoff)
+	--Style--
+	+ double Transparency { set; get; }
+}
+
+class LayerText {
+	+ string Text { get; set; } = "NULL";
+	+ SKPoint Pos { get; set; } = new SKPoint(0, 0);
+	+ SKPaint Paint { get; set; } = LayerConfig.DefaultTextPaint;
+}
+
+Layer *-- LayerText
+@enduml

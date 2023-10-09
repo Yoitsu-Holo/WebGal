@@ -1,12 +1,10 @@
-using System.Data;
-using System.Drawing;
 using System.Text.Json;
 using SkiaSharp;
 using WebGal.Global;
-using WebGal.Services.Data;
-using WebGal.Services.Module;
+using WebGal.Libs.Data;
+using WebGal.Libs.Module;
 
-namespace WebGal.Services;
+namespace WebGal.Libs;
 
 public class Interpreter
 {
@@ -68,9 +66,7 @@ public class Interpreter
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
 	private async Task ProcessNodeAsync(string nowNodeName)
 	{
-		// Console.WriteLine(nowNodeName); //!
 		string partScript = _resourceManager.GetScript(nowNodeName);
-		// Console.WriteLine(partScript); //!
 		NodeStructure node = JsonSerializer.Deserialize<NodeStructure>(partScript);
 
 		if (node == default)
@@ -177,7 +173,7 @@ public class Interpreter
 
 				var textPaint = text.Paint;
 				var textColor = textPaint.Color;
-				// Console.WriteLine(JsonSerializer.Serialize(textPaint)); //!
+
 				if (textPaint != default)
 				{
 					layerText.Paint.FakeBoldText = textPaint.Blod;

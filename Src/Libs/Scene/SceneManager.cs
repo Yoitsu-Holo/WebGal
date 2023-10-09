@@ -1,7 +1,6 @@
-using System.Reflection.Metadata.Ecma335;
-using WebGal.Services.Module;
+using WebGal.Libs.Module;
 
-namespace WebGal.Services;
+namespace WebGal.Libs;
 
 /// <summary>
 /// 简单的键值对映射 [string]name -> [Scene]scene

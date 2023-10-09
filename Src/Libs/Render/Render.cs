@@ -1,32 +1,14 @@
-namespace WebGal.Services;
+namespace WebGal.Libs;
 
 using SkiaSharp;
-using WebGal.Global;
-using WebGal.Services.Module;
+using WebGal.Libs.Module;
 
 public class Render
 {
-	#region Matedata
-	// public SKSizeI Resolution { get; set; } = new(
-	// 	SceneConfig.DefaultWidth,
-	// 	SceneConfig.DefaultHeight
-	// );
-	#endregion
-
-
-	#region render Data
-	// private readonly SKBitmap _buffer = new(
-	// 	SceneConfig.DefaultWidth,
-	// 	SceneConfig.DefaultHeight,
-	// 	SceneConfig.DefaultColorType,
-	// 	SceneConfig.DefaultAlphaType
-	// );
-
 	private SKCanvas _canvas = null!;
 	private Scene _scene = new();
 	private readonly SceneManager _sceneManager = null!;
 
-	#endregion
 
 	/// <summary>
 	/// 指定场景管理器
@@ -99,7 +81,6 @@ public class Render
 	/// <param name="timeoff"></param>
 	private void Rendering(long timeoff)
 	{
-		Console.WriteLine("Rendering"); //!
 		_canvas.Clear();
 
 		_scene.RenderFlag = false;

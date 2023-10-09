@@ -1,0 +1,8 @@
+@startuml
+class SceneManager {
+	- readonly Dictionary<string, Scene> _scenes
+	+ void PushScene(string sceneName, Scene scene)
+	+ Scene LoadScene(string sceneName)
+	+ bool RemoveScene(string sceneName)
+}
+@enduml

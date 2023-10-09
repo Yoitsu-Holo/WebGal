@@ -1,6 +1,6 @@
 using SkiaSharp;
 
-namespace WebGal.Services;
+namespace WebGal.Libs;
 
 public class ResourceManager
 {

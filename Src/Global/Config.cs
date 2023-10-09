@@ -1,4 +1,3 @@
-
 using SkiaSharp;
 
 namespace WebGal.Global;

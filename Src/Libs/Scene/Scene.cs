@@ -1,7 +1,7 @@
 using SkiaSharp;
 using WebGal.Global;
 
-namespace WebGal.Services.Module;
+namespace WebGal.Libs.Module;
 
 /// <summary>
 /// 一系列场景数据，包含多个图层。

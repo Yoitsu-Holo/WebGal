@@ -1,9 +1,9 @@
 namespace WebGal.Services;
 
 using SkiaSharp;
-using WebGal.Services.Debug;
-using WebGal.Services.Module;
+using WebGal.Libs.Module;
 using Microsoft.JSInterop;
+using WebGal.Libs;
 
 public class GameManager
 {
@@ -76,9 +76,6 @@ public class GameManager
 	}
 
 	#region Debug
-	[Obsolete("Debug Only")]
-	private readonly Test _test = new();
-
 	/// <summary>
 	/// 测试程序接口，内部填入测试流程代码
 	/// </summary>

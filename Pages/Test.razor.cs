@@ -7,7 +7,6 @@ using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Services;
-using WebGal.Services.Module;
 
 namespace WebGal.Pages;
 
@@ -25,7 +24,6 @@ public partial class Test : IDisposable
 
 	protected override void OnInitialized()
 	{
-		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
 		SKColor[] pixs = bitmap.Pixels;
 		for (int row = 0, it = 0; row < 100; row++)
 		{
@@ -39,16 +37,15 @@ public partial class Test : IDisposable
 			}
 		}
 		bitmap.Pixels = pixs;
-		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
 	}
 
 	protected override async Task OnParametersSetAsync()
 	{
-		await Manager.DoTest(Game);
+		Manager.DoTest(Game);
+		// await Manager.DoTest(Game);
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.LoadMedia();
 	}
-
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -58,11 +55,9 @@ public partial class Test : IDisposable
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
-		Console.WriteLine(Game);
 		SKCanvas canvas = e.Surface.Canvas;
 		Manager.SetTargetCanvas(canvas);
 
-		Console.WriteLine("Index");//!
 		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L, true);
 		canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
 

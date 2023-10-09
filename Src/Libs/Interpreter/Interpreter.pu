@@ -1,0 +1,20 @@
+@startuml
+class Interpreter{
+	# List<string> _sceneName
+	# Dictionary<string, List<string>> _layerName
+	# Dictionary<string, Layer> _layers
+	# Queue<string> _UnloadedResPackName
+	# SceneManager _sceneManager
+	# ResourceManager _resourceManager
+	==
+	+ Interpreter(SceneManager  ResourceManager)
+	+ async ParsingAsync(string)
+	+ void Clear()
+	..
+	# void PackLayer(LayerStructure)
+	# void PackScene(string)
+	# async ProcessResourceAsync()
+	# async ProcessNodeAsync(string)
+	# async ProcessSceneAsync()
+}
+@enduml

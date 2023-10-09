@@ -1,6 +1,6 @@
 using SkiaSharp;
 
-namespace WebGal.Services.Module;
+namespace WebGal.Libs.Module;
 
 /// <summary>
 /// + Positon
