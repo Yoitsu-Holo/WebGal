@@ -1,3 +1,5 @@
+using System.Data;
+using System.Drawing;
 using System.Text.Json;
 using SkiaSharp;
 using WebGal.Global;
@@ -16,6 +18,14 @@ public class Interpreter
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 
+
+	private void Clear()
+	{
+		_sceneName.Clear();
+		_layerName.Clear();
+		_layers.Clear();
+		_UnloadedResPackName.Clear();
+	}
 
 	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
 	{
@@ -58,9 +68,9 @@ public class Interpreter
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
 	private async Task ProcessNodeAsync(string nowNodeName)
 	{
-		Console.WriteLine(nowNodeName);
+		// Console.WriteLine(nowNodeName); //!
 		string partScript = _resourceManager.GetScript(nowNodeName);
-		Console.WriteLine(partScript);
+		// Console.WriteLine(partScript); //!
 		NodeStructure node = JsonSerializer.Deserialize<NodeStructure>(partScript);
 
 		if (node == default)
@@ -157,20 +167,26 @@ public class Interpreter
 			{
 				if (text.Text is null)
 					throw new Exception($"Layer {layerStructure.Name} text Not Found");
+
 				LayerText layerText = new()
 				{
 					Text = text.Text,
 					Pos = new(text.Offset.X, text.Offset.Y),
-					Paint = LayerConfig.DefaultTextPaint
+					Paint = LayerConfig.DefaultTextPaint,
 				};
 
 				var textPaint = text.Paint;
+				var textColor = textPaint.Color;
+				// Console.WriteLine(JsonSerializer.Serialize(textPaint)); //!
 				if (textPaint != default)
 				{
 					layerText.Paint.FakeBoldText = textPaint.Blod;
 					layerText.Paint.IsAntialias = textPaint.Antialias;
 					layerText.Paint.TextSize = textPaint.TextSize;
 				}
+				if (textColor != default)
+					layerText.Paint.Color = new SKColor(textColor.R, textColor.G, textColor.B, textColor.A);
+
 				layer.Text.Add(layerText);
 			}
 		}
@@ -255,6 +271,8 @@ public class Interpreter
 	/// <returns></returns>
 	public async Task ParsingAsync(string gameName)
 	{
+		Clear();
+		_resourceManager.Clear();
 		var gameBase = "Data/" + gameName + "/";
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync(gameName, "main.json");

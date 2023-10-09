@@ -54,7 +54,7 @@ public record struct PaintStructure
 	bool Antialias
 );
 
-public record struct ColorStructure(int R, int G, int B, int A);
+public record struct ColorStructure(byte R, byte G, byte B, byte A);
 
 public record struct ResouresStructure
 (

@@ -1,6 +1,6 @@
 # WebGal
 
-意在完成一个能够在web Galgame游戏引擎
+意在完成一个能够在网页运行的 Galgame 游戏引擎
 
 # Todo List
 

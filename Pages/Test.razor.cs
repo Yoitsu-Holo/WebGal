@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks.Dataflow;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -10,25 +11,20 @@ using WebGal.Services.Module;
 
 namespace WebGal.Pages;
 
-public partial class Test
+public partial class Test : IDisposable
 {
 	[Parameter] public string? Game { get; set; }
 
 	[Inject] private GameManager Manager { get; set; } = null!;
+
 
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
 
 	SKBitmap bitmap = new(100, 100);
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		Console.WriteLine(Game);
-		await Manager.DoTest(Game);
-		Manager.SetMediaList(_loopAudios, _oneShotAudios);
-		Manager.LoadMedia();
-
-		#region Test
 		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
 		SKColor[] pixs = bitmap.Pixels;
 		for (int row = 0, it = 0; row < 100; row++)
@@ -44,8 +40,15 @@ public partial class Test
 		}
 		bitmap.Pixels = pixs;
 		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
-		#endregion
 	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await Manager.DoTest(Game);
+		Manager.SetMediaList(_loopAudios, _oneShotAudios);
+		Manager.LoadMedia();
+	}
+
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -55,12 +58,15 @@ public partial class Test
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
+		Console.WriteLine(Game);
 		SKCanvas canvas = e.Surface.Canvas;
 		Manager.SetTargetCanvas(canvas);
+
+		Console.WriteLine("Index");//!
 		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L, true);
+		canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
 
 		#region Test 
-		canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
 		#endregion
 
 		int sec = DateTimeOffset.UtcNow.Second;
@@ -86,10 +92,40 @@ public partial class Test
 		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
 		Manager.OnClick(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
 	}
-
 	#region Debug
 	private string _text = "", _clickPos = "";
 	private (int X, int Y) _mousePos;
 	private int _frameCount = 0, _fps = 0, _lastSec;
+	private bool disposedValue;
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!disposedValue)
+		{
+			if (disposing)
+			{
+				// TODO: 释放托管状态(托管对象)
+			}
+
+
+			// TODO: 释放未托管的资源(未托管的对象)并重写终结器
+			// TODO: 将大型字段设置为 null
+			disposedValue = true;
+		}
+	}
+
+	// // TODO: 仅当“Dispose(bool disposing)”拥有用于释放未托管资源的代码时才替代终结器
+	// ~Test()
+	// {
+	//     // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
 	#endregion
 };

@@ -88,6 +88,13 @@ public class ResourceManager
 		throw new Exception($"Script \"{name}\" not find");
 	}
 
+	public void Clear()
+	{
+		_imageList.Clear();
+		_audioList.Clear();
+		_scriptList.Clear();
+	}
+
 
 	#region Debug
 	[Obsolete("Debug Only")] public void PushImageAsync(string name, SKBitmap image) => _imageList[name] = image;

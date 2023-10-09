@@ -62,6 +62,8 @@ public class Render
 	{
 		if (_canvas != canvas)
 		{
+			if (_canvas is not null)
+				_canvas.Clear();
 			_canvas = canvas;
 			_scene.RenderFlag = true;
 		}
@@ -97,6 +99,7 @@ public class Render
 	/// <param name="timeoff"></param>
 	private void Rendering(long timeoff)
 	{
+		Console.WriteLine("Rendering"); //!
 		_canvas.Clear();
 
 		_scene.RenderFlag = false;
