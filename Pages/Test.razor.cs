@@ -23,11 +23,13 @@ public partial class Test
 
 	protected override async Task OnInitializedAsync()
 	{
-		await Manager.DoTest();
+		Console.WriteLine(Game);
+		await Manager.DoTest(Game);
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.LoadMedia();
 
 		#region Test
+		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
 		SKColor[] pixs = bitmap.Pixels;
 		for (int row = 0, it = 0; row < 100; row++)
 		{
@@ -41,6 +43,7 @@ public partial class Test
 			}
 		}
 		bitmap.Pixels = pixs;
+		Console.WriteLine(DateTimeOffset.Now.Ticks / 10000L);
 		#endregion
 	}
 

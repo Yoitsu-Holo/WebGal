@@ -84,10 +84,17 @@ public class GameManager
 	/// </summary>
 	/// <returns></returns>
 	[Obsolete("Debug Only")]
-	public async Task DoTest()
+	public async Task DoTest(string gameName)
 	{
-		await _interpreter.ParsingAsync();
-		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
+		if (gameName == "Test1" || gameName == "Test2")
+		{
+			await _interpreter.ParsingAsync(gameName);
+			_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
+		}
+		else
+		{
+			return;
+		}
 	}
 	#endregion
 }

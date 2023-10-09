@@ -58,7 +58,9 @@ public class Interpreter
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
 	private async Task ProcessNodeAsync(string nowNodeName)
 	{
+		Console.WriteLine(nowNodeName);
 		string partScript = _resourceManager.GetScript(nowNodeName);
+		Console.WriteLine(partScript);
 		NodeStructure node = JsonSerializer.Deserialize<NodeStructure>(partScript);
 
 		if (node == default)
@@ -197,7 +199,7 @@ public class Interpreter
 		Scene scene = new();
 		foreach (var layerName in _layerName[sceneName])
 			scene.PushLayer(layerName, _layers[layerName]);
-		scene.LoopAudiosList["bgm"] = _resourceManager.GetAudio("bgm"); //!
+		// scene.LoopAudiosList["bgm"] = _resourceManager.GetAudio("bgm"); //!
 		_sceneManager.PushScene(sceneName, scene);
 	}
 
@@ -251,10 +253,12 @@ public class Interpreter
 	/// 开始执行解释流程，唯一公共对外口
 	/// </summary>
 	/// <returns></returns>
-	public async Task ParsingAsync()
+	public async Task ParsingAsync(string gameName)
 	{
-		await _resourceManager.PullScriptAsync("main", "Data/Test/main.json");
-		await ProcessNodeAsync("main");
+		var gameBase = "Data/" + gameName + "/";
+		_resourceManager.basePath = gameBase;
+		await _resourceManager.PullScriptAsync(gameName, "main.json");
+		await ProcessNodeAsync(gameName);
 		await ProcessResourceAsync();
 		await ProcessSceneAsync();
 	}

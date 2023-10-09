@@ -8,6 +8,7 @@ public class ResourceManager
 	private readonly Dictionary<string, SKBitmap> _imageList = new();
 	private readonly Dictionary<string, byte[]> _audioList = new();
 	private readonly Dictionary<string, string> _scriptList = new();
+	public string basePath { get; set; } = "/Demo/";
 
 	public ResourceManager(HttpClient httpClient)
 	{
@@ -22,7 +23,7 @@ public class ResourceManager
 	/// <returns></returns>
 	public async Task PullImageAsync(string name, string path)
 	{
-		using var stream = await _httpClient.GetStreamAsync(path);
+		using var stream = await _httpClient.GetStreamAsync(basePath + path);
 		_imageList[name] = SKBitmap.Decode(stream);
 	}
 
@@ -34,7 +35,7 @@ public class ResourceManager
 	/// <returns></returns>
 	public async Task PullAudioAsync(string name, string path)
 	{
-		_audioList[name] = await _httpClient.GetByteArrayAsync(path);
+		_audioList[name] = await _httpClient.GetByteArrayAsync(basePath + path);
 	}
 
 	/// <summary>
@@ -43,9 +44,9 @@ public class ResourceManager
 	/// <param name="name"></param>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public async Task PullScriptAsync(string name = "main", string path = "/main.wb")
+	public async Task PullScriptAsync(string name = "main", string path = "/Demo/")
 	{
-		_scriptList[name] = await _httpClient.GetStringAsync(path);
+		_scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
 	}
 
 	/// <summary>
