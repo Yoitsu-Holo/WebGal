@@ -8,7 +8,6 @@ public class SceneManager
 {
 	private readonly Dictionary<string, Scene> _scenes = new();
 
-
 	/// <summary>
 	/// 放入一个场景
 	/// </summary>

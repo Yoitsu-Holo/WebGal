@@ -2,7 +2,7 @@ using SkiaSharp;
 using WebGal.Libs.Base;
 
 namespace WebGal.Libs;
-public class Render
+public class Renderer
 {
 	private SKCanvas _canvas = null!;
 	private Scene _scene = new();
@@ -13,14 +13,7 @@ public class Render
 	/// 指定场景管理器
 	/// </summary>
 	/// <param name="sceneManager">场景管理器</param>
-	public Render(SceneManager sceneManager) => _sceneManager = sceneManager;
-
-
-	/// <summary>
-	/// 设置绘画图层
-	/// </summary>
-	/// <param name="canvas">目标图层</param>
-	public void SetCanvas(SKCanvas canvas) => _canvas = canvas;
+	public Renderer(SceneManager sceneManager) => _sceneManager = sceneManager;
 
 
 	/// <summary>
@@ -32,35 +25,7 @@ public class Render
 	{
 		_scene = _sceneManager.LoadScene(sceneName);
 		_scene.SetBeginTime(startTime);
-	}
-
-
-	/// <summary>
-	/// 设置要渲染的画布
-	/// </summary>
-	/// <param name="canvas"></param>
-	public void SetTargetCanvas(SKCanvas canvas)
-	{
-		if (_canvas != canvas)
-		{
-			if (_canvas is not null)
-				_canvas.Clear();
-			_canvas = canvas;
-			_scene.RenderFlag = true;
-		}
-	}
-
-
-	/// <summary>
-	/// 渲染下一帧，并且写入到目标画布里面
-	/// </summary>
-	/// <param name="canvas">目标画布</param>
-	/// <param name="timeoff">时间差</param>
-	/// <param name="force">强制渲染选项</param>
-	public void GetNextFrame(long timeoff, bool force = false)
-	{
-		if (_scene.RenderFlag || force)
-			Rendering(timeoff);
+		_scene.RenderFlag = true;
 	}
 
 
@@ -74,6 +39,19 @@ public class Render
 	}
 
 
+	public void Render(SKCanvas canvas, long timeoff, bool force)
+	{
+		if (_canvas != canvas)
+		{
+			_canvas?.Clear();
+			_canvas = canvas;
+			_scene.RenderFlag = true;
+		}
+		if (_scene.RenderFlag || force)
+			Rendering(timeoff);
+	}
+
+
 	/// <summary>
 	/// 渲染下一帧
 	/// </summary>
@@ -81,8 +59,8 @@ public class Render
 	private void Rendering(long timeoff)
 	{
 		_canvas.Clear();
-
 		_scene.RenderFlag = false;
+
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
 			layer.GenNextFrame(timeoff);
@@ -92,9 +70,7 @@ public class Render
 
 			// if ( is List<LayerText> texts)
 			foreach (var text in layer.Text)
-			{
 				_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
-			}
 
 			_scene.RenderFlag |= layer.Anim.HasAnimation(timeoff);
 		}

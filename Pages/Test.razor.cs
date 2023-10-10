@@ -8,10 +8,8 @@ namespace WebGal.Pages;
 
 public partial class Test
 {
-	[Parameter] public string? Game { get; set; }
-
+	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
-
 
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
@@ -38,27 +36,15 @@ public partial class Test
 	protected override async Task OnParametersSetAsync()
 	{
 		await Manager.DoTest(Game);
-		// await Manager.DoTest(Game);
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.LoadMedia();
-	}
-
-	protected override void OnAfterRender(bool firstRender)
-	{
-		if (!firstRender)
-			return;
 	}
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
-		Manager.SetTargetCanvas(canvas);
-
-		Manager.GetFrame(DateTimeOffset.Now.Ticks / 10000L, true);
-		canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
-
-		#region Test 
-		#endregion
+		Manager.Render(canvas, DateTimeOffset.Now.Ticks / 10000L);
+		// canvas.DrawBitmap(bitmap, new SKPoint(_mousePos.X - 50, _mousePos.Y - 50));
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -83,6 +69,7 @@ public partial class Test
 		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
 		Manager.OnClick(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
 	}
+
 	#region Debug
 	private string _text = "", _clickPos = "";
 	private (int X, int Y) _mousePos;

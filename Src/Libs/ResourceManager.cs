@@ -9,10 +9,7 @@ public class ResourceManager
 	private readonly Dictionary<string, string> _scriptList = new();
 	public string basePath { get; set; } = "/Demo/";
 
-	public ResourceManager(HttpClient httpClient)
-	{
-		_httpClient = httpClient;
-	}
+	public ResourceManager(HttpClient httpClient) => _httpClient = httpClient;
 
 	/// <summary>
 	/// 传入名字和路径，获取对应图片
@@ -20,11 +17,7 @@ public class ResourceManager
 	/// <param name="name"></param>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public async Task PullImageAsync(string name, string path)
-	{
-		using var stream = await _httpClient.GetStreamAsync(basePath + path);
-		_imageList[name] = SKBitmap.Decode(stream);
-	}
+	public async Task PullImageAsync(string name, string path) => _imageList[name] = SKBitmap.Decode(await _httpClient.GetByteArrayAsync(basePath + path));
 
 	/// <summary>
 	/// 传入名字和路径，获取对应音频
@@ -32,10 +25,8 @@ public class ResourceManager
 	/// <param name="name"></param>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public async Task PullAudioAsync(string name, string path)
-	{
-		_audioList[name] = await _httpClient.GetByteArrayAsync(basePath + path);
-	}
+	public async Task PullAudioAsync(string name, string path) => _audioList[name] = await _httpClient.GetByteArrayAsync(basePath + path);
+
 
 	/// <summary>
 	/// 传入名字和路径，获取对应脚本
@@ -43,49 +34,35 @@ public class ResourceManager
 	/// <param name="name"></param>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public async Task PullScriptAsync(string name = "main", string path = "/Demo/")
-	{
-		_scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
-	}
+	public async Task PullScriptAsync(string name = "main", string path = "/Demo/") => _scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
 
 	/// <summary>
 	/// 使用名字获取一个图片
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns>SKBitmap图片</returns>
-	/// <exception cref="Exception"></exception>
-	public SKBitmap GetImage(string name)
-	{
-		if (_imageList.ContainsKey(name))
-			return _imageList[name];
-		throw new Exception($"Image \"{name}\" not find");
-	}
+	/// <exception cref="Exception">未找到资源</exception>
+	public SKBitmap GetImage(string name) => _imageList.ContainsKey(name) ? _imageList[name] : throw new Exception($"Image \"{name}\" not find");
 
 	/// <summary>
 	/// 使用名字获取一个音频
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns>音频字节数组</returns>
-	/// <exception cref="Exception"></exception>
-	public byte[] GetAudio(string name)
-	{
-		if (_audioList.ContainsKey(name))
-			return _audioList[name];
-		throw new Exception($"Audio \"{name}\" not find");
-	}
+	/// <exception cref="Exception">未找到资源</exception>
+	public byte[] GetAudio(string name) => _audioList.ContainsKey(name) ? _audioList[name] : throw new Exception($"Audio \"{name}\" not find");
 
 	/// <summary>
 	/// 使用名字获取一个脚本
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns>代码文本</returns>
-	/// <exception cref="Exception"></exception>
-	public string GetScript(string name = "main")
-	{
-		if (_scriptList.ContainsKey(name))
-			return _scriptList[name];
-		throw new Exception($"Script \"{name}\" not find");
-	}
+	/// <exception cref="Exception">未找到资源</exception>
+	public string GetScript(string name = "main") => _scriptList.ContainsKey(name) ? _scriptList[name] : throw new Exception($"Script \"{name}\" not find");
+
+	public bool RemoveImage(string name) => _imageList.Remove(name);
+	public bool RemoveAudio(string name) => _audioList.Remove(name);
+	public bool RemoveScript(string name) => _scriptList.Remove(name);
 
 	public void Clear()
 	{

@@ -9,9 +9,9 @@ public class GameManager
 	private readonly Interpreter _interpreter;            //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;    //^ 资源管理器
 	private readonly SceneManager _sceneManager;          //^ 场景管理器
-	private readonly Render _render;                      //^ 渲染器
-	private Dictionary<string, string> _loopAudiosRef = null!;  //^ 循环音频库
-	private Dictionary<string, string> _oneShotAduioRef = null!;//^ 单次音频库
+	private readonly Renderer _render;                      //^ 渲染器
+	private Dictionary<string, string>? _loopAudiosRef;  //^ 循环音频库
+	private Dictionary<string, string>? _oneShotAduioRef;//^ 单次音频库
 
 	/// <summary>
 	/// 构造函数，由系统执行依赖注入
@@ -27,18 +27,7 @@ public class GameManager
 		_interpreter = new(_sceneManager, _resourceManager);
 	}
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="canvas"></param>
-	public void SetTargetCanvas(SKCanvas canvas) => _render.SetTargetCanvas(canvas);
-
-	/// <summary>
-	/// 将一个指定的时间的场景渲染到指定画布上
-	/// </summary>
-	/// <param name="timeoff">设定场景时间</param>
-	/// <param name="force">可选参数，忽略渲染器的惰性渲染机制，采用强制渲染</param>
-	public void GetFrame(long timeoff, bool force = false) => _render.GetNextFrame(timeoff, force);
+	public void Render(SKCanvas canvas, long timeoff, bool force = false) => _render.Render(canvas, timeoff, force);
 
 	public void OnClick(SKPoint pos)
 	{
@@ -52,19 +41,20 @@ public class GameManager
 	}
 
 	/// <summary>
-	/// 
+	/// 加载媒体资源
 	/// </summary>
-	/// <param name="loopAudiosRef"></param>
-	/// <param name="oneShotAduioRef"></param>
+	/// <exception cref="Exception">未正确设置媒体资源列表</exception>
 	public async void LoadMedia()
 	{
-		var (loopAudiosList, lneShotAudiosList) = _render.GetSceneAudioMedia();
+		if (_loopAudiosRef == null || _oneShotAduioRef == null)
+			throw new Exception("Media List not set");
+		var (loopAudiosList, oneShotAudiosList) = _render.GetSceneAudioMedia();
 		foreach (var (audioName, byteStream) in loopAudiosList)
 		{
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_loopAudiosRef.Add(audioName, audio);
 		}
-		foreach (var (audioName, byteStream) in lneShotAudiosList)
+		foreach (var (audioName, byteStream) in oneShotAudiosList)
 		{
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_oneShotAduioRef.Add(audioName, audio);
@@ -80,7 +70,7 @@ public class GameManager
 	[Obsolete("Debug Only")]
 	public async Task DoTest(string gameName)
 	{
-		if (gameName == "Test1" || gameName == "Test2")
+		if (gameName == "Test1" || gameName == "Test2" || gameName == "Test3")
 		{
 			await _interpreter.ParsingAsync(gameName);
 			_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);

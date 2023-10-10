@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SkiaSharp;
+using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Libs.Base;
 
@@ -139,14 +140,14 @@ public class Interpreter
 		if (layerStructure.IsShapeLayer)
 		{
 			var shapeColor = layerStructure.ShapeColor;
-			(int R, int G, int B, int A) = (shapeColor.R, shapeColor.G, shapeColor.B, shapeColor.A);
+			(byte R, byte G, byte B, byte A) = (shapeColor.R, shapeColor.G, shapeColor.B, shapeColor.A);
 
 			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 			using SKCanvas canvas = new(layer.BackGroundSKBitmap);
-			canvas.DrawRect(new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height), new SKPaint
-			{
-				Color = new SKColor(186, 184, 187, 180),
-			});
+			canvas.DrawRect(
+				new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height),
+				new SKPaint { Color = new SKColor(R, G, B, A) }
+			);
 			canvas.Flush();
 		}
 
@@ -191,6 +192,7 @@ public class Interpreter
 				BeginPosition = (layerStructure.BeginPosition.X, layerStructure.BeginPosition.Y),
 				EndPosition = (layerStructure.EndPosition.X, layerStructure.EndPosition.Y),
 				DelayTime = layerStructure.Time,
+				AnimationClass = AnimationRegister.GetAnimation(layerStructure.Animation)
 			};
 		}
 		_layers[layerStructure.Name] = layer;
@@ -265,6 +267,7 @@ public class Interpreter
 		Clear();
 		_resourceManager.Clear();
 		var gameBase = "Data/" + gameName + "/";
+		Console.WriteLine(gameBase);
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync(gameName, "main.json");
 		await ProcessNodeAsync(gameName);
