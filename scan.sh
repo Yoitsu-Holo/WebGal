@@ -17,6 +17,7 @@ files (){
 	dirictory ./Pages
 	dirictory ./Globle
 	dirictory ./Services
+	dirictory ./Libs
 	dirictory ./Shared
 }
 

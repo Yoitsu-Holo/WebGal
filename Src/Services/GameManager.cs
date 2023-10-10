@@ -1,10 +1,8 @@
-namespace WebGal.Services;
-
 using SkiaSharp;
-using WebGal.Libs.Module;
 using Microsoft.JSInterop;
 using WebGal.Libs;
 
+namespace WebGal.Services;
 public class GameManager
 {
 	private readonly IJSRuntime _js;                      //^ JavaScript 互操作运行时
@@ -12,7 +10,6 @@ public class GameManager
 	private readonly ResourceManager _resourceManager;    //^ 资源管理器
 	private readonly SceneManager _sceneManager;          //^ 场景管理器
 	private readonly Render _render;                      //^ 渲染器
-	private Scene _scene = new();                         //^ 当前加载的场景
 	private Dictionary<string, string> _loopAudiosRef = null!;  //^ 循环音频库
 	private Dictionary<string, string> _oneShotAduioRef = null!;//^ 单次音频库
 

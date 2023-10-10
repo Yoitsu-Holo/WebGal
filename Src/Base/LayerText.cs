@@ -1,7 +1,7 @@
 using SkiaSharp;
 using WebGal.Global;
 
-namespace WebGal.Libs.Module;
+namespace WebGal.Libs.Base;
 
 public class LayerText
 {

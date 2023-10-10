@@ -1,7 +1,6 @@
 using SkiaSharp;
 
 namespace WebGal.Libs;
-
 public class ResourceManager
 {
 	private readonly HttpClient _httpClient;

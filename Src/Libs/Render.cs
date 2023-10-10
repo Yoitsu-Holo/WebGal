@@ -1,8 +1,7 @@
-namespace WebGal.Libs;
-
 using SkiaSharp;
-using WebGal.Libs.Module;
+using WebGal.Libs.Base;
 
+namespace WebGal.Libs;
 public class Render
 {
 	private SKCanvas _canvas = null!;

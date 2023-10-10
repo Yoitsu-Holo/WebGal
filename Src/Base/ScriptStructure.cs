@@ -1,4 +1,4 @@
-namespace WebGal.Libs.Data;
+namespace WebGal.Libs.Base;
 
 public record struct NodeStructure
 (

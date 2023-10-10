@@ -1,7 +1,6 @@
-using WebGal.Libs.Module;
+using WebGal.Libs.Base;
 
 namespace WebGal.Libs;
-
 /// <summary>
 /// 简单的键值对映射 [string]name -> [Scene]scene
 /// </summary>
