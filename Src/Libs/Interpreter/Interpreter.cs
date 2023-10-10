@@ -161,9 +161,6 @@ public class Interpreter
 			var texts = layerStructure.Text;
 			foreach (var text in texts)
 			{
-				if (text.Text is null)
-					throw new Exception($"Layer {layerStructure.Name} text Not Found");
-
 				LayerText layerText = new()
 				{
 					Text = text.Text,

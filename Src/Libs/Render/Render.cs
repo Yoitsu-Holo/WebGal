@@ -91,9 +91,11 @@ public class Render
 			if (layer.BackGroundSKBitmap is not null)
 				_canvas.DrawBitmap(layer.FrameBuffer, layer.PosAt(timeoff));
 
-			if (layer.Text is List<LayerText> texts)
-				foreach (var text in texts)
-					_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
+			// if ( is List<LayerText> texts)
+			foreach (var text in layer.Text)
+			{
+				_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
+			}
 
 			_scene.RenderFlag |= layer.Anim.HasAnimation(timeoff);
 		}

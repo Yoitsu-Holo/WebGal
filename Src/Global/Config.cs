@@ -15,7 +15,7 @@ public static class SceneConfig
 public static class LayerConfig
 {
 	#region Default Settings
-	public readonly static SKPaint DefaultTextPaint = new()
+	public static SKPaint DefaultTextPaint => new()
 	{
 		Color = SKColors.Black,
 		TextSize = 30,

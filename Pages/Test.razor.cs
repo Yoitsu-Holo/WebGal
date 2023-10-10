@@ -1,16 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks.Dataflow;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
-using WebGal.Global;
 using WebGal.Services;
 
 namespace WebGal.Pages;
 
-public partial class Test : IDisposable
+public partial class Test
 {
 	[Parameter] public string? Game { get; set; }
 
@@ -41,7 +37,7 @@ public partial class Test : IDisposable
 
 	protected override async Task OnParametersSetAsync()
 	{
-		Manager.DoTest(Game);
+		await Manager.DoTest(Game);
 		// await Manager.DoTest(Game);
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.LoadMedia();
@@ -91,36 +87,5 @@ public partial class Test : IDisposable
 	private string _text = "", _clickPos = "";
 	private (int X, int Y) _mousePos;
 	private int _frameCount = 0, _fps = 0, _lastSec;
-	private bool disposedValue;
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!disposedValue)
-		{
-			if (disposing)
-			{
-				// TODO: 释放托管状态(托管对象)
-			}
-
-
-			// TODO: 释放未托管的资源(未托管的对象)并重写终结器
-			// TODO: 将大型字段设置为 null
-			disposedValue = true;
-		}
-	}
-
-	// // TODO: 仅当“Dispose(bool disposing)”拥有用于释放未托管资源的代码时才替代终结器
-	// ~Test()
-	// {
-	//     // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-	//     Dispose(disposing: false);
-	// }
-
-	public void Dispose()
-	{
-		// 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
 	#endregion
 };

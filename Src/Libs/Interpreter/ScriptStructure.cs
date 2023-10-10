@@ -39,9 +39,9 @@ public record struct LayerStructure
 
 public record struct TextStructure
 (
-	string? Text,
 	PositonStructure Offset,
-	PaintStructure Paint
+	PaintStructure Paint,
+	string Text = ""
 );
 
 public record struct PositonStructure(int X, int Y);
