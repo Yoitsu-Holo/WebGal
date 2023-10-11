@@ -15,9 +15,7 @@ dirictory (){
 
 files (){
 	dirictory ./Pages
-	dirictory ./Globle
-	dirictory ./Services
-	dirictory ./Libs
+	dirictory ./Src
 	dirictory ./Shared
 }
 

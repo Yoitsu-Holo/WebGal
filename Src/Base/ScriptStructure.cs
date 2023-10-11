@@ -9,7 +9,6 @@ public record struct NodeStructure
 
 public record struct SceneStructure
 (
-	List<UrlStructure>? ResouresPackURL,
 	List<LayerStructure>? Layer
 );
 

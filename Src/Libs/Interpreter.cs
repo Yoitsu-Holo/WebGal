@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json;
 using SkiaSharp;
 using WebGal.Global;
@@ -7,23 +8,20 @@ namespace WebGal.Libs;
 public class Interpreter
 {
 	// private Dictionary<string, List<string>> _nodeName = new();
-	private readonly List<string> _sceneName = new();
-	private readonly Dictionary<string, List<string>> _layerName = new();
-	private readonly Dictionary<string, Layer> _layers = new();
-	private readonly Queue<string> _UnloadedResPackName = new();
+	private readonly Queue<string> _sceneName = new();
+	private readonly Queue<string> _unloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 
 	// 用于存储每一层Node的信息
-	private readonly Stack<(string, List<UrlStructure>.Enumerator)> _nodeEnum = new();
+	private readonly Stack<(string, IEnumerator<UrlStructure>)> _nodeEnum = new();
 
 
 	private void Clear()
 	{
+		_nodeEnum.Clear();
 		_sceneName.Clear();
-		_layerName.Clear();
-		_layers.Clear();
-		_UnloadedResPackName.Clear();
+		_unloadedResPackName.Clear();
 	}
 
 	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
@@ -39,28 +37,30 @@ public class Interpreter
 	/// <returns></returns>
 	private async Task ProcessResourceAsync()
 	{
-		while (_UnloadedResPackName.Count > 0)
+		List<Task> tasks = new();
+		while (_unloadedResPackName.Count > 0)
 		{
-			var resourcePackScript = _resourceManager.GetScript(_UnloadedResPackName.Dequeue());
+			var resourcePackScript = _resourceManager.GetScript(_unloadedResPackName.Dequeue());
 			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript);
 
 			if (resouresPack.ImageURL is not null)
 			{
 				var imageTasks = resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL));
-				await Task.WhenAll(imageTasks);
+				tasks.AddRange(imageTasks);
 			}
 			if (resouresPack.AudioURL is not null)
 			{
 				var audioTasks = resouresPack.AudioURL.Select(aduio => _resourceManager.PullAudioAsync(aduio.Name, aduio.URL));
-				await Task.WhenAll(audioTasks);
+				tasks.AddRange(audioTasks);
 			}
 		}
+		await Task.WhenAll(tasks);
 	}
-
 
 	// todo 暂只能一次性加载全部流程,无法指定顺序(单场景测试)
 	/// <summary>
-	/// 异步方式加载游戏流程(节点树)
+	/// 异步方式加载游戏流程(节点树)，
+	/// 并且根据节点树设置需要加载的资源（本身不加载资源）
 	/// </summary>
 	/// <param name="nowNodeName"></param>
 	/// <returns></returns>
@@ -70,23 +70,20 @@ public class Interpreter
 		while (_nodeEnum.Count != 0)
 		{
 			var (nodeName, nodeEnum) = _nodeEnum.Peek();
-			var node = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName));
-
 			Console.WriteLine(nodeName); //!
+			var node = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName));
 
 			if (node == default)
 				throw new Exception("No volume");
 
-			// 添加资源
+			// 添加资源配置脚本，并且将资源加入预加载队列
 			var urlTasks = node.ResouresPackURL?.Select(resourcePack =>
 				{
-					_UnloadedResPackName.Enqueue(resourcePack.Name);
+					_unloadedResPackName.Enqueue(resourcePack.Name);
 					return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
 				});
 			if (urlTasks is not null)
 				await Task.WhenAll(urlTasks);
-
-			await ProcessResourceAsync();
 
 			if (node.NodeURL is null)
 				throw new Exception("empty Node");
@@ -98,18 +95,15 @@ public class Interpreter
 			}
 
 			var nextNodeUrl = nodeEnum.Current;
-			Console.WriteLine($"{nextNodeUrl.Name},{nextNodeUrl.URL}"); //!
 			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
 
 			if (node.IsLeaf)// 叶子节点，添加场景
 			{
-				_sceneName.Add(nextNodeUrl.Name);
-				Console.WriteLine("Scene"); //!
+				_sceneName.Enqueue(nextNodeUrl.Name);
 				break;
 			}
 			else
 			{
-				Console.WriteLine("Node"); //!
 				var nodeObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
 				if (nodeObj.NodeURL is null)
 					throw new Exception("empty Node");
@@ -126,7 +120,7 @@ public class Interpreter
 	/// </summary>
 	/// <param name="layerStructure">传入图层 json 描述</param>
 	/// <exception cref="Exception">节点相关资源未被正常加载</exception>
-	private void PackLayer(LayerStructure layerStructure)
+	private Layer PackLayer(LayerStructure layerStructure)
 	{
 		if (layerStructure.Name is null)
 			throw new Exception("layer dont have name");
@@ -210,69 +204,51 @@ public class Interpreter
 				AnimationClass = AnimationRegister.GetAnimation(layerStructure.Animation)
 			};
 		}
-		_layers[layerStructure.Name] = layer;
+
+		return layer;
 	}
 
 
 	/// <summary>
-	/// 根据场景和图层的名称映射来包装一个新的场景，并且加入到资源管理器中
-	/// </summary>
-	/// <param name="sceneName"></param>
-	private void PackScene(string sceneName)
-	{
-		Scene scene = new();
-		foreach (var layerName in _layerName[sceneName])
-			scene.PushLayer(layerName, _layers[layerName]);
-		scene.LoopAudiosList.Add("bgm", _resourceManager.GetAudio("bgm"));
-		_sceneManager.PushScene(sceneName, scene);
-	}
-
-
-	/// <summary>
-	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，所有图层打包完成后调用 PackScene(sceneName) 来讲图层打包，并且放入资源管理器
+	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
+	/// 所有图层打包完成后调用 PackScene(sceneName) 来将图层打包，并且放入资源管理器
 	/// </summary>
 	/// <returns></returns>
 	/// <exception cref="Exception"></exception>
-	private async Task ProcessSceneAsync()
+	private void ProcessSceneAsync()
 	{
 		foreach (var sceneName in _sceneName)
 		{
-			if (!_layerName.ContainsKey(sceneName))
-				_layerName[sceneName] = new();
+			// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
+			_sceneManager.SceneNameList.Enqueue(sceneName);
+			if (_sceneManager.ContainsScene(sceneName))
+				continue;
 
 			string sceneScript = _resourceManager.GetScript(sceneName);
-			SceneStructure scene = JsonSerializer.Deserialize<SceneStructure>(sceneScript);
+			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript);
 
-			if (scene == default)
-				throw new Exception("No volume");
+			if (sceneStructure == default)
+				throw new Exception("No Scene");
 
-			var urlTasks = scene.ResouresPackURL?.Select(resource =>
+			if (sceneStructure.Layer is null)
+				throw new Exception("No Scene Layer");
+
+
+			Scene scene = new();
+			foreach (var layer in sceneStructure.Layer)
 			{
-				_UnloadedResPackName.Enqueue(resource.Name);
-				return _resourceManager.PullScriptAsync(resource.Name, resource.URL);
-			});
-			await ProcessResourceAsync();
-
-			if (urlTasks is not null)
-				await Task.WhenAll(urlTasks);
-
-			if (scene.Layer is not null)
-			{
-				foreach (var layer in scene.Layer)
-				{
-					if (layer.Name is null)
-						throw new Exception("Null layer name");
-
-					PackLayer(layer);
-					_layerName[sceneName].Add(layer.Name);
-				}
-				PackScene(sceneName);
+				if (layer.Name is null)
+					throw new Exception("Null layer name");
+				scene.PushLayer(layer.Name, PackLayer(layer));
 			}
+
+			_sceneManager.PushScene(sceneName, scene);
 		}
 	}
 
 
 	// todo 功能不完善，后续会加入实时解析功能
+	// todo 执行一次有效加载时，函数会加载一整个Node下的所有场景，并且会自动判断是否需要解析下一个Node
 	/// <summary>
 	/// 开始执行解释流程，唯一公共对外口
 	/// </summary>
@@ -280,7 +256,8 @@ public class Interpreter
 	public async Task ParsingNextAsync()
 	{
 		await ProcessNodeAsync();
-		await ProcessSceneAsync();
+		await ProcessResourceAsync();
+		ProcessSceneAsync();
 	}
 
 	public async Task SetGameAsync(string gameName)
