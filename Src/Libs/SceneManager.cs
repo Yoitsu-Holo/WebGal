@@ -33,4 +33,10 @@ public class SceneManager
 	/// </summary>
 	/// <param name="sceneName"></param>
 	public bool RemoveScene(string sceneName) => _scenes.ContainsKey(sceneName) ? _scenes.Remove(sceneName) : throw new Exception("RemoveScene: no key");
+
+	public void Clear()
+	{
+		_scenes.Clear();
+		SceneNameList.Clear();
+	}
 }

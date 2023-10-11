@@ -17,7 +17,7 @@ public class Interpreter
 	private readonly Stack<(string, IEnumerator<UrlStructure>)> _nodeEnum = new();
 
 
-	private void Clear()
+	public void Clear()
 	{
 		_nodeEnum.Clear();
 		_sceneName.Clear();
@@ -262,8 +262,6 @@ public class Interpreter
 
 	public async Task SetGameAsync(string gameName)
 	{
-		Clear();
-		_resourceManager.Clear();
 		var gameBase = "Data/" + gameName + "/";
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync();

@@ -70,6 +70,9 @@ public class GameManager
 	[Obsolete("Debug Only")]
 	public async Task DoTest(string gameName)
 	{
+		_sceneManager.Clear();
+		_resourceManager.Clear();
+		_interpreter.Clear();
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();
 		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);

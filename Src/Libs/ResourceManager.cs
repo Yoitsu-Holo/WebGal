@@ -70,11 +70,4 @@ public class ResourceManager
 		_audioList.Clear();
 		_scriptList.Clear();
 	}
-
-
-	#region Debug
-	[Obsolete("Debug Only")] public void PushImageAsync(string name, SKBitmap image) => _imageList[name] = image;
-	[Obsolete("Debug Only")] public void PushAudioAsync(string name, byte[] audio) => _audioList[name] = audio;
-	[Obsolete("Debug Only")] public void PushScriptAsync(string name = "main", string script = "") => _scriptList[name] = script;
-	#endregion
 }
