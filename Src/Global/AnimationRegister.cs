@@ -8,6 +8,7 @@ class AnimationRegister
 	{
 		return AnimationName switch
 		{
+			"brownian" => new AnimationBrownian(),
 			"bounce" => new AnimationBounce(),
 			_ => new AnimationDefault(),
 		};

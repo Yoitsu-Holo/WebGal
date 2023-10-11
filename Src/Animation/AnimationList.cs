@@ -16,7 +16,7 @@ class AnimationDefault : IAnimation
 class AnimationBounce : IAnimation
 {
 	private float x = 0, y = 0;
-	private float dx = 1.5F, dy = -0.5F;
+	private float dx = 1.5F, dy = -0.79F;
 	private long timepre = -1;
 	public (float dx, float dy) GetOffset(float timeOff, long timeObs)
 	{
@@ -34,5 +34,15 @@ class AnimationBounce : IAnimation
 
 		timepre = timeObs;
 		return (x, y);
+	}
+}
+
+class AnimationBrownian : IAnimation
+{
+	readonly Random rand = new();
+	public (float dx, float dy) GetOffset(float timeOff, long timeObs)
+	{
+		var (x, y) = (rand.NextDouble(), rand.NextDouble());
+		return ((float)x, (float)y);
 	}
 }
