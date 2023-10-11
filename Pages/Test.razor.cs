@@ -36,7 +36,9 @@ public partial class Test
 	protected override async Task OnParametersSetAsync()
 	{
 		await Manager.DoTest(Game);
+		//todo 未解决循环卡顿问题
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
+		//! bug 不允许多次加载同样的音频
 		Manager.LoadMedia();
 	}
 

@@ -4,8 +4,7 @@ public record struct NodeStructure
 (
 	bool IsLeaf,
 	List<UrlStructure>? ResouresPackURL,
-	List<UrlStructure>? NodeURL,
-	List<UrlStructure>? SceneURL
+	List<UrlStructure>? NodeURL
 );
 
 public record struct SceneStructure

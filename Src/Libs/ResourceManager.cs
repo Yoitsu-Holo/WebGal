@@ -34,7 +34,7 @@ public class ResourceManager
 	/// <param name="name"></param>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public async Task PullScriptAsync(string name = "main", string path = "/Demo/") => _scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
+	public async Task PullScriptAsync(string name = "main", string path = "main.json") => _scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
 
 	/// <summary>
 	/// 使用名字获取一个图片

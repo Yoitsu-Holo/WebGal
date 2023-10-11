@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SkiaSharp;
-using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Libs.Base;
 
@@ -14,6 +13,9 @@ public class Interpreter
 	private readonly Queue<string> _UnloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
+
+	// 用于存储每一层Node的信息
+	private readonly Stack<(string, List<UrlStructure>.Enumerator)> _nodeEnum = new();
 
 
 	private void Clear()
@@ -63,44 +65,58 @@ public class Interpreter
 	/// <param name="nowNodeName"></param>
 	/// <returns></returns>
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
-	private async Task ProcessNodeAsync(string nowNodeName)
+	private async Task ProcessNodeAsync()
 	{
-		string partScript = _resourceManager.GetScript(nowNodeName);
-		NodeStructure node = JsonSerializer.Deserialize<NodeStructure>(partScript);
-
-		if (node == default)
-			throw new Exception("No volume");
-
-		var urlTasks = node.ResouresPackURL?.Select(resourcePack =>
-			{
-				_UnloadedResPackName.Enqueue(resourcePack.Name);
-				return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
-			});
-		if (urlTasks is not null)
-			await Task.WhenAll(urlTasks);
-
-		// 非叶子节点，递归添加
-		if (!node.IsLeaf)
+		while (_nodeEnum.Count != 0)
 		{
-			if (node.NodeURL is null)
-				throw new Exception("NodeURL is null");
+			var (nodeName, nodeEnum) = _nodeEnum.Peek();
+			var node = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName));
 
-			var sceneTasks = node.NodeURL.Select(nodeURL => _resourceManager.PullScriptAsync(nodeURL.Name, nodeURL.URL));
-			await Task.WhenAll(sceneTasks);
+			Console.WriteLine(nodeName); //!
 
-			foreach (var nextNode in node.NodeURL)
-				await ProcessNodeAsync(nextNode.Name);
-		}
-		// 叶子节点，添加场景
-		else
-		{
-			var sceneTasks = node.SceneURL?.Select(sceneScriptURL =>
+			if (node == default)
+				throw new Exception("No volume");
+
+			// 添加资源
+			var urlTasks = node.ResouresPackURL?.Select(resourcePack =>
 				{
-					_sceneName.Add(sceneScriptURL.Name);
-					return _resourceManager.PullScriptAsync(sceneScriptURL.Name, sceneScriptURL.URL);
+					_UnloadedResPackName.Enqueue(resourcePack.Name);
+					return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
 				});
-			if (sceneTasks is not null)
-				await Task.WhenAll(sceneTasks);
+			if (urlTasks is not null)
+				await Task.WhenAll(urlTasks);
+
+			await ProcessResourceAsync();
+
+			if (node.NodeURL is null)
+				throw new Exception("empty Node");
+
+			if (nodeEnum.MoveNext() == false)
+			{
+				_nodeEnum.Pop();
+				continue;
+			}
+
+			var nextNodeUrl = nodeEnum.Current;
+			Console.WriteLine($"{nextNodeUrl.Name},{nextNodeUrl.URL}"); //!
+			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
+
+			if (node.IsLeaf)// 叶子节点，添加场景
+			{
+				_sceneName.Add(nextNodeUrl.Name);
+				Console.WriteLine("Scene"); //!
+				break;
+			}
+			else
+			{
+				Console.WriteLine("Node"); //!
+				var nodeObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
+				if (nodeObj.NodeURL is null)
+					throw new Exception("empty Node");
+				_nodeEnum.Push((nextNodeUrl.Name, nodeObj.NodeURL.GetEnumerator()));
+			}
+
+			// todo 删除不必要的资源
 		}
 	}
 
@@ -183,7 +199,6 @@ public class Interpreter
 			}
 		}
 
-		// todo 暂只有默认平移动画
 		// 加载动画
 		if (layerStructure.Animation is not null)
 		{
@@ -208,7 +223,7 @@ public class Interpreter
 		Scene scene = new();
 		foreach (var layerName in _layerName[sceneName])
 			scene.PushLayer(layerName, _layers[layerName]);
-		// scene.LoopAudiosList["bgm"] = _resourceManager.GetAudio("bgm"); //!
+		scene.LoopAudiosList.Add("bgm", _resourceManager.GetAudio("bgm"));
 		_sceneManager.PushScene(sceneName, scene);
 	}
 
@@ -262,16 +277,25 @@ public class Interpreter
 	/// 开始执行解释流程，唯一公共对外口
 	/// </summary>
 	/// <returns></returns>
-	public async Task ParsingAsync(string gameName)
+	public async Task ParsingNextAsync()
+	{
+		await ProcessNodeAsync();
+		await ProcessSceneAsync();
+	}
+
+	public async Task SetGameAsync(string gameName)
 	{
 		Clear();
 		_resourceManager.Clear();
 		var gameBase = "Data/" + gameName + "/";
-		Console.WriteLine(gameBase);
 		_resourceManager.basePath = gameBase;
-		await _resourceManager.PullScriptAsync(gameName, "main.json");
-		await ProcessNodeAsync(gameName);
-		await ProcessResourceAsync();
-		await ProcessSceneAsync();
+		await _resourceManager.PullScriptAsync();
+		var mainObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
+		if (mainObj.NodeURL is null)
+			throw new Exception("empty Node");
+		_nodeEnum.Push((
+			"main",
+			mainObj.NodeURL.GetEnumerator()
+		));
 	}
 }
