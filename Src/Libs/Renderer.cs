@@ -7,6 +7,7 @@ public class Renderer
 	private SKCanvas _canvas = null!;
 	private Scene _scene = new();
 	private readonly SceneManager _sceneManager = null!;
+	private bool _renderingFlag;
 
 
 	/// <summary>
@@ -23,9 +24,9 @@ public class Renderer
 	/// <param name="startTime">开始时间，单位毫秒</param>
 	public void LoadScene(string sceneName, long startTime)
 	{
+		_renderingFlag = true;
 		_scene = _sceneManager.LoadScene(sceneName);
 		_scene.SetBeginTime(startTime);
-		_scene.RenderFlag = true;
 	}
 
 
@@ -45,9 +46,8 @@ public class Renderer
 		{
 			_canvas?.Clear();
 			_canvas = canvas;
-			_scene.RenderFlag = true;
 		}
-		if (_scene.RenderFlag || force)
+		if (_renderingFlag || force)
 			Rendering(timeoff);
 	}
 
@@ -59,8 +59,6 @@ public class Renderer
 	private void Rendering(long timeoff)
 	{
 		_canvas.Clear();
-		_scene.RenderFlag = false;
-
 		foreach (var (layerId, layer) in _scene.Layers)
 		{
 			layer.GenNextFrame(timeoff);
@@ -71,10 +69,15 @@ public class Renderer
 			// if ( is List<LayerText> texts)
 			foreach (var text in layer.Text)
 				_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
-
-			_scene.RenderFlag |= layer.Anim.HasAnimation(timeoff);
 		}
-
+		_renderingFlag = _scene.HasAnimation(timeoff);
 		_canvas.Flush();
 	}
+
+	public void StopAnimation()
+	{
+		_scene.SetBeginTime(long.MinValue);
+	}
+
+	public bool HasAnimation(long timeoff) => _scene.HasAnimation(timeoff);
 }

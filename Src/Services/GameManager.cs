@@ -33,6 +33,14 @@ public class GameManager
 
 	public async Task OnClickAsync(SKPoint pos)
 	{
+		long timeoff = DateTimeOffset.Now.Ticks / 10000L;
+		// 如果动画没有结束，那么结束动画保留这一帧
+		// 如果当前场景动画结束，切换到下一场景
+		if (_render.HasAnimation(timeoff))
+		{
+			_render.StopAnimation();
+			return;
+		}
 		await _interpreter.ParsingNextAsync();
 		if (_sceneManager.SceneNameList.Count() != 0)
 			_sceneName = _sceneManager.SceneNameList.Dequeue();

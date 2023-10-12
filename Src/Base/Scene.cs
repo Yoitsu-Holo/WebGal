@@ -13,7 +13,13 @@ public class Scene
 		SceneConfig.DefaultWidth,
 		SceneConfig.DefaultHeight
 	);
-	public bool RenderFlag { get; set; } = true;
+	public bool HasAnimation(long timeoff)
+	{
+		bool hasAnimation = false;
+		foreach (var (_, layer) in Layers)
+			hasAnimation |= layer.HasAnimation(timeoff);
+		return hasAnimation;
+	}
 	public Dictionary<string, byte[]> LoopAudiosList = new();
 	public Dictionary<string, byte[]> OneShotAudiosList = new();
 
@@ -45,7 +51,6 @@ public class Scene
 			layer.BeginTime = beginTime;
 	}
 
-	#region Fade
 	private (SKBitmap In, SKBitmap Out) _fadeMask;
 	private (float In, float Out) _fadeTime; //ms
 
@@ -57,5 +62,4 @@ public class Scene
 	{
 		(_fadeMask.Out, _fadeTime.Out) = (mask, time);
 	}
-	#endregion
 }

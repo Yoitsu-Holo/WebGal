@@ -51,12 +51,7 @@ public class Layer
 	#region Animation
 	public long BeginTime { get => Anim.BeginTime; set => Anim.BeginTime = value; }
 	public Animation Anim = new();
-	public bool HasAnimation(int timeoff)
-	{
-		if (Anim is null)
-			return false;
-		return Anim.HasAnimation(timeoff);
-	}
+	public bool HasAnimation(long timeoff) => Anim is not null && Anim.HasAnimation(timeoff);
 	#endregion
 
 
