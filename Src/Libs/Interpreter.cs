@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Text.Json;
 using SkiaSharp;
 using WebGal.Global;
@@ -44,15 +43,10 @@ public class Interpreter
 			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript);
 
 			if (resouresPack.ImageURL is not null)
-			{
-				var imageTasks = resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL));
-				tasks.AddRange(imageTasks);
-			}
+				tasks.AddRange(resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL)));
+
 			if (resouresPack.AudioURL is not null)
-			{
-				var audioTasks = resouresPack.AudioURL.Select(aduio => _resourceManager.PullAudioAsync(aduio.Name, aduio.URL));
-				tasks.AddRange(audioTasks);
-			}
+				tasks.AddRange(resouresPack.AudioURL.Select(aduio => _resourceManager.PullAudioAsync(aduio.Name, aduio.URL)));
 		}
 		await Task.WhenAll(tasks);
 	}
@@ -70,8 +64,8 @@ public class Interpreter
 		while (_nodeEnum.Count != 0)
 		{
 			var (nodeName, nodeEnum) = _nodeEnum.Peek();
-			Console.WriteLine(nodeName); //!
 			var node = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName));
+			Console.WriteLine($"{_nodeEnum.Count}:{nodeName}->{node.IsLeaf}"); //!
 
 			if (node == default)
 				throw new Exception("No volume");
@@ -90,21 +84,25 @@ public class Interpreter
 
 			if (nodeEnum.MoveNext() == false)
 			{
+				Console.WriteLine("Pop return"); //!
 				_nodeEnum.Pop();
 				continue;
 			}
 
 			var nextNodeUrl = nodeEnum.Current;
+
+			Console.WriteLine($"{nextNodeUrl.Name}=>{nextNodeUrl.URL}"); //!
 			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
 
 			if (node.IsLeaf)// 叶子节点，添加场景
 			{
 				_sceneName.Enqueue(nextNodeUrl.Name);
+				Console.WriteLine(nextNodeUrl.Name); //!
 				break;
 			}
 			else
 			{
-				var nodeObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
+				var nodeObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name));
 				if (nodeObj.NodeURL is null)
 					throw new Exception("empty Node");
 				_nodeEnum.Push((nextNodeUrl.Name, nodeObj.NodeURL.GetEnumerator()));
@@ -217,8 +215,9 @@ public class Interpreter
 	/// <exception cref="Exception"></exception>
 	private void ProcessSceneAsync()
 	{
-		foreach (var sceneName in _sceneName)
+		while (_sceneName.Count != 0)
 		{
+			var sceneName = _sceneName.Dequeue();
 			// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
 			_sceneManager.SceneNameList.Enqueue(sceneName);
 			if (_sceneManager.ContainsScene(sceneName))
@@ -255,7 +254,8 @@ public class Interpreter
 	/// <returns></returns>
 	public async Task ParsingNextAsync()
 	{
-		await ProcessNodeAsync();
+		if (_sceneManager.SceneNameList.Count == 0)
+			await ProcessNodeAsync();
 		await ProcessResourceAsync();
 		ProcessSceneAsync();
 	}

@@ -13,6 +13,8 @@ public class GameManager
 	private Dictionary<string, string>? _loopAudiosRef;  //^ 循环音频库
 	private Dictionary<string, string>? _oneShotAduioRef;//^ 单次音频库
 
+	private string _sceneName = "main";
+
 	/// <summary>
 	/// 构造函数，由系统执行依赖注入
 	/// </summary>
@@ -29,9 +31,12 @@ public class GameManager
 
 	public void Render(SKCanvas canvas, long timeoff, bool force = false) => _render.Render(canvas, timeoff, force);
 
-	public void OnClick(SKPoint pos)
+	public async Task OnClickAsync(SKPoint pos)
 	{
-		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
+		await _interpreter.ParsingNextAsync();
+		if (_sceneManager.SceneNameList.Count() != 0)
+			_sceneName = _sceneManager.SceneNameList.Dequeue();
+		_render.LoadScene(_sceneName, DateTimeOffset.Now.Ticks / 10000L);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -75,7 +80,7 @@ public class GameManager
 		_interpreter.Clear();
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();
-		_render.LoadScene("TestScene", DateTimeOffset.Now.Ticks / 10000L);
+		_render.LoadScene(_sceneName = _sceneManager.SceneNameList.Dequeue(), DateTimeOffset.Now.Ticks / 10000L);
 	}
 	#endregion
 }

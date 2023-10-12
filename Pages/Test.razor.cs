@@ -69,7 +69,7 @@ public partial class Test
 	private void OnClick(MouseEventArgs e)
 	{
 		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
-		Manager.OnClick(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+		Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
 	}
 
 	#region Debug

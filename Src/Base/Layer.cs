@@ -2,23 +2,6 @@ using SkiaSharp;
 
 namespace WebGal.Libs.Base;
 
-/// <summary>
-/// + Positon
-/// 	+ 左上角坐标 & 长宽
-/// + Fade
-/// 	+ 整个场景图层的淡入淡出方式
-/// + Text(front)
-/// 	+ 文字颜色
-/// 	+ 文字样式
-/// 	+ 文字文本
-/// 	+ 文字坐标（默认0，0）
-/// + SKBitmap(back)
-/// 	+ 场景图片
-/// + Animation
-/// 	+ 场景动画效果 （todo）
-/// + Style
-/// 	+ 图层透明度
-/// </summary>
 public class Layer
 {
 	#region  Position
