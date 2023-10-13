@@ -34,10 +34,10 @@ public class Renderer
 	/// 获取场景的音频媒体
 	/// </summary>
 	/// <returns>两个映射，分别是循环播放音乐和单次播放音乐</returns>
-	public (Dictionary<string, byte[]>, Dictionary<string, byte[]>) GetSceneAudioMedia()
-	{
-		return (_scene.LoopAudiosList, _scene.OneShotAudiosList);
-	}
+	// public (Dictionary<string, byte[]>, Dictionary<string, byte[]>) GetSceneAudioMedia()
+	// {
+	// 	return (_scene.LoopAudiosList, _scene.OneShotAudiosList);
+	// }
 
 
 	public void Render(SKCanvas canvas, long timeoff, bool force)

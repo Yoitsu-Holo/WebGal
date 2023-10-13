@@ -35,11 +35,11 @@ public partial class Test
 
 	protected override async Task OnParametersSetAsync()
 	{
-		await Manager.DoTest(Game);
 		//todo 未解决循环卡顿问题
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		//! bug 不允许多次加载同样的音频
 		Manager.LoadMedia();
+		await Manager.DoTest(Game);
 	}
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
@@ -66,10 +66,11 @@ public partial class Test
 		_mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
 	}
 
-	private void OnClick(MouseEventArgs e)
+	private async void OnClick(MouseEventArgs e)
 	{
 		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
-		Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+		await Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+		await InvokeAsync(StateHasChanged);
 	}
 
 	#region Debug

@@ -20,8 +20,8 @@ public class Scene
 			hasAnimation |= layer.HasAnimation(timeoff);
 		return hasAnimation;
 	}
-	public Dictionary<string, byte[]> LoopAudiosList = new();
-	public Dictionary<string, byte[]> OneShotAudiosList = new();
+	// public Dictionary<string, byte[]> LoopAudiosList = new();
+	// public Dictionary<string, byte[]> OneShotAudiosList = new();
 
 	public SortedDictionary<int, Layer> Layers = new();
 	private readonly Dictionary<string, int> _layersId = new();

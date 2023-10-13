@@ -8,6 +8,9 @@ public class SceneManager
 {
 	private readonly Dictionary<string, Scene> _scenes = new();
 
+	public readonly HashSet<string> LoopAudioSet = new();
+	public readonly HashSet<string> OneShotAudioSet = new();
+
 	public readonly Queue<string> SceneNameList = new();
 	public bool ContainsScene(string sceneName) => _scenes.ContainsKey(sceneName);
 

@@ -45,6 +45,10 @@ public class GameManager
 		if (_sceneManager.SceneNameList.Count() != 0)
 			_sceneName = _sceneManager.SceneNameList.Dequeue();
 		_render.LoadScene(_sceneName, DateTimeOffset.Now.Ticks / 10000L);
+		LoadMedia();
+		Console.WriteLine("_sceneManager.LoopAudioSet:");
+		foreach (var audio in _sceneManager.LoopAudioSet)
+			Console.WriteLine(audio);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -61,17 +65,45 @@ public class GameManager
 	{
 		if (_loopAudiosRef == null || _oneShotAduioRef == null)
 			throw new Exception("Media List not set");
-		var (loopAudiosList, oneShotAudiosList) = _render.GetSceneAudioMedia();
-		foreach (var (audioName, byteStream) in loopAudiosList)
+
+		foreach (var (audioName, _) in _loopAudiosRef)
+			if (!_sceneManager.LoopAudioSet.Contains(audioName))
+				_loopAudiosRef.Remove(audioName);
+
+		foreach (var (audioName, _) in _oneShotAduioRef)
+			if (!_sceneManager.OneShotAudioSet.Contains(audioName))
+				_oneShotAduioRef.Remove(audioName);
+
+		foreach (var audioName in _sceneManager.LoopAudioSet)
 		{
+			if (_loopAudiosRef.ContainsKey(audioName))
+				continue;
+			Console.WriteLine($"Conv Audio: {audioName}");
+			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_loopAudiosRef.Add(audioName, audio);
 		}
-		foreach (var (audioName, byteStream) in oneShotAudiosList)
+
+		foreach (var audioName in _sceneManager.OneShotAudioSet)
 		{
+			if (_oneShotAduioRef.ContainsKey(audioName))
+				continue;
+			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_oneShotAduioRef.Add(audioName, audio);
 		}
+
+		// var (loopAudiosList, oneShotAudiosList) = _render.GetSceneAudioMedia();
+		// foreach (var (audioName, byteStream) in loopAudiosList)
+		// {
+		// 	var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
+		// 	_loopAudiosRef.Add(audioName, audio);
+		// }
+		// foreach (var (audioName, byteStream) in oneShotAudiosList)
+		// {
+		// 	var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
+		// 	_oneShotAduioRef.Add(audioName, audio);
+		// }
 		return;
 	}
 
@@ -88,7 +120,8 @@ public class GameManager
 		_interpreter.Clear();
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();
-		_render.LoadScene(_sceneName = _sceneManager.SceneNameList.Dequeue(), DateTimeOffset.Now.Ticks / 10000L);
+		await OnClickAsync(new SKPoint(0, 0));
+		// _render.LoadScene(_sceneName = _sceneManager.SceneNameList.Dequeue(), DateTimeOffset.Now.Ticks / 10000L);
 	}
 	#endregion
 }

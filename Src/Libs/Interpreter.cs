@@ -63,15 +63,14 @@ public class Interpreter
 	{
 		while (_nodeEnum.Count != 0)
 		{
-			var (nodeName, nodeEnum) = _nodeEnum.Peek();
-			var node = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName));
-			Console.WriteLine($"{_nodeEnum.Count}:{nodeName}->{node.IsLeaf}"); //!
+			var (nowNodeName, nextNodeEnum) = _nodeEnum.Peek();
+			var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nowNodeName));
 
-			if (node == default)
+			if (nowNode == default)
 				throw new Exception("No volume");
 
 			// 添加资源配置脚本，并且将资源加入预加载队列
-			var urlTasks = node.ResouresPackURL?.Select(resourcePack =>
+			var urlTasks = nowNode.ResouresPackURL?.Select(resourcePack =>
 				{
 					_unloadedResPackName.Enqueue(resourcePack.Name);
 					return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
@@ -79,36 +78,55 @@ public class Interpreter
 			if (urlTasks is not null)
 				await Task.WhenAll(urlTasks);
 
-			if (node.NodeURL is null)
+			if (nowNode.NodeURL is null)
 				throw new Exception("empty Node");
 
-			if (nodeEnum.MoveNext() == false)
-			{
-				Console.WriteLine("Pop return"); //!
-				_nodeEnum.Pop();
-				continue;
-			}
+			if (nextNodeEnum.MoveNext() == false)
+				goto AfterProcess; // 跳转到后处理部分
 
-			var nextNodeUrl = nodeEnum.Current;
+			Console.WriteLine($"{_nodeEnum.Count}:{nowNodeName} => {nextNodeEnum.Current.Name}"); //!
 
-			Console.WriteLine($"{nextNodeUrl.Name}=>{nextNodeUrl.URL}"); //!
+
+			var nextNodeUrl = nextNodeEnum.Current;
 			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
 
-			if (node.IsLeaf)// 叶子节点，添加场景
+			if (nowNode.IsLeaf) // 叶子节点，添加场景
 			{
 				_sceneName.Enqueue(nextNodeUrl.Name);
-				Console.WriteLine(nextNodeUrl.Name); //!
 				break;
 			}
 			else
 			{
-				var nodeObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name));
-				if (nodeObj.NodeURL is null)
+				var nextNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name));
+				if (nextNode.NodeURL is null)
 					throw new Exception("empty Node");
-				_nodeEnum.Push((nextNodeUrl.Name, nodeObj.NodeURL.GetEnumerator()));
+				_nodeEnum.Push((nextNodeUrl.Name, nextNode.NodeURL.GetEnumerator()));
+
+				// 添加音频资源列表
+				if (nextNode.LoopAudio is not null)
+					foreach (var loopAudio in nextNode.LoopAudio)
+						_sceneManager.LoopAudioSet.Add(loopAudio);
+
+				if (nextNode.OneShotAudio is not null)
+					foreach (var oneShotAudio in nextNode.OneShotAudio)
+						_sceneManager.OneShotAudioSet.Add(oneShotAudio);
 			}
 
-			// todo 删除不必要的资源
+			continue; // 主逻辑代码结束
+
+		AfterProcess: // todo 删除不必要的资源
+			_nodeEnum.Pop(); // 移除节点
+
+			// 删除音频资源列表
+			if (nowNode.LoopAudio is not null)
+				foreach (var loopAudio in nowNode.LoopAudio)
+					_sceneManager.LoopAudioSet.Remove(loopAudio);
+
+			if (nowNode.OneShotAudio is not null)
+				foreach (var oneShotAudio in nowNode.OneShotAudio)
+					_sceneManager.OneShotAudioSet.Remove(oneShotAudio);
+			Console.WriteLine($"{_nodeEnum.Count}:{nowNodeName} <="); //!
+
 		}
 	}
 
@@ -265,6 +283,7 @@ public class Interpreter
 		var gameBase = "Data/" + gameName + "/";
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync();
+
 		var mainObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
 		if (mainObj.NodeURL is null)
 			throw new Exception("empty Node");
@@ -272,5 +291,13 @@ public class Interpreter
 			"main",
 			mainObj.NodeURL.GetEnumerator()
 		));
+
+		if (mainObj.LoopAudio is not null)
+			foreach (var loopAudio in mainObj.LoopAudio)
+				_sceneManager.LoopAudioSet.Add(loopAudio);
+
+		if (mainObj.OneShotAudio is not null)
+			foreach (var oneShotAudio in mainObj.OneShotAudio)
+				_sceneManager.OneShotAudioSet.Add(oneShotAudio);
 	}
 }
