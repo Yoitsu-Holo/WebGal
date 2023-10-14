@@ -45,11 +45,12 @@ public class GameManager
 		if (_sceneManager.SceneNameList.Count() != 0)
 			_sceneName = _sceneManager.SceneNameList.Dequeue();
 		_render.LoadScene(_sceneName, DateTimeOffset.Now.Ticks / 10000L);
-		LoadMedia();
+		await LoadMedia();
 		Console.WriteLine("_sceneManager.LoopAudioSet:");
 		foreach (var audio in _sceneManager.LoopAudioSet)
 			Console.WriteLine(audio);
 	}
+
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
 	{
@@ -61,7 +62,7 @@ public class GameManager
 	/// 加载媒体资源
 	/// </summary>
 	/// <exception cref="Exception">未正确设置媒体资源列表</exception>
-	public async void LoadMedia()
+	public async Task LoadMedia()
 	{
 		if (_loopAudiosRef == null || _oneShotAduioRef == null)
 			throw new Exception("Media List not set");
@@ -78,7 +79,7 @@ public class GameManager
 		{
 			if (_loopAudiosRef.ContainsKey(audioName))
 				continue;
-			Console.WriteLine($"Conv Audio: {audioName}");
+
 			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_loopAudiosRef.Add(audioName, audio);
@@ -88,22 +89,12 @@ public class GameManager
 		{
 			if (_oneShotAduioRef.ContainsKey(audioName))
 				continue;
+
 			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_oneShotAduioRef.Add(audioName, audio);
 		}
 
-		// var (loopAudiosList, oneShotAudiosList) = _render.GetSceneAudioMedia();
-		// foreach (var (audioName, byteStream) in loopAudiosList)
-		// {
-		// 	var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
-		// 	_loopAudiosRef.Add(audioName, audio);
-		// }
-		// foreach (var (audioName, byteStream) in oneShotAudiosList)
-		// {
-		// 	var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
-		// 	_oneShotAduioRef.Add(audioName, audio);
-		// }
 		return;
 	}
 

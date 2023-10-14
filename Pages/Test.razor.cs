@@ -14,32 +14,31 @@ public partial class Test
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
 
-	SKBitmap bitmap = new(100, 100);
-
-	protected override void OnInitialized()
-	{
-		SKColor[] pixs = bitmap.Pixels;
-		for (int row = 0, it = 0; row < 100; row++)
-		{
-			for (int col = 0; col < 100; col++)
-			{
-				int dx = 49 - row;
-				int dy = 49 - col;
-				double delta = Math.Sqrt(dx * dx + dy * dy);
-				pixs[it] = new SKColor(0, 180, 255, (byte)Math.Max(0, 255 - delta * 7));
-				it++;
-			}
-		}
-		bitmap.Pixels = pixs;
-	}
+	// SKBitmap bitmap = new(100, 100);
+	// protected override void OnInitialized()
+	// {
+	// 	SKColor[] pixs = bitmap.Pixels;
+	// 	for (int row = 0, it = 0; row < 100; row++)
+	// 	{
+	// 		for (int col = 0; col < 100; col++)
+	// 		{
+	// 			int dx = 49 - row;
+	// 			int dy = 49 - col;
+	// 			double delta = Math.Sqrt(dx * dx + dy * dy);
+	// 			pixs[it] = new SKColor(0, 180, 255, (byte)Math.Max(0, 255 - delta * 7));
+	// 			it++;
+	// 		}
+	// 	}
+	// 	bitmap.Pixels = pixs;
+	// }
 
 	protected override async Task OnParametersSetAsync()
 	{
 		//todo 未解决循环卡顿问题
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
-		//! bug 不允许多次加载同样的音频
-		Manager.LoadMedia();
 		await Manager.DoTest(Game);
+		await Manager.LoadMedia();
+		InvokeAsync(StateHasChanged);
 	}
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
@@ -66,15 +65,28 @@ public partial class Test
 		_mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
 	}
 
-	private async void OnClick(MouseEventArgs e)
+	private async Task OnClick(MouseEventArgs e)
 	{
-		// _clickPos = $"{e.OffsetX}, {e.OffsetY}";
-		await Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+		Console.WriteLine(e.Button);
+		if (e.Button == 0L)
+			await OnLeftClick(e);
+		else if (e.Button == 2L)
+			await OnRightClick(e);
 		await InvokeAsync(StateHasChanged);
 	}
 
+	private async Task OnLeftClick(MouseEventArgs e)
+	{
+		await Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+	}
+
+	private async Task OnRightClick(MouseEventArgs e)
+	{
+		Console.WriteLine("Right Click");
+		// await Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+	}
+
 	#region Debug
-	private string _text = "", _clickPos = "";
 	private (int X, int Y) _mousePos;
 	private int _frameCount = 0, _fps = 0, _lastSec;
 	#endregion

@@ -2,27 +2,26 @@
 @using SkiaSharp.Views.Blazor
 @using WebGal.Global
 
-<SKGLView @onclick="OnClick" @onmousemove="OnMouseMove"
+<SKGLView @onmousemove="OnMouseMove" @onmouseup="OnClick" oncontextmenu="return true;"
 	style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; border: 2px solid;")
 	EnableRenderLoop="true" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
 
-@foreach(var (_,audio) in _loopAudios)
+@foreach (var (_, audio) in _loopAudios)
 {
 	<audio autoplay="true" loop="true">
-		<source src="@audio"/>
+		<source src="@audio" />
 	</audio>
 }
 
-@foreach(var (_,audio) in _oneShotAudios)
+@foreach (var (_, audio) in _oneShotAudios)
 {
 	<audio autoplay="true">
-		<source src="@audio"/>
+		<source src="@audio" />
 	</audio>
 }
 
-<p>@_text</p>
 <p>@(_mousePos.X),@(_mousePos.Y)</p>
-<p>@_clickPos</p>
 <p>FPS: @_fps</p>
+
 
 @* <button @onclick="OnButtClick">click here</button> *@
