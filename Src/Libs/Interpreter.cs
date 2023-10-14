@@ -84,8 +84,6 @@ public class Interpreter
 			if (nextNodeEnum.MoveNext() == false)
 				goto AfterProcess; // 跳转到后处理部分
 
-			Console.WriteLine($"{_nodeEnum.Count}:{nowNodeName} => {nextNodeEnum.Current.Name}"); //!
-
 
 			var nextNodeUrl = nextNodeEnum.Current;
 			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
@@ -125,8 +123,6 @@ public class Interpreter
 			if (nowNode.OneShotAudio is not null)
 				foreach (var oneShotAudio in nowNode.OneShotAudio)
 					_sceneManager.OneShotAudioSet.Remove(oneShotAudio);
-			Console.WriteLine($"{_nodeEnum.Count}:{nowNodeName} <="); //!
-
 		}
 	}
 

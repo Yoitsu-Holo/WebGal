@@ -39,6 +39,8 @@ public class SceneManager
 
 	public void Clear()
 	{
+		LoopAudioSet.Clear();
+		OneShotAudioSet.Clear();
 		_scenes.Clear();
 		SceneNameList.Clear();
 	}

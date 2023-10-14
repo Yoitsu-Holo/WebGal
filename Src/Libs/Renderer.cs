@@ -1,3 +1,4 @@
+using System.Data;
 using SkiaSharp;
 using WebGal.Libs.Base;
 
@@ -39,12 +40,17 @@ public class Renderer
 	// 	return (_scene.LoopAudiosList, _scene.OneShotAudiosList);
 	// }
 
+	public void Clear()
+	{
+		_canvas?.Clear();
+
+	}
 
 	public void Render(SKCanvas canvas, long timeoff, bool force)
 	{
 		if (_canvas != canvas)
 		{
-			_canvas?.Clear();
+			Clear();
 			_canvas = canvas;
 		}
 		if (_renderingFlag || force)

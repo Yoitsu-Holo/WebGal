@@ -1,17 +1,19 @@
 using SkiaSharp;
 using Microsoft.JSInterop;
 using WebGal.Libs;
+using Web.Libs;
 
 namespace WebGal.Services;
 public class GameManager
 {
-	private readonly IJSRuntime _js;                      //^ JavaScript 互操作运行时
-	private readonly Interpreter _interpreter;            //^ 脚本解释器
-	private readonly ResourceManager _resourceManager;    //^ 资源管理器
-	private readonly SceneManager _sceneManager;          //^ 场景管理器
+	private readonly IJSRuntime _js;                        //^ JavaScript 互操作运行时
+	private readonly Interpreter _interpreter;              //^ 脚本解释器
+	private readonly ResourceManager _resourceManager;      //^ 资源管理器
+	private readonly SceneManager _sceneManager;            //^ 场景管理器
+	private readonly EventManager _eventManager;            //^ 事件管理器：（点击)
 	private readonly Renderer _render;                      //^ 渲染器
-	private Dictionary<string, string>? _loopAudiosRef;  //^ 循环音频库
-	private Dictionary<string, string>? _oneShotAduioRef;//^ 单次音频库
+	private Dictionary<string, string>? _loopAudiosRef;     //^ 循环音频库
+	private Dictionary<string, string>? _oneShotAduioRef;   //^ 单次音频库
 
 	private string _sceneName = "main";
 
@@ -27,11 +29,12 @@ public class GameManager
 		_sceneManager = new();
 		_render = new(_sceneManager);
 		_interpreter = new(_sceneManager, _resourceManager);
+		_eventManager = new();
 	}
 
 	public void Render(SKCanvas canvas, long timeoff, bool force = false) => _render.Render(canvas, timeoff, force);
 
-	public async Task OnClickAsync(SKPoint pos)
+	public async Task OnClickAsync(SKPointI pos)
 	{
 		long timeoff = DateTimeOffset.Now.Ticks / 10000L;
 		// 如果动画没有结束，那么结束动画保留这一帧
@@ -45,10 +48,10 @@ public class GameManager
 		if (_sceneManager.SceneNameList.Count() != 0)
 			_sceneName = _sceneManager.SceneNameList.Dequeue();
 		_render.LoadScene(_sceneName, DateTimeOffset.Now.Ticks / 10000L);
+
 		await LoadMedia();
-		Console.WriteLine("_sceneManager.LoopAudioSet:");
-		foreach (var audio in _sceneManager.LoopAudioSet)
-			Console.WriteLine(audio);
+
+		_eventManager.OnClick(pos);
 	}
 
 
@@ -79,7 +82,6 @@ public class GameManager
 		{
 			if (_loopAudiosRef.ContainsKey(audioName))
 				continue;
-
 			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_loopAudiosRef.Add(audioName, audio);
@@ -89,7 +91,6 @@ public class GameManager
 		{
 			if (_oneShotAduioRef.ContainsKey(audioName))
 				continue;
-
 			var byteStream = _resourceManager.GetAudio(audioName);
 			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
 			_oneShotAduioRef.Add(audioName, audio);
@@ -106,13 +107,18 @@ public class GameManager
 	[Obsolete("Debug Only")]
 	public async Task DoTest(string gameName)
 	{
+		_render.Clear();
 		_sceneManager.Clear();
 		_resourceManager.Clear();
 		_interpreter.Clear();
+
+		// 注册一个点击事件，位置是 （50，50）~（100，100）的正方形
+		_eventManager.RegitserClickActionTest(new SKRectI(50, 50, 100, 100));
+
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();
-		await OnClickAsync(new SKPoint(0, 0));
-		// _render.LoadScene(_sceneName = _sceneManager.SceneNameList.Dequeue(), DateTimeOffset.Now.Ticks / 10000L);
+
+		_render.LoadScene(_sceneName = _sceneManager.SceneNameList.Dequeue(), DateTimeOffset.Now.Ticks / 10000L);
 	}
 	#endregion
 }
