@@ -9,12 +9,22 @@ namespace WebGal.Libs.Base;
 /// </summary>
 public class Scene
 {
-	public SKSizeI Resolution { set; get; } = new(
-		SceneConfig.DefaultWidth,
-		SceneConfig.DefaultHeight
-	);
+	// private (SKBitmap In, SKBitmap Out) _fadeMask;
+	// private (float In, float Out) _fadeTime; //ms
+	private readonly Dictionary<string, int> _layersId = new();
+	private readonly Dictionary<int, string> _layersName = new();
+	private int _layerCount = 0;
+	private bool _stateHasChange;
+	public SortedDictionary<int, Layer> Layers = new();
+	public bool IsStatic { get; set; }
+
 	public bool HasAnimation(long timeoff)
 	{
+		if (_stateHasChange)
+		{
+			_stateHasChange = false;
+			return true;
+		}
 		bool hasAnimation = false;
 		foreach (var (_, layer) in Layers)
 			hasAnimation |= layer.HasAnimation(timeoff);
@@ -23,10 +33,6 @@ public class Scene
 	// public Dictionary<string, byte[]> LoopAudiosList = new();
 	// public Dictionary<string, byte[]> OneShotAudiosList = new();
 
-	public SortedDictionary<int, Layer> Layers = new();
-	private readonly Dictionary<string, int> _layersId = new();
-	private readonly Dictionary<int, string> _layersName = new();
-	private int _layerCount = 0;
 
 	public void PushLayer(string name, Layer layer)
 	{
@@ -51,15 +57,18 @@ public class Scene
 			layer.BeginTime = beginTime;
 	}
 
-	private (SKBitmap In, SKBitmap Out) _fadeMask;
-	private (float In, float Out) _fadeTime; //ms
+	public void StartAnimation()
+	{
+		SetBeginTime(NowTime.Minisecond);
+		_stateHasChange = true;
+	}
 
-	public void SetFadeIn(SKBitmap mask, float time)
+	public void StopAnimation()
 	{
-		(_fadeMask.In, _fadeTime.In) = (mask, time);
+		SetBeginTime(long.MinValue);
+		_stateHasChange = true;
 	}
-	public void SetFadeOut(SKBitmap mask, float time)
-	{
-		(_fadeMask.Out, _fadeTime.Out) = (mask, time);
-	}
+
+	// public void SetFadeIn(SKBitmap mask, float time) => (_fadeMask.In, _fadeTime.In) = (mask, time);
+	// public void SetFadeOut(SKBitmap mask, float time) => (_fadeMask.Out, _fadeTime.Out) = (mask, time);
 }

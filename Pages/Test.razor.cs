@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
+using WebGal.Global;
 using WebGal.Services;
 
 namespace WebGal.Pages;
@@ -31,7 +32,7 @@ public partial class Test
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
-		Manager.Render(canvas, DateTimeOffset.Now.Ticks / 10000L);
+		Manager.Render(canvas, NowTime.Minisecond);
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

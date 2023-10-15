@@ -11,6 +11,7 @@ public record struct NodeStructure
 
 public record struct SceneStructure
 (
+	bool IsStatic,
 	List<string>? LoopAudio,
 	List<string>? OneShotAudio,
 	List<LayerStructure>? Layer

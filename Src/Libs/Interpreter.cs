@@ -112,7 +112,7 @@ public class Interpreter
 
 			continue; // 主逻辑代码结束
 
-		AfterProcess: // todo 删除不必要的资源
+		AfterProcess: // 删除不必要的资源
 			_nodeEnum.Pop(); // 移除节点
 
 			// 删除音频资源列表
@@ -240,14 +240,13 @@ public class Interpreter
 			string sceneScript = _resourceManager.GetScript(sceneName);
 			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript);
 
-			if (sceneStructure == default)
-				throw new Exception("No Scene");
-
 			if (sceneStructure.Layer is null)
 				throw new Exception("No Scene Layer");
 
-
-			Scene scene = new();
+			Scene scene = new()
+			{
+				IsStatic = sceneStructure.IsStatic
+			};
 			foreach (var layer in sceneStructure.Layer)
 			{
 				if (layer.Name is null)
