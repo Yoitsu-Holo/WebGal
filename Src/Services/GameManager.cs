@@ -115,6 +115,15 @@ public class GameManager
 		return;
 	}
 
+	public void Clear()
+	{
+		_render.Clear();
+		_sceneManager.Clear();
+		_resourceManager.Clear();
+		_interpreter.Clear();
+		_scene = null;
+	}
+
 	#region Debug
 	/// <summary>
 	/// 测试程序接口，内部填入测试流程代码
@@ -123,14 +132,6 @@ public class GameManager
 	[Obsolete("Debug Only")]
 	public async Task DoTest(string gameName)
 	{
-		_render.Clear();
-		_sceneManager.Clear();
-		_resourceManager.Clear();
-		_interpreter.Clear();
-
-		// 注册一个点击事件，位置是 （50，50）~（100，100）的正方形
-		// _eventManager.RegitserClickActionTest(new SKRectI(50, 50, 100, 100));
-
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();
 

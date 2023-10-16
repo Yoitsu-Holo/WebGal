@@ -25,6 +25,7 @@ public partial class Test
 		_loopAudios.Clear();
 		_oneShotAudios.Clear();
 		Manager.SetMediaList(_loopAudios, _oneShotAudios);
+		Manager.Clear();
 		await Manager.DoTest(Game);
 		await Manager.LoadMedia();
 	}
