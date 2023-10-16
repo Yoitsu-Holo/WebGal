@@ -34,6 +34,8 @@ public record struct LayerStructure
 	PositonStructure EndPosition,
 	// 背景图片
 	string? Image,
+	PositonStructure CutPosition,
+	WinSizeStructure CutWinSize,
 	// 简单图形
 	ColorStructure ShapeColor,
 	// 文字

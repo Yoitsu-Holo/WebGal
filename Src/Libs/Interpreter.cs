@@ -29,7 +29,6 @@ public class Interpreter
 		_resourceManager = resourceManager;
 	}
 
-
 	/// <summary>
 	/// 以异步方式加载未加载队列中的资源文件
 	/// </summary>
@@ -68,6 +67,7 @@ public class Interpreter
 
 			if (nowNode == default)
 				throw new Exception("No volume");
+
 
 			// 添加资源配置脚本，并且将资源加入预加载队列
 			var urlTasks = nowNode.ResouresPackURL?.Select(resourcePack =>
@@ -137,14 +137,12 @@ public class Interpreter
 		if (layerStructure.Name is null)
 			throw new Exception("layer dont have name");
 
-		Layer layer = new();
+		Layer layer = new()
+		{
+			Pos = new(layerStructure.Position.X, layerStructure.Position.Y)
+		};
 
-		(int posX, int posY) = (layerStructure.Position.X, layerStructure.Position.Y);
 		(int width, int height) = (layerStructure.WinSize.Width, layerStructure.WinSize.Height);
-
-		layer.Pos = new(posX, posY);
-		if (layerStructure.WinSize != default)
-			layer.WinSize = new(width, height);
 
 		// 插入图片
 		if (layerStructure.IsImageLayer)
@@ -153,22 +151,58 @@ public class Interpreter
 				throw new Exception($"Layer {layerStructure.Name} image Not Found");
 
 			var image = _resourceManager.GetImage(layerStructure.Image);
-			layer.BackGroundSKBitmap = image;
+
+			Console.WriteLine($"Image Size: {image.Width},{image.Height}");
+
 			if (layerStructure.WinSize == default)
-				layer.WinSize = new(image.Width, image.Height);
+				(width, height) = (image.Width, image.Height);
+			layer.WinSize = new(width, height);
+			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+
+			var cutPosition = layerStructure.CutPosition;
+			var cutWinSize = layerStructure.CutWinSize;
+			if (cutWinSize == default)
+				cutWinSize = new(width, height);
+
+			// Console.WriteLine($"({cutPosition.X},{cutPosition.Y}) : ({cutWinSize.Width},{cutWinSize.Height}) -> ({layerStructure.Position.X},{layerStructure.Position.Y})");
+
+			using SKCanvas canvas = new(layer.BackGroundSKBitmap);
+			canvas.DrawBitmap(
+				image,
+				new SKRectI(
+					cutPosition.X,
+					cutPosition.Y,
+					cutPosition.X + cutWinSize.Width,
+					cutPosition.Y + cutWinSize.Height
+				),
+				new SKRectI(
+					0,
+					0,
+					cutWinSize.Width,
+					cutWinSize.Height
+				)
+			);
+			canvas.Flush();
 		}
 
 		// 绘制简单图形
 		if (layerStructure.IsShapeLayer)
 		{
-			var shapeColor = layerStructure.ShapeColor;
-			(byte R, byte G, byte B, byte A) = (shapeColor.R, shapeColor.G, shapeColor.B, shapeColor.A);
-
+			layer.WinSize = new(width, height);
 			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+
 			using SKCanvas canvas = new(layer.BackGroundSKBitmap);
 			canvas.DrawRect(
 				new SKRect(0, 0, layer.WinSize.Width, layer.WinSize.Height),
-				new SKPaint { Color = new SKColor(R, G, B, A) }
+				new SKPaint
+				{
+					Color = new SKColor(
+						layerStructure.ShapeColor.R,
+						layerStructure.ShapeColor.G,
+						layerStructure.ShapeColor.B,
+						layerStructure.ShapeColor.A
+					)
+				}
 			);
 			canvas.Flush();
 		}
