@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SkiaSharp;
+using Web.Libs;
 using WebGal.Global;
 using WebGal.Libs.Base;
 
@@ -11,6 +12,7 @@ public class Interpreter
 	private readonly Queue<string> _unloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
+	private readonly EventManager _eveneManager;
 
 	// 用于存储每一层Node的信息
 	private readonly Stack<(string, IEnumerator<UrlStructure>)> _nodeEnum = new();
@@ -23,10 +25,11 @@ public class Interpreter
 		_unloadedResPackName.Clear();
 	}
 
-	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
+	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager, EventManager eveneManager)
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
+		_eveneManager = eveneManager;
 	}
 
 	/// <summary>
@@ -250,6 +253,9 @@ public class Interpreter
 				AnimationClass = AnimationRegister.GetAnimation(layerStructure.Animation)
 			};
 		}
+
+		if (layerStructure.IsTriger)
+			_eveneManager.RegitserClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
 
 		return layer;
 	}

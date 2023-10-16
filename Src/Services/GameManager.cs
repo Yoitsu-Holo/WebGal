@@ -11,8 +11,8 @@ public class GameManager
 	private readonly IJSRuntime _js;                        //^ JavaScript 互操作运行时
 	private readonly Interpreter _interpreter;              //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;      //^ 资源管理器
-	private readonly SceneManager _sceneManager;            //^ 场景管理器
-	private readonly EventManager _eventManager;            //^ 事件管理器：（点击)
+	private readonly SceneManager _sceneManager = new();    //^ 场景管理器
+	private readonly EventManager _eventManager = new();    //^ 事件管理器：（点击)
 	private readonly Renderer _render = new();              //^ 渲染器
 	private Scene? _scene;
 	private Dictionary<string, string>? _loopAudiosRef;     //^ 循环音频库
@@ -29,9 +29,7 @@ public class GameManager
 	{
 		_js = js;
 		_resourceManager = new(httpClient);
-		_sceneManager = new();
-		_interpreter = new(_sceneManager, _resourceManager);
-		_eventManager = new();
+		_interpreter = new(_sceneManager, _resourceManager, _eventManager);
 	}
 
 	public void Render(SKCanvas canvas, long timeoff, bool force = false)
@@ -131,7 +129,7 @@ public class GameManager
 		_interpreter.Clear();
 
 		// 注册一个点击事件，位置是 （50，50）~（100，100）的正方形
-		_eventManager.RegitserClickActionTest(new SKRectI(50, 50, 100, 100));
+		// _eventManager.RegitserClickActionTest(new SKRectI(50, 50, 100, 100));
 
 		await _interpreter.SetGameAsync(gameName);
 		await _interpreter.ParsingNextAsync();

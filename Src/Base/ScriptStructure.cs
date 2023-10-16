@@ -25,6 +25,7 @@ public record struct LayerStructure
 	bool IsImageLayer,
 	bool IsShapeLayer,
 	bool IsTextLayer,
+	bool IsTriger,
 	PositonStructure Position,
 	WinSizeStructure WinSize,
 	// 图层动画
@@ -40,6 +41,8 @@ public record struct LayerStructure
 	ColorStructure ShapeColor,
 	// 文字
 	List<TextStructure>? Text
+// 触发器
+// todo
 );
 
 public record struct TextStructure

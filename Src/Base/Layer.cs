@@ -5,14 +5,14 @@ namespace WebGal.Libs.Base;
 public class Layer
 {
 	#region  Position
-	public SKPoint Pos { get; set; }
-	public SKPoint PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new SKPoint(Pos.X + OffX, Pos.Y + OffY); }
-	public SKPoint Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
-	public SKPoint AbsolutePos(SKPoint offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
-	public float Left => Pos.X;
-	public float Right => Pos.X + WinSize.Width;
-	public float Top => Pos.Y;
-	public float Bottom => Pos.Y + WinSize.Height;
+	public SKPointI Pos { get; set; }
+	public SKPointI PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new SKPointI(Pos.X + OffX, Pos.Y + OffY); }
+	public SKPointI Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
+	public SKPointI AbsolutePos(SKPointI offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
+	public int Left => Pos.X;
+	public int Right => Pos.X + WinSize.Width;
+	public int Top => Pos.Y;
+	public int Bottom => Pos.Y + WinSize.Height;
 	#endregion
 
 
