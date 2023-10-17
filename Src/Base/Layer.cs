@@ -13,22 +13,22 @@ public class Layer
 	public int Right => Pos.X + WinSize.Width;
 	public int Top => Pos.Y;
 	public int Bottom => Pos.Y + WinSize.Height;
-	#endregion
-
-
-	#region Window Size
 	public SKSizeI WinSize { get; set; }
-	public SKRect Window => new(Pos.X, Pos.Y, WinSize.Width, WinSize.Height);
 	#endregion
 
+	#region attribute
+	public bool IsHide;
+	public bool HasEvent;
+	#endregion
 
 	#region Next Frame
 	public SKBitmap? FrameBuffer { get; private set; }
 	public SKPoint FramePosition { get; private set; } = new(0, 0);
 	public void GenNextFrame(long timeoff, bool force = false)
 	{
-		if (BackGroundSKBitmap is null)
+		if (BackGroundSKBitmap is null || IsHide)
 			return;
+
 		if (force || FrameBuffer is null)
 		{
 			FramePosition = PosAt(timeoff);

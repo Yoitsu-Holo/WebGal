@@ -254,8 +254,14 @@ public class Interpreter
 			};
 		}
 
+		// 添加属性
+		layer.IsHide = layerStructure.IsHide;
 		if (layerStructure.IsTriger)
 			_eveneManager.RegitserClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+		if (layerStructure.Event is not null)
+		{
+
+		}
 
 		return layer;
 	}

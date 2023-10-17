@@ -26,6 +26,7 @@ public record struct LayerStructure
 	bool IsShapeLayer,
 	bool IsTextLayer,
 	bool IsTriger,
+	bool IsHide,
 	PositonStructure Position,
 	WinSizeStructure WinSize,
 	// 图层动画
@@ -40,9 +41,9 @@ public record struct LayerStructure
 	// 简单图形
 	ColorStructure ShapeColor,
 	// 文字
-	List<TextStructure>? Text
-// 触发器
-// todo
+	List<TextStructure>? Text,
+	// 触发器
+	List<EventTriger>? Event
 );
 
 public record struct TextStructure
@@ -72,8 +73,15 @@ public record struct ResouresStructure
 );
 
 public record struct UrlStructure(string Name = "", string URL = "");
-
-public record struct TestStructure
+public record struct EventTriger
 (
-	List<UrlStructure>? Test
+	string? MouseEvent,
+	string? KeyboardEvent,
+	ActionTriger Action
+);
+public record struct ActionTriger
+(
+	string? LayerName,
+	// attribute
+	bool IsHide
 );

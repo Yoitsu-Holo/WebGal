@@ -26,6 +26,8 @@ public class Renderer
 			foreach (var (layerId, layer) in scene.Layers)
 			{
 				layer.GenNextFrame(timeoff);
+				if (layer.IsHide)
+					continue;
 
 				if (layer.BackGroundSKBitmap is not null)
 					_canvas.DrawBitmap(layer.FrameBuffer, layer.PosAt(timeoff));
