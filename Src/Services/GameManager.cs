@@ -52,11 +52,11 @@ public class GameManager
 		}
 	}
 
-	public async Task OnClickAsync(SKPointI pos)
+	public async Task OnLeftClickAsync(SKPointI pos)
 	{
 		if (_scene is null)
 			throw new Exception("scene not set");
-		_eventManager.OnClick(pos);
+		_eventManager.OnLeftClick(pos);
 
 		// 如果动画没有结束，那么结束动画保留这一帧
 		if (_scene.HasAnimation(NowTime.Minisecond))
@@ -69,6 +69,16 @@ public class GameManager
 		await _interpreter.ParsingNextAsync();
 		LoadScene();
 		await LoadMedia();
+	}
+
+	public void OnRightClickAsync(SKPointI pos)
+	{
+		_eventManager.OnRightClick(pos);
+	}
+
+	public void OnMouceMoveOn(SKPointI pos)
+	{
+		_eventManager.OnMoveOn(pos);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)

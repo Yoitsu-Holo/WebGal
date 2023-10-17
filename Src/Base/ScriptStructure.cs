@@ -43,7 +43,7 @@ public record struct LayerStructure
 	// 文字
 	List<TextStructure>? Text,
 	// 触发器
-	List<EventTriger>? Event
+	List<EventTriger>? Events
 );
 
 public record struct TextStructure

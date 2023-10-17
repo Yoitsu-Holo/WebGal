@@ -5,19 +5,50 @@ namespace Web.Libs;
 
 public class EventManager
 {
-	private readonly HashSet<SKRectI> _rects = new();
+	private readonly HashSet<SKRectI> _leftClickEvent = new();
+	private readonly HashSet<SKRectI> _rightClickEvent = new();
+	private readonly HashSet<SKRectI> _moveOnClickEvent = new();
 
-	public void RegitserClickActionTest(SKRectI range)
+	public void RegitserLeftClickActionTest(SKRectI range)
 	{
-		_rects.Add(range);
+		_leftClickEvent.Add(range);
 	}
 
-	public void OnClick(SKPointI point)
+	public void RegitserRightClickActionTest(SKRectI range)
 	{
-		foreach (var rect in _rects)
+		_rightClickEvent.Add(range);
+	}
+
+	public void RegitserMoveOnActionTest(SKRectI range)
+	{
+		_moveOnClickEvent.Add(range);
+	}
+
+
+	public void OnLeftClick(SKPointI point)
+	{
+		foreach (var rect in _leftClickEvent)
 		{
 			if (RangeComp.InRange(new(rect.Left, rect.Right), point.X) && RangeComp.InRange(new(rect.Top, rect.Bottom), point.Y))
-				Console.WriteLine("catch click");
+				Console.WriteLine("catch left click");
+		}
+	}
+
+	public void OnRightClick(SKPointI point)
+	{
+		foreach (var rect in _rightClickEvent)
+		{
+			if (RangeComp.InRange(new(rect.Left, rect.Right), point.X) && RangeComp.InRange(new(rect.Top, rect.Bottom), point.Y))
+				Console.WriteLine("catch right click");
+		}
+	}
+
+	public void OnMoveOn(SKPointI point)
+	{
+		foreach (var rect in _moveOnClickEvent)
+		{
+			if (RangeComp.InRange(new(rect.Left, rect.Right), point.X) && RangeComp.InRange(new(rect.Top, rect.Bottom), point.Y))
+				Console.WriteLine("catch move on");
 		}
 	}
 }

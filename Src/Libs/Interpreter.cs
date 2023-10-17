@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BlazorDexie;
 using SkiaSharp;
 using Web.Libs;
 using WebGal.Global;
@@ -257,10 +258,30 @@ public class Interpreter
 		// 添加属性
 		layer.IsHide = layerStructure.IsHide;
 		if (layerStructure.IsTriger)
-			_eveneManager.RegitserClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-		if (layerStructure.Event is not null)
+			_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+		if (layerStructure.Events is not null)
 		{
-
+			foreach (var eventTriger in layerStructure.Events)
+			{
+				if (eventTriger.MouseEvent is not null)
+				{
+					switch (eventTriger.MouseEvent)
+					{
+						case "LeftClick":
+							_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+							break;
+						case "RightClick":
+							_eveneManager.RegitserRightClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+							break;
+						case "MoveOn":
+							_eveneManager.RegitserMoveOnActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+							break;
+						default:
+							_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
+							break;
+					}
+				}
+			}
 		}
 
 		return layer;

@@ -49,8 +49,9 @@ public partial class Test
 	private void OnMouseMove(MouseEventArgs e)
 	{
 		_mousePos = ((int)e.OffsetX, (int)e.OffsetY);
-		_mousePos.X = Math.Max(0, Math.Min(1279, _mousePos.X));
-		_mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
+		// _mousePos.X = Math.Max(0, Math.Min(1279, _mousePos.X));
+		// _mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
+		Manager.OnMouceMoveOn(new SKPointI((int)e.OffsetX, (int)e.OffsetY));
 	}
 
 	private async Task OnClick(MouseEventArgs e)
@@ -65,7 +66,7 @@ public partial class Test
 
 	private async Task OnLeftClick(MouseEventArgs e)
 	{
-		await Manager.OnClickAsync(new SKPointI((int)e.OffsetX, (int)e.OffsetY));
+		await Manager.OnLeftClickAsync(new SKPointI((int)e.OffsetX, (int)e.OffsetY));
 	}
 
 	private async Task OnRightClick(MouseEventArgs e)
