@@ -74,24 +74,24 @@ public class Scene
 
 
 	// Action
-	private readonly Dictionary<SKRectI, List<ActionTriger>> _leftClickAction = new();
-	private readonly Dictionary<SKRectI, List<ActionTriger>> _rightClickAction = new();
-	private readonly Dictionary<SKRectI, List<ActionTriger>> _moveOnAction = new();
-	public void RegitserLeftClickAction(SKRectI range, ActionTriger action)
+	private readonly Dictionary<SKRectI, List<ActionStructure>> _leftClickAction = new();
+	private readonly Dictionary<SKRectI, List<ActionStructure>> _rightClickAction = new();
+	private readonly Dictionary<SKRectI, List<ActionStructure>> _moveOnAction = new();
+	public void RegitserLeftClickAction(SKRectI range, ActionStructure action)
 	{
 		if (_leftClickAction.ContainsKey(range) == false)
 			_leftClickAction[range] = new();
 		_leftClickAction[range].Add(action);
 	}
 
-	public void RegitserRightClickAction(SKRectI range, ActionTriger action)
+	public void RegitserRightClickAction(SKRectI range, ActionStructure action)
 	{
 		if (_rightClickAction.ContainsKey(range) == false)
 			_rightClickAction[range] = new();
 		_rightClickAction[range].Add(action);
 	}
 
-	public void RegitserMoveOnAction(SKRectI range, ActionTriger action)
+	public void RegitserMoveOnAction(SKRectI range, ActionStructure action)
 	{
 		if (_moveOnAction.ContainsKey(range) == false)
 			_moveOnAction[range] = new();
@@ -139,7 +139,7 @@ public class Scene
 		}
 	}
 
-	private void SetActoin(ActionTriger action)
+	private void SetActoin(ActionStructure action)
 	{
 		if (action.LayerName is null)
 			throw new Exception("Scene Action: action layer Name not set");

@@ -265,13 +265,13 @@ public class Interpreter
 		return layer;
 	}
 
-	private void SetLayerAction(LayerStructure layer, List<EventTriger> evnets, Scene scene)
+	private void SetLayerAction(LayerStructure layer, List<EventStructure> evnets, Scene scene)
 	{
 		foreach (var eventTriger in evnets)
 		{
 			if (eventTriger.MouseEvent is not null)
 			{
-				ActionTriger action = new()
+				ActionStructure action = new()
 				{
 					LayerName = eventTriger.Action.LayerName,
 					IsHide = layer.IsHide
