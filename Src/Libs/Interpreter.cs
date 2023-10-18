@@ -145,8 +145,12 @@ public class Interpreter
 
 		(int width, int height) = (layerStructure.WinSize.Width, layerStructure.WinSize.Height);
 
+
+		if (layerStructure.LayerType is null)
+			throw new Exception("Unknow Layer Type");
+
 		// 插入图片
-		if (layerStructure.IsImageLayer)
+		if (layerStructure.LayerType == "image")
 		{
 			if (layerStructure.Image is null)
 				throw new Exception($"Layer {layerStructure.Name} image Not Found");
@@ -187,7 +191,7 @@ public class Interpreter
 		}
 
 		// 绘制简单图形
-		if (layerStructure.IsShapeLayer)
+		if (layerStructure.LayerType == "shape")
 		{
 			layer.WinSize = new(width, height);
 			layer.BackGroundSKBitmap = new(width, height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
@@ -209,7 +213,7 @@ public class Interpreter
 		}
 
 		// 插入文本
-		if (layerStructure.IsTextLayer)
+		if (layerStructure.LayerType == "text")
 		{
 			if (layerStructure.Text is null)
 				throw new Exception($"Layer {layerStructure.Name} textLayer Not Found");
@@ -217,6 +221,8 @@ public class Interpreter
 			var texts = layerStructure.Text;
 			foreach (var text in texts)
 			{
+				if (text.Text is null)
+					throw new Exception("No Text Set");
 				LayerText layerText = new()
 				{
 					Text = text.Text,
@@ -254,49 +260,31 @@ public class Interpreter
 
 
 		// 添加属性
-		bool isHide = layerStructure.IsHide;
-		LayerAtrribute layerAtrribute = new()
-		{
-			IsHide = isHide,
-		};
-		layer.DynamicAttribute = layerAtrribute;
-		layer.OriginalAttribute = layerAtrribute;
+		layer.DynamicAttribute = layerStructure.Atrribute;
+		layer.OriginalAttribute = layerStructure.Atrribute;
 
 		return layer;
 	}
 
-	private void SetLayerAction(LayerStructure layer, List<EventStructure> evnets, Scene scene)
+	private void SetLayerAction(TrigerStructure triger, List<ActionStructure> actions, Scene scene)
 	{
-		foreach (var eventTriger in evnets)
+		foreach (var action in actions)
 		{
-			if (eventTriger.MouseEvent is not null)
+			if (triger.MouseEvent is not null)
 			{
-				ActionStructure action = new()
-				{
-					LayerName = eventTriger.Action.LayerName,
-					IsHide = layer.IsHide
-				};
-
-				SKRectI rect = new(
-					layer.Position.X,
-					layer.Position.Y,
-					layer.Position.X + layer.WinSize.Width,
-					layer.Position.Y + layer.WinSize.Height
-				);
-
-				switch (eventTriger.MouseEvent)
+				switch (triger.MouseEvent)
 				{
 					case "LeftClick":
-						scene.RegitserLeftClickAction(rect, action);
+						scene.RegitserLeftClickAction(triger.LayerName, action);
 						break;
 					case "RightClick":
-						scene.RegitserRightClickAction(rect, action);
+						scene.RegitserRightClickAction(triger.LayerName, action);
 						break;
 					case "MoveOn":
-						scene.RegitserMoveOnAction(rect, action);
+						scene.RegitserMoveOnAction(triger.LayerName, action);
 						break;
 					default:
-						scene.RegitserLeftClickAction(rect, action);
+						scene.RegitserLeftClickAction(triger.LayerName, action);
 						break;
 				}
 			}
@@ -322,23 +310,31 @@ public class Interpreter
 			string sceneScript = _resourceManager.GetScript(sceneName);
 			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript);
 
-			if (sceneStructure.Layer is null)
+			if (sceneStructure.Layers is null)
 				throw new Exception("No Scene Layer");
 
 			Scene scene = new()
 			{
 				IsStatic = sceneStructure.IsStatic
 			};
-			foreach (var layer in sceneStructure.Layer)
+
+			foreach (var layer in sceneStructure.Layers)
 			{
 				if (layer.Name is null)
 					throw new Exception("Null layer name");
 				scene.PushLayer(layer.Name, PackLayer(layer));
-
-				if (layer.Events is not null)
-					SetLayerAction(layer, layer.Events, scene);
 			}
 
+			if (sceneStructure.Events is not null)
+				foreach (var @event in sceneStructure.Events)
+				{
+					if (@event.Triger is null)
+						throw new Exception("No triger");
+					if (@event.Action is null)
+						throw new Exception("No action");
+
+					SetLayerAction(@event.Triger.Value, @event.Action, scene);
+				}
 			_sceneManager.PushScene(sceneName, scene);
 		}
 	}

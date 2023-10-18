@@ -35,7 +35,10 @@ public class GameManager
 	public void Render(SKCanvas canvas, long timeoff, bool force = false)
 	{
 		if (_scene is null)
+		{
+			return;
 			throw new Exception("render scene not set");
+		}
 		_render.Render(canvas, _scene, timeoff, force);
 	}
 
@@ -55,7 +58,10 @@ public class GameManager
 	public async Task OnLeftClickAsync(SKPointI pos)
 	{
 		if (_scene is null)
+		{
+			return;
 			throw new Exception("scene not set");
+		}
 		// _eventManager.OnLeftClick(pos);
 		_scene.OnLeftClick(pos);
 
@@ -76,7 +82,10 @@ public class GameManager
 	{
 		// _eventManager.OnRightClick(pos);
 		if (_scene is null)
+		{
+			return;
 			throw new Exception("scene not set");
+		}
 		_scene.OnRightClick(pos);
 	}
 
@@ -84,7 +93,10 @@ public class GameManager
 	{
 		// _eventManager.OnMoveOn(pos);
 		if (_scene is null)
+		{
+			return;
 			throw new Exception("scene not set");
+		}
 		_scene.OnMoveOn(pos);
 	}
 

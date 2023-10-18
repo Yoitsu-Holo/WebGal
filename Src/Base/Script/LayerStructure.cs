@@ -26,9 +26,7 @@ public record struct LayerStructure
 
 public record struct LayerAtrribute
 (
-	bool IsHide,
-	bool IsTriger,
-	bool HasEvent
+	bool IsHide
 );
 
 public record struct TextStructure

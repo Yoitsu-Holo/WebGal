@@ -2,19 +2,19 @@ namespace WebGal.Libs.Base;
 
 public record struct EventStructure
 (
-	TigerStructure? Triger,
+	TrigerStructure? Triger,
 	List<ActionStructure>? Action
 );
 
-public record struct TigerStructure
+public record struct TrigerStructure
 (
-	string? LayerName,
-	string? MouseEvent,
-	string? KeyboardEvent
+	string LayerName = "",
+	string MouseEvent = "",
+	string KeyboardEvent = ""
 );
 
 public record struct ActionStructure
 (
-	string? LayerName,
-	LayerAtrribute Atrribute
+	string LayerName,
+	LayerAtrribute Attribute
 );

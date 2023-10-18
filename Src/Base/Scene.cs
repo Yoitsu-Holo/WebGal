@@ -74,52 +74,61 @@ public class Scene
 
 
 	// Action
-	private readonly Dictionary<SKRectI, List<ActionStructure>> _leftClickAction = new();
-	private readonly Dictionary<SKRectI, List<ActionStructure>> _rightClickAction = new();
-	private readonly Dictionary<SKRectI, List<ActionStructure>> _moveOnAction = new();
-	public void RegitserLeftClickAction(SKRectI range, ActionStructure action)
+	private readonly Dictionary<string, List<ActionStructure>> _leftClickAction = new();
+	private readonly Dictionary<string, List<ActionStructure>> _rightClickAction = new();
+	private readonly Dictionary<string, List<ActionStructure>> _moveOnAction = new();
+
+	public void RegitserLeftClickAction(string trigerLayerName, ActionStructure action)
 	{
-		if (_leftClickAction.ContainsKey(range) == false)
-			_leftClickAction[range] = new();
-		_leftClickAction[range].Add(action);
+		if (_leftClickAction.ContainsKey(trigerLayerName) == false)
+			_leftClickAction[trigerLayerName] = new();
+		_leftClickAction[trigerLayerName].Add(action);
 	}
 
-	public void RegitserRightClickAction(SKRectI range, ActionStructure action)
+	public void RegitserRightClickAction(string trigerLayerName, ActionStructure action)
 	{
-		if (_rightClickAction.ContainsKey(range) == false)
-			_rightClickAction[range] = new();
-		_rightClickAction[range].Add(action);
+		if (_rightClickAction.ContainsKey(trigerLayerName) == false)
+			_rightClickAction[trigerLayerName] = new();
+		_rightClickAction[trigerLayerName].Add(action);
 	}
 
-	public void RegitserMoveOnAction(SKRectI range, ActionStructure action)
+	public void RegitserMoveOnAction(string trigerLayerName, ActionStructure action)
 	{
-		if (_moveOnAction.ContainsKey(range) == false)
-			_moveOnAction[range] = new();
-		_moveOnAction[range].Add(action);
+		if (_moveOnAction.ContainsKey(trigerLayerName) == false)
+			_moveOnAction[trigerLayerName] = new();
+		_moveOnAction[trigerLayerName].Add(action);
 	}
 
 	public void OnLeftClick(SKPointI point)
 	{
-		foreach (var (rect, actions) in _leftClickAction)
+		foreach (var (trigerLayerName, actions) in _leftClickAction)
 		{
-			if (RangeComp.OutRange(new(rect.Left, rect.Right), point.X) || RangeComp.OutRange(new(rect.Top, rect.Bottom), point.Y))
+			int trigerLayerId = _layersId[trigerLayerName];
+			Layer trigerLayer = Layers[trigerLayerId];
+
+			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
+				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
 				continue;
 			StateHasChange = true;
 			foreach (var action in actions)
-				SetActoin(action);
+				DoActoin(action);
 			Console.WriteLine("Scene: catch left click");
 		}
 	}
 
 	public void OnRightClick(SKPointI point)
 	{
-		foreach (var (rect, actions) in _rightClickAction)
+		foreach (var (trigerLayerName, actions) in _rightClickAction)
 		{
-			if (RangeComp.OutRange(new(rect.Left, rect.Right), point.X) || RangeComp.OutRange(new(rect.Top, rect.Bottom), point.Y))
+			int trigerLayerId = _layersId[trigerLayerName];
+			Layer trigerLayer = Layers[trigerLayerId];
+
+			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
+				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
 				continue;
 			StateHasChange = true;
 			foreach (var action in actions)
-				SetActoin(action);
+				DoActoin(action);
 
 			Console.WriteLine("Scene: catch right click");
 		}
@@ -127,31 +136,29 @@ public class Scene
 
 	public void OnMoveOn(SKPointI point)
 	{
-		foreach (var (rect, actions) in _moveOnAction)
+		foreach (var (trigerLayerName, actions) in _moveOnAction)
 		{
-			if (RangeComp.OutRange(new(rect.Left, rect.Right), point.X) || RangeComp.OutRange(new(rect.Top, rect.Bottom), point.Y))
+			int trigerLayerId = _layersId[trigerLayerName];
+			Layer trigerLayer = Layers[trigerLayerId];
+
+			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
+				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
 				continue;
 			StateHasChange = true;
 
 			foreach (var action in actions)
-				SetActoin(action);
+				DoActoin(action);
 			Console.WriteLine("Scene: catch move on");
 		}
 	}
 
-	private void SetActoin(ActionStructure action)
+	private void DoActoin(ActionStructure action)
 	{
 		if (action.LayerName is null)
 			throw new Exception("Scene Action: action layer Name not set");
 		var layerId = _layersId[action.LayerName];
 
-		bool isHide = action.IsHide;
-		LayerAtrribute layerAtrribute = new()
-		{
-			IsHide = isHide,
-		};
-
-		Layers[layerId].DynamicAttribute = layerAtrribute;
-		Console.WriteLine($"{action.LayerName}:{action.IsHide}");
+		Layers[layerId].DynamicAttribute = action.Attribute;
+		Console.WriteLine($"{action.LayerName}:{action.Attribute.IsHide}");
 	}
 }
