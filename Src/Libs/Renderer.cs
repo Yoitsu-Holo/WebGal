@@ -1,4 +1,5 @@
 using System.Data;
+using Microsoft.AspNetCore.Components;
 using SkiaSharp;
 using WebGal.Libs.Base;
 
@@ -26,8 +27,8 @@ public class Renderer
 			foreach (var (layerId, layer) in scene.Layers)
 			{
 				layer.GenNextFrame(timeoff);
-				if (layer.IsHide)
-					continue;
+				if (layer.DynamicAttribute.IsHide)
+					goto after;
 
 				if (layer.BackGroundSKBitmap is not null)
 					_canvas.DrawBitmap(layer.FrameBuffer, layer.PosAt(timeoff));
@@ -35,6 +36,13 @@ public class Renderer
 				// if ( is List<LayerText> texts)
 				foreach (var text in layer.Text)
 					_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
+				after:
+				Console.WriteLine($"{layerId}: now {layer.DynamicAttribute.IsHide} -> ori{layer.OriginalAttribute.IsHide}");
+				if (layer.DynamicAttribute != layer.OriginalAttribute)
+				{
+					layer.DynamicAttribute = layer.OriginalAttribute;
+					scene.StateHasChange = true;
+				}
 			}
 			_canvas.Flush();
 		}

@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SkiaSharp;
@@ -14,6 +15,8 @@ public partial class Test
 
 	private Dictionary<string, string> _loopAudios = new();
 	private Dictionary<string, string> _oneShotAudios = new();
+
+	private SKPointI _mousePos;
 
 	protected override void OnInitialized()
 	{
@@ -33,6 +36,7 @@ public partial class Test
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		SKCanvas canvas = e.Surface.Canvas;
+		Manager.OnMouceMoveOn(_mousePos);
 		Manager.Render(canvas, NowTime.Minisecond);
 
 		int sec = DateTimeOffset.UtcNow.Second;
@@ -48,10 +52,9 @@ public partial class Test
 
 	private void OnMouseMove(MouseEventArgs e)
 	{
-		_mousePos = ((int)e.OffsetX, (int)e.OffsetY);
 		// _mousePos.X = Math.Max(0, Math.Min(1279, _mousePos.X));
 		// _mousePos.Y = Math.Max(0, Math.Min(719, _mousePos.Y));
-		Manager.OnMouceMoveOn(new SKPointI((int)e.OffsetX, (int)e.OffsetY));
+		_mousePos = new SKPointI((int)e.OffsetX, (int)e.OffsetY);
 	}
 
 	private async Task OnClick(MouseEventArgs e)
@@ -76,7 +79,6 @@ public partial class Test
 	}
 
 	#region Debug
-	private (int X, int Y) _mousePos;
 	private int _frameCount = 0, _fps = 0, _lastSec;
 	#endregion
 };

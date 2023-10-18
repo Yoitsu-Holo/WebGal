@@ -85,3 +85,10 @@ public record struct ActionTriger
 	// attribute
 	bool IsHide
 );
+
+public record struct LayerAtrribute
+(
+	bool IsHide,
+	bool IsTriger,
+	bool HasEvent
+);

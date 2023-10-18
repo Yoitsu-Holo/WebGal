@@ -1,7 +1,6 @@
 using SkiaSharp;
 using Microsoft.JSInterop;
 using WebGal.Libs;
-using Web.Libs;
 using WebGal.Libs.Base;
 using WebGal.Global;
 
@@ -12,7 +11,7 @@ public class GameManager
 	private readonly Interpreter _interpreter;              //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;      //^ 资源管理器
 	private readonly SceneManager _sceneManager = new();    //^ 场景管理器
-	private readonly EventManager _eventManager = new();    //^ 事件管理器：（点击)
+															// private readonly EventManager _eventManager = new();    //^ 事件管理器：（点击)
 	private readonly Renderer _render = new();              //^ 渲染器
 	private Scene? _scene;
 	private Dictionary<string, string>? _loopAudiosRef;     //^ 循环音频库
@@ -29,7 +28,8 @@ public class GameManager
 	{
 		_js = js;
 		_resourceManager = new(httpClient);
-		_interpreter = new(_sceneManager, _resourceManager, _eventManager);
+		// _interpreter = new(_sceneManager, _resourceManager, _eventManager);
+		_interpreter = new(_sceneManager, _resourceManager);
 	}
 
 	public void Render(SKCanvas canvas, long timeoff, bool force = false)
@@ -56,7 +56,8 @@ public class GameManager
 	{
 		if (_scene is null)
 			throw new Exception("scene not set");
-		_eventManager.OnLeftClick(pos);
+		// _eventManager.OnLeftClick(pos);
+		_scene.OnLeftClick(pos);
 
 		// 如果动画没有结束，那么结束动画保留这一帧
 		if (_scene.HasAnimation(NowTime.Minisecond))
@@ -73,12 +74,18 @@ public class GameManager
 
 	public void OnRightClickAsync(SKPointI pos)
 	{
-		_eventManager.OnRightClick(pos);
+		// _eventManager.OnRightClick(pos);
+		if (_scene is null)
+			throw new Exception("scene not set");
+		_scene.OnRightClick(pos);
 	}
 
 	public void OnMouceMoveOn(SKPointI pos)
 	{
-		_eventManager.OnMoveOn(pos);
+		// _eventManager.OnMoveOn(pos);
+		if (_scene is null)
+			throw new Exception("scene not set");
+		_scene.OnMoveOn(pos);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)

@@ -9,16 +9,17 @@ public class Layer
 	public SKPointI PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new SKPointI(Pos.X + OffX, Pos.Y + OffY); }
 	public SKPointI Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
 	public SKPointI AbsolutePos(SKPointI offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
-	public int Left => Pos.X;
-	public int Right => Pos.X + WinSize.Width;
-	public int Top => Pos.Y;
-	public int Bottom => Pos.Y + WinSize.Height;
+	// public int Left => Pos.X;
+	// public int Right => Pos.X + WinSize.Width;
+	// public int Top => Pos.Y;
+	// public int Bottom => Pos.Y + WinSize.Height;
 	public SKSizeI WinSize { get; set; }
 	#endregion
 
 	#region attribute
-	public bool IsHide;
-	public bool HasEvent;
+	public bool StatusHasChanged;
+	public LayerAtrribute OriginalAttribute;
+	public LayerAtrribute DynamicAttribute;
 	#endregion
 
 	#region Next Frame
@@ -26,7 +27,7 @@ public class Layer
 	public SKPoint FramePosition { get; private set; } = new(0, 0);
 	public void GenNextFrame(long timeoff, bool force = false)
 	{
-		if (BackGroundSKBitmap is null || IsHide)
+		if (BackGroundSKBitmap is null || DynamicAttribute.IsHide)
 			return;
 
 		if (force || FrameBuffer is null)
@@ -59,3 +60,4 @@ public class Layer
 	public double Transparency { set; get; }
 	#endregion
 }
+

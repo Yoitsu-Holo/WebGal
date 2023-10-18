@@ -1,7 +1,5 @@
 using System.Text.Json;
-using BlazorDexie;
 using SkiaSharp;
-using Web.Libs;
 using WebGal.Global;
 using WebGal.Libs.Base;
 
@@ -13,7 +11,6 @@ public class Interpreter
 	private readonly Queue<string> _unloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
-	private readonly EventManager _eveneManager;
 
 	// 用于存储每一层Node的信息
 	private readonly Stack<(string, IEnumerator<UrlStructure>)> _nodeEnum = new();
@@ -26,11 +23,11 @@ public class Interpreter
 		_unloadedResPackName.Clear();
 	}
 
-	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager, EventManager eveneManager)
+	// public Interpreter(SceneManager sceneManager, ResourceManager resourceManager, EventManager eveneManager)
+	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
-		_eveneManager = eveneManager;
 	}
 
 	/// <summary>
@@ -255,38 +252,56 @@ public class Interpreter
 			};
 		}
 
+
 		// 添加属性
-		layer.IsHide = layerStructure.IsHide;
-		if (layerStructure.IsTriger)
-			_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-		if (layerStructure.Events is not null)
+		bool isHide = layerStructure.IsHide;
+		LayerAtrribute layerAtrribute = new()
 		{
-			foreach (var eventTriger in layerStructure.Events)
-			{
-				if (eventTriger.MouseEvent is not null)
-				{
-					switch (eventTriger.MouseEvent)
-					{
-						case "LeftClick":
-							_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-							break;
-						case "RightClick":
-							_eveneManager.RegitserRightClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-							break;
-						case "MoveOn":
-							_eveneManager.RegitserMoveOnActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-							break;
-						default:
-							_eveneManager.RegitserLeftClickActionTest(new SKRectI(layer.Left, layer.Top, layer.Right, layer.Bottom));
-							break;
-					}
-				}
-			}
-		}
+			IsHide = isHide,
+		};
+		layer.DynamicAttribute = layerAtrribute;
+		layer.OriginalAttribute = layerAtrribute;
 
 		return layer;
 	}
 
+	private void SetLayerAction(LayerStructure layer, List<EventTriger> evnets, Scene scene)
+	{
+		foreach (var eventTriger in evnets)
+		{
+			if (eventTriger.MouseEvent is not null)
+			{
+				ActionTriger action = new()
+				{
+					LayerName = eventTriger.Action.LayerName,
+					IsHide = layer.IsHide
+				};
+
+				SKRectI rect = new(
+					layer.Position.X,
+					layer.Position.Y,
+					layer.Position.X + layer.WinSize.Width,
+					layer.Position.Y + layer.WinSize.Height
+				);
+
+				switch (eventTriger.MouseEvent)
+				{
+					case "LeftClick":
+						scene.RegitserLeftClickAction(rect, action);
+						break;
+					case "RightClick":
+						scene.RegitserRightClickAction(rect, action);
+						break;
+					case "MoveOn":
+						scene.RegitserMoveOnAction(rect, action);
+						break;
+					default:
+						scene.RegitserLeftClickAction(rect, action);
+						break;
+				}
+			}
+		}
+	}
 
 	/// <summary>
 	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
@@ -319,6 +334,9 @@ public class Interpreter
 				if (layer.Name is null)
 					throw new Exception("Null layer name");
 				scene.PushLayer(layer.Name, PackLayer(layer));
+
+				if (layer.Events is not null)
+					SetLayerAction(layer, layer.Events, scene);
 			}
 
 			_sceneManager.PushScene(sceneName, scene);
