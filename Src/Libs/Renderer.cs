@@ -37,7 +37,7 @@ public class Renderer
 				foreach (var text in layer.Text)
 					_canvas.DrawText(text.Text, layer.AbsolutePos(text.Pos), text.Paint);
 				after:
-				Console.WriteLine($"{layerId}: now {layer.DynamicAttribute.IsHide} -> ori{layer.OriginalAttribute.IsHide}");
+
 				if (layer.DynamicAttribute != layer.OriginalAttribute)
 				{
 					layer.DynamicAttribute = layer.OriginalAttribute;

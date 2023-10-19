@@ -76,6 +76,7 @@ public class Scene
 	// Action
 	private readonly Dictionary<string, List<ActionStructure>> _leftClickAction = new();
 	private readonly Dictionary<string, List<ActionStructure>> _rightClickAction = new();
+	private readonly Dictionary<string, List<ActionStructure>> _holdAction = new();
 	private readonly Dictionary<string, List<ActionStructure>> _moveOnAction = new();
 
 	public void RegitserLeftClickAction(string trigerLayerName, ActionStructure action)
@@ -99,6 +100,13 @@ public class Scene
 		_moveOnAction[trigerLayerName].Add(action);
 	}
 
+	public void RegitserHoldAction(string trigerLayerName, ActionStructure action)
+	{
+		if (_holdAction.ContainsKey(trigerLayerName) == false)
+			_holdAction[trigerLayerName] = new();
+		_holdAction[trigerLayerName].Add(action);
+	}
+
 	public void OnLeftClick(SKPointI point)
 	{
 		foreach (var (trigerLayerName, actions) in _leftClickAction)
@@ -112,7 +120,6 @@ public class Scene
 			StateHasChange = true;
 			foreach (var action in actions)
 				DoActoin(action);
-			Console.WriteLine("Scene: catch left click");
 		}
 	}
 
@@ -129,8 +136,6 @@ public class Scene
 			StateHasChange = true;
 			foreach (var action in actions)
 				DoActoin(action);
-
-			Console.WriteLine("Scene: catch right click");
 		}
 	}
 
@@ -148,7 +153,23 @@ public class Scene
 
 			foreach (var action in actions)
 				DoActoin(action);
-			Console.WriteLine("Scene: catch move on");
+		}
+	}
+
+	public void OnHold(SKPointI point)
+	{
+		foreach (var (trigerLayerName, actions) in _holdAction)
+		{
+			int trigerLayerId = _layersId[trigerLayerName];
+			Layer trigerLayer = Layers[trigerLayerId];
+
+			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
+				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
+				continue;
+			StateHasChange = true;
+
+			foreach (var action in actions)
+				DoActoin(action);
 		}
 	}
 
@@ -159,6 +180,5 @@ public class Scene
 		var layerId = _layersId[action.LayerName];
 
 		Layers[layerId].DynamicAttribute = action.Attribute;
-		Console.WriteLine($"{action.LayerName}:{action.Attribute.IsHide}");
 	}
 }

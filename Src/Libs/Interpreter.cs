@@ -261,8 +261,8 @@ public class Interpreter
 
 
 		// 添加属性
-		layer.DynamicAttribute = layerStructure.Atrribute;
-		layer.OriginalAttribute = layerStructure.Atrribute;
+		layer.DynamicAttribute = layerStructure.Attribute;
+		layer.OriginalAttribute = layerStructure.Attribute;
 
 		return layer;
 	}
@@ -283,6 +283,9 @@ public class Interpreter
 						break;
 					case "MoveOn":
 						scene.RegitserMoveOnAction(triger.LayerName, action);
+						break;
+					case "Hold":
+						scene.RegitserHoldAction(triger.LayerName, action);
 						break;
 					default:
 						scene.RegitserLeftClickAction(triger.LayerName, action);

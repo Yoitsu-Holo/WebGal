@@ -1,12 +1,34 @@
+using SkiaSharp;
 namespace WebGal.Event;
 
-// public class MouseEvent
-// {
-// 	public void MousePress() { }            //当用户按下鼠标按钮时触发。
-// 	public void MouseRelease() { }          //当用户释放鼠标按钮时触发。
-// 	public void MouseClick() { }            //按下和释放鼠标按钮的组合动作。
-// 	public void MouseDoubleCLick() { }      //用户在短时间内连续点击两次鼠标按钮时触发。
-// 	public void MouseMove() { }             //当鼠标在窗口或控件内部移动时触发。
-// 	public void MouseWheel() { }            //用户滚动鼠标滚轮时触发。
-// 	public void MouseHover() { }            //当鼠标停留在控件上方一段时间时触发。
-// }
+public enum MouseButton
+{
+	Null,
+	LButton,
+	MButton,
+	RButton,
+	Button4,
+	Button5,
+	Button6,
+	Button7,
+	Button8,
+	MouseChord, // mouse chord key - both the left and right mouse buttons pressed at the same time
+	MouseWheel // By default is bound to the "+camdistadjust" command. But can be used for other commands (e.g. target_next_enemy).
+}
+
+public enum MouseStatus
+{
+	Release,
+	Hold,
+	Up,
+	Down,
+	WheelUp,
+	WheelDown
+}
+
+public struct MouseEvent
+{
+	public SKPointI Position { get; set; }
+	public MouseButton Button { get; set; }
+	public MouseStatus Status { get; set; }
+};

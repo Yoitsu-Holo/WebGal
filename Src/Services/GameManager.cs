@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using WebGal.Libs;
 using WebGal.Libs.Base;
 using WebGal.Global;
+using WebGal.Event;
 
 namespace WebGal.Services;
 public class GameManager
@@ -32,6 +33,15 @@ public class GameManager
 		_interpreter = new(_sceneManager, _resourceManager);
 	}
 
+	public void Clear()
+	{
+		_render.Clear();
+		_sceneManager.Clear();
+		_resourceManager.Clear();
+		_interpreter.Clear();
+		_scene = null;
+	}
+
 	public void Render(SKCanvas canvas, long timeoff, bool force = false)
 	{
 		if (_scene is null)
@@ -42,62 +52,20 @@ public class GameManager
 		_render.Render(canvas, _scene, timeoff, force);
 	}
 
-	private void LoadScene()
+	public async Task ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		if (_sceneManager.SceneNameList.Count != 0)
-			_sceneName = _sceneManager.SceneNameList.Peek();
+		var (button, status, pos) = (mouseEvent.Button, mouseEvent.Status, mouseEvent.Position);
+		// Console.WriteLine("in");
 
-		if (_scene is null || !_scene.IsStatic)
-		{
-			_sceneManager.SceneNameList.Dequeue();
-			_scene = _sceneManager.LoadScene(_sceneName);
-			_scene.StartAnimation();
-		}
-	}
+		if (button == MouseButton.Null)
+			OnMouceMoveOn(pos);
 
-	public async Task OnLeftClickAsync(SKPointI pos)
-	{
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		// _eventManager.OnLeftClick(pos);
-		_scene.OnLeftClick(pos);
+		else if (button == MouseButton.LButton && status == MouseStatus.Down)
+			await OnLeftClickAsync(pos);
 
-		// 如果动画没有结束，那么结束动画保留这一帧
-		if (_scene.HasAnimation(NowTime.Minisecond))
-		{
-			_scene.StopAnimation();
-			return;
-		}
+		else if (button == MouseButton.LButton && status == MouseStatus.Hold)
+			_scene.OnHold(pos);
 
-		// 如果当前场景动画结束，切换到下一场景
-		await _interpreter.ParsingNextAsync();
-		LoadScene();
-		await LoadMedia();
-	}
-
-	public async Task OnRightClickAsync(SKPointI pos)
-	{
-		// _eventManager.OnRightClick(pos);
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		_scene.OnRightClick(pos);
-	}
-
-	public void OnMouceMoveOn(SKPointI pos)
-	{
-		// _eventManager.OnMoveOn(pos);
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		_scene.OnMoveOn(pos);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -144,15 +112,6 @@ public class GameManager
 		return;
 	}
 
-	public void Clear()
-	{
-		_render.Clear();
-		_sceneManager.Clear();
-		_resourceManager.Clear();
-		_interpreter.Clear();
-		_scene = null;
-	}
-
 	#region Debug
 	/// <summary>
 	/// 测试程序接口，内部填入测试流程代码
@@ -167,4 +126,65 @@ public class GameManager
 		LoadScene();
 	}
 	#endregion
+
+	private void LoadScene()
+	{
+		if (_sceneManager.SceneNameList.Count != 0)
+			_sceneName = _sceneManager.SceneNameList.Peek();
+
+		if (_scene is null || !_scene.IsStatic)
+		{
+			_sceneManager.SceneNameList.Dequeue();
+			_scene = _sceneManager.LoadScene(_sceneName);
+			_scene.StartAnimation();
+		}
+	}
+
+	private async Task OnLeftClickAsync(SKPointI pos)
+	{
+		if (_scene is null)
+		{
+			return;
+			throw new Exception("scene not set");
+		}
+		Console.WriteLine("Left Click");
+		// _eventManager.OnLeftClick(pos);
+		_scene.OnLeftClick(pos);
+
+		// 如果动画没有结束，那么结束动画保留这一帧
+		if (_scene.HasAnimation(NowTime.Minisecond))
+		{
+			Console.WriteLine("stop Animation");
+			_scene.StopAnimation();
+			return;
+		}
+
+		Console.WriteLine("Next Scene");
+		// 如果当前场景动画结束，切换到下一场景
+		await _interpreter.ParsingNextAsync();
+		LoadScene();
+		await LoadMedia();
+	}
+
+	private async Task OnRightClickAsync(SKPointI pos)
+	{
+		// _eventManager.OnRightClick(pos);
+		if (_scene is null)
+		{
+			return;
+			throw new Exception("scene not set");
+		}
+		_scene.OnRightClick(pos);
+	}
+
+	private void OnMouceMoveOn(SKPointI pos)
+	{
+		// _eventManager.OnMoveOn(pos);
+		if (_scene is null)
+		{
+			return;
+			throw new Exception("scene not set");
+		}
+		_scene.OnMoveOn(pos);
+	}
 }

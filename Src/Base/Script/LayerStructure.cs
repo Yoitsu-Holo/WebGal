@@ -6,7 +6,7 @@ public record struct LayerStructure
 	string? Name,
 	// 图层属性
 	string? LayerType,
-	LayerAtrribute Atrribute,
+	LayerAtrribute Attribute,
 	PositonStructure Position,
 	WinSizeStructure WinSize,
 	// 图层动画
