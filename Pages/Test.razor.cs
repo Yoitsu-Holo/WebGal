@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
+using WebGal.Event;
 using WebGal.Global;
+using WebGal.Libs.Base;
 using WebGal.Services;
 
 namespace WebGal.Pages;
@@ -17,6 +19,8 @@ public partial class Test
 	private Dictionary<string, string> _oneShotAudios = new();
 
 	private SKPointI _mousePos;
+
+	private MouseEvent _mouseEvent = new();
 
 	protected override void OnInitialized()
 	{
@@ -35,6 +39,7 @@ public partial class Test
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
+		Console.WriteLine($"{_mouseEvent.Button}:{_mouseEvent.Status}");
 		SKCanvas canvas = e.Surface.Canvas;
 		Manager.OnMouceMoveOn(_mousePos);
 		Manager.Render(canvas, NowTime.Minisecond);
@@ -48,6 +53,7 @@ public partial class Test
 			await InvokeAsync(StateHasChanged);
 		}
 		_frameCount++;
+		OnMouseSpace();
 	}
 
 	private void OnMouseMove(MouseEventArgs e)
@@ -57,25 +63,40 @@ public partial class Test
 		_mousePos = new SKPointI((int)e.OffsetX, (int)e.OffsetY);
 	}
 
-	private async Task OnClick(MouseEventArgs e)
+	private void OnMouseUp(MouseEventArgs e)
 	{
+		_mouseEvent.Status = MouseStatus.ButtonUp;
+
+		if (_mouseEvent.Button == MouseButton.Space || _mouseEvent.Button == MouseButton.MouseChord)
+			return;
+
+		_mouseEvent.Button = e.Button switch
+		{
+			0L => (_mouseEvent.Button == MouseButton.RButton) ? MouseButton.MouseChord : MouseButton.LButton,
+			1L => MouseButton.MButton,
+			2L => (_mouseEvent.Button == MouseButton.LButton) ? MouseButton.MouseChord : MouseButton.RButton,
+			_ => MouseButton.Space,
+		};
+	}
+
+	private void OnMouseDown(MouseEventArgs e)
+	{
+		_mouseEvent.Status = MouseStatus.ButtonDown;
 		Console.WriteLine(e.Button);
-		if (e.Button == 0L)
-			await OnLeftClick(e);
-		if (e.Button == 2L)
-			await OnRightClick(e);
-		await InvokeAsync(StateHasChanged);
+
+		_mouseEvent.Button = e.Button switch
+		{
+			0L => (_mouseEvent.Button == MouseButton.RButton) ? MouseButton.MouseChord : MouseButton.LButton,
+			1L => MouseButton.MButton,
+			2L => (_mouseEvent.Button == MouseButton.LButton) ? MouseButton.MouseChord : MouseButton.RButton,
+			_ => MouseButton.Space,
+		};
 	}
 
-	private async Task OnLeftClick(MouseEventArgs e)
+	private void OnMouseSpace()
 	{
-		await Manager.OnLeftClickAsync(new SKPointI((int)e.OffsetX, (int)e.OffsetY));
-	}
-
-	private async Task OnRightClick(MouseEventArgs e)
-	{
-		Console.WriteLine("Right Click");
-		// await Manager.OnClickAsync(new SKPoint((float)e.OffsetX, (float)e.OffsetY));
+		if (_mouseEvent.Status == MouseStatus.ButtonUp)
+			_mouseEvent.Button = MouseButton.Space;
 	}
 
 	#region Debug

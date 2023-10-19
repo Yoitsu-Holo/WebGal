@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SkiaSharp;
 using WebGal.Global;
 using WebGal.Libs.Base;
@@ -375,5 +376,22 @@ public class Interpreter
 		if (mainObj.OneShotAudio is not null)
 			foreach (var oneShotAudio in mainObj.OneShotAudio)
 				_sceneManager.OneShotAudioSet.Add(oneShotAudio);
+
+		//! test
+		// MouseEvent evn = new()
+		// {
+		// 	Button = MouseButton.LButton,
+		// 	Status = MouseStatus.ButtonDown
+		// };
+		// var options = new JsonSerializerOptions
+		// {
+		// 	WriteIndented = true,
+		// 	Converters =
+		// 	{
+		// 		new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+		// 	}
+		// };
+		// var str = JsonSerializer.Serialize(evn, options);
+		// Console.WriteLine(str);
 	}
 }

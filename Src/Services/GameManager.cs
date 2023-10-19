@@ -78,7 +78,7 @@ public class GameManager
 		await LoadMedia();
 	}
 
-	public void OnRightClickAsync(SKPointI pos)
+	public async Task OnRightClickAsync(SKPointI pos)
 	{
 		// _eventManager.OnRightClick(pos);
 		if (_scene is null)
