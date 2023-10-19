@@ -1,5 +1,3 @@
-using System.Data;
-using Microsoft.AspNetCore.Components;
 using SkiaSharp;
 using WebGal.Libs.Base;
 

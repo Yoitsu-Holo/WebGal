@@ -4,9 +4,9 @@ namespace WebGal.Libs.Base;
 public class Animation
 {
 	// 动画开始时图层处于的偏移量
-	public (float X, float Y) BeginPosition { get; set; } = new(0, 0);
+	public FVector BeginPosition { get; set; } = new(0, 0);
 	// 动画结束后图层处于的偏移量
-	public (float X, float Y) EndPosition { get; set; } = new(0, 0);
+	public FVector EndPosition { get; set; } = new(0, 0);
 	public long DelayTime { get; set; }
 	public long BeginTime { get; set; }
 	public long EndTime { get => BeginTime + DelayTime; }
@@ -19,13 +19,13 @@ public class Animation
 	/// </summary>
 	/// <param name="time">绝对时间</param>
 	/// <returns></returns>
-	public (int X, int Y) GetOffset(long time)
+	public IVector GetOffset(long time)
 	{
 		if (DelayTime == 0 || time > EndTime || time < BeginTime)
-			return (0, 0);
-		var (dx, dy) = AnimationClass.GetOffset((float)(time - BeginTime) / DelayTime, time);
-		float DeltaX = EndPosition.X - BeginPosition.X;
-		float DeltaY = EndPosition.Y - BeginPosition.Y;
-		return ((int)(BeginPosition.X + (DeltaX * dx)), (int)(BeginPosition.Y + (DeltaY * dy)));
+			return new(0, 0);
+
+		var Offset = AnimationClass.GetOffset((float)(time - BeginTime) / DelayTime, time);
+		var delta = EndPosition - BeginPosition;
+		return (IVector)(BeginPosition + (Offset * delta));
 	}
 }

@@ -1,6 +1,8 @@
+using WebGal.Libs.Base;
+
 namespace WebGal.Animations;
 
 public interface IAnimation
 {
-	public (float dx, float dy) GetOffset(float timeOff, long timeObs);
+	public FVector GetOffset(float timeOff, long timeObs);
 }

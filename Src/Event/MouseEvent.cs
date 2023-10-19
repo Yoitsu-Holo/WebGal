@@ -1,4 +1,5 @@
 using SkiaSharp;
+using WebGal.Libs.Base;
 namespace WebGal.Event;
 
 public enum MouseButton
@@ -28,7 +29,7 @@ public enum MouseStatus
 
 public struct MouseEvent
 {
-	public SKPointI Position { get; set; }
+	public IVector Position { get; set; }
 	public MouseButton Button { get; set; }
 	public MouseStatus Status { get; set; }
 };

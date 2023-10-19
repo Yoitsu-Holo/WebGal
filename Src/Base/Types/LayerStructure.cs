@@ -7,16 +7,16 @@ public record struct LayerStructure
 	// 图层属性
 	string? LayerType,
 	LayerAtrribute Attribute,
-	PositonStructure Position,
+	IVector Position,
 	WinSizeStructure WinSize,
 	// 图层动画
 	int Time,
 	string? Animation,
-	PositonStructure BeginPosition,
-	PositonStructure EndPosition,
+	IVector BeginPosition,
+	IVector EndPosition,
 	// 背景图片
 	string? Image,
-	PositonStructure CutPosition,
+	IVector CutPosition,
 	WinSizeStructure CutWinSize,
 	// 简单图形
 	ColorStructure ShapeColor,
@@ -26,12 +26,13 @@ public record struct LayerStructure
 
 public record struct LayerAtrribute
 (
+	IVector Offset,
 	bool IsHide
 );
 
 public record struct TextStructure
 (
-	PositonStructure Offset,
+	IVector Offset,
 	PaintStructure Paint,
 	string? Text
 );

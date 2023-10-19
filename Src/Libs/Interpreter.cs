@@ -141,11 +141,10 @@ public class Interpreter
 
 		Layer layer = new()
 		{
-			Pos = new(layerStructure.Position.X, layerStructure.Position.Y)
+			Pos = layerStructure.Position
 		};
 
-		(int width, int height) = (layerStructure.WinSize.Width, layerStructure.WinSize.Height);
-
+		var (width, height) = layerStructure.WinSize;
 
 		if (layerStructure.LayerType is null)
 			throw new Exception("Unknow Layer Type");
@@ -158,8 +157,6 @@ public class Interpreter
 
 			var image = _resourceManager.GetImage(layerStructure.Image);
 
-			Console.WriteLine($"Image Size: {image.Width},{image.Height}");
-
 			if (layerStructure.WinSize == default)
 				(width, height) = (image.Width, image.Height);
 			layer.WinSize = new(width, height);
@@ -169,8 +166,6 @@ public class Interpreter
 			var cutWinSize = layerStructure.CutWinSize;
 			if (cutWinSize == default)
 				cutWinSize = new(width, height);
-
-			// Console.WriteLine($"({cutPosition.X},{cutPosition.Y}) : ({cutWinSize.Width},{cutWinSize.Height}) -> ({layerStructure.Position.X},{layerStructure.Position.Y})");
 
 			using SKCanvas canvas = new(layer.BackGroundSKBitmap);
 			canvas.DrawBitmap(
@@ -252,8 +247,8 @@ public class Interpreter
 		{
 			layer.Anim = new()
 			{
-				BeginPosition = (layerStructure.BeginPosition.X, layerStructure.BeginPosition.Y),
-				EndPosition = (layerStructure.EndPosition.X, layerStructure.EndPosition.Y),
+				BeginPosition = (FVector)layerStructure.BeginPosition,
+				EndPosition = (FVector)layerStructure.EndPosition,
 				DelayTime = layerStructure.Time,
 				AnimationClass = AnimationRegister.GetAnimation(layerStructure.Animation)
 			};
@@ -344,8 +339,6 @@ public class Interpreter
 	}
 
 
-	// todo 功能不完善，后续会加入实时解析功能
-	// todo 执行一次有效加载时，函数会加载一整个Node下的所有场景，并且会自动判断是否需要解析下一个Node
 	/// <summary>
 	/// 开始执行解释流程，唯一公共对外口
 	/// </summary>

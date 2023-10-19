@@ -12,7 +12,6 @@ public class GameManager
 	private readonly Interpreter _interpreter;              //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;      //^ 资源管理器
 	private readonly SceneManager _sceneManager = new();    //^ 场景管理器
-															// private readonly EventManager _eventManager = new();    //^ 事件管理器：（点击)
 	private readonly Renderer _render = new();              //^ 渲染器
 	private Scene? _scene;
 	private Dictionary<string, string>? _loopAudiosRef;     //^ 循环音频库
@@ -64,7 +63,8 @@ public class GameManager
 			await OnLeftClickAsync(pos);
 
 		else if (button == MouseButton.LButton && status == MouseStatus.Hold)
-			_scene.OnHold(pos);
+			if (_scene is not null)
+				_scene.OnHold(pos);
 
 	}
 

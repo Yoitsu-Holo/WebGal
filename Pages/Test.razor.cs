@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Event;
 using WebGal.Global;
+using WebGal.Libs.Base;
 using WebGal.Services;
 
 namespace WebGal.Pages;
@@ -59,7 +59,7 @@ public partial class Test
 
 	private void OnMouseMove(MouseEventArgs e)
 	{
-		_mouseEvent.Position = new SKPointI((int)e.OffsetX, (int)e.OffsetY);
+		_mouseEvent.Position = new IVector((int)e.OffsetX, (int)e.OffsetY);
 	}
 
 	private void OnMouseUp(MouseEventArgs e)
