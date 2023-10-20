@@ -1,4 +1,5 @@
 using SkiaSharp;
+using WebGal.Event;
 using WebGal.Global;
 
 namespace WebGal.Libs.Base;
@@ -79,93 +80,29 @@ public class Scene
 	private readonly Dictionary<string, List<ActionStructure>> _holdAction = new();
 	private readonly Dictionary<string, List<ActionStructure>> _moveOnAction = new();
 
-	public void RegitserLeftClickAction(string trigerLayerName, ActionStructure action)
+	private readonly List<(string, MouseEvent, List<ActionStructure>)> _mouseEvents = new();
+
+	public void RegitserMouseAction(string trigerLayerName, MouseEvent mouseEvent, List<ActionStructure> actions)
 	{
-		if (_leftClickAction.ContainsKey(trigerLayerName) == false)
-			_leftClickAction[trigerLayerName] = new();
-		_leftClickAction[trigerLayerName].Add(action);
+		_mouseEvents.Add((trigerLayerName, mouseEvent, actions));
 	}
 
-	public void RegitserRightClickAction(string trigerLayerName, ActionStructure action)
+	public void DoMouseEvent(MouseEvent mouseEvent)
 	{
-		if (_rightClickAction.ContainsKey(trigerLayerName) == false)
-			_rightClickAction[trigerLayerName] = new();
-		_rightClickAction[trigerLayerName].Add(action);
-	}
-
-	public void RegitserMoveOnAction(string trigerLayerName, ActionStructure action)
-	{
-		if (_moveOnAction.ContainsKey(trigerLayerName) == false)
-			_moveOnAction[trigerLayerName] = new();
-		_moveOnAction[trigerLayerName].Add(action);
-	}
-
-	public void RegitserHoldAction(string trigerLayerName, ActionStructure action)
-	{
-		if (_holdAction.ContainsKey(trigerLayerName) == false)
-			_holdAction[trigerLayerName] = new();
-		_holdAction[trigerLayerName].Add(action);
-	}
-
-	public void OnLeftClick(SKPointI point)
-	{
-		foreach (var (trigerLayerName, actions) in _leftClickAction)
+		foreach (var (trigerLayerName, targetEvent, actions) in _mouseEvents)
 		{
+			if (targetEvent.Button != mouseEvent.Button || targetEvent.Status != mouseEvent.Status)
+				continue;
+
 			int trigerLayerId = _layersId[trigerLayerName];
 			Layer trigerLayer = Layers[trigerLayerId];
+
+			var point = mouseEvent.Position;
 
 			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
 				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
 				continue;
-			StateHasChange = true;
-			foreach (var action in actions)
-				DoActoin(action);
-		}
-	}
 
-	public void OnRightClick(SKPointI point)
-	{
-		foreach (var (trigerLayerName, actions) in _rightClickAction)
-		{
-			int trigerLayerId = _layersId[trigerLayerName];
-			Layer trigerLayer = Layers[trigerLayerId];
-
-			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
-				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
-				continue;
-			StateHasChange = true;
-			foreach (var action in actions)
-				DoActoin(action);
-		}
-	}
-
-	public void OnMoveOn(SKPointI point)
-	{
-		foreach (var (trigerLayerName, actions) in _moveOnAction)
-		{
-			int trigerLayerId = _layersId[trigerLayerName];
-			Layer trigerLayer = Layers[trigerLayerId];
-
-			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
-				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
-				continue;
-			StateHasChange = true;
-
-			foreach (var action in actions)
-				DoActoin(action);
-		}
-	}
-
-	public void OnHold(SKPointI point)
-	{
-		foreach (var (trigerLayerName, actions) in _holdAction)
-		{
-			int trigerLayerId = _layersId[trigerLayerName];
-			Layer trigerLayer = Layers[trigerLayerId];
-
-			if (RangeComp.OutRange(new(trigerLayer.Pos.X, trigerLayer.Pos.X + trigerLayer.WinSize.Width), point.X) ||
-				RangeComp.OutRange(new(trigerLayer.Pos.Y, trigerLayer.Pos.Y + trigerLayer.WinSize.Height), point.Y))
-				continue;
 			StateHasChange = true;
 
 			foreach (var action in actions)
@@ -177,8 +114,8 @@ public class Scene
 	{
 		if (action.LayerName is null)
 			throw new Exception("Scene Action: action layer Name not set");
-		var layerId = _layersId[action.LayerName];
 
-		Layers[layerId].DynamicAttribute = action.Attribute;
+		var actionLayerId = _layersId[action.LayerName];
+		Layers[actionLayerId].DynamicAttribute = action.Attribute;
 	}
 }

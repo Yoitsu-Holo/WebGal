@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using SkiaSharp;
 using WebGal.Global;
 using WebGal.Libs.Base;
@@ -7,6 +6,8 @@ using WebGal.Libs.Base;
 namespace WebGal.Libs;
 public class Interpreter
 {
+	private JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+
 	// private Dictionary<string, List<string>> _nodeName = new();
 	private readonly Queue<string> _sceneName = new();
 	private readonly Queue<string> _unloadedResPackName = new();
@@ -41,7 +42,7 @@ public class Interpreter
 		while (_unloadedResPackName.Count > 0)
 		{
 			var resourcePackScript = _resourceManager.GetScript(_unloadedResPackName.Dequeue());
-			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript);
+			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript, _jsonOptions);
 
 			if (resouresPack.ImageURL is not null)
 				tasks.AddRange(resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL)));
@@ -65,7 +66,7 @@ public class Interpreter
 		while (_nodeEnum.Count != 0)
 		{
 			var (nowNodeName, nextNodeEnum) = _nodeEnum.Peek();
-			var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nowNodeName));
+			var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nowNodeName), _jsonOptions);
 
 			if (nowNode == default)
 				throw new Exception("No volume");
@@ -97,7 +98,7 @@ public class Interpreter
 			}
 			else
 			{
-				var nextNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name));
+				var nextNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name), _jsonOptions);
 				if (nextNode.NodeURL is null)
 					throw new Exception("empty Node");
 				_nodeEnum.Push((nextNodeUrl.Name, nextNode.NodeURL.GetEnumerator()));
@@ -262,33 +263,11 @@ public class Interpreter
 		return layer;
 	}
 
-	private void SetLayerAction(TrigerStructure triger, List<ActionStructure> actions, Scene scene)
-	{
-		foreach (var action in actions)
-		{
-			if (triger.MouseEvent is not null)
-			{
-				switch (triger.MouseEvent)
-				{
-					case "LeftClick":
-						scene.RegitserLeftClickAction(triger.LayerName, action);
-						break;
-					case "RightClick":
-						scene.RegitserRightClickAction(triger.LayerName, action);
-						break;
-					case "MoveOn":
-						scene.RegitserMoveOnAction(triger.LayerName, action);
-						break;
-					case "Hold":
-						scene.RegitserHoldAction(triger.LayerName, action);
-						break;
-					default:
-						scene.RegitserLeftClickAction(triger.LayerName, action);
-						break;
-				}
-			}
-		}
-	}
+	// private void SetLayerAction(TrigerStructure triger, List<ActionStructure> actions, Scene scene)
+	// {
+	// 	if (triger.MouseEvent != default && triger.LayerName is not null)
+	// 		scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
+	// }
 
 	/// <summary>
 	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
@@ -307,7 +286,7 @@ public class Interpreter
 				continue;
 
 			string sceneScript = _resourceManager.GetScript(sceneName);
-			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript);
+			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
 
 			if (sceneStructure.Layers is null)
 				throw new Exception("No Scene Layer");
@@ -332,7 +311,12 @@ public class Interpreter
 					if (@event.Action is null)
 						throw new Exception("No action");
 
-					SetLayerAction(@event.Triger.Value, @event.Action, scene);
+					// SetLayerAction(@event.Triger.Value, @event.Action, scene);
+
+					var (triger, actions) = (@event.Triger.Value, @event.Action);
+
+					if (triger.LayerName is not null)
+						scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
 				}
 			_sceneManager.PushScene(sceneName, scene);
 		}
@@ -357,7 +341,7 @@ public class Interpreter
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync();
 
-		var mainObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript());
+		var mainObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(), _jsonOptions);
 		if (mainObj.NodeURL is null)
 			throw new Exception("empty Node");
 		_nodeEnum.Push((

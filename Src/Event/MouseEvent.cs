@@ -1,10 +1,10 @@
-using SkiaSharp;
 using WebGal.Libs.Base;
 namespace WebGal.Event;
 
 public enum MouseButton
 {
-	Null,
+	Empty,
+	Any,
 	LButton,
 	MButton,
 	RButton,
@@ -27,9 +27,9 @@ public enum MouseStatus
 	WheelDown
 }
 
-public struct MouseEvent
-{
-	public IVector Position { get; set; }
-	public MouseButton Button { get; set; }
-	public MouseStatus Status { get; set; }
-};
+public record struct MouseEvent
+(
+	IVector Position,
+	MouseButton Button,
+	MouseStatus Status
+);

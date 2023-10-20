@@ -53,19 +53,7 @@ public class GameManager
 
 	public async Task ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		var (button, status, pos) = (mouseEvent.Button, mouseEvent.Status, mouseEvent.Position);
-		// Console.WriteLine("in");
-
-		if (button == MouseButton.Null)
-			OnMouceMoveOn(pos);
-
-		else if (button == MouseButton.LButton && status == MouseStatus.Down)
-			await OnLeftClickAsync(pos);
-
-		else if (button == MouseButton.LButton && status == MouseStatus.Hold)
-			if (_scene is not null)
-				_scene.OnHold(pos);
-
+		_scene?.DoMouseEvent(mouseEvent);
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -149,7 +137,7 @@ public class GameManager
 		}
 		Console.WriteLine("Left Click");
 		// _eventManager.OnLeftClick(pos);
-		_scene.OnLeftClick(pos);
+		//^ _scene.OnLeftClick(pos);
 
 		// 如果动画没有结束，那么结束动画保留这一帧
 		if (_scene.HasAnimation(NowTime.Minisecond))
@@ -174,7 +162,7 @@ public class GameManager
 			return;
 			throw new Exception("scene not set");
 		}
-		_scene.OnRightClick(pos);
+		//^ _scene.OnRightClick(pos);
 	}
 
 	private void OnMouceMoveOn(SKPointI pos)
@@ -185,6 +173,6 @@ public class GameManager
 			return;
 			throw new Exception("scene not set");
 		}
-		_scene.OnMoveOn(pos);
+		//^ _scene.OnMoveOn(pos);
 	}
 }

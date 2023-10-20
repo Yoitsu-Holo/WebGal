@@ -35,13 +35,8 @@ public partial class Test
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
-		// SKCanvas canvas = e.Surface.Canvas;
-		if (_mouseEvent.Status == MouseStatus.Up || _mouseEvent.Status == MouseStatus.Down)
-			Console.WriteLine($"{_mouseEvent.Button} -> {_mouseEvent.Status}");
-
 		var mouseEventCopy = _mouseEvent;
-		OnMouseSpace();
-
+		MouseStatusUpdate();
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
 		Manager.Render(e.Surface.Canvas, NowTime.Minisecond);
@@ -66,7 +61,7 @@ public partial class Test
 	{
 		_mouseEvent.Status = MouseStatus.Up;
 
-		if (_mouseEvent.Button == MouseButton.Null || _mouseEvent.Button == MouseButton.MouseChord)
+		if (_mouseEvent.Button == MouseButton.Empty || _mouseEvent.Button == MouseButton.MouseChord)
 			return;
 
 		_mouseEvent.Button = e.Button switch
@@ -74,30 +69,30 @@ public partial class Test
 			0L => (_mouseEvent.Button == MouseButton.RButton) ? MouseButton.MouseChord : MouseButton.LButton,
 			1L => MouseButton.MButton,
 			2L => (_mouseEvent.Button == MouseButton.LButton) ? MouseButton.MouseChord : MouseButton.RButton,
-			_ => MouseButton.Null,
+			_ => MouseButton.Empty,
 		};
 	}
 
 	private void OnMouseDown(MouseEventArgs e)
 	{
 		_mouseEvent.Status = MouseStatus.Down;
-		Console.WriteLine(e.Button);
+		// Console.WriteLine(e.Button);
 
 		_mouseEvent.Button = e.Button switch
 		{
 			0L => (_mouseEvent.Button == MouseButton.RButton) ? MouseButton.MouseChord : MouseButton.LButton,
 			1L => MouseButton.MButton,
 			2L => (_mouseEvent.Button == MouseButton.LButton) ? MouseButton.MouseChord : MouseButton.RButton,
-			_ => MouseButton.Null,
+			_ => MouseButton.Empty,
 		};
 	}
 
-	private void OnMouseSpace()
+	private void MouseStatusUpdate()
 	{
 		if (_mouseEvent.Status == MouseStatus.Up)
 		{
 			_mouseEvent.Status = MouseStatus.Release;
-			_mouseEvent.Button = MouseButton.Null;
+			_mouseEvent.Button = MouseButton.Empty;
 		}
 		if (_mouseEvent.Status == MouseStatus.Down)
 			_mouseEvent.Status = MouseStatus.Hold;

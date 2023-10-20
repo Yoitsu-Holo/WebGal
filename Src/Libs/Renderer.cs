@@ -18,7 +18,7 @@ public class Renderer
 			Clear();
 			_canvas = canvas;
 		}
-		// Console.WriteLine(scene.HasAnimation(timeoff));
+
 		if (scene.HasAnimation(timeoff) || force)
 		{
 			_canvas.Clear();

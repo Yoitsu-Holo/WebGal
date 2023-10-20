@@ -1,4 +1,4 @@
-using SkiaSharp;
+using WebGal.Event;
 
 namespace WebGal.Libs.Base;
 
@@ -10,9 +10,9 @@ public record struct EventStructure
 
 public record struct TrigerStructure
 (
-	string LayerName = "",
-	string MouseEvent = "",
-	string KeyboardEvent = ""
+	string? LayerName,
+	MouseEvent MouseEvent,
+	KeyboardEvent KeyboardEvent
 );
 
 public record struct ActionStructure
