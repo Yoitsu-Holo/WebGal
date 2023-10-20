@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SkiaSharp;
 using WebGal.Global;
 using WebGal.Libs.Base;
@@ -6,7 +7,16 @@ using WebGal.Libs.Base;
 namespace WebGal.Libs;
 public class Interpreter
 {
-	private JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+	private readonly JsonSerializerOptions _jsonOptions = new()
+	{
+		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+		PropertyNameCaseInsensitive = true,
+		WriteIndented = true,
+		Converters =
+		{
+			new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+		}
+	};
 
 	// private Dictionary<string, List<string>> _nodeName = new();
 	private readonly Queue<string> _sceneName = new();
