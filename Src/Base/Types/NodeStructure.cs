@@ -1,10 +1,13 @@
 namespace WebGal.Libs.Base;
 
+// 默认加载第一个场景
+public record struct GameStructure
+(
+	List<UrlStructure> NodeURLs
+);
+
 public record struct NodeStructure
 (
-	bool IsLeaf,
-	List<string>? LoopAudio,
-	List<string>? OneShotAudio,
 	List<UrlStructure>? ResouresPackURL,
-	List<UrlStructure>? NodeURL
+	List<UrlStructure>? SceneURLs
 );

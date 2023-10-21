@@ -18,21 +18,19 @@ public class Interpreter
 		}
 	};
 
-	// private Dictionary<string, List<string>> _nodeName = new();
-	private readonly Queue<string> _sceneName = new();
-	private readonly Queue<string> _unloadedResPackName = new();
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 
-	// 用于存储每一层Node的信息
-	private readonly Stack<(string, IEnumerator<UrlStructure>)> _nodeEnum = new();
+	private readonly Queue<string> _sceneName = new();
+	private readonly Queue<string> _unloadedResPackName = new();
+	private readonly List<string> _gameNodes = new();
 
 
 	public void Clear()
 	{
-		_nodeEnum.Clear();
 		_sceneName.Clear();
 		_unloadedResPackName.Clear();
+		_gameNodes.Clear();
 	}
 
 	// public Interpreter(SceneManager sceneManager, ResourceManager resourceManager, EventManager eveneManager)
@@ -40,6 +38,27 @@ public class Interpreter
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
+	}
+
+	/// <summary>
+	/// 当一个游戏呗加载时，拉取当前游戏的所有脚本文件
+	/// </summary>
+	/// <param name="gameName"></param>
+	/// <returns></returns>
+	public async Task SetGameAsync(string gameName)
+	{
+		var gameBase = "Data/" + gameName + "/";
+		_resourceManager.basePath = gameBase;
+		await _resourceManager.PullScriptAsync();
+
+		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
+
+		foreach (var node in mainObj.NodeURLs)
+			_gameNodes.Add(node.Name);
+
+		List<Task> tasks = new();
+		tasks.AddRange(mainObj.NodeURLs.Select(script => _resourceManager.PullScriptAsync(script.Name, script.URL)));
+		await Task.WhenAll(tasks);
 	}
 
 	/// <summary>
@@ -63,82 +82,93 @@ public class Interpreter
 		await Task.WhenAll(tasks);
 	}
 
-	// todo 暂只能一次性加载全部流程,无法指定顺序(单场景测试)
 	/// <summary>
-	/// 异步方式加载游戏流程(节点树)，
-	/// 并且根据节点树设置需要加载的资源（本身不加载资源）
+	/// 异步方式加载游戏的一个场景的流程
 	/// </summary>
-	/// <param name="nowNodeName"></param>
+	/// <param name="nodeName"></param>
 	/// <returns></returns>
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
-	private async Task ProcessNodeAsync()
+	private async Task ProcessNodeAsync(string nodeName)
 	{
-		while (_nodeEnum.Count != 0)
+		var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName), _jsonOptions);
+
+		if (nowNode == default)
+			throw new Exception("No Node");
+
+		// 根据场景添加该场景所有需要的资源
+		List<Task> tasks = new();
+		var resourseTasks = nowNode.ResouresPackURL?.Select(resourcePack =>
+			{
+				_unloadedResPackName.Enqueue(resourcePack.Name);
+				return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
+			});
+		if (resourseTasks is not null)
+			tasks.AddRange(resourseTasks);
+
+		var sceneTasks = nowNode.SceneURLs?.Select(scene =>
 		{
-			var (nowNodeName, nextNodeEnum) = _nodeEnum.Peek();
-			var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nowNodeName), _jsonOptions);
+			_sceneName.Enqueue(scene.Name);
+			return _resourceManager.PullScriptAsync(scene.Name, scene.URL);
+		});
+		if (sceneTasks is not null)
+			tasks.AddRange(sceneTasks);
 
-			if (nowNode == default)
-				throw new Exception("No volume");
-
-
-			// 添加资源配置脚本，并且将资源加入预加载队列
-			var urlTasks = nowNode.ResouresPackURL?.Select(resourcePack =>
-				{
-					_unloadedResPackName.Enqueue(resourcePack.Name);
-					return _resourceManager.PullScriptAsync(resourcePack.Name, resourcePack.URL);
-				});
-			if (urlTasks is not null)
-				await Task.WhenAll(urlTasks);
-
-			if (nowNode.NodeURL is null)
-				throw new Exception("empty Node");
-
-			if (nextNodeEnum.MoveNext() == false)
-				goto AfterProcess; // 跳转到后处理部分
-
-
-			var nextNodeUrl = nextNodeEnum.Current;
-			await _resourceManager.PullScriptAsync(nextNodeUrl.Name, nextNodeUrl.URL);
-
-			if (nowNode.IsLeaf) // 叶子节点，添加场景
-			{
-				_sceneName.Enqueue(nextNodeUrl.Name);
-				break;
-			}
-			else
-			{
-				var nextNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nextNodeUrl.Name), _jsonOptions);
-				if (nextNode.NodeURL is null)
-					throw new Exception("empty Node");
-				_nodeEnum.Push((nextNodeUrl.Name, nextNode.NodeURL.GetEnumerator()));
-
-				// 添加音频资源列表
-				if (nextNode.LoopAudio is not null)
-					foreach (var loopAudio in nextNode.LoopAudio)
-						_sceneManager.LoopAudioSet.Add(loopAudio);
-
-				if (nextNode.OneShotAudio is not null)
-					foreach (var oneShotAudio in nextNode.OneShotAudio)
-						_sceneManager.OneShotAudioSet.Add(oneShotAudio);
-			}
-
-			continue; // 主逻辑代码结束
-
-		AfterProcess: // 删除不必要的资源
-			_nodeEnum.Pop(); // 移除节点
-
-			// 删除音频资源列表
-			if (nowNode.LoopAudio is not null)
-				foreach (var loopAudio in nowNode.LoopAudio)
-					_sceneManager.LoopAudioSet.Remove(loopAudio);
-
-			if (nowNode.OneShotAudio is not null)
-				foreach (var oneShotAudio in nowNode.OneShotAudio)
-					_sceneManager.OneShotAudioSet.Remove(oneShotAudio);
-		}
+		await Task.WhenAll(tasks);
 	}
 
+
+	/// <summary>
+	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
+	/// 所有图层打包完成后调用 PackScene(sceneName) 来将图层打包，并且放入资源管理器
+	/// </summary>
+	/// <returns></returns>
+	/// <exception cref="Exception"></exception>
+	private void ProcessSceneAsync()
+	{
+		Console.WriteLine(_sceneName.Count);
+		while (_sceneName.Count != 0)
+		{
+			var sceneName = _sceneName.Dequeue();
+			// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
+			_sceneManager.SceneNameList.Enqueue(sceneName);
+			if (_sceneManager.ContainsScene(sceneName))
+				continue;
+
+			string sceneScript = _resourceManager.GetScript(sceneName);
+
+			Console.WriteLine(sceneScript);
+			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
+
+			if (sceneStructure.Layers is null)
+				throw new Exception("No Scene Layer");
+
+			Scene scene = new();
+
+			foreach (var layer in sceneStructure.Layers)
+			{
+				if (layer.Name is null)
+					throw new Exception("Null layer name");
+				scene.PushLayer(layer.Name, PackLayer(layer));
+			}
+
+			if (sceneStructure.Events is not null)
+				foreach (var @event in sceneStructure.Events)
+				{
+					if (@event.Triger is null)
+						throw new Exception("No triger");
+					if (@event.Action is null)
+						throw new Exception("No action");
+
+					// SetLayerAction(@event.Triger.Value, @event.Action, scene);
+
+					var (triger, actions) = (@event.Triger.Value, @event.Action);
+
+					if (triger.LayerName is not null)
+						scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
+				}
+			_sceneManager.PushScene(sceneName, scene);
+		}
+	}
 
 	/// <summary>
 	/// 根据 json 中的描述包装一个图层
@@ -265,68 +295,11 @@ public class Interpreter
 			};
 		}
 
-
 		// 添加属性
 		layer.DynamicAttribute = layerStructure.Attribute;
 		layer.OriginalAttribute = layerStructure.Attribute;
 
 		return layer;
-	}
-
-	// private void SetLayerAction(TrigerStructure triger, List<ActionStructure> actions, Scene scene)
-	// {
-	// 	if (triger.MouseEvent != default && triger.LayerName is not null)
-	// 		scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
-	// }
-
-	/// <summary>
-	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
-	/// 所有图层打包完成后调用 PackScene(sceneName) 来将图层打包，并且放入资源管理器
-	/// </summary>
-	/// <returns></returns>
-	/// <exception cref="Exception"></exception>
-	private void ProcessSceneAsync()
-	{
-		while (_sceneName.Count != 0)
-		{
-			var sceneName = _sceneName.Dequeue();
-			// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
-			_sceneManager.SceneNameList.Enqueue(sceneName);
-			if (_sceneManager.ContainsScene(sceneName))
-				continue;
-
-			string sceneScript = _resourceManager.GetScript(sceneName);
-			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
-
-			if (sceneStructure.Layers is null)
-				throw new Exception("No Scene Layer");
-
-			Scene scene = new();
-
-			foreach (var layer in sceneStructure.Layers)
-			{
-				if (layer.Name is null)
-					throw new Exception("Null layer name");
-				scene.PushLayer(layer.Name, PackLayer(layer));
-			}
-
-			if (sceneStructure.Events is not null)
-				foreach (var @event in sceneStructure.Events)
-				{
-					if (@event.Triger is null)
-						throw new Exception("No triger");
-					if (@event.Action is null)
-						throw new Exception("No action");
-
-					// SetLayerAction(@event.Triger.Value, @event.Action, scene);
-
-					var (triger, actions) = (@event.Triger.Value, @event.Action);
-
-					if (triger.LayerName is not null)
-						scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
-				}
-			_sceneManager.PushScene(sceneName, scene);
-		}
 	}
 
 
@@ -336,49 +309,9 @@ public class Interpreter
 	/// <returns></returns>
 	public async Task ParsingNextAsync()
 	{
-		if (_sceneManager.SceneNameList.Count == 0)
-			await ProcessNodeAsync();
+		foreach (var node in _gameNodes)
+			await ProcessNodeAsync(node);
 		await ProcessResourceAsync();
 		ProcessSceneAsync();
-	}
-
-	public async Task SetGameAsync(string gameName)
-	{
-		var gameBase = "Data/" + gameName + "/";
-		_resourceManager.basePath = gameBase;
-		await _resourceManager.PullScriptAsync();
-
-		var mainObj = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(), _jsonOptions);
-		if (mainObj.NodeURL is null)
-			throw new Exception("empty Node");
-		_nodeEnum.Push((
-			"main",
-			mainObj.NodeURL.GetEnumerator()
-		));
-
-		if (mainObj.LoopAudio is not null)
-			foreach (var loopAudio in mainObj.LoopAudio)
-				_sceneManager.LoopAudioSet.Add(loopAudio);
-
-		if (mainObj.OneShotAudio is not null)
-			foreach (var oneShotAudio in mainObj.OneShotAudio)
-				_sceneManager.OneShotAudioSet.Add(oneShotAudio);
-
-		//! test
-		// MouseEvent evn = new()
-		// {
-		// 	Button = MouseButton.LButton,
-		// 	Status = MouseStatus.ButtonDown
-		// };
-		// var options = new JsonSerializerOptions
-		// {
-		// 	WriteIndented = true,
-		// 	Converters =
-		// 	{
-		// 		new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-		// 	}
-		// };
-		// var str = JsonSerializer.Serialize(evn, options);
-		// Console.WriteLine(str);
 	}
 }
