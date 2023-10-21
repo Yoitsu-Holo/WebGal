@@ -23,21 +23,48 @@ public class Interpreter
 
 	private readonly Queue<string> _sceneName = new();
 	private readonly Queue<string> _unloadedResPackName = new();
-	private readonly List<string> _gameNodes = new();
+	private readonly List<string> _gameNodesList = new();
+	private readonly Dictionary<string, int> _gameNodes = new();
+	private int _gameNodeEnumId;
+
+	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
+	{
+		_sceneManager = sceneManager;
+		_resourceManager = resourceManager;
+	}
 
 
 	public void Clear()
 	{
 		_sceneName.Clear();
 		_unloadedResPackName.Clear();
-		_gameNodes.Clear();
+		_gameNodesList.Clear();
+		_gameNodeEnumId = 0;
 	}
 
-	// public Interpreter(SceneManager sceneManager, ResourceManager resourceManager, EventManager eveneManager)
-	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
+
+	/// <summary>
+	/// 开始执行解释流程，唯一公共对外口
+	/// </summary>
+	/// <returns></returns>
+	public async Task ParsingNextSceneAsync()
 	{
-		_sceneManager = sceneManager;
-		_resourceManager = resourceManager;
+		// 场景管理器没有场景则加载新的Node获取场景
+		if (_sceneManager.SceneNameList.Count == 0)
+		{
+			if (_gameNodeEnumId < _gameNodesList.Count)
+				_gameNodeEnumId++;
+			await ProcessNodeAsync();
+		}
+		await ProcessResourceAsync();
+		ProcessSceneAsync();
+	}
+
+	public async Task SetNodeAsync(string nodeName) => await JumpToNodeAsync(nodeName);
+	public async Task JumpToNodeAsync(string nodeName)
+	{
+		_gameNodeEnumId = _gameNodes[nodeName];
+		await ProcessNodeAsync();
 	}
 
 	/// <summary>
@@ -53,32 +80,15 @@ public class Interpreter
 
 		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
 
+		int count = 0;
 		foreach (var node in mainObj.NodeURLs)
-			_gameNodes.Add(node.Name);
+		{
+			_gameNodesList.Add(node.Name);
+			_gameNodes[node.Name] = count++;
+		}
 
 		List<Task> tasks = new();
 		tasks.AddRange(mainObj.NodeURLs.Select(script => _resourceManager.PullScriptAsync(script.Name, script.URL)));
-		await Task.WhenAll(tasks);
-	}
-
-	/// <summary>
-	/// 以异步方式加载未加载队列中的资源文件
-	/// </summary>
-	/// <returns></returns>
-	private async Task ProcessResourceAsync()
-	{
-		List<Task> tasks = new();
-		while (_unloadedResPackName.Count > 0)
-		{
-			var resourcePackScript = _resourceManager.GetScript(_unloadedResPackName.Dequeue());
-			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript, _jsonOptions);
-
-			if (resouresPack.ImageURL is not null)
-				tasks.AddRange(resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL)));
-
-			if (resouresPack.AudioURL is not null)
-				tasks.AddRange(resouresPack.AudioURL.Select(aduio => _resourceManager.PullAudioAsync(aduio.Name, aduio.URL)));
-		}
 		await Task.WhenAll(tasks);
 	}
 
@@ -88,8 +98,9 @@ public class Interpreter
 	/// <param name="nodeName"></param>
 	/// <returns></returns>
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
-	private async Task ProcessNodeAsync(string nodeName)
+	private async Task ProcessNodeAsync()
 	{
+		var nodeName = _gameNodesList[_gameNodeEnumId - 1];
 		var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName), _jsonOptions);
 
 		if (nowNode == default)
@@ -117,6 +128,7 @@ public class Interpreter
 	}
 
 
+
 	/// <summary>
 	/// 同步处理所有需要加载的场景，取每个图层需要的资源，然后通过调用 PackLayer(layerName)来打包图层，
 	/// 所有图层打包完成后调用 PackScene(sceneName) 来将图层打包，并且放入资源管理器
@@ -125,7 +137,6 @@ public class Interpreter
 	/// <exception cref="Exception"></exception>
 	private void ProcessSceneAsync()
 	{
-		Console.WriteLine(_sceneName.Count);
 		while (_sceneName.Count != 0)
 		{
 			var sceneName = _sceneName.Dequeue();
@@ -136,7 +147,6 @@ public class Interpreter
 
 			string sceneScript = _resourceManager.GetScript(sceneName);
 
-			Console.WriteLine(sceneScript);
 			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
 
 			if (sceneStructure.Layers is null)
@@ -302,16 +312,24 @@ public class Interpreter
 		return layer;
 	}
 
-
 	/// <summary>
-	/// 开始执行解释流程，唯一公共对外口
+	/// 以异步方式加载未加载队列中的资源文件
 	/// </summary>
 	/// <returns></returns>
-	public async Task ParsingNextAsync()
+	private async Task ProcessResourceAsync()
 	{
-		foreach (var node in _gameNodes)
-			await ProcessNodeAsync(node);
-		await ProcessResourceAsync();
-		ProcessSceneAsync();
+		List<Task> tasks = new();
+		while (_unloadedResPackName.Count > 0)
+		{
+			var resourcePackScript = _resourceManager.GetScript(_unloadedResPackName.Dequeue());
+			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript, _jsonOptions);
+
+			if (resouresPack.ImageURL is not null)
+				tasks.AddRange(resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL)));
+
+			if (resouresPack.AudioURL is not null)
+				tasks.AddRange(resouresPack.AudioURL.Select(aduio => _resourceManager.PullAudioAsync(aduio.Name, aduio.URL)));
+		}
+		await Task.WhenAll(tasks);
 	}
 }

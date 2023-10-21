@@ -86,13 +86,14 @@ public class Scene
 		_mouseEvents.Add((trigerLayerName, mouseEvent, actions));
 	}
 
-	public void DoMouseEvent(MouseEvent mouseEvent)
+	public bool DoMouseEvent(MouseEvent mouseEvent)
 	{
+		bool trigered = false;
 		foreach (var (trigerLayerName, targetEvent, actions) in _mouseEvents)
 		{
 			if (targetEvent.Button != mouseEvent.Button || targetEvent.Status != mouseEvent.Status)
 				continue;
-
+			trigered = true;
 			int trigerLayerId = _layersId[trigerLayerName];
 			Layer trigerLayer = Layers[trigerLayerId];
 
@@ -107,6 +108,7 @@ public class Scene
 			foreach (var action in actions)
 				DoActoin(action);
 		}
+		return trigered;
 	}
 
 	private void DoActoin(ActionStructure action)

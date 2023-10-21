@@ -53,7 +53,13 @@ public class GameManager
 
 	public async Task ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		_scene?.DoMouseEvent(mouseEvent);
+		if (_scene is null)
+			return;
+		if (_scene.DoMouseEvent(mouseEvent))
+			return;
+
+		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Up)
+			await GetNextScene();
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -109,7 +115,7 @@ public class GameManager
 	public async Task DoTest(string gameName)
 	{
 		await _interpreter.SetGameAsync(gameName);
-		await _interpreter.ParsingNextAsync();
+		await _interpreter.ParsingNextSceneAsync();
 
 		LoadScene();
 	}
@@ -119,25 +125,23 @@ public class GameManager
 	{
 		if (_sceneManager.SceneNameList.Count != 0)
 			_sceneName = _sceneManager.SceneNameList.Peek();
+		Console.WriteLine($"sceneName : {_sceneName}");
 
-		if (_scene is null)
-		{
-			_sceneManager.SceneNameList.Dequeue();
-			_scene = _sceneManager.LoadScene(_sceneName);
-			_scene.StartAnimation();
-		}
+		_sceneManager.SceneNameList.Dequeue();
+		_scene = _sceneManager.LoadScene(_sceneName);
+		_scene.StartAnimation();
 	}
 
-	private async Task OnLeftClickAsync(SKPointI pos)
+	private async Task GetNextScene()
 	{
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		Console.WriteLine("Left Click");
-		// _eventManager.OnLeftClick(pos);
-		//^ _scene.OnLeftClick(pos);
+		// if (_scene is null)
+		// {
+		// 	return;
+		// 	throw new Exception("scene not set");
+		// }
+		// Console.WriteLine("Left Click");
+		// // _eventManager.OnLeftClick(pos);
+		// //^ _scene.OnLeftClick(pos);
 
 		// 如果动画没有结束，那么结束动画保留这一帧
 		if (_scene.HasAnimation(NowTime.Minisecond))
@@ -149,30 +153,8 @@ public class GameManager
 
 		Console.WriteLine("Next Scene");
 		// 如果当前场景动画结束，切换到下一场景
-		await _interpreter.ParsingNextAsync();
+		await _interpreter.ParsingNextSceneAsync();
 		LoadScene();
 		await LoadMedia();
-	}
-
-	private async Task OnRightClickAsync(SKPointI pos)
-	{
-		// _eventManager.OnRightClick(pos);
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		//^ _scene.OnRightClick(pos);
-	}
-
-	private void OnMouceMoveOn(SKPointI pos)
-	{
-		// _eventManager.OnMoveOn(pos);
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("scene not set");
-		}
-		//^ _scene.OnMoveOn(pos);
 	}
 }
