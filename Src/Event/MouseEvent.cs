@@ -19,12 +19,13 @@ public enum MouseButton : ushort
 
 public enum MouseStatus : byte
 {
-	Release = 0x01,
-	Hold = 0x02,
-	Up = 0x04,
-	Down = 0x08,
-	WheelUp = 0x10,
-	WheelDown = 0x11,
+	Release = 0x00,
+	Hold = 0x01,
+	Up = 0x02,
+	Click = 0x02,
+	Down = 0x04,
+	WheelUp = 0x08,
+	WheelDown = 0x10,
 	Any = 0xff
 }
 

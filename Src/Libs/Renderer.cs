@@ -22,7 +22,7 @@ public class Renderer
 		if (scene.HasAnimation(timeoff) || force)
 		{
 			_canvas.Clear();
-			foreach (var (layerId, layer) in scene.Layers)
+			foreach (var (_, layer) in scene.Layers)
 			{
 				layer.GenNextFrame(timeoff);
 				if (layer.DynamicAttribute.IsHide)

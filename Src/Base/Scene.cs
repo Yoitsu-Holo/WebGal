@@ -1,4 +1,3 @@
-using SkiaSharp;
 using WebGal.Event;
 using WebGal.Global;
 

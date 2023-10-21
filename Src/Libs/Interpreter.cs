@@ -301,10 +301,7 @@ public class Interpreter
 			if (sceneStructure.Layers is null)
 				throw new Exception("No Scene Layer");
 
-			Scene scene = new()
-			{
-				IsStatic = sceneStructure.IsStatic
-			};
+			Scene scene = new();
 
 			foreach (var layer in sceneStructure.Layers)
 			{

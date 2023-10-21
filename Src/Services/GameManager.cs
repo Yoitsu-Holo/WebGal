@@ -120,7 +120,7 @@ public class GameManager
 		if (_sceneManager.SceneNameList.Count != 0)
 			_sceneName = _sceneManager.SceneNameList.Peek();
 
-		if (_scene is null || !_scene.IsStatic)
+		if (_scene is null)
 		{
 			_sceneManager.SceneNameList.Dequeue();
 			_scene = _sceneManager.LoadScene(_sceneName);

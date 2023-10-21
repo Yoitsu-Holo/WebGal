@@ -10,7 +10,7 @@ public record struct EventStructure
 
 public record struct TrigerStructure
 (
-	string? LayerName,
+	string LayerName,
 	MouseEvent MouseEvent,
 	KeyboardEvent KeyboardEvent
 );
@@ -18,7 +18,8 @@ public record struct TrigerStructure
 public record struct ActionStructure
 (
 	string LayerName,
-	LayerAtrribute Attribute
+	LayerAtrribute Attribute,
+	string? JumpLabel
 );
 
 // https://archive.paragonwiki.com/wiki/List_of_Key_Names
