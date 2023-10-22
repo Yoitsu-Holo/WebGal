@@ -80,7 +80,7 @@ public class Interpreter
 
 		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
 
-		int count = 0;
+		int count = 1;
 		foreach (var node in mainObj.NodeURLs)
 		{
 			_gameNodesList.Add(node.Name);

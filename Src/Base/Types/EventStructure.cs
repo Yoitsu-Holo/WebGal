@@ -17,9 +17,10 @@ public record struct TrigerStructure
 
 public record struct ActionStructure
 (
-	string LayerName,
+	string? LayerName,
 	LayerAtrribute Attribute,
-	string? JumpLabel
+	string? JumpNodeLabel,
+	string? JumpSceneLabel
 );
 
 // https://archive.paragonwiki.com/wiki/List_of_Key_Names

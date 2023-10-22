@@ -35,3 +35,9 @@ public record struct MouseEvent
 	MouseButton Button,
 	MouseStatus Status
 );
+
+public class JumpEventArgs : EventArgs
+{
+	public string? JumpNodeLabel { get; set; }
+	public string? JumpSceneLabel { get; set; }
+}

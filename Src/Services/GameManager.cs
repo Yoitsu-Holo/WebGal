@@ -121,40 +121,43 @@ public class GameManager
 	}
 	#endregion
 
-	private void LoadScene()
-	{
-		if (_sceneManager.SceneNameList.Count != 0)
-			_sceneName = _sceneManager.SceneNameList.Peek();
-		Console.WriteLine($"sceneName : {_sceneName}");
-
-		_sceneManager.SceneNameList.Dequeue();
-		_scene = _sceneManager.LoadScene(_sceneName);
-		_scene.StartAnimation();
-	}
-
 	private async Task GetNextScene()
 	{
-		// if (_scene is null)
-		// {
-		// 	return;
-		// 	throw new Exception("scene not set");
-		// }
-		// Console.WriteLine("Left Click");
-		// // _eventManager.OnLeftClick(pos);
-		// //^ _scene.OnLeftClick(pos);
+		if (_scene is null)
+			return;
 
 		// 如果动画没有结束，那么结束动画保留这一帧
 		if (_scene.HasAnimation(NowTime.Minisecond))
 		{
-			Console.WriteLine("stop Animation");
 			_scene.StopAnimation();
 			return;
 		}
 
-		Console.WriteLine("Next Scene");
 		// 如果当前场景动画结束，切换到下一场景
 		await _interpreter.ParsingNextSceneAsync();
 		LoadScene();
 		await LoadMedia();
+	}
+
+	private void LoadScene()
+	{
+		if (_sceneManager.SceneNameList.Count != 0)
+			_sceneName = _sceneManager.SceneNameList.Peek();
+
+		_sceneManager.SceneNameList.Dequeue();
+		_scene = _sceneManager.LoadScene(_sceneName);
+		_scene.StartAnimation();
+
+		_scene.OnJump = LoadScene;
+	}
+
+	private async void LoadScene(object? sender, JumpEventArgs args)
+	{
+		if (args.JumpNodeLabel is not null)
+		{
+			Console.WriteLine($"jump to {args.JumpNodeLabel}");
+			await _interpreter.SetNodeAsync(args.JumpNodeLabel);
+			await GetNextScene();
+		}
 	}
 }

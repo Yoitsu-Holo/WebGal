@@ -24,7 +24,7 @@ public class Renderer
 			_canvas.Clear();
 			foreach (var (_, layer) in scene.Layers)
 			{
-				layer.GenNextFrame(timeoff);
+				layer.GenNextFrame(timeoff, force);
 				if (layer.DynamicAttribute.IsHide)
 					goto after;
 

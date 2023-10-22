@@ -9,6 +9,8 @@ namespace WebGal.Libs.Base;
 /// </summary>
 public class Scene
 {
+	public EventHandler<JumpEventArgs>? OnJump;
+
 	// private (SKBitmap In, SKBitmap Out) _fadeMask;
 	// private (float In, float Out) _fadeTime; //ms
 	private readonly Dictionary<string, int> _layersId = new();
@@ -93,6 +95,7 @@ public class Scene
 		{
 			if (targetEvent.Button != mouseEvent.Button || targetEvent.Status != mouseEvent.Status)
 				continue;
+
 			trigered = true;
 			int trigerLayerId = _layersId[trigerLayerName];
 			Layer trigerLayer = Layers[trigerLayerId];
@@ -106,17 +109,26 @@ public class Scene
 			StateHasChange = true;
 
 			foreach (var action in actions)
-				DoActoin(action);
+				DoActions(action);
 		}
 		return trigered;
 	}
 
-	private void DoActoin(ActionStructure action)
+	private void DoActions(ActionStructure action)
 	{
-		if (action.LayerName is null)
-			throw new Exception("Scene Action: action layer Name not set");
-
-		var actionLayerId = _layersId[action.LayerName];
-		Layers[actionLayerId].DynamicAttribute = action.Attribute;
+		if (action.LayerName is not null)
+		{
+			var actionLayerId = _layersId[action.LayerName];
+			Layers[actionLayerId].DynamicAttribute = action.Attribute;
+		}
+		if (action.JumpNodeLabel is not null)
+		{
+			OnJump?.Invoke(this, new JumpEventArgs()
+			{
+				JumpNodeLabel = action.JumpNodeLabel,
+				JumpSceneLabel = action.JumpSceneLabel
+			});
+			// Console.WriteLine($"jump to {action.JumpNodeLabel}");
+		}
 	}
 }
