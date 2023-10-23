@@ -4,6 +4,7 @@ using WebGal.Libs;
 using WebGal.Libs.Base;
 using WebGal.Global;
 using WebGal.Event;
+using System.Reflection;
 
 namespace WebGal.Services;
 public class GameManager
@@ -59,7 +60,10 @@ public class GameManager
 			return;
 
 		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Up)
+		{
 			await GetNextScene();
+			Console.WriteLine("NextScene");
+		}
 	}
 
 	public void SetMediaList(Dictionary<string, string> loopAudiosRef, Dictionary<string, string> oneShotAduioRef)
@@ -115,9 +119,7 @@ public class GameManager
 	public async Task DoTest(string gameName)
 	{
 		await _interpreter.SetGameAsync(gameName);
-		await _interpreter.ParsingNextSceneAsync();
-
-		LoadScene();
+		await LoadNextScene();
 	}
 	#endregion
 
@@ -134,6 +136,11 @@ public class GameManager
 		}
 
 		// 如果当前场景动画结束，切换到下一场景
+		await LoadNextScene();
+	}
+
+	private async Task LoadNextScene()
+	{
 		await _interpreter.ParsingNextSceneAsync();
 		LoadScene();
 		await LoadMedia();
@@ -142,22 +149,27 @@ public class GameManager
 	private void LoadScene()
 	{
 		if (_sceneManager.SceneNameList.Count != 0)
-			_sceneName = _sceneManager.SceneNameList.Peek();
-
-		_sceneManager.SceneNameList.Dequeue();
-		_scene = _sceneManager.LoadScene(_sceneName);
-		_scene.StartAnimation();
-
-		_scene.OnJump = LoadScene;
+		{
+			LoadScene(_sceneManager.SceneNameList.Peek());
+			_sceneManager.SceneNameList.Dequeue();
+		}
 	}
 
-	private async void LoadScene(object? sender, JumpEventArgs args)
+	private void LoadScene(string sceneName)
+	{
+		_sceneName = sceneName;
+		_scene = _sceneManager.LoadScene(sceneName);
+		_scene.StartAnimation();
+		_scene.OnJump = LoadNode;
+	}
+
+	private async void LoadNode(object? sender, JumpEventArgs args)
 	{
 		if (args.JumpNodeLabel is not null)
 		{
 			Console.WriteLine($"jump to {args.JumpNodeLabel}");
 			await _interpreter.SetNodeAsync(args.JumpNodeLabel);
-			await GetNextScene();
+			await LoadNextScene();
 		}
 	}
 }

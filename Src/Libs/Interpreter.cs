@@ -65,6 +65,7 @@ public class Interpreter
 	{
 		_gameNodeEnumId = _gameNodes[nodeName];
 		await ProcessNodeAsync();
+		await ProcessResourceAsync();
 	}
 
 	/// <summary>

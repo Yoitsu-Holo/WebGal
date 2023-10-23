@@ -21,12 +21,14 @@ public class Renderer
 
 		if (scene.HasAnimation(timeoff) || force)
 		{
-			_canvas.Clear();
+			// _canvas.Clear();
 			foreach (var (_, layer) in scene.Layers)
 			{
-				layer.GenNextFrame(timeoff, force);
+				// force = false;
 				if (layer.DynamicAttribute.IsHide)
 					goto after;
+
+				layer.GenNextFrame(timeoff, force);
 
 				if (layer.BackGroundSKBitmap is not null)
 					_canvas.DrawBitmap(layer.FrameBuffer, layer.PosAt(timeoff));

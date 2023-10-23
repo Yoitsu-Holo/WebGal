@@ -39,7 +39,7 @@ public partial class Test
 		MouseStatusUpdate();
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
-		Manager.Render(e.Surface.Canvas, NowTime.Minisecond);
+		Manager.Render(e.Surface.Canvas, NowTime.Minisecond, true);
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

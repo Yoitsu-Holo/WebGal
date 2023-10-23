@@ -30,6 +30,8 @@ public class Layer
 		if (BackGroundSKBitmap is null || DynamicAttribute.IsHide)
 			return;
 
+		force = false;
+
 		if (force || FrameBuffer is null)
 		{
 			FramePosition = PosAt(timeoff);
