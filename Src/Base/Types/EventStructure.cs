@@ -24,3 +24,22 @@ public record struct ActionStructure
 );
 
 // https://archive.paragonwiki.com/wiki/List_of_Key_Names
+
+
+
+public record struct EventStructureRegister(
+	TrigerStructureRegister O_Triger,
+	ActionStructureRegister C_LoAction
+);
+
+public record struct TrigerStructureRegister(
+	int C_sLayerName,
+	MouseEventRegister O_MouseEvent,
+	KeyboardEventRegister O_KeyboardEvent
+);
+public record struct ActionStructureRegister(
+	int C_sLayerName,
+	LayerAtrributeRegister O_Attribute,
+	int C_sJumpNodeLabel,
+	int C_SJumpSceneLabel
+);

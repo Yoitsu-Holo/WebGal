@@ -94,7 +94,7 @@ public class GameManager
 			if (_loopAudiosRef.ContainsKey(audioName))
 				continue;
 			var byteStream = _resourceManager.GetAudio(audioName);
-			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
+			var audio = await _js.InvokeAsync<string>("audioToUrl", byteStream, "ogg");
 			_loopAudiosRef.Add(audioName, audio);
 		}
 
@@ -103,7 +103,7 @@ public class GameManager
 			if (_oneShotAduioRef.ContainsKey(audioName))
 				continue;
 			var byteStream = _resourceManager.GetAudio(audioName);
-			var audio = await _js.InvokeAsync<string>("audioOggToLink", byteStream);
+			var audio = await _js.InvokeAsync<string>("audioToUrl", byteStream, "ogg");
 			_oneShotAduioRef.Add(audioName, audio);
 		}
 

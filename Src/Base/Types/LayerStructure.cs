@@ -37,3 +37,40 @@ public record struct TextStructure
 	string? Text
 );
 
+
+public record struct LayerStructureRegister
+(
+	// 图层名称
+	int C_sName,
+	// 图层属性
+	int C_sLayerType,
+	LayerAtrributeRegister O_Attribute,
+	IVectorRegister O_Position,
+	WinSizeStructureRegister O_WinSize,
+	// 图层动画
+	int C_iTime,
+	int C_sAnimation,
+	IVectorRegister O_BeginPosition,
+	IVectorRegister O_EndPosition,
+	// 背景图片
+	int C_sImage,
+	IVectorRegister O_CutPosition,
+	WinSizeStructureRegister O_CutWinSize,
+	// 简单图形
+	ColorStructureRegister O_ShapeColor,
+	// 文字
+	List<TextStructureRegister>? Text
+);
+
+public record struct LayerAtrributeRegister
+(
+	int O_Offset,
+	int C_bIsHide
+);
+
+public record struct TextStructureRegister
+(
+	int O_Offset,
+	int O_Paint,
+	int C_sText
+);

@@ -41,3 +41,10 @@ public class JumpEventArgs : EventArgs
 	public string? JumpNodeLabel { get; set; }
 	public string? JumpSceneLabel { get; set; }
 }
+
+public record struct MouseEventRegister
+(
+	IVectorRegister O_Position,
+	int C_iButton,
+	int C_iStatus
+);

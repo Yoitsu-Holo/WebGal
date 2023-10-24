@@ -48,3 +48,17 @@ public record struct PaintStructure
 	bool Blod,
 	bool Antialias
 );
+
+
+// csv Register
+public record struct IVectorRegister(int C_iX, int C_iY);
+public record struct FVectorRegister(int C_fX, int C_fY);
+public record struct WinSizeStructureRegister(int C_iWidth, int C_iHeight);
+public record struct UrlStructureRegister(int C_sName, int C_sURL);
+public record struct ColorStructureRegister(int C_cR, int C_cG, int C_cB, int C_cA);
+public record struct PaintStructureRegister(
+	ColorStructureRegister O_Color,
+	int C_iTextSize,
+	int C_bBlod,
+	int C_bAntialias
+);
