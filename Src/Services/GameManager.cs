@@ -4,7 +4,6 @@ using WebGal.Libs;
 using WebGal.Libs.Base;
 using WebGal.Global;
 using WebGal.Event;
-using System.Reflection;
 
 namespace WebGal.Services;
 public class GameManager
@@ -168,7 +167,7 @@ public class GameManager
 		if (args.JumpNodeLabel is not null)
 		{
 			Console.WriteLine($"jump to {args.JumpNodeLabel}");
-			await _interpreter.SetNodeAsync(args.JumpNodeLabel);
+			_interpreter.SetNode(args.JumpNodeLabel);
 			await LoadNextScene();
 		}
 	}

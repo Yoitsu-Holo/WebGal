@@ -82,10 +82,16 @@ public class Scene
 	private readonly Dictionary<string, List<ActionStructure>> _moveOnAction = new();
 
 	private readonly List<(string, MouseEvent, List<ActionStructure>)> _mouseEvents = new();
+	private readonly List<(MouseEvent, List<ActionStructure>)> _mouseDefaultEvents = new();
 
 	public void RegitserMouseAction(string trigerLayerName, MouseEvent mouseEvent, List<ActionStructure> actions)
 	{
 		_mouseEvents.Add((trigerLayerName, mouseEvent, actions));
+	}
+
+	public void RegitserMouseDefaultAction(MouseEvent mouseEvent, List<ActionStructure> actions)
+	{
+		_mouseDefaultEvents.Add((mouseEvent, actions));
 	}
 
 	public bool DoMouseEvent(MouseEvent mouseEvent)
@@ -108,6 +114,20 @@ public class Scene
 
 			StateHasChange = true;
 
+			foreach (var action in actions)
+				DoActions(action);
+		}
+
+		if (trigered)
+			return trigered;
+
+		// 执行默认动作
+		foreach (var (targetEvent, actions) in _mouseDefaultEvents)
+		{
+			if (targetEvent.Button != mouseEvent.Button || targetEvent.Status != mouseEvent.Status)
+				continue;
+			trigered = true;
+			StateHasChange = true;
 			foreach (var action in actions)
 				DoActions(action);
 		}

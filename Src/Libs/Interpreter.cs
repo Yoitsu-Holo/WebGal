@@ -21,11 +21,35 @@ public class Interpreter
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 
-	private readonly Queue<string> _sceneName = new();
 	private readonly Queue<string> _unloadedResPackName = new();
-	private readonly List<string> _gameNodesList = new();
-	private readonly Dictionary<string, int> _gameNodes = new();
-	private int _gameNodeEnumId;
+
+
+	/// <summary>
+	/// N elements, range [0, N)
+	/// </summary>
+	private readonly List<string> _nodesList = new();
+
+	/// <summary>
+	/// N elements, range [0, N)
+	/// </summary>
+	private readonly List<string> _nodeSceneList = new();
+
+
+	/// <summary>
+	/// N elements, range [0, N)
+	/// </summary>
+	private readonly Dictionary<string, int> _nodes = new();
+
+	/// <summary>
+	/// N elements, range [0, N)
+	/// </summary>
+	private readonly Dictionary<string, int> _nodeScenes = new();
+
+	/// <summary>
+	/// N nodes , NodeId in [0, N).
+	/// M Scenes, SceneId in [0, M)
+	/// </summary>
+	private (int NodeId, int SceneId) _parsingPointer;
 
 	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
 	{
@@ -33,15 +57,18 @@ public class Interpreter
 		_resourceManager = resourceManager;
 	}
 
-
 	public void Clear()
 	{
-		_sceneName.Clear();
 		_unloadedResPackName.Clear();
-		_gameNodesList.Clear();
-		_gameNodeEnumId = 0;
-	}
 
+		_nodes.Clear();
+		_nodeScenes.Clear();
+
+		_nodesList.Clear();
+		_nodeSceneList.Clear();
+
+		_parsingPointer = (0, 0);
+	}
 
 	/// <summary>
 	/// 开始执行解释流程，唯一公共对外口
@@ -49,24 +76,34 @@ public class Interpreter
 	/// <returns></returns>
 	public async Task ParsingNextSceneAsync()
 	{
-		// 场景管理器没有场景则加载新的Node获取场景
-		if (_sceneManager.SceneNameList.Count == 0)
+		// 如果当前节点有未解释的场景，尝试解释下一个场景，否则解释下一个节点
+		if (_nodeSceneList.Count != 0)
 		{
-			if (_gameNodeEnumId < _gameNodesList.Count)
-				_gameNodeEnumId++;
-			await ProcessNodeAsync();
+			if (_parsingPointer.SceneId < _nodeSceneList.Count - 1)
+				_parsingPointer.SceneId++;
+			else if (_parsingPointer.NodeId < _nodesList.Count - 1 && _parsingPointer.SceneId >= _nodeSceneList.Count - 1)
+				SetNewNodeId(_parsingPointer.NodeId + 1);
 		}
+
+		// 如果当前节点从未被解释过，那么处理该节点
+		if (_nodeSceneList.Count == 0)
+			await ProcessNodeAsync();
+
+
+		Console.WriteLine($"{_parsingPointer.NodeId}:{_parsingPointer.SceneId}");
 		await ProcessResourceAsync();
 		ProcessSceneAsync();
 	}
 
-	public async Task SetNodeAsync(string nodeName) => await JumpToNodeAsync(nodeName);
-	public async Task JumpToNodeAsync(string nodeName)
+	private void SetNewNodeId(int id)
 	{
-		_gameNodeEnumId = _gameNodes[nodeName];
-		await ProcessNodeAsync();
-		await ProcessResourceAsync();
+		_parsingPointer = (id, 0);
+		_nodeSceneList.Clear();
+		_nodeScenes.Clear();
 	}
+
+	public void SetNode(string nodeName) => SetNewNodeId(_nodes[nodeName]);
+	public void JumpToNode(string nodeName) => SetNewNodeId(_nodes[nodeName]);
 
 	/// <summary>
 	/// 当一个游戏呗加载时，拉取当前游戏的所有脚本文件
@@ -81,11 +118,11 @@ public class Interpreter
 
 		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
 
-		int count = 1;
-		foreach (var node in mainObj.NodeURLs)
+		for (int nodeId = 0; nodeId < mainObj.NodeURLs.Count; nodeId++)
 		{
-			_gameNodesList.Add(node.Name);
-			_gameNodes[node.Name] = count++;
+			UrlStructure node = mainObj.NodeURLs[nodeId];
+			_nodesList.Add(node.Name);
+			_nodes[node.Name] = nodeId;
 		}
 
 		List<Task> tasks = new();
@@ -101,7 +138,7 @@ public class Interpreter
 	/// <exception cref="Exception">节点值非法(节点值未默认)</exception>
 	private async Task ProcessNodeAsync()
 	{
-		var nodeName = _gameNodesList[_gameNodeEnumId - 1];
+		var nodeName = _nodesList[_parsingPointer.NodeId];
 		var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName), _jsonOptions);
 
 		if (nowNode == default)
@@ -117,17 +154,18 @@ public class Interpreter
 		if (resourseTasks is not null)
 			tasks.AddRange(resourseTasks);
 
-		var sceneTasks = nowNode.SceneURLs?.Select(scene =>
-		{
-			_sceneName.Enqueue(scene.Name);
-			return _resourceManager.PullScriptAsync(scene.Name, scene.URL);
-		});
-		if (sceneTasks is not null)
-			tasks.AddRange(sceneTasks);
+		// 根据场景的SceneUrl来获取Scene脚本
+		if (nowNode.SceneURLs is not null)
+			for (int sceneId = 0; sceneId < nowNode.SceneURLs.Count; sceneId++)
+			{
+				UrlStructure scene = nowNode.SceneURLs[sceneId];
+				_nodeSceneList.Add(scene.Name);
+				_nodeScenes[scene.Name] = sceneId;
+				tasks.Add(_resourceManager.PullScriptAsync(scene.Name, scene.URL));
+			}
 
 		await Task.WhenAll(tasks);
 	}
-
 
 
 	/// <summary>
@@ -138,47 +176,47 @@ public class Interpreter
 	/// <exception cref="Exception"></exception>
 	private void ProcessSceneAsync()
 	{
-		while (_sceneName.Count != 0)
+		var sceneName = _nodeSceneList[_parsingPointer.SceneId];
+
+		// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
+		_sceneManager.SceneNameList.Enqueue(sceneName);
+		if (_sceneManager.ContainsScene(sceneName))
+			return;
+
+		string sceneScript = _resourceManager.GetScript(sceneName);
+
+		SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
+
+		if (sceneStructure.Layers is null)
+			throw new Exception("No Scene Layer");
+
+		Scene scene = new();
+
+		foreach (var layer in sceneStructure.Layers)
 		{
-			var sceneName = _sceneName.Dequeue();
-			// 先将场景名字放入队列，再添加名字到场景的映射，减少资源占用
-			_sceneManager.SceneNameList.Enqueue(sceneName);
-			if (_sceneManager.ContainsScene(sceneName))
-				continue;
-
-			string sceneScript = _resourceManager.GetScript(sceneName);
-
-			SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
-
-			if (sceneStructure.Layers is null)
-				throw new Exception("No Scene Layer");
-
-			Scene scene = new();
-
-			foreach (var layer in sceneStructure.Layers)
-			{
-				if (layer.Name is null)
-					throw new Exception("Null layer name");
-				scene.PushLayer(layer.Name, PackLayer(layer));
-			}
-
-			if (sceneStructure.Events is not null)
-				foreach (var @event in sceneStructure.Events)
-				{
-					if (@event.Triger is null)
-						throw new Exception("No triger");
-					if (@event.Action is null)
-						throw new Exception("No action");
-
-					// SetLayerAction(@event.Triger.Value, @event.Action, scene);
-
-					var (triger, actions) = (@event.Triger.Value, @event.Action);
-
-					if (triger.LayerName is not null)
-						scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
-				}
-			_sceneManager.PushScene(sceneName, scene);
+			if (layer.Name is null)
+				throw new Exception("Null layer name");
+			scene.PushLayer(layer.Name, PackLayer(layer));
 		}
+
+		if (sceneStructure.Events is not null)
+			foreach (var @event in sceneStructure.Events)
+			{
+				if (@event.Triger is null)
+					throw new Exception("No triger");
+				if (@event.Action is null)
+					throw new Exception("No action");
+
+				// SetLayerAction(@event.Triger.Value, @event.Action, scene);
+
+				var (triger, actions) = (@event.Triger.Value, @event.Action);
+
+				if (triger.LayerName is not null)
+					scene.RegitserMouseAction(triger.LayerName, triger.MouseEvent, actions);
+				else
+					scene.RegitserMouseDefaultAction(triger.MouseEvent, actions);
+			}
+		_sceneManager.PushScene(sceneName, scene);
 	}
 
 	/// <summary>
