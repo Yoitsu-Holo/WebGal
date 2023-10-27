@@ -142,7 +142,7 @@ public class GameManager
 	{
 		await _interpreter.ParsingNextSceneAsync();
 		LoadScene();
-		await LoadMedia();
+		// await LoadMedia();
 	}
 
 	private void LoadScene()

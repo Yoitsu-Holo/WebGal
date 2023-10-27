@@ -9,12 +9,12 @@
 
 @foreach (var (_, audio) in _loopAudios)
 {
-	<audio autoplay="true" loop="true" src="@audio" />
+	<audio autoplay="true" src="@audio.URL" id="@audio.Name"  loop="true"/>
 }
 
 @foreach (var (_, audio) in _oneShotAudios)
 {
-	<audio autoplay="true" src="@audio" />
+	<audio autoplay="true" src="@audio.URL" id="@audio.Name"  />
 }
 
 <p>@(_mouseEvent.Position.X),@(_mouseEvent.Position.Y)</p>

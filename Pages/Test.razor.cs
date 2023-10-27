@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using SkiaSharp.Views.Blazor;
 using WebGal.Event;
 using WebGal.Global;
@@ -10,16 +11,26 @@ namespace WebGal.Pages;
 
 public partial class Test
 {
+	[Inject] private IJSRuntime JS { get; set; } = null!;
 	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
 
-	private Dictionary<string, string> _loopAudios = new();
-	private Dictionary<string, string> _oneShotAudios = new();
+	private Dictionary<string, Audio> _loopAudios = new();
+	private Dictionary<string, Audio> _oneShotAudios = new();
+
+	public Dictionary<string, Audio> Audio = new();
 
 	private MouseEvent _mouseEvent = new();
 
 	protected override void OnInitialized()
 	{
+		var audio = new Audio()
+		{
+			Name = "test",
+			URL = "Data/Test1/pack/sound/bgm/song01.ogg",
+			Loop = true
+		};
+		Audio["test"] = audio;
 	}
 
 	protected override async Task OnParametersSetAsync()
@@ -27,10 +38,19 @@ public partial class Test
 		//todo 未解决循环卡顿问题
 		_loopAudios.Clear();
 		_oneShotAudios.Clear();
-		Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		Manager.Clear();
+		// Manager.SetMediaList(_loopAudios, _oneShotAudios);
 		await Manager.DoTest(Game);
-		await Manager.LoadMedia();
+		// await Manager.LoadMedia();
+
+		//! test
+		foreach (var (_, audio) in Audio)
+		{
+			if (audio.Loop)
+				_loopAudios[audio.Name] = audio;
+			else
+				_oneShotAudios[audio.Name] = audio;
+		}
 	}
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
@@ -39,7 +59,16 @@ public partial class Test
 		MouseStatusUpdate();
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
-		Manager.Render(e.Surface.Canvas, NowTime.Minisecond, true);
+		Manager.Render(e.Surface.Canvas, NowTime.Minisecond);
+
+		//! test
+		if (_loopAudios.Count != 0)
+		{
+			float vol = NowTime.Minisecond % 5000;
+			vol /= 10000;
+			vol += 0.5f;
+			await JS.InvokeVoidAsync("setAudioVolume", vol);
+		}
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
