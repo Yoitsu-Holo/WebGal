@@ -1,9 +1,10 @@
 @page "/{game}"
 @using SkiaSharp.Views.Blazor
 @using WebGal.Global
+
 <div @oncontextmenu:preventDefault="true" @oncontextmenu="()=>{return;}">
 	<SKGLView @onmousemove="OnMouseMove" @onmouseup="OnMouseUp" @onmousedown="OnMouseDown"
-		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; border: 2px solid;")
+		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; border: 2px solid; box-sizing: content-box")
 		EnableRenderLoop="true" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
 </div>
 

@@ -79,7 +79,6 @@ public partial class Test : IAsyncDisposable
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
 		var canvas = e.Surface.Canvas;
-		canvas.SetTypeface(paintTypeface);
 		Manager.Render(canvas, NowTime.Minisecond);
 
 		//! test
@@ -91,8 +90,6 @@ public partial class Test : IAsyncDisposable
 			await _module.InvokeVoidAsync("setAudioVolume", vol, "test");
 			await _module.InvokeVoidAsync("getAudioLength", "test");
 		}
-
-		// e.Surface.Canvas.DrawTextBlock("Hello world!", new SKRect(50, 50, 150, 0), new Font(14), SKColors.Black);
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

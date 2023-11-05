@@ -12,7 +12,7 @@ export function setAudioVolume(audioVolume: number, audioName: string) {
 export function getAudioLength(audioName: string) {
 	let audio = document.getElementById(audioName) as HTMLAudioElement
 	const durationMs = audio.duration * 1000;
-	console.log(`The duration of the audio is ${durationMs} milliseconds.`);
+	// console.log(`The duration of the audio is ${durationMs} milliseconds.`);
 }
 
 // public setAudioVolume(audioVolume: number) {

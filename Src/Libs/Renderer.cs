@@ -45,9 +45,22 @@ public class Renderer
 				}
 			}
 
-			{
-				_canvas.DrawTextBox();
-			}
+			//! test
+			// TextBox tb = new TextBox
+			// {
+			// 	Text = "1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\  ",
+			// 	BoxSize = new IVector(600, 400),
+			// 	Typeface = SKTypeface.Default,
+			// 	BoxPos = new(100, 100),
+			// 	TextPaint = new()
+			// 	{
+			// 		Color = SKColors.Bisque,
+			// 		IsAntialias = true,
+			// 		TextSize = 64,
+			// 	}
+			// };
+			// _canvas.DrawTextBox(tb);
+
 			_canvas.Flush();
 		}
 	}
