@@ -82,6 +82,26 @@ public partial class Test : IAsyncDisposable
 		Manager.Render(canvas, NowTime.Minisecond);
 
 		//! test
+		TextBox tb = new TextBox
+		{
+			Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
+			BoxStyle = new()
+			{
+				BoxSize = new IVector(1080, 400),
+				BoxPos = new(100, 100),
+				MarginBottom = 20
+			},
+			TextPaint = new()
+			{
+				Color = SKColors.Bisque,
+				IsAntialias = true,
+				TextSize = 30,
+				Typeface = paintTypeface
+			}
+		};
+		canvas.DrawTextBox(tb);
+
+		//! test
 		if (_loopAudios.Count != 0)
 		{
 			float vol = NowTime.Minisecond % 8000;

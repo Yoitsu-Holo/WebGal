@@ -7,28 +7,20 @@ namespace WebGal.Libs.Base;
 public class TextBox
 {
 	public string Text { get; set; } = "";
-	public IVector BoxPos { get; set; }
-	public IVector BoxSize { get; set; } // 文本窗口大小，若为 (0,0) 则直接显示为一行
-
 	public SKPaint TextPaint { get; set; } = LayerConfig.DefaultTextPaint;
-	public SKTypeface Typeface { get; set; } = SKTypeface.Default;
-
-	public int MarginTop { get; set; } // 行高，顶部，像素
-	public int MarginBottom { get; set; } // 行高，底部，像素
-	public TextPadding Padding { get; set; } // 文本框内边距，像素
+	public TextBoxStyle BoxStyle { get; set; } = new();
 
 	private List<string> _textLine = new();
 
 	public void TextRender()
 	{
-		if (BoxSize.Y == 0)
+		if (BoxStyle.BoxSize.Y == 0)
 		{
 			_textLine.Add(Text);
 			return;
 		}
 
-		int lineWidth = BoxSize.Width - (Padding.Left + Padding.Right);
-		TextPaint.Typeface = Typeface;
+		int lineWidth = BoxStyle.BoxSize.Width - (BoxStyle.Padding.Left + BoxStyle.Padding.Right);
 
 		string s = "";
 		foreach (var c in Text)
@@ -60,12 +52,14 @@ public class TextBox
 
 	public IEnumerable<(IVector, string)> GetTextLines()
 	{
-		IVector startPos = BoxPos + new IVector(Padding.Top, Padding.Left);
+		IVector startPos = BoxStyle.BoxPos + new IVector(BoxStyle.Padding.Top, BoxStyle.Padding.Left);
 		for (int i = 0; i < _textLine.Count; i++)
 		{
+			startPos.Y += BoxStyle.MarginTop;
 			startPos.Y += (int)TextPaint.TextSize;
 			string str = _textLine[i];
 			yield return (startPos, str);
+			startPos.Y += BoxStyle.MarginBottom;
 		}
 	}
 }
