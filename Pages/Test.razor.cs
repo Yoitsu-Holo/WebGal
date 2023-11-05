@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using SkiaSharp;
+using SkiaSharp.TextBlocks;
 using SkiaSharp.Views.Blazor;
+using Topten.RichTextKit;
 using WebGal.Event;
 using WebGal.Global;
 using WebGal.Libs.Base;
@@ -9,8 +12,9 @@ using WebGal.Services;
 
 namespace WebGal.Pages;
 
-public partial class Test
+public partial class Test : IAsyncDisposable
 {
+	[Inject] private HttpClient httpClient { get; set; } = null!;
 	[Inject] private IJSRuntime JS { get; set; } = null!;
 	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
@@ -22,17 +26,32 @@ public partial class Test
 
 	private MouseEvent _mouseEvent = new();
 
+	private IJSObjectReference _module = null!;
+
+	private SKTypeface? paintTypeface;
+
 	protected override void OnInitialized()
 	{
 		var audio = new Audio()
 		{
 			Name = "test",
-			URL = "Data/Test1/pack/sound/bgm/song01.ogg",
+			URL = "Data/Test1/pack/sound/bgm/bgm02_b.ogg",
 			Loop = true
 		};
 		Audio["test"] = audio;
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Test.razor.js");
+			var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
+			using var paintStream = new MemoryStream(paintBytes);
+			paintTypeface = SKTypeface.FromStream(paintStream);
+		}
+	}
+	//141538.479
 	protected override async Task OnParametersSetAsync()
 	{
 		//todo 未解决循环卡顿问题
@@ -59,16 +78,21 @@ public partial class Test
 		MouseStatusUpdate();
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
-		Manager.Render(e.Surface.Canvas, NowTime.Minisecond);
+		var canvas = e.Surface.Canvas;
+		canvas.SetTypeface(paintTypeface);
+		Manager.Render(canvas, NowTime.Minisecond);
 
 		//! test
 		if (_loopAudios.Count != 0)
 		{
-			float vol = NowTime.Minisecond % 5000;
+			float vol = NowTime.Minisecond % 8000;
 			vol /= 10000;
-			vol += 0.5f;
-			await JS.InvokeVoidAsync("setAudioVolume", vol);
+			vol += 0.2f;
+			await _module.InvokeVoidAsync("setAudioVolume", vol, "test");
+			await _module.InvokeVoidAsync("getAudioLength", "test");
 		}
+
+		// e.Surface.Canvas.DrawTextBlock("Hello world!", new SKRect(50, 50, 150, 0), new Font(14), SKColors.Black);
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -125,6 +149,12 @@ public partial class Test
 		}
 		if (_mouseEvent.Status == MouseStatus.Down)
 			_mouseEvent.Status = MouseStatus.Hold;
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+			await _module.DisposeAsync();
 	}
 
 	#region Debug

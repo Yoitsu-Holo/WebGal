@@ -44,6 +44,10 @@ public class Renderer
 					scene.StateHasChange = true;
 				}
 			}
+
+			{
+				_canvas.DrawTextBox();
+			}
 			_canvas.Flush();
 		}
 	}
