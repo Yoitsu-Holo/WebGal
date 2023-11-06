@@ -14,9 +14,3 @@ export function getAudioLength(audioName: string) {
 	const durationMs = audio.duration * 1000;
 	// console.log(`The duration of the audio is ${durationMs} milliseconds.`);
 }
-
-// public setAudioVolume(audioVolume: number) {
-// 	let audio = document.getElementById("test") as HTMLAudioElement;
-// 	audio.volume = audioVolume;
-// }
-

@@ -1,3 +1,4 @@
+using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -30,6 +31,14 @@ public partial class Test : IAsyncDisposable
 
 	private SKTypeface? paintTypeface;
 
+	// Audio API Test
+	private AudioContext context = default!;
+	private AudioDestinationNode destination = default!;
+	private AudioBufferSourceNode currentAudioBufferNode = default!;
+	private AudioBuffer currentAudioBuffer = default!;
+	private double trackDuration;
+
+
 	protected override void OnInitialized()
 	{
 		var audio = new Audio()
@@ -49,6 +58,19 @@ public partial class Test : IAsyncDisposable
 			var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
 			using var paintStream = new MemoryStream(paintBytes);
 			paintTypeface = SKTypeface.FromStream(paintStream);
+
+			context = await AudioContext.CreateAsync(JS);
+			destination = await context.GetDestinationAsync();
+
+			byte[] trackData = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
+			await context.DecodeAudioDataAsync(trackData, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
+			trackDuration = await currentAudioBuffer.GetDurationAsync();
+
+			currentAudioBufferNode = await context.CreateBufferSourceAsync();
+			await currentAudioBufferNode.SetBufferAsync(currentAudioBuffer);
+			await currentAudioBufferNode.ConnectAsync(destination);
+			await currentAudioBufferNode.SetLoopAsync(true);
+			await currentAudioBufferNode.StartAsync();
 		}
 	}
 	//141538.479
@@ -102,14 +124,14 @@ public partial class Test : IAsyncDisposable
 		canvas.DrawTextBox(tb);
 
 		//! test
-		if (_loopAudios.Count != 0)
-		{
-			float vol = NowTime.Minisecond % 8000;
-			vol /= 10000;
-			vol += 0.2f;
-			await _module.InvokeVoidAsync("setAudioVolume", vol, "test");
-			await _module.InvokeVoidAsync("getAudioLength", "test");
-		}
+		// if (_loopAudios.Count != 0)
+		// {
+		// 	float vol = NowTime.Minisecond % 8000;
+		// 	vol /= 10000;
+		// 	vol += 0.2f;
+		// 	await _module.InvokeVoidAsync("setAudioVolume", vol, "test");
+		// 	await _module.InvokeVoidAsync("getAudioLength", "test");
+		// }
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="BlazorDexie" Version="1.1.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="7.3.0" />
+    <PackageReference Include="KristofferStrube.Blazor.WebAudio" Version="0.1.0-alpha.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.11" PrivateAssets="all" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
