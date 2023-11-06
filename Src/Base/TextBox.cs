@@ -44,10 +44,10 @@ public class TextBox
 		if (s.Length != 0)
 			_textLine.Add(s);
 
-		foreach (var str in _textLine)
-		{
-			Console.WriteLine(str);
-		}
+		// foreach (var str in _textLine)
+		// {
+		// 	Console.WriteLine(str);
+		// }
 	}
 
 	public IEnumerable<(IVector, string)> GetTextLines()

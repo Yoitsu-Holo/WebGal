@@ -28,7 +28,6 @@ public class GameManager
 	{
 		_js = js;
 		_resourceManager = new(httpClient);
-		// _interpreter = new(_sceneManager, _resourceManager, _eventManager);
 		_interpreter = new(_sceneManager, _resourceManager);
 	}
 

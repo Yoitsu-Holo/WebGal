@@ -8,16 +8,6 @@
 		EnableRenderLoop="true" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
 </div>
 
-@foreach (var (_, audio) in _loopAudios)
-{
-	<audio autoplay="true" src="@audio.URL" id="@audio.Name"  loop controls/>
-}
-
-@foreach (var (_, audio) in _oneShotAudios)
-{
-	<audio autoplay="true" src="@audio.URL" id="@audio.Name"  />
-}
-
 <p>@(_mouseEvent.Position.X),@(_mouseEvent.Position.Y)</p>
 <p>FPS: @_fps</p>
 
