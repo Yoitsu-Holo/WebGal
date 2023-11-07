@@ -11,8 +11,9 @@ using WebGal.Services;
 
 namespace WebGal.Pages;
 
-public partial class Test
+public partial class Test : IDisposable
 {
+	[Inject] private IJSRuntime jsRuntime { get; set; } = null!;
 	[Inject] private HttpClient httpClient { get; set; } = null!;
 	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
@@ -20,8 +21,12 @@ public partial class Test
 	private MouseEvent _mouseEvent = new();
 	private SKTypeface? paintTypeface;
 
+	private AudioSimple? audioTest;
+	private AudioContext? _context;
+
 	protected override void OnInitialized()
 	{
+		audioTest = new(jsRuntime);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -31,6 +36,15 @@ public partial class Test
 			var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
 			using var paintStream = new MemoryStream(paintBytes);
 			paintTypeface = SKTypeface.FromStream(paintStream);
+
+			// ! test
+			var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
+
+			_context = await AudioContext.CreateAsync(jsRuntime);
+			await audioTest.SetContextAsync(_context);
+			await audioTest.SetAudioAsync(audioBuffer);
+			await audioTest.SetLoop(true);
+			await audioTest.StartAsync();
 		}
 	}
 
@@ -70,6 +84,19 @@ public partial class Test
 
 		canvas.DrawTextBox(tb);
 		// Console.WriteLine(await context.GetCurrentTimeAsync());
+
+		//! test
+		var tm = NowTime.Minisecond;
+		float volume = tm % 6000;
+		volume += 1000;
+		volume /= 7000;
+
+		if (audioTest is not null)
+			try
+			{
+				await audioTest.SetVolume(volume);
+			}
+			catch { };
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -126,6 +153,12 @@ public partial class Test
 		}
 		if (_mouseEvent.Status == MouseStatus.Down)
 			_mouseEvent.Status = MouseStatus.Hold;
+	}
+
+	public async void Dispose()
+	{
+		if (_context is not null)
+			await _context.DisposeAsync();
 	}
 
 	#region Debug

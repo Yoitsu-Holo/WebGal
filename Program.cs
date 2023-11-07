@@ -1,5 +1,7 @@
+using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using WebGal;
 using WebGal.Services;
 
@@ -13,5 +15,10 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<GameManager>();
+// builder.Services.AddScoped<Lazy<Task<AudioContext>>>(sp => new(async () =>
+// {
+// 	var js = sp.GetRequiredService<IJSRuntime>();
+// 	return await AudioContext.CreateAsync(js);
+// }));
 
 await builder.Build().RunAsync();
