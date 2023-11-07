@@ -1,6 +1,6 @@
 using SkiaSharp;
 
-namespace WebGal.Libs.Base;
+namespace WebGal.Types;
 
 public record struct IVector(int X, int Y)
 {

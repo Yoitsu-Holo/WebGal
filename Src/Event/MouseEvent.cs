@@ -1,4 +1,5 @@
-using WebGal.Libs.Base;
+using WebGal.Types;
+
 namespace WebGal.Event;
 
 public enum MouseButton : ushort

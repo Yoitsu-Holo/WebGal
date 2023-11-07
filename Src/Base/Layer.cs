@@ -1,4 +1,5 @@
 using SkiaSharp;
+using WebGal.Types;
 
 namespace WebGal.Libs.Base;
 

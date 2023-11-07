@@ -1,6 +1,6 @@
 using WebGal.Event;
 
-namespace WebGal.Libs.Base;
+namespace WebGal.Types;
 
 public record struct EventStructure
 (

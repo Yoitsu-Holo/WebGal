@@ -1,3 +1,4 @@
+using WebGal.Types;
 using WebGal.Animations;
 
 namespace WebGal.Libs.Base;

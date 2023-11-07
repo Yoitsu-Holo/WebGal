@@ -1,4 +1,5 @@
 namespace WebGal.Libs.Base;
+using WebGal.Types;
 
 public class TextBoxStyle
 {

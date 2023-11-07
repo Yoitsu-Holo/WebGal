@@ -1,4 +1,4 @@
-namespace WebGal.Libs.Base;
+namespace WebGal.Types;
 
 // 默认加载第一个场景
 public record struct GameStructure

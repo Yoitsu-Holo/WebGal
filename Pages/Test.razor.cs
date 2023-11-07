@@ -8,6 +8,7 @@ using WebGal.Event;
 using WebGal.Global;
 using WebGal.Libs.Base;
 using WebGal.Services;
+using WebGal.Types;
 
 namespace WebGal.Pages;
 
@@ -41,7 +42,7 @@ public partial class Test : IDisposable
 			var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
 			_context = await AudioContext.CreateAsync(jsRuntime);
-			await audioTest.SetContextAsync(_context);
+			await audioTest!.SetContextAsync(_context);
 			await audioTest.SetAudioAsync(audioBuffer);
 			await audioTest.SetLoop(true);
 			await audioTest.StartAsync();

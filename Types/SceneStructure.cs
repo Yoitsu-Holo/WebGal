@@ -1,4 +1,4 @@
-namespace WebGal.Libs.Base;
+namespace WebGal.Types;
 
 public record struct SceneStructure
 (

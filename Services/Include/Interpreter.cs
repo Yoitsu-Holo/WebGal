@@ -2,9 +2,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SkiaSharp;
 using WebGal.Global;
+using WebGal.Types;
 using WebGal.Libs.Base;
 
-namespace WebGal.Libs;
+namespace WebGal.Services.Include;
+
 public class Interpreter
 {
 	private readonly JsonSerializerOptions _jsonOptions = new()
