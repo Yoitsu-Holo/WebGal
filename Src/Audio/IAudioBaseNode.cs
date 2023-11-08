@@ -4,7 +4,7 @@ namespace WebGal.Audio;
 
 public interface IAudioBaseNode
 {
-	public Task ConnectToAsync(AudioWire wire, IAudioBaseNode target);
+	public Task ConnectToAsync(IAudioBaseNode target, AudioWire wire);
 	public AudioNode GetSocketAsync();
 	public Task SetContextAsync(AudioContext context);
 	public ulong OutputChannels();

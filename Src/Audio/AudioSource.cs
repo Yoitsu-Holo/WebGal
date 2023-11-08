@@ -1,5 +1,4 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
@@ -45,7 +44,7 @@ public class AudioSource : IAudioBaseNode
 	// Interface
 	public async Task SetContextAsync(AudioContext context) => await Task.Run(() => _context = context);
 
-	public async Task ConnectToAsync(AudioWire wire, IAudioBaseNode target)
+	public async Task ConnectToAsync(IAudioBaseNode target, AudioWire wire)
 	{
 		var inputChannels = target.InputChannels();
 

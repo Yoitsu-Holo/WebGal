@@ -83,7 +83,7 @@ public class AudioSimple : IAudioBaseNode
 		await _gain.ConnectAsync(_destination);
 	}
 
-	public Task ConnectToAsync(AudioWire wire, IAudioBaseNode target) => throw new NotImplementedException();
+	public Task ConnectToAsync(IAudioBaseNode target, AudioWire wire) => throw new NotImplementedException();
 	public AudioNode GetSocketAsync() => throw new NotImplementedException();
 	public ulong OutputChannels() => throw new NotImplementedException();
 	public ulong InputChannels() => throw new NotImplementedException();

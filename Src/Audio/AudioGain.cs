@@ -20,7 +20,7 @@ public class AudioGain : IAudioBaseNode
 	}
 
 	// Interface
-	public async Task ConnectToAsync(AudioWire wire, IAudioBaseNode target)
+	public async Task ConnectToAsync(IAudioBaseNode target, AudioWire wire)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");

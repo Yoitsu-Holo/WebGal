@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
+using WebGal.Audio;
 using WebGal.Event;
 using WebGal.Global;
 using WebGal.Libs.Base;
@@ -22,12 +23,18 @@ public partial class Test : IDisposable
 	private MouseEvent _mouseEvent = new();
 	private SKTypeface? paintTypeface;
 
-	private AudioSimple? audioTest;
+	private AudioSource? _audioSource;
+	private AudioGain? _audioGain;
+	private AudioSpeeker? _audioSpeeker;
+	// private AudioSimple? _audioTest;
 	private AudioContext? _context;
 
 	protected override void OnInitialized()
 	{
-		audioTest = new(jsRuntime);
+		// _audioTest = new(jsRuntime);
+		_audioGain = new(jsRuntime);
+		_audioSource = new(jsRuntime);
+		_audioSpeeker = new(jsRuntime);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -42,10 +49,22 @@ public partial class Test : IDisposable
 			var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
 			_context = await AudioContext.CreateAsync(jsRuntime);
-			await audioTest!.SetContextAsync(_context);
-			await audioTest.SetAudioAsync(audioBuffer);
-			await audioTest.SetLoop(true);
-			await audioTest.StartAsync();
+			await _audioSource.SetContextAsync(_context);
+			await _audioGain.SetContextAsync(_context);
+			await _audioSpeeker.SetContextAsync(_context);
+
+			await _audioSource.SetAudioBuffer(audioBuffer);
+
+			await _audioSource.ConnectToAsync(_audioGain, new AudioWire(0, 0));
+			await _audioGain.ConnectToAsync(_audioSpeeker, new AudioWire(0, 0));
+
+			await _audioSource.SetAudioLoop(true);
+			await _audioSource.PlayAsync();
+
+			// await _audioTest!.SetContextAsync(_context);
+			// await _audioTest.SetAudioAsync(audioBuffer);
+			// await _audioTest.SetLoop(true);
+			// await _audioTest.StartAsync();
 		}
 	}
 
@@ -92,10 +111,10 @@ public partial class Test : IDisposable
 		volume += 1000;
 		volume /= 7000;
 
-		if (audioTest is not null)
+		if (_audioGain is not null)
 			try
 			{
-				await audioTest.SetVolume(volume);
+				await _audioGain.SetGainASync(volume);
 			}
 			catch { };
 
