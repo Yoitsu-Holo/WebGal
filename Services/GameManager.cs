@@ -69,6 +69,7 @@ public class GameManager
 	public async Task LoadMedia()
 	{
 		// todo
+		await Task.Run(() => { });
 		return;
 	}
 

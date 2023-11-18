@@ -49,9 +49,9 @@ public partial class Test : IDisposable
 			var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
 			_context = await AudioContext.CreateAsync(jsRuntime);
-			await _audioSource.SetContextAsync(_context);
-			await _audioGain.SetContextAsync(_context);
-			await _audioSpeeker.SetContextAsync(_context);
+			await _audioSource!.SetContextAsync(_context);
+			await _audioGain!.SetContextAsync(_context);
+			await _audioSpeeker!.SetContextAsync(_context);
 
 			await _audioSource.SetAudioBuffer(audioBuffer);
 
