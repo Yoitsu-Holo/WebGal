@@ -69,7 +69,7 @@ public class GameManager
 	public async Task LoadMedia()
 	{
 		// todo
-		await Task.Run(() => { });
+		await Task.Run(() => { }); // Just make compiler happy
 		return;
 	}
 
