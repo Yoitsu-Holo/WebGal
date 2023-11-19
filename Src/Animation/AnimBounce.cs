@@ -2,11 +2,6 @@ using WebGal.Types;
 
 namespace WebGal.Animations;
 
-class AnimationDefault : IAnimation
-{
-	public FVector GetOffset(float timeOff, long timeObs) => new(timeOff, timeOff);
-}
-
 class AnimationBounce : IAnimation
 {
 	private float x = 0, y = 0;
@@ -37,15 +32,5 @@ class AnimationBounce : IAnimation
 
 		timepre = timeObs;
 		return new(x, y);
-	}
-}
-
-class AnimationBrownian : IAnimation
-{
-	readonly Random rand = new();
-	public FVector GetOffset(float timeOff, long timeObs)
-	{
-		var (x, y) = (rand.NextDouble(), rand.NextDouble());
-		return new((float)x, (float)y);
 	}
 }
