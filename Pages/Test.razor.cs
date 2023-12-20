@@ -129,6 +129,9 @@ public partial class Test : IDisposable
 		_frameCount++;
 	}
 
+
+	// 下方为处理鼠标事件的函数，任何界面事件都应该在界面预处理后传给游戏引擎处理
+
 	private void OnMouseMove(MouseEventArgs e)
 	{
 		_mouseEvent.Position = new IVector((int)e.OffsetX, (int)e.OffsetY);
