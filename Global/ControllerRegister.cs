@@ -1,4 +1,4 @@
-using WebGal.Animations;
+using WebGal.Controller;
 
 namespace WebGal.Global;
 
