@@ -9,7 +9,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="BlazorDexie" Version="1.1.4" />
+    <PackageReference Include="BlazorDexie" Version="1.5.0" />
     <PackageReference Include="KristofferStrube.Blazor.WebAudio" Version="0.1.0-alpha.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />

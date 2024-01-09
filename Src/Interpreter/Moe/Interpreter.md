@@ -19,25 +19,46 @@
 | .file | 程序所有文件的名称、类型和url路径对应表 |
 | .table | 程序所有函数与文件对应关系 |
 | .data | 全局变量部分，可以通过修饰符来定义常量或变量 |
-| .form | 界面描述文件，主要通过json格式文件来注册 |
+| .form | 界面文件，通过json文件来注册，程序不会处理，仅作为标识 |
+| .code | 代码文件，通过moe文件来注册，程序不会处理，仅作为标识 |
 | .start | 程序开始位置，相当于脚本的main函数位置 |
 
 注意，所有的资源路径必须在程序被初始化时被设置，不接受任何中途加载的资源路径，包括音频，图像
 
-## table
+## file
 
 基本格式：
 
 ```text
-name type path
+name type url
 ```
+
+即名称、类型、URL的合集
+
+注意，这里URL应该是资源的相对路劲URL，而非绝对路劲。完整路径为基本网址+相对路径来组成完整的游戏资源访问路径。
+
+文件类型有如下几大类：
+
+1. 图片
+2. 音频
+3. 脚本（文本/代码）
+4. 界面（文本/代码）
+5. 二进制
+
+值得注意的是，对于文本文件，脚本(script)和界面(ui)文件默认为代码文件，会自动读取和分析
+
+## table
+
+需要注意的是，table不会被初始加载，这只是ELF文件的一个属性，当读取到一个新的脚本文件时，程序会自动加载该文件的函数表到table段中。即这是一个自动化的处理过程，代码编写者不需要关心
+
+另外，对于代码的函数而言，任何函数都可以在任何位置被调用，任意函数名称都应该只出现一次，如果同一个函数名称出现多次，那么会在table预处理时抛出异常
 
 ## data
 
 基本格式：
 
 ```text
-[const|static|var] [int|string|float] name
+[const|static|var] [int|string|double] name
 ```
 
 例如定义一个全局静态整形变量 A，全局常量字符串 S，全局浮点变量 F，格式如下：
@@ -45,16 +66,19 @@ name type path
 ```
 static int A
 const string S
-var float F
+var double F
 ```
 
-同时，一行可以定义多个变量，每个变量之间使用空格隔开（任意个数）
+同时，一行可以定义多个变量，每个变量之间使用空格隔开（任意个数），数组名称后面紧跟冒号表示变量长度（数组大小）
 
 例如定义三个整型全局变量A，B，C：
 
 ```text
-var int A B C
+var int A:1, B:1, C:1
 ```
+
+同时，代码允许缺省数组长度定义，这样将会得到一个长度为1的数组（即单个变量）
+
 
 为保证代码简单性，脚本只提供三种基本类型（与 C# 类型严格对应）：
 
@@ -62,14 +86,16 @@ var int A B C
 |-|-|
 | int | 32位带符号整数 |
 | string | 字符串，不限制长度，UTF-8编码 |
-| float | 32位浮点数 |
+| double | 64位浮点数 |
 
-这里不建议存储字符量，如果需要，请只用string类型存储
+需要注意的是，这些基本类型都是定长数组，在定义时必须指定长度！
 
-同时，对于其对应的数组，与类C语言数组定义方式相同
+如果需要单个变量而不是数组，则定义长度为1即可，同时，对于任意数组，直接访问数组名将返回第一个第一个元素，也就是下标为0的元素
+
+同时，对于其对应的数组，与类C语言数组定义方式相似
 
 ```text
-var int A[10]
+var int A:10, B:20
 ```
 
 注意，基本类型数组不支持动态扩容，仅能在定义时初始化大小
@@ -77,6 +103,14 @@ var int A[10]
 ## form
 
 这里用作界面描述文件的存储，文件必须在这里被定义
+
+定义方式为直接指定在.file字段中加载的文件，即：
+
+```text
+filename
+```
+
+注意，任何文件都应该在file字段中被加载后才能使用
 
 ## start
 
@@ -98,7 +132,7 @@ var int A[10]
 变量定义语法如下
 
 ```
-var [int|string|float] name
+var [int|string|double] name
 ```
 
 例如定义局部整型变量 A，字符串变量 S，浮点变量 F
@@ -106,19 +140,20 @@ var [int|string|float] name
 ```
 var int A
 var string S
-var float F
+var double F
 ```
 
 ## 函数定义
 
 ```text
-func [return] name ([parameter], ...)
+func [return] [name] : [parameter], ...
 {
 	...
 }
 ```
 
 - [return] : 返回值
+- [name] : 函数名称
 - [paramater] : 参数列表
 
 需要注意，没有返回值返回类型应该写入void，而不应留空
@@ -126,13 +161,14 @@ func [return] name ([parameter], ...)
 例如
 
 ```text
-func int func1 (var int a,var int b)
+func int func1 :var int a,var int b
 {
-	var int c = a+b
+	var int c
+	c=a+b
 	return c
 }
 
-func void func1 ()
+func void func2:
 {
 	return
 }

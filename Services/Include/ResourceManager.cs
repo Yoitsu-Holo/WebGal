@@ -9,6 +9,8 @@ public class ResourceManager
 	private readonly Dictionary<string, byte[]> _audioList = new();
 	private readonly Dictionary<string, SKTypeface> _fontList = new();
 	private readonly Dictionary<string, string> _scriptList = new();
+
+
 	public string basePath { get; set; } = "/Demo/";
 
 	public ResourceManager(HttpClient httpClient) => _httpClient = httpClient;
@@ -24,6 +26,7 @@ public class ResourceManager
 	public byte[] GetAudio(string name) => _audioList.ContainsKey(name) ? _audioList[name] : throw new Exception($"Audio \"{name}\" not find");
 	public SKTypeface GetFont(string name) => _fontList.ContainsKey(name) ? _fontList[name] : throw new Exception($"Font \"{name}\" not find");
 	public string GetScript(string name = "main") => _scriptList.ContainsKey(name) ? _scriptList[name] : throw new Exception($"Script \"{name}\" not find");
+
 
 	public bool RemoveImage(string name) => _imageList.Remove(name);
 	public bool RemoveAudio(string name) => _audioList.Remove(name);
