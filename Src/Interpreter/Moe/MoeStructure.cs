@@ -41,6 +41,8 @@ public class MoeFile()
 	public string FileName = "";
 	public MoeFileType FileType = MoeFileType.Void;
 	public string FileURL = "";
+
+	override public string ToString() => $"FileName: {FileName}, FileType: {FileType}, FileURL: {FileURL}";
 }
 
 public class MoeVariable
@@ -49,6 +51,8 @@ public class MoeVariable
 	public MoeBasicType Type;
 	public object? Obj;
 	public int Size = 0; // 0 时默认非数组
+
+	public override string ToString() => $"Access: {Access}, Type: {Type}, Obj: {Obj}, Size: {Size}";
 }
 
 public class MoeFunction()
@@ -60,4 +64,13 @@ public class MoeFunction()
 	public string FunctionName = "main";
 	public MoeBasicType ReturnType;
 	public List<MoeVariable> CallType = [];
+
+	public override string ToString()
+	{
+		string ret = $"FileName : {FileName}, FileLine : {FileLine}, FunctionName : {FunctionName}, ReturnType : {ReturnType}\n";
+		ret += $"CallType : {CallType.Count}\n";
+		foreach (var call in CallType)
+			ret += call.ToString() + "\n";
+		return ret;
+	}
 }

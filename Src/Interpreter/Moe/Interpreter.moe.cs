@@ -1,4 +1,3 @@
-using System.Numerics;
 using WebGal.Services.Include;
 
 namespace WebGal.MeoInterpreter;
@@ -368,11 +367,39 @@ public class MoeInterpreter
 		return true;
 	}
 
-	private static void Dump()
+	public void Dump()
 	{
 		Console.WriteLine("File: ");
+
+		foreach (var item in _elfHeader.MoeFiles)
+		{
+			Console.WriteLine(item.Key);
+			Console.WriteLine(item.Value);
+		}
+
 		Console.WriteLine("Function: ");
+		foreach (var item in _elfHeader.MoeFunctions)
+		{
+			Console.WriteLine(item.Key);
+			Console.WriteLine(item.Value);
+		}
+
 		Console.WriteLine("Vaiable: ");
+		foreach (var item in _elfHeader.MoeData)
+		{
+			Console.WriteLine(item.Key);
+			Console.WriteLine(item.Value);
+		}
+
+
+		Console.WriteLine("Form: ");
+		foreach (var item in _elfHeader.MoeData)
+		{
+			Console.WriteLine(item.Key);
+			Console.WriteLine(item.Value);
+		}
+
 		Console.WriteLine("Start: ");
+		Console.WriteLine(_elfHeader.MoeStart);
 	}
 }

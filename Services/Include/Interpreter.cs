@@ -4,6 +4,7 @@ using SkiaSharp;
 using WebGal.Global;
 using WebGal.Types;
 using WebGal.Libs.Base;
+using WebGal.MeoInterpreter;
 
 namespace WebGal.Services.Include;
 
@@ -22,9 +23,9 @@ public class Interpreter
 
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
+	private readonly MoeInterpreter _moeInterpreter;
 
 	private readonly Queue<string> _unloadedResPackName = new();
-
 
 	/// <summary>
 	/// N elements, range [0, N)
@@ -57,6 +58,7 @@ public class Interpreter
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
+		_moeInterpreter = new(_sceneManager, _resourceManager);
 	}
 
 	public void Clear()
@@ -117,6 +119,7 @@ public class Interpreter
 		var gameBase = "Data/" + gameName + "/";
 		_resourceManager.basePath = gameBase;
 		await _resourceManager.PullScriptAsync();
+		await _resourceManager.PullScriptAsync("elf", "/TestMoe1/main.elf");
 
 		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
 
@@ -127,9 +130,13 @@ public class Interpreter
 			_nodes[node.Name] = nodeId;
 		}
 
-		List<Task> tasks = new();
-		tasks.AddRange(mainObj.NodeURLs.Select(script => _resourceManager.PullScriptAsync(script.Name, script.URL)));
+		List<Task> tasks = [.. mainObj.NodeURLs.Select(script => _resourceManager.PullScriptAsync(script.Name, script.URL))];
 		await Task.WhenAll(tasks);
+
+		//! Test Moe Script
+		// Console.WriteLine(_resourceManager.GetScript("elf"));
+		await _moeInterpreter.LoadELF(_resourceManager.GetScript("elf"));
+		_moeInterpreter.Dump();
 	}
 
 	/// <summary>
