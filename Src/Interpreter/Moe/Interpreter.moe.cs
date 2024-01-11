@@ -26,8 +26,13 @@ public class MoeInterpreter
 
 	public async Task LoadELF(string MoeELF)
 	{
-		string[] MoeELFs = MoeELF.Split('\n');
+		string[] MoeELFs = MoeELF.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 		MoeELF elfFlag = MeoInterpreter.MoeELF.Void;
+		Console.WriteLine(MoeELF);
+
+		// StreamReader fileIn = new(MoeELF);
+		// fileIn.
+
 		for (int i = 0; i < MoeELFs.Length; i++)
 		{
 			string line = MoeELFs[i];
@@ -51,47 +56,49 @@ public class MoeInterpreter
 				continue;
 			}
 
+			// Console.WriteLine("flag =>: " + elfFlag); // !
+
 			if (elfFlag == MeoInterpreter.MoeELF.Void)
 				continue;
 
 			LineSpcaeFormatter(ref line);
-			string[] lines = line.Split(" ");
+			string[] lines = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 			if (elfFlag == MeoInterpreter.MoeELF.FILE)
 			{
+				Console.WriteLine("line ==: " + line); // !
+
 				if (lines.Length != 3)
 				{
-					throw new Exception();
+					throw new Exception("错误的参数数量" + line);
 					// continue;
 				}
 
-				string fileName = lines[0];
-				MoeFileType fileType = lines[1] switch
+				// string fileName = lines[0];
+
+				_elfHeader.MoeFiles[lines[0]] = new()
 				{
-					"png" => MoeFileType.Img_png,
-					"jpg" => MoeFileType.Img_jpg,
-					"bmp" => MoeFileType.Img_bmp,
+					FileName = lines[0],
+					FileType = lines[1] switch
+					{
+						"png" => MoeFileType.Img_png,
+						"jpg" => MoeFileType.Img_jpg,
+						"bmp" => MoeFileType.Img_bmp,
 
-					"wav" => MoeFileType.Audio_wav,
-					"mp3" => MoeFileType.Audio_mp3,
-					"flac" => MoeFileType.Audio_flac,
-					"midi" => MoeFileType.Audio_midi,
+						"wav" => MoeFileType.Audio_wav,
+						"mp3" => MoeFileType.Audio_mp3,
+						"flac" => MoeFileType.Audio_flac,
+						"midi" => MoeFileType.Audio_midi,
 
-					"script" => MoeFileType.Text_script,
-					"ui" => MoeFileType.Text_ui,
+						"script" => MoeFileType.Text_script,
+						"ui" => MoeFileType.Text_ui,
 
-					"bin" => MoeFileType.Bin_font,
-					"block" => MoeFileType.Bin_block,
+						"bin" => MoeFileType.Bin_font,
+						"block" => MoeFileType.Bin_block,
 
-					_ => MoeFileType.Void,
-				};
-				string fileURL = lines[2];
-
-				_elfHeader.MoeFiles[fileName] = new()
-				{
-					FileName = fileName,
-					FileType = fileType,
-					FileURL = fileURL,
+						_ => MoeFileType.Void,
+					},
+					FileURL = lines[2],
 				};
 
 				continue;
@@ -124,7 +131,7 @@ public class MoeInterpreter
 
 						LineSpcaeFormatter(ref codeLine);
 
-						string[] words = codeLine.Split(' ');
+						string[] words = codeLine.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 						if (words[0] != "func")
 							continue;
@@ -132,7 +139,7 @@ public class MoeInterpreter
 						// 处理函数
 
 
-						string[] parts = codeLine.Split(':');
+						string[] parts = codeLine.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 						if (parts.Length != 2)
 							throw new Exception(file.FileName + " : " + fileLine + " : " + codeLine + " 不完整的函数定义");
@@ -141,8 +148,8 @@ public class MoeInterpreter
 						LineSpcaeFormatter(ref parts[0]); // 函数签名
 						LineSpcaeFormatter(ref parts[1]); // 函数参数
 
-						string[] signature = parts[0].Split(' ');
-						string[] paramaterList = parts[1].Split(',');
+						string[] signature = parts[0].Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+						string[] paramaterList = parts[1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 						if (signature.Length != 3)
 							throw new Exception(file.FileName + " : " + fileLine + " : " + parts[0] + "不完整或错误的函数签名");
@@ -169,8 +176,8 @@ public class MoeInterpreter
 
 							LineSpcaeFormatter(ref paramater);
 
-							string[] variableInfo = paramater.Split(' ');
-							string[] temp = variableInfo[2].Split(':');
+							string[] variableInfo = paramater.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+							string[] temp = variableInfo[2].Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 							variableInfo[2] = temp[0];
 							variableInfo[3] = "1";
@@ -249,14 +256,14 @@ public class MoeInterpreter
 				for (int elm = 2; i < lines.Length; i++)
 					temp += lines[elm];
 
-				lines = temp.Split(',');
+				lines = temp.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 				foreach (var rawVar in lines)
 				{
 					string varName = "";
 					int varSize = 0;
 					MoeBasicType varType = type;
-					var rawVarPart = rawVar.Split(':');
+					var rawVarPart = rawVar.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 					varName = rawVarPart[0];
 					varSize = (rawVarPart.Length == 2) ? AtoI(rawVarPart[1]) : 1;
@@ -336,14 +343,12 @@ public class MoeInterpreter
 
 	private static void LineSpcaeFormatter(ref string rawString)
 	{
-		string[] ss = rawString.Split(' ');
+		string[] ss = rawString.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 		rawString = "";
 		foreach (string s in ss)
 		{
-			if (s == "" || s == "\t")
-				continue;
 			rawString += s;
-			_ = rawString.Append(' ');
+			rawString += " ";
 		}
 	}
 
@@ -369,37 +374,26 @@ public class MoeInterpreter
 
 	public void Dump()
 	{
-		Console.WriteLine("File: ");
+		Console.WriteLine("Dump File: ");
 
 		foreach (var item in _elfHeader.MoeFiles)
-		{
-			Console.WriteLine(item.Key);
-			Console.WriteLine(item.Value);
-		}
+			Console.WriteLine(item.Key + " : " + item.Value);
 
-		Console.WriteLine("Function: ");
+
+		Console.WriteLine("Dump Function: ");
 		foreach (var item in _elfHeader.MoeFunctions)
-		{
-			Console.WriteLine(item.Key);
-			Console.WriteLine(item.Value);
-		}
+			Console.WriteLine(item.Key + " : " + item.Value);
 
-		Console.WriteLine("Vaiable: ");
+
+		Console.WriteLine("Dump Vaiable: ");
 		foreach (var item in _elfHeader.MoeData)
-		{
-			Console.WriteLine(item.Key);
-			Console.WriteLine(item.Value);
-		}
+			Console.WriteLine(item.Key + " : " + item.Value);
 
-
-		Console.WriteLine("Form: ");
+		Console.WriteLine("Dump Form: ");
 		foreach (var item in _elfHeader.MoeData)
-		{
-			Console.WriteLine(item.Key);
-			Console.WriteLine(item.Value);
-		}
+			Console.WriteLine(item.Key + " : " + item.Value);
 
-		Console.WriteLine("Start: ");
+		Console.WriteLine("Dump Start: ");
 		Console.WriteLine(_elfHeader.MoeStart);
 	}
 }
