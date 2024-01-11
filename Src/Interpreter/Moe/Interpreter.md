@@ -161,14 +161,14 @@ func [return] [name] : [parameter], ...
 例如
 
 ```text
-func int func1 :var int a,var int b
+func int func1 @var int a,var int b
 {
 	var int c
 	c=a+b
 	return c
 }
 
-func void func2:
+func void func2@
 {
 	return
 }

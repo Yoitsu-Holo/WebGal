@@ -68,9 +68,9 @@ public class MoeFunction()
 	public override string ToString()
 	{
 		string ret = $"FileName : {FileName}, FileLine : {FileLine}, FunctionName : {FunctionName}, ReturnType : {ReturnType}\n";
-		ret += $"CallType : {CallType.Count}\n";
+		ret += $"\tCallType : {CallType.Count}";
 		foreach (var call in CallType)
-			ret += call.ToString() + "\n";
+			ret += "\n\t" + call.ToString();
 		return ret;
 	}
 }

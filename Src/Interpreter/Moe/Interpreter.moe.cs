@@ -13,6 +13,7 @@ namespace WebGal.MeoInterpreter;
 /// </summary>
 public class MoeInterpreter
 {
+	private static readonly StringSplitOptions defaultStringSplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 	private readonly ElfHeader _elfHeader = new();
 
 	private readonly SceneManager _sceneManager;
@@ -26,14 +27,10 @@ public class MoeInterpreter
 
 	public async Task LoadELF(string MoeELF)
 	{
-		string[] MoeELFs = MoeELF.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		List<string> MoeELFs = new(MoeELF.Split('\n', defaultStringSplitOptions));
 		MoeELF elfFlag = MeoInterpreter.MoeELF.Void;
-		Console.WriteLine(MoeELF);
 
-		// StreamReader fileIn = new(MoeELF);
-		// fileIn.
-
-		for (int i = 0; i < MoeELFs.Length; i++)
+		for (int i = 0; i < MoeELFs.Count; i++)
 		{
 			string line = MoeELFs[i];
 
@@ -56,25 +53,16 @@ public class MoeInterpreter
 				continue;
 			}
 
-			// Console.WriteLine("flag =>: " + elfFlag); // !
-
 			if (elfFlag == MeoInterpreter.MoeELF.Void)
 				continue;
 
 			LineSpcaeFormatter(ref line);
-			string[] lines = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			List<string> lines = new(line.Split(' ', defaultStringSplitOptions));
 
 			if (elfFlag == MeoInterpreter.MoeELF.FILE)
 			{
-				Console.WriteLine("line ==: " + line); // !
-
-				if (lines.Length != 3)
-				{
+				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
-					// continue;
-				}
-
-				// string fileName = lines[0];
 
 				_elfHeader.MoeFiles[lines[0]] = new()
 				{
@@ -100,139 +88,13 @@ public class MoeInterpreter
 					},
 					FileURL = lines[2],
 				};
-
 				continue;
-			}
-
-			// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
-
-			List<Task> tasks = [];
-			foreach (var (_, file) in _elfHeader.MoeFiles)
-				if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
-					tasks.Add(_resourceManager.PullScriptAsync(file.FileName, file.FileURL));
-				else if (file.FileType == MoeFileType.Bin_font)
-					tasks.Add(_resourceManager.PullFontAsync(file.FileName, file.FileURL));
-
-			await Task.WhenAll(tasks);
-
-			if (elfFlag == MeoInterpreter.MoeELF.TABLE)
-			{
-				foreach (var (_, file) in _elfHeader.MoeFiles)
-				{
-					if (file.FileType != MoeFileType.Text_script)
-						continue;
-					// script
-					string[] codes = _resourceManager.GetScript(file.FileName).Split('\n');
-
-					// ! 扫描所有代码行
-					for (int fileLine = 0; fileLine < codes.Length; fileLine++)
-					{
-						string codeLine = codes[fileLine];
-
-						LineSpcaeFormatter(ref codeLine);
-
-						string[] words = codeLine.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-						if (words[0] != "func")
-							continue;
-
-						// 处理函数
-
-
-						string[] parts = codeLine.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-						if (parts.Length != 2)
-							throw new Exception(file.FileName + " : " + fileLine + " : " + codeLine + " 不完整的函数定义");
-
-						// 格式化字符串
-						LineSpcaeFormatter(ref parts[0]); // 函数签名
-						LineSpcaeFormatter(ref parts[1]); // 函数参数
-
-						string[] signature = parts[0].Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-						string[] paramaterList = parts[1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-						if (signature.Length != 3)
-							throw new Exception(file.FileName + " : " + fileLine + " : " + parts[0] + "不完整或错误的函数签名");
-
-						MoeFunction func = new()
-						{
-							FileName = file.FileName,
-							FileLine = fileLine,
-							ReturnType = signature[1] switch
-							{
-								"int" => MoeBasicType.Int,
-								"double" => MoeBasicType.Double,
-								"string" => MoeBasicType.String,
-								_ => MoeBasicType.Void,
-							}
-						};
-
-						if (paramaterList.Length <= 0)
-							throw new Exception(file.FileName + " : " + fileLine + " : " + parts[0] + "错误的参数列表");
-
-						for (int ip = 0; ip < paramaterList.Length && paramaterList[0] != "void"; ip++)
-						{
-							string paramater = paramaterList[ip];
-
-							LineSpcaeFormatter(ref paramater);
-
-							string[] variableInfo = paramater.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-							string[] temp = variableInfo[2].Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-							variableInfo[2] = temp[0];
-							variableInfo[3] = "1";
-
-							if (temp.Length == 2)
-								variableInfo[3] = temp[1];
-
-
-							CheckParamaDefine(variableInfo);
-
-							int variableSize = AtoI(variableInfo[3]);
-
-							MoeVariable variable = new()
-							{
-								Access = variableInfo[0] switch
-								{
-									"const" => MoeBasicAccess.Const,
-									"static" => MoeBasicAccess.Static,
-									"var" => MoeBasicAccess.Variable,
-									_ => MoeBasicAccess.Void,
-								},
-								Type = variableInfo[1] switch
-								{
-									"int" => MoeBasicType.Int,
-									"double" => MoeBasicType.Double,
-									"string" => MoeBasicType.String,
-									_ => MoeBasicType.Void,
-								},
-								Size = variableSize,
-							};
-
-							if (variable.Type == MoeBasicType.Int)
-								variable.Obj = new int[variable.Size];
-							else if (variable.Type == MoeBasicType.Double)
-								variable.Obj = new double[variable.Size];
-							else if (variable.Type == MoeBasicType.String)
-								variable.Obj = new string[variable.Size];
-							else
-								variable.Obj = new byte[variable.Size];
-
-							_ = func.CallType.Append(variable);
-						}
-
-						_elfHeader.MoeFunctions[func.FunctionName] = func;
-					}
-				}
 			}
 
 			if (elfFlag == MeoInterpreter.MoeELF.DATA)
 			{
-				if (lines.Length < 3)
-				{
-					throw new Exception();
-					// continue;
-				}
+				if (lines.Count < 3)
+					throw new Exception("错误的参数数量" + line);
 
 				MoeBasicAccess access = MoeBasicAccess.Void;
 				MoeBasicType type = MoeBasicType.Void;
@@ -253,17 +115,17 @@ public class MoeInterpreter
 				};
 
 				string temp = "";
-				for (int elm = 2; i < lines.Length; i++)
+				for (int elm = 2; i < lines.Count; i++)
 					temp += lines[elm];
 
-				lines = temp.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+				lines = new(temp.Split(',', defaultStringSplitOptions));
 
 				foreach (var rawVar in lines)
 				{
 					string varName = "";
 					int varSize = 0;
 					MoeBasicType varType = type;
-					var rawVarPart = rawVar.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+					var rawVarPart = rawVar.Split(':', defaultStringSplitOptions);
 
 					varName = rawVarPart[0];
 					varSize = (rawVarPart.Length == 2) ? AtoI(rawVarPart[1]) : 1;
@@ -294,19 +156,134 @@ public class MoeInterpreter
 
 			}
 		}
+
+
+		// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
+		List<Task> tasks = [];
+		foreach (var (_, file) in _elfHeader.MoeFiles)
+			if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
+				tasks.Add(_resourceManager.PullScriptAsync(file.FileName, file.FileURL));
+			else if (file.FileType == MoeFileType.Bin_font)
+				tasks.Add(_resourceManager.PullFontAsync(file.FileName, file.FileURL));
+
+		await Task.WhenAll(tasks);
+
+		// 单独扫描文件
+		foreach (var (_, file) in _elfHeader.MoeFiles)
+		{
+			if (file.FileType != MoeFileType.Text_script)
+				continue;
+			// script
+			List<string> codes = new(_resourceManager.GetScript(file.FileName).Split('\n'));
+
+			// ! 扫描所有代码行
+			for (int fileLine = 0; fileLine < codes.Count; fileLine++)
+			{
+				string codeLine = codes[fileLine];
+
+				LineSpcaeFormatter(ref codeLine);
+
+				List<string> words = new(codeLine.Split(' ', defaultStringSplitOptions));
+
+				if (words.Count < 1 || words[0] != "func")
+					continue;
+
+				// 处理函数
+				List<string> parts = new(codeLine.Split('@', defaultStringSplitOptions));
+
+				if (parts.Count != 2)
+					throw new Exception(file.FileName + " : " + fileLine + " : " + codeLine + " 不完整的函数定义");
+
+
+				// 函数签名
+				string[] signature = parts[0].Split(' ', defaultStringSplitOptions);
+				if (signature.Length != 3)
+					throw new Exception(file.FileName + " : " + fileLine + " : " + parts[0] + "不完整或错误的函数签名");
+
+				MoeFunction func = new()
+				{
+					FileName = file.FileName,
+					FileLine = fileLine,
+					FunctionName = signature[2],
+					ReturnType = signature[1] switch
+					{
+						"int" => MoeBasicType.Int,
+						"double" => MoeBasicType.Double,
+						"string" => MoeBasicType.String,
+						_ => MoeBasicType.Void,
+					}
+				};
+
+
+				// 函数参数
+				string[] paramaterList = parts[1].Split(',', defaultStringSplitOptions);
+				if (paramaterList.Length <= 0)
+					throw new Exception(file.FileName + " : " + fileLine + " : " + parts[0] + "错误的参数列表");
+
+				for (int paramaIndex = 0; paramaIndex < paramaterList.Length && paramaterList[0] != "void"; paramaIndex++)
+				{
+					string paramater = paramaterList[paramaIndex];
+
+					LineSpcaeFormatter(ref paramater);
+
+					List<string> variableInfo = new(paramater.Split(' ', defaultStringSplitOptions));
+					string[] temp = variableInfo[2].Split(':', defaultStringSplitOptions);
+
+					variableInfo[2] = temp[0];
+					variableInfo.Add("1");
+
+					if (temp.Length == 2)
+						variableInfo[3] = temp[1];
+
+
+					CheckParamaDefine(variableInfo);
+
+					int variableSize = AtoI(variableInfo[3]);
+
+					MoeVariable variable = new()
+					{
+						Access = variableInfo[0] switch
+						{
+							"const" => MoeBasicAccess.Const,
+							"static" => MoeBasicAccess.Static,
+							"var" => MoeBasicAccess.Variable,
+							_ => MoeBasicAccess.Void,
+						},
+						Type = variableInfo[1] switch
+						{
+							"int" => MoeBasicType.Int,
+							"double" => MoeBasicType.Double,
+							"string" => MoeBasicType.String,
+							_ => MoeBasicType.Void,
+						},
+						Size = variableSize,
+					};
+
+					if (variable.Type == MoeBasicType.Int)
+						variable.Obj = new int[variable.Size];
+					else if (variable.Type == MoeBasicType.Double)
+						variable.Obj = new double[variable.Size];
+					else if (variable.Type == MoeBasicType.String)
+						variable.Obj = new string[variable.Size];
+					else
+						variable.Obj = new byte[variable.Size];
+
+					func.CallType.Add(variable);
+				}
+
+				_elfHeader.MoeFunctions[func.FunctionName] = func;
+			}
+		}
 	}
 
 	private static bool IsAlpha(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-	private static bool IsDigital(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+	private static bool IsDigital(char c) => c >= '0' && c <= '9';
 
 	private static bool IsNumber(string s)
 	{
-		for (int i = 0; i < s.Length; i++)
+		for (int i = (s[0] == '-') ? 1 : 0; i < s.Length; i++)
 		{
-			char c = s[i];
-			if (i == 0 && c == '-')
-				continue;
-			if (!IsDigital(c))
+			if (!IsDigital(s[i]))
 				return false;
 		}
 		return true;
@@ -343,7 +320,7 @@ public class MoeInterpreter
 
 	private static void LineSpcaeFormatter(ref string rawString)
 	{
-		string[] ss = rawString.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		string[] ss = rawString.Split(' ', defaultStringSplitOptions);
 		rawString = "";
 		foreach (string s in ss)
 		{
@@ -352,48 +329,46 @@ public class MoeInterpreter
 		}
 	}
 
-	private static bool CheckParamaDefine(string[] variableDefine)
+	private static bool CheckParamaDefine(List<string> variableDefine)
 	{
-		if (variableDefine.Length != 4)
-			throw new Exception("错误的参数定义");
+		if (variableDefine.Count != 4)
+			throw new Exception("错误的参数定义: " + variableDefine.Count);
 
-		if (variableDefine[0] != "" && variableDefine[0] != "" && variableDefine[0] != "")
-			throw new Exception("错误的变量修饰");
+		if (variableDefine[0] != "const" && variableDefine[0] != "static" && variableDefine[0] != "var")
+			throw new Exception("错误的变量修饰: " + variableDefine[0]);
 
 		if (variableDefine[1] != "int" && variableDefine[1] != "double" && variableDefine[1] != "string")
-			throw new Exception("错误的变量类型");
+			throw new Exception("错误的变量类型: " + variableDefine[1]);
 
 		if (!IsLableName(variableDefine[2]))
-			throw new Exception("错误的变量名称");
+			throw new Exception("错误的变量名称: " + variableDefine[2]);
 
-		if (!IsNumber(variableDefine[3]) && variableDefine[3][0] != '-')
-			throw new Exception("错误的变量长度");
+		if (!IsNumber(variableDefine[3]) || variableDefine[3][0] == '-')
+			throw new Exception("错误的变量长度: " + variableDefine[3]);
 
 		return true;
 	}
 
 	public void Dump()
 	{
-		Console.WriteLine("Dump File: ");
-
+		Console.WriteLine(">>> Dump File: ");
 		foreach (var item in _elfHeader.MoeFiles)
 			Console.WriteLine(item.Key + " : " + item.Value);
 
-
-		Console.WriteLine("Dump Function: ");
+		Console.WriteLine(">>> Dump Function: ");
 		foreach (var item in _elfHeader.MoeFunctions)
 			Console.WriteLine(item.Key + " : " + item.Value);
 
 
-		Console.WriteLine("Dump Vaiable: ");
+		Console.WriteLine(">>> Dump Vaiable: ");
 		foreach (var item in _elfHeader.MoeData)
 			Console.WriteLine(item.Key + " : " + item.Value);
 
-		Console.WriteLine("Dump Form: ");
+		Console.WriteLine(">>> Dump Form: ");
 		foreach (var item in _elfHeader.MoeData)
 			Console.WriteLine(item.Key + " : " + item.Value);
 
-		Console.WriteLine("Dump Start: ");
+		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine(_elfHeader.MoeStart);
 	}
 }
