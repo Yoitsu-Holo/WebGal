@@ -11,7 +11,7 @@ public class ElfHeader
 	// .form
 	public Dictionary<string, string> MoeFrom = [];
 	// .start
-	public MoeFunction MoeStart = new();
+	public string MoeStart = "main";
 }
 
 public enum MoeELF

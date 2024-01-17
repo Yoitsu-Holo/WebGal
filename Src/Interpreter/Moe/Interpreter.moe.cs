@@ -93,7 +93,6 @@ public class MoeInterpreter
 
 			if (elfFlag == MeoInterpreter.MoeELF.DATA)
 			{
-				// Console.WriteLine("+>>>- Hello World");
 				if (lines.Count < 3)
 					throw new Exception("错误的参数数量" + line);
 
@@ -118,7 +117,6 @@ public class MoeInterpreter
 				string temp = "";
 				for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
 					temp += lines[tempIndex];
-				Console.WriteLine(lines[2]); //!
 
 				lines = new(temp.Split(',', defaultStringSplitOptions));
 
@@ -148,7 +146,7 @@ public class MoeInterpreter
 						},
 						Size = varSize
 					};
-					Console.WriteLine(variable);
+
 					_elfHeader.MoeData[varName] = variable;
 				}
 				continue;
@@ -156,7 +154,10 @@ public class MoeInterpreter
 
 			if (elfFlag == MeoInterpreter.MoeELF.START)
 			{
+				if (lines.Count != 1)
+					throw new Exception("错误的参数数量");
 
+				_elfHeader.MoeStart = lines[0];
 			}
 		}
 
@@ -164,10 +165,12 @@ public class MoeInterpreter
 		// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
 		List<Task> tasks = [];
 		foreach (var (_, file) in _elfHeader.MoeFiles)
+		{
 			if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
 				tasks.Add(_resourceManager.PullScriptAsync(file.FileName, file.FileURL));
 			else if (file.FileType == MoeFileType.Bin_font)
 				tasks.Add(_resourceManager.PullFontAsync(file.FileName, file.FileURL));
+		}
 
 		await Task.WhenAll(tasks);
 
@@ -373,5 +376,6 @@ public class MoeInterpreter
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine(_elfHeader.MoeStart);
+		Console.WriteLine(_elfHeader.MoeFunctions[_elfHeader.MoeStart]);
 	}
 }
