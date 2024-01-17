@@ -154,7 +154,7 @@ public class Interpreter
 			throw new Exception("No Node");
 
 		// 根据场景添加该场景所有需要的资源
-		List<Task> tasks = new();
+		List<Task> tasks = [];
 		var resourseTasks = nowNode.ResouresPackURL?.Select(resourcePack =>
 			{
 				_unloadedResPackName.Enqueue(resourcePack.Name);

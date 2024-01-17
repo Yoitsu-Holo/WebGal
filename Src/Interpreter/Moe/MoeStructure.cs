@@ -1,5 +1,18 @@
 namespace WebGal.MeoInterpreter;
 
+public class ElfHeader
+{
+	// .file 
+	public Dictionary<string, MoeFile> MoeFiles = [];
+	// .table [Auto]
+	public Dictionary<string, MoeFunction> MoeFunctions = [];
+	// .data
+	public Dictionary<string, MoeVariable> MoeData = [];
+	// .form
+	public Dictionary<string, string> MoeFrom = [];
+	// .start
+	public MoeFunction MoeStart = new();
+}
 
 public enum MoeELF
 {
@@ -42,7 +55,7 @@ public class MoeFile()
 	public MoeFileType FileType = MoeFileType.Void;
 	public string FileURL = "";
 
-	override public string ToString() => $"FileName: {FileName}, FileType: {FileType}, FileURL: {FileURL}";
+	override public string ToString() => $"\tFileName: {FileName}, \tFileType: {FileType}, \tFileURL: {FileURL}";
 }
 
 public class MoeVariable
@@ -52,7 +65,7 @@ public class MoeVariable
 	public object? Obj;
 	public int Size = 0; // 0 时默认非数组
 
-	public override string ToString() => $"Access: {Access}, Type: {Type}, Obj: {Obj}, Size: {Size}";
+	public override string ToString() => $"\tAccess: {Access}, \tType: {Type}, \tObj: {Obj}, \tSize: {Size}";
 }
 
 public class MoeFunction()
@@ -67,7 +80,7 @@ public class MoeFunction()
 
 	public override string ToString()
 	{
-		string ret = $"FileName : {FileName}, FileLine : {FileLine}, FunctionName : {FunctionName}, ReturnType : {ReturnType}\n";
+		string ret = $"\tFileName : {FileName}, \tFileLine : {FileLine}, \tFunctionName : {FunctionName}, \tReturnType : {ReturnType}\n";
 		ret += $"\tCallType : {CallType.Count}";
 		foreach (var call in CallType)
 			ret += "\n\t" + call.ToString();

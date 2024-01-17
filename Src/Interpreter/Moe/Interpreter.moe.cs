@@ -93,20 +93,21 @@ public class MoeInterpreter
 
 			if (elfFlag == MeoInterpreter.MoeELF.DATA)
 			{
+				// Console.WriteLine("+>>>- Hello World");
 				if (lines.Count < 3)
 					throw new Exception("错误的参数数量" + line);
 
 				MoeBasicAccess access = MoeBasicAccess.Void;
 				MoeBasicType type = MoeBasicType.Void;
 
-				access |= lines[0] switch
+				access = lines[0] switch
 				{
 					"const" => MoeBasicAccess.Const,
 					"static" => MoeBasicAccess.Static,
 					"var" => MoeBasicAccess.Variable,
 					_ => MoeBasicAccess.Void,
 				};
-				type |= lines[1] switch
+				type = lines[1] switch
 				{
 					"int" => MoeBasicType.Int,
 					"string" => MoeBasicType.String,
@@ -115,8 +116,9 @@ public class MoeInterpreter
 				};
 
 				string temp = "";
-				for (int elm = 2; i < lines.Count; i++)
-					temp += lines[elm];
+				for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
+					temp += lines[tempIndex];
+				Console.WriteLine(lines[2]); //!
 
 				lines = new(temp.Split(',', defaultStringSplitOptions));
 
@@ -146,8 +148,9 @@ public class MoeInterpreter
 						},
 						Size = varSize
 					};
+					Console.WriteLine(variable);
+					_elfHeader.MoeData[varName] = variable;
 				}
-
 				continue;
 			}
 
@@ -353,20 +356,20 @@ public class MoeInterpreter
 	{
 		Console.WriteLine(">>> Dump File: ");
 		foreach (var item in _elfHeader.MoeFiles)
-			Console.WriteLine(item.Key + " : " + item.Value);
+			Console.WriteLine(item.Key + ":" + item.Value);
 
 		Console.WriteLine(">>> Dump Function: ");
 		foreach (var item in _elfHeader.MoeFunctions)
-			Console.WriteLine(item.Key + " : " + item.Value);
+			Console.WriteLine(item.Key + ":" + item.Value);
 
 
 		Console.WriteLine(">>> Dump Vaiable: ");
 		foreach (var item in _elfHeader.MoeData)
-			Console.WriteLine(item.Key + " : " + item.Value);
+			Console.WriteLine(item.Key + ":" + item.Value);
 
 		Console.WriteLine(">>> Dump Form: ");
 		foreach (var item in _elfHeader.MoeData)
-			Console.WriteLine(item.Key + " : " + item.Value);
+			Console.WriteLine(item.Key + ":" + item.Value);
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine(_elfHeader.MoeStart);
