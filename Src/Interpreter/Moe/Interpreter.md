@@ -147,15 +147,16 @@ main
 变量定义语法如下
 
 ```
-var [int|string|double] name
+var [int|string|double|dictionary] name
 ```
 
-例如定义局部整型变量 A，字符串变量 S，浮点变量 F
+例如定义局部整型变量 A，字符串变量 S，浮点变量 F，字典类型 D
 
 ```
 var int A
 var string S
 var double F
+var dictionary D
 ```
 
 ## 函数定义
