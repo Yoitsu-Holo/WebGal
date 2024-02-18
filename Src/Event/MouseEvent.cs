@@ -33,6 +33,7 @@ public enum MouseStatus : byte
 public record struct MouseEvent
 (
 	IVector Position,
+	IVector Move,
 	MouseButton Button,
 	MouseStatus Status
 );

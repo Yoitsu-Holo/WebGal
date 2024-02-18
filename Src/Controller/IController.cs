@@ -11,12 +11,12 @@ interface IController
 
 	// 事件处理（）
 	public void ProcessMouseEvent(MouseEvent mouseEvent);
-	public void ProcessKeyboardEvent(MouseEvent mouseEvent);
+	public void ProcessKeyboardEvent(KeyboardEvent keyboardEvent);
 
 	// 位置处理（左上角）
 	public void SetPostion(IVector postion);
 	public IVector GetPositon();
-	public (IVector, IVector) GetWindow();
+	public IRect GetWindow();
 
 	// 文本处理
 	public void SetText(string s);
@@ -30,8 +30,11 @@ interface IController
 	public void SetVisible(bool visible);
 	public bool IsVisible();
 
-
 	// 功能性
 	public void SetEnable(bool enable);
 	public bool IsEnable();
+
+	//设置名字
+	public void SetName(string controllerName);
+	public string GetName();
 }
