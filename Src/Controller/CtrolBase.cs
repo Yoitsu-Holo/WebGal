@@ -17,6 +17,12 @@ class ControllerBase : IController
 	public virtual IVector GetPositon() => _positon;
 	public IVector GetSize() => _size;
 	public virtual string GetText() => _text;
+
+	public (IVector, IVector) GetWindow()
+	{
+		throw new NotImplementedException();
+	}
+
 	public bool IsEnable() => _enable;
 	public bool IsVisible() => _visible;
 

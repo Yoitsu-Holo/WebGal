@@ -1,6 +1,70 @@
+using System.Security.Cryptography.X509Certificates;
 using SkiaSharp;
 
 namespace WebGal.Types;
+
+public record class IRect
+{
+	public IRect(int x, int y, int h, int w)
+	{
+		(X, Y) = (x, y);
+		(H, W) = (h, w);
+	}
+
+	public IRect(IVector pos, IVector size)
+	{
+		(X, Y) = pos;
+		(H, W) = size;
+	}
+
+	public static implicit operator SKRectI(IRect rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
+	public static implicit operator SKRect(IRect rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
+	public static explicit operator (IVector, IVector)(IRect rect) => (new(rect.X, rect.Y), new(rect.H, rect.W));
+	public static explicit operator (FVector, FVector)(IRect rect) => (new(rect.X, rect.Y), new(rect.H, rect.W));
+
+	public static explicit operator FRect(IRect rect) => new(rect.X, rect.Y, rect.W, rect.H);
+
+
+	public int X = 0, Y = 0;
+	public int W = 0, H = 0;
+
+	public int Left => X;
+	public int Right => X + W;
+	public int Top => Y;
+	public int Bottom => Y + H;
+}
+
+
+public record class FRect
+{
+	public FRect(float x, float y, float h, float w)
+	{
+		(X, Y) = (x, y);
+		(H, W) = (h, w);
+	}
+
+	public FRect(FVector pos, FVector size)
+	{
+		(X, Y) = pos;
+		(H, W) = size;
+	}
+
+	public static implicit operator SKRectI(FRect rect) => new((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Bottom);
+	public static implicit operator SKRect(FRect rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
+	public static explicit operator (IVector, IVector)(FRect rect) => (new((int)rect.X, (int)rect.Y), new((int)rect.H, (int)rect.W));
+	public static explicit operator (FVector, FVector)(FRect rect) => (new(rect.X, rect.Y), new(rect.H, rect.W));
+
+	public static explicit operator IRect(FRect rect) => new((int)rect.X, (int)rect.Y, (int)rect.W, (int)rect.H);
+
+
+	public float X = 0, Y = 0;
+	public float W = 0, H = 0;
+
+	public float Left => X;
+	public float Right => X + W;
+	public float Top => Y;
+	public float Bottom => Y + H;
+}
 
 public record struct IVector(int X, int Y)
 {
