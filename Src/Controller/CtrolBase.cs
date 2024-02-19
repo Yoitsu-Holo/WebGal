@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+using System.Reflection;
 using SkiaSharp;
 using WebGal.Event;
 using WebGal.Global;
@@ -7,7 +7,8 @@ using WebGal.Types;
 namespace WebGal.Controller;
 
 /// <summary>
-/// 包含最基本的控制组件方法
+/// 包含最基本的控制组件方法.
+/// 其行为是一个可以被拖动的简单方块
 /// 
 /// 1. 多图层（惰性叠加）
 /// 2. 基础属性设置
@@ -21,13 +22,15 @@ namespace WebGal.Controller;
 /// </summary>
 class ControllerBase : IController
 {
-	protected List<SKBitmap> image = [];
-	protected IVector _postion = new(100, 100);
+	protected SKBitmap _renderBitmap = new();
+	protected List<SKBitmap> _image = [];
+	protected IVector _position = new(100, 100);
 	protected IVector _size = new(15, 30);
 	protected string _text = "ControllerBase";
+	protected string _name = "ControllerBase object";
+	protected SKTypeface _typeface = SKTypeface.Default;
 	protected bool _enable = false;
 	protected bool _visible = false;
-	private string _name = "ControllerBase object";
 	protected IVector _mouseDelta = new(0, 0); // 界面移动量，相对值
 	protected IVector _formDelta = new(0, 0); // 界面移动量，相对值
 	protected bool _triger = false;
@@ -38,13 +41,11 @@ class ControllerBase : IController
 		using SKCanvas canvas = new(bitmap);
 		canvas.DrawRect(
 			new SKRect(0, 0, _size.X, _size.Y),
-			new SKPaint
-			{
-				Color = new SKColor(97, 154, 195, 128)
-			}
+			new SKPaint { Color = new SKColor(97, 154, 195, 128) }
 		);
 		canvas.Flush();
-		image.Add(bitmap);
+		_image.Add(bitmap);
+		_renderBitmap = _image[0];
 	}
 
 	// 处理事件
@@ -63,7 +64,7 @@ class ControllerBase : IController
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - GetPositon();
 			// _formDelta = mouseEvent.Position - _positon;
-			_formDelta = mouseEvent.Position - _postion - _mouseDelta;
+			_formDelta = mouseEvent.Position - _position - _mouseDelta;
 			_triger = true;
 		}
 		else
@@ -75,30 +76,25 @@ class ControllerBase : IController
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
 	// 显示图像
-	public virtual SKBitmap Draw()
-	{
-		return image[0];
-	}
-
+	public virtual SKBitmap Draw() => _renderBitmap;
 
 	// 设置位置属性
-	public virtual void SetPostion(IVector postion) => _postion = postion;
+	public virtual void SetPostion(IVector postion) => _position = postion;
 	public virtual void SetSize(IVector size) => _size = size;
-	public virtual IVector GetPositon() => _postion + _formDelta;
+	public virtual IVector GetPositon() => _position + _formDelta;
 	public virtual IVector GetSize() => _size;
-	public virtual IRect GetWindow() => new(_postion + _formDelta, _size);
+	public virtual IRect GetWindow() => new(_position + _formDelta, _size);
 
 
 	// 设置文本属性
 	public virtual void SetText(string s) => _text = s;
 	public virtual string GetText() => _text;
 
+	public void SetTypeface(SKTypeface typeface) => _typeface = typeface;
+	public SKTypeface GetTypeface() => _typeface;
 
-	public virtual void SetEnable(bool enable)
-	{
-		if (enable == true)
-			throw new Exception("Can not enable ControllerBase object");
-	}
+
+	public virtual void SetEnable(bool enable) => _enable = enable;
 	public bool IsEnable() => _enable;
 
 

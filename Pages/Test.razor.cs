@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -32,7 +33,9 @@ public partial class Test : IDisposable
 
 	//! test
 	private readonly ControllerBase ctrl = new();
+	private readonly ControllerButtom buttom = new(new(100, 200, 30, 15));
 	//!
+
 
 	protected override void OnInitialized()
 	{
@@ -86,7 +89,7 @@ public partial class Test : IDisposable
 		await Manager.ProcessMouseEvent(mouseEventCopy);
 
 		var canvas = e.Surface.Canvas;
-		// Manager.Render(canvas, NowTime.Minisecond, true);
+		Manager.Render(canvas, NowTime.Minisecond, true);
 
 		//! test
 		TextBox tb = new TextBox
@@ -109,18 +112,14 @@ public partial class Test : IDisposable
 
 		canvas.DrawTextBox(tb);
 
-		// SKBitmap bitmap = new(100, 100, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
-		// using SKCanvas canvas1 = new(bitmap);
-		// canvas1.DrawRect(
-		// 	new SKRect(0, 0, 10, 10),
-		// 	new SKPaint
-		// 	{
-		// 		Color = new SKColor(97, 154, 195, 128)
-		// 	}
-		// );
-		// canvas1.Flush();
+		// ! controller test
 		ctrl.ProcessMouseEvent(mouseEventCopy);
 		canvas.DrawBitmap(ctrl.Draw(), ctrl.GetPositon());
+
+		buttom.ProcessMouseEvent(mouseEventCopy);
+		canvas.DrawBitmap(buttom.Draw(), buttom.GetPositon());
+
+
 		// Console.WriteLine(await context.GetCurrentTimeAsync());
 
 		//! test
