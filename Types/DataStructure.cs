@@ -5,16 +5,16 @@ namespace WebGal.Types;
 
 public record class IRect
 {
-	public IRect(int x, int y, int h, int w)
+	public IRect(int x, int y, int w, int h)
 	{
 		(X, Y) = (x, y);
-		(H, W) = (h, w);
+		(W, H) = (w, h);
 	}
 
 	public IRect(IVector pos, IVector size)
 	{
 		(X, Y) = pos;
-		(H, W) = size;
+		(W, H) = size;
 	}
 
 	public static implicit operator SKRectI(IRect rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
@@ -37,16 +37,16 @@ public record class IRect
 
 public record class FRect
 {
-	public FRect(float x, float y, float h, float w)
+	public FRect(int x, int y, int w, int h)
 	{
 		(X, Y) = (x, y);
-		(H, W) = (h, w);
+		(W, H) = (w, h);
 	}
 
 	public FRect(FVector pos, FVector size)
 	{
 		(X, Y) = pos;
-		(H, W) = size;
+		(W, H) = size;
 	}
 
 	public static implicit operator SKRectI(FRect rect) => new((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Bottom);

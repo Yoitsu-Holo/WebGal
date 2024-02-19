@@ -6,7 +6,6 @@ using WebGal.Types;
 
 namespace WebGal.Controller;
 
-
 /// <summary>
 /// 包含最基本的控制组件方法
 /// 
@@ -23,21 +22,22 @@ namespace WebGal.Controller;
 class ControllerBase : IController
 {
 	protected List<SKBitmap> image = [];
-	protected IVector _positon = new(100, 100);
-	protected IVector _size = new(10, 10);
+	protected IVector _postion = new(100, 100);
+	protected IVector _size = new(15, 30);
 	protected string _text = "ControllerBase";
 	protected bool _enable = false;
 	protected bool _visible = false;
 	private string _name = "ControllerBase object";
-	protected IVector delta = new(0, 0); // 界面移动量，相对值
+	protected IVector _mouseDelta = new(0, 0); // 界面移动量，相对值
+	protected IVector _formDelta = new(0, 0); // 界面移动量，相对值
 	protected bool _triger = false;
 
 	public ControllerBase()
 	{
-		SKBitmap bitmap = new(10, 20, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+		SKBitmap bitmap = new(_size.X, _size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 		using SKCanvas canvas = new(bitmap);
 		canvas.DrawRect(
-			new SKRect(0, 0, 10, 20),
+			new SKRect(0, 0, _size.X, _size.Y),
 			new SKPaint
 			{
 				Color = new SKColor(97, 154, 195, 128)
@@ -52,17 +52,25 @@ class ControllerBase : IController
 	{
 		// 触发界面外
 		if (RangeComp.OutRange(GetWindow(), mouseEvent.Position) && !_triger)
+		{
+			_mouseDelta = new(0, 0);
 			return;
+		}
 
-		Console.WriteLine($"{mouseEvent.Position.X}:{mouseEvent.Position.Y} => {GetWindow().X}:{GetWindow().Y}");
 		// 触发界面内，触发
 		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
 		{
-			delta = mouseEvent.Position - _positon;
+			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
+				_mouseDelta = mouseEvent.Position - GetPositon();
+			// _formDelta = mouseEvent.Position - _positon;
+			_formDelta = mouseEvent.Position - _postion - _mouseDelta;
 			_triger = true;
 		}
 		else
+		{
+			_mouseDelta = new(0, 0);
 			_triger = false;
+		}
 	}
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
@@ -74,11 +82,11 @@ class ControllerBase : IController
 
 
 	// 设置位置属性
-	public virtual void SetPostion(IVector postion) => _positon = postion;
+	public virtual void SetPostion(IVector postion) => _postion = postion;
 	public virtual void SetSize(IVector size) => _size = size;
-	public virtual IVector GetPositon() => _positon + delta;
+	public virtual IVector GetPositon() => _postion + _formDelta;
 	public virtual IVector GetSize() => _size;
-	public virtual IRect GetWindow() => new(_positon + delta, _size);
+	public virtual IRect GetWindow() => new(_postion + _formDelta, _size);
 
 
 	// 设置文本属性
