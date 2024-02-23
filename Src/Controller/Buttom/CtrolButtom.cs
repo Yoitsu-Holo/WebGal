@@ -30,8 +30,7 @@ class ControllerButtom : ControllerBase
 		Visible = true;
 		Enable = true;
 
-		Name = "buttom";
-		Text = "new buttom";
+		Name = "Controller Buttom";
 	}
 
 	public void InitPosition(IRect position)
@@ -58,7 +57,7 @@ class ControllerButtom : ControllerBase
 
 		buttomNormalCanvas.DrawRect(
 			new SKRect(0, 0, _size.X, _size.Y),
-			new SKPaint { Color = new SKColor(97, 154, 195, 255) }
+			new SKPaint { Color = new SKColor(100, 159, 133, 255) }
 		);
 
 		buttomHoverCanvas.DrawRect(
@@ -68,12 +67,12 @@ class ControllerButtom : ControllerBase
 
 		buttomPressedCanvas.DrawRect(
 			new SKRect(0, 0, _size.X, _size.Y),
-			new SKPaint { Color = new SKColor(176, 206, 192, 255) }
+			new SKPaint { Color = new SKColor(176, 204, 190, 255) }
 		);
 
 		buttomFocusedCanvas.DrawRect(
 			new SKRect(0, 0, _size.X, _size.Y),
-			new SKPaint { Color = new SKColor(176, 206, 192, 255) }
+			new SKPaint { Color = new SKColor(176, 204, 190, 255) }
 		);
 
 		buttomNormalCanvas.Flush();
@@ -96,18 +95,18 @@ class ControllerButtom : ControllerBase
 
 	public override void ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		if (Status == ControllerStatus.Disable || Status == ControllerStatus.Focused)
+		if (Status == ControllerStatus.Disable)
 			return;
+		if (Status != ControllerStatus.Focused)
+		{
+			if (RangeComp.OutRange(Window, mouseEvent.Position))
+				Status = ControllerStatus.Normal;
+			else if (mouseEvent.Button == MouseButton.Empty && mouseEvent.Status == MouseStatus.Release)
+				Status = ControllerStatus.Hover;
+			else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
+				Status = ControllerStatus.Pressed;
+		}
 
-		if (RangeComp.OutRange(GetWindow(), mouseEvent.Position))
-			Status = ControllerStatus.Normal;
-		// _renderBitmap = _image[0];
-		else if (mouseEvent.Button == MouseButton.Empty && mouseEvent.Status == MouseStatus.Release)
-			Status = ControllerStatus.Hover;
-		// _renderBitmap = _image[1];
-		else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
-			Status = ControllerStatus.Pressed;
-		// _renderBitmap = _image[2];
 	}
 
 	public override void Render(SKCanvas canvas)

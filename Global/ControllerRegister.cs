@@ -6,7 +6,7 @@ class ControllerRegister
 {
 	public static IController GetController(string ControllerName) => ControllerName switch
 	{
-		"brownian" => new ControllerSliderBox(),
+		"brownian" => new ControllerSliderHorizontal(),
 		_ => new ControllerBase(),
 	};
 }

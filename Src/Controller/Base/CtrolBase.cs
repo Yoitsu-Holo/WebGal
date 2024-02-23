@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Runtime.InteropServices;
 using SkiaSharp;
 using WebGal.Event;
 using WebGal.Global;
@@ -30,17 +28,11 @@ class ControllerBase : IController
 	protected List<SKBitmap> _image = [];
 	protected IVector _position = new(100, 100);
 	protected IVector _size = new(15, 30);
-	protected string _text = "ControllerBase";
+	protected string _text = "";
 	protected string _name = "ControllerBase object";
 	protected SKTypeface _typeface = SKTypeface.Default;
-	protected bool _enable = false;
-	protected bool _visible = false;
-	protected IVector _mouseDelta = new(0, 0); // 界面移动量，相对值
-	protected IVector _formDelta = new(0, 0); // 界面移动量，相对值
 
-	// 渲染控制变量
-	public ControllerStatus Status = ControllerStatus.Normal;// 界面状态（鼠标）
-	protected bool _statusChange = true;
+	public ControllerStatus Status = ControllerStatus.Normal;
 	protected bool _attributeChange = true;
 
 	public ControllerBase()
@@ -56,30 +48,7 @@ class ControllerBase : IController
 	}
 
 	// 处理事件
-	public virtual void ProcessMouseEvent(MouseEvent mouseEvent)
-	{
-		// 触发界面外
-		if (RangeComp.OutRange(GetWindow(), mouseEvent.Position) && !_statusChange)
-		{
-			_mouseDelta = new(0, 0);
-			return;
-		}
-
-		// 触发界面内，触发
-		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
-		{
-			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
-				_mouseDelta = mouseEvent.Position - GetPositon();
-			// _formDelta = mouseEvent.Position - _positon;
-			_formDelta = mouseEvent.Position - _position - _mouseDelta;
-			_statusChange = true;
-		}
-		else
-		{
-			_mouseDelta = new(0, 0);
-			_statusChange = false;
-		}
-	}
+	public virtual void ProcessMouseEvent(MouseEvent mouseEvent) => throw new NotImplementedException();
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
 	// 渲染图像
@@ -88,29 +57,29 @@ class ControllerBase : IController
 	// 设置位置属性
 	public virtual void SetPostion(IVector postion) => _position = postion;
 	public virtual void SetSize(IVector size) => _size = size;
-	public virtual IVector GetPositon() => _position + _formDelta;
+	public virtual IVector GetPositon() => _position;
 	public virtual IVector GetSize() => _size;
-	public virtual IRect GetWindow() => new(_position + _formDelta, _size);
+	public virtual IRect GetWindow() => new(_position, _size);
 
 
 	// 设置文本属性
-	public virtual void SetText(string s) => _text = s;
+	public virtual void SetText(string text) => _text = text;
 	public virtual string GetText() => _text;
+	public virtual void SetTypeface(SKTypeface typeface) => _typeface = typeface;
+	public virtual SKTypeface GetTypeface() => _typeface;
 
-	public void SetTypeface(SKTypeface typeface) => _typeface = typeface;
-	public SKTypeface GetTypeface() => _typeface;
+	// 是否启用
+	public virtual void SetEnable(bool enable) => Status = enable ? ControllerStatus.Normal : ControllerStatus.Disable;
+	public virtual bool IsEnable() => Status != ControllerStatus.Disable;
 
-
-	public virtual void SetEnable(bool enable) => _enable = enable;
-	public bool IsEnable() => _enable;
-
-
-	// 可见性属性
-	public virtual void SetVisible(bool visible) => _visible = visible;
-	public bool IsVisible() => _visible;
-
+	// 是否可见
+	public virtual void SetVisible(bool visible) => Status = visible ? ControllerStatus.Normal : ControllerStatus.Unvisable;
+	public virtual bool IsVisible() => Status != ControllerStatus.Unvisable;
 
 	// 名字属性
 	public virtual void SetName(string controllerName) => _name = controllerName;
 	public virtual string GetName() => _name;
+
+	public virtual void SetValue(int value) { }
+	public virtual int GetValue() => 0;
 }

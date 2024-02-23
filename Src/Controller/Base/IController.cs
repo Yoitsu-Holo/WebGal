@@ -37,4 +37,8 @@ interface IController
 	// 功能性
 	void SetEnable(bool enable);
 	public bool IsEnable();
+
+	// 值处理
+	void SetValue(int value);
+	int GetValue();
 }

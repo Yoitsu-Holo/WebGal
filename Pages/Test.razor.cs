@@ -29,9 +29,9 @@ public partial class Test : IDisposable
 	private AudioGain? _audioGain;
 	private AudioSpeeker? _audioSpeeker;
 	private AudioContext? _context;
-	private readonly ControllerBase _ctrl = new();
 	private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
-	private readonly ControllerSliderBox _sliderBox = new();
+	private readonly ControllerSliderHorizontal _sliderBoxH = new();
+	private readonly ControllerSliderVertical _sliderBoxV = new();
 	//!
 
 
@@ -111,14 +111,14 @@ public partial class Test : IDisposable
 		canvas.DrawTextBox(tb);
 
 		// ! controller test
-		// _ctrl.ProcessMouseEvent(mouseEventCopy);
-		// _ctrl.Render(canvas);
-
 		_buttom.ProcessMouseEvent(mouseEventCopy);
 		_buttom.Render(canvas);
 
-		_sliderBox.ProcessMouseEvent(mouseEventCopy);
-		_sliderBox.Render(canvas);
+		_sliderBoxH.ProcessMouseEvent(mouseEventCopy);
+		_sliderBoxH.Render(canvas);
+
+		_sliderBoxV.ProcessMouseEvent(mouseEventCopy);
+		_sliderBoxV.Render(canvas);
 
 		//! audio test
 		var tm = NowTime.Minisecond;

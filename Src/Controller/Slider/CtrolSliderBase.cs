@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using KristofferStrube.Blazor.WebAudio;
 using SkiaSharp;
 using WebGal.Event;
 using WebGal.Global;
@@ -7,12 +5,13 @@ using WebGal.Types;
 
 namespace WebGal.Controller;
 
-class ControllerSliderBox : ControllerBase
+abstract class ControllerSliderBase : ControllerBase
 {
 	protected SKBitmap _trackImage = new();
+	protected IVector _mouseDelta = new(0, 0);
 
 	// 滑轨元素：滑块
-	private IVector _thumbSize = new();
+	protected IVector _thumbSize = new();
 	public bool ThumbVisiable { get; set; } = true;
 
 	// 通用属性
@@ -57,7 +56,6 @@ class ControllerSliderBox : ControllerBase
 		_thumbSize = thumbSize;
 
 		_attributeChange = true;
-		_statusChange = true;
 	}
 
 	public void InitImage()
@@ -83,22 +81,22 @@ class ControllerSliderBox : ControllerBase
 
 		thumbNormalCanvas.DrawRect(
 			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
-			new SKPaint { Color = new SKColor(164, 156, 91, 255) }
+			new SKPaint { Color = new SKColor(89, 166, 97, 255) }
 		);
 
 		thumbHoverCanvas.DrawRect(
 			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
-			new SKPaint { Color = new SKColor(176, 170, 117, 255) }
+			new SKPaint { Color = new SKColor(166, 206, 170, 255) }
 		);
 
 		thumbPressedCanvas.DrawRect(
 			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
-			new SKPaint { Color = new SKColor(198, 193, 153, 255) }
+			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
 		);
 
 		thumbFocusedCanvas.DrawRect(
 			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
-			new SKPaint { Color = new SKColor(198, 193, 153, 255) }
+			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
 		);
 
 		trackCanvas.Flush();
@@ -118,9 +116,8 @@ class ControllerSliderBox : ControllerBase
 		_image[(int)ControllerStatus.Focused] = sliderPressed;
 	}
 
-	public ControllerSliderBox()
+	public ControllerSliderBase()
 	{
-		_statusChange = true;
 		_attributeChange = true;
 
 		InitBase();
@@ -131,37 +128,42 @@ class ControllerSliderBox : ControllerBase
 
 	public override void ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		// 触发界面外
-		if (RangeComp.OutRange(ThumbWindow, mouseEvent.Position) && !_statusChange)
-		{
-			_mouseDelta = new(0, 0);
+		if (Status == ControllerStatus.Disable)
 			return;
+
+		if (Status != ControllerStatus.Focused && !(Status == ControllerStatus.Pressed && mouseEvent.Status == MouseStatus.Hold))
+		{
+			if (RangeComp.OutRange(ThumbWindow, mouseEvent.Position))
+				Status = ControllerStatus.Normal;
+			else if (mouseEvent.Button == MouseButton.Empty && mouseEvent.Status == MouseStatus.Release)
+				Status = ControllerStatus.Hover;
+			else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
+				Status = ControllerStatus.Pressed;
 		}
 
 		// 触发界面内，触发
-		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
+		if (Status == ControllerStatus.Pressed)
 		{
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
-				_mouseDelta = mouseEvent.Position - GetPositon();
-			// _formDelta = mouseEvent.Position - _positon;
-			ThumbDelta = mouseEvent.Position - _position - _mouseDelta;
-			ThumbDelta.Y = 0;
-			ThumbDelta.X = Math.Max(0, Math.Min(_size.Width - _thumbSize.Width, ThumbDelta.X));
+				_mouseDelta = mouseEvent.Position - ThumbPosition;
 
-			_statusChange = true;
+			// ThumbDelta = mouseEvent.Position - _position - _mouseDelta;
+
+			// ThumbDelta.X = Math.Max(0, Math.Min(_size.Width - _thumbSize.Width, ThumbDelta.X));
+			// ThumbDelta.Y = 0;
+			ThumbDelta = ThumbLimiter(mouseEvent.Position - _position - _mouseDelta);
+
+			Console.WriteLine($"{ThumbDelta.X} {ThumbDelta.Y}");
 		}
 		else
 		{
 			_mouseDelta = new(0, 0);
-			_statusChange = false;
 		}
 	}
 
-	public sealed override void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new InvalidOperationException("该类不包含此方法");
-
 	public override void Render(SKCanvas canvas)
 	{
-		if (Status == ControllerStatus.Disable)
+		if (Status == ControllerStatus.Unvisable)
 			return;
 
 		// 优先更改图层属性
@@ -170,7 +172,7 @@ class ControllerSliderBox : ControllerBase
 
 		// 重新渲染
 		canvas.DrawBitmap(_trackImage, Position);
-		Console.WriteLine($"{_size.Width} {_size.Y}");
+		Console.WriteLine(Status);
 		switch (Status)
 		{
 			case ControllerStatus.Normal:
@@ -187,4 +189,5 @@ class ControllerSliderBox : ControllerBase
 				break;
 		}
 	}
+	protected virtual IVector ThumbLimiter(IVector thumbDelta) => new(0, 0);
 }
