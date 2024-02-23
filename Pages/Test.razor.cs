@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -25,15 +24,14 @@ public partial class Test : IDisposable
 	private MouseEvent _mouseEvent = new();
 	private SKTypeface? paintTypeface;
 
+	//! test
 	private AudioSource? _audioSource;
 	private AudioGain? _audioGain;
 	private AudioSpeeker? _audioSpeeker;
-	// private AudioSimple? _audioTest;
 	private AudioContext? _context;
-
-	//! test
-	private readonly ControllerBase ctrl = new();
-	private readonly ControllerButtom buttom = new(new(100, 200, 30, 15));
+	private readonly ControllerBase _ctrl = new();
+	private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
+	private readonly ControllerSliderBox _sliderBox = new();
 	//!
 
 
@@ -113,16 +111,16 @@ public partial class Test : IDisposable
 		canvas.DrawTextBox(tb);
 
 		// ! controller test
-		ctrl.ProcessMouseEvent(mouseEventCopy);
-		canvas.DrawBitmap(ctrl.Draw(), ctrl.GetPositon());
+		// _ctrl.ProcessMouseEvent(mouseEventCopy);
+		// _ctrl.Render(canvas);
 
-		buttom.ProcessMouseEvent(mouseEventCopy);
-		canvas.DrawBitmap(buttom.Draw(), buttom.GetPositon());
+		_buttom.ProcessMouseEvent(mouseEventCopy);
+		_buttom.Render(canvas);
 
+		_sliderBox.ProcessMouseEvent(mouseEventCopy);
+		_sliderBox.Render(canvas);
 
-		// Console.WriteLine(await context.GetCurrentTimeAsync());
-
-		//! test
+		//! audio test
 		var tm = NowTime.Minisecond;
 		float volume = tm % 6000;
 		volume += 1000;

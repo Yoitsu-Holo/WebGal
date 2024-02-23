@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
 using SkiaSharp;
 using WebGal.Event;
 using WebGal.Global;
@@ -19,10 +20,13 @@ namespace WebGal.Controller;
 /// 3. 控制
 /// 	- 跟踪事件
 /// 	- 传入事件自动处理
+/// 
+/// 目前没有区分 visiable 和 disable。
+/// 原则上，visiable 控制是否显示。
+/// 而 diasble 会显示，但是不能操作。
 /// </summary>
 class ControllerBase : IController
 {
-	protected SKBitmap _renderBitmap = new();
 	protected List<SKBitmap> _image = [];
 	protected IVector _position = new(100, 100);
 	protected IVector _size = new(15, 30);
@@ -33,7 +37,11 @@ class ControllerBase : IController
 	protected bool _visible = false;
 	protected IVector _mouseDelta = new(0, 0); // 界面移动量，相对值
 	protected IVector _formDelta = new(0, 0); // 界面移动量，相对值
-	protected bool _triger = false;
+
+	// 渲染控制变量
+	public ControllerStatus Status = ControllerStatus.Normal;// 界面状态（鼠标）
+	protected bool _statusChange = true;
+	protected bool _attributeChange = true;
 
 	public ControllerBase()
 	{
@@ -45,14 +53,13 @@ class ControllerBase : IController
 		);
 		canvas.Flush();
 		_image.Add(bitmap);
-		_renderBitmap = _image[0];
 	}
 
 	// 处理事件
 	public virtual void ProcessMouseEvent(MouseEvent mouseEvent)
 	{
 		// 触发界面外
-		if (RangeComp.OutRange(GetWindow(), mouseEvent.Position) && !_triger)
+		if (RangeComp.OutRange(GetWindow(), mouseEvent.Position) && !_statusChange)
 		{
 			_mouseDelta = new(0, 0);
 			return;
@@ -65,18 +72,18 @@ class ControllerBase : IController
 				_mouseDelta = mouseEvent.Position - GetPositon();
 			// _formDelta = mouseEvent.Position - _positon;
 			_formDelta = mouseEvent.Position - _position - _mouseDelta;
-			_triger = true;
+			_statusChange = true;
 		}
 		else
 		{
 			_mouseDelta = new(0, 0);
-			_triger = false;
+			_statusChange = false;
 		}
 	}
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
-	// 显示图像
-	public virtual SKBitmap Draw() => _renderBitmap;
+	// 渲染图像
+	public virtual void Render(SKCanvas canvas) => canvas.DrawBitmap(_image[0], GetPositon());
 
 	// 设置位置属性
 	public virtual void SetPostion(IVector postion) => _position = postion;

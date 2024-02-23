@@ -32,6 +32,8 @@ public record class IRect
 	public int Right => X + W;
 	public int Top => Y;
 	public int Bottom => Y + H;
+
+	public IVector MidPoint => new(X + W / 2, Y + H / 2);
 }
 
 
@@ -64,11 +66,14 @@ public record class FRect
 	public float Right => X + W;
 	public float Top => Y;
 	public float Bottom => Y + H;
+
+	public FVector MidPoint => new(X + W / 2, Y + H / 2);
 }
 
 public record struct IVector(int X, int Y)
 {
 	public static IVector operator *(IVector v1, int off) => new(v1.X * off, v1.Y * off);
+	public static IVector operator /(IVector v1, int off) => new(v1.X / off, v1.Y / off);
 	public static IVector operator *(IVector v1, IVector v2) => new(v1.X * v2.X, v1.Y * v2.Y);
 	public static IVector operator +(IVector v1, IVector v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 	public static IVector operator -(IVector v1, IVector v2) => new(v1.X - v2.X, v1.Y - v2.Y);
@@ -87,6 +92,7 @@ public record struct IVector(int X, int Y)
 public record struct FVector(float X, float Y)
 {
 	public static FVector operator *(FVector v1, float off) => new(v1.X * off, v1.Y * off);
+	public static FVector operator /(FVector v1, float off) => new(v1.X / off, v1.Y / off);
 	public static FVector operator *(FVector v1, FVector v2) => new(v1.X * v2.X, v1.Y * v2.Y);
 	public static FVector operator +(FVector v1, FVector v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 	public static FVector operator -(FVector v1, FVector v2) => new(v1.X - v2.X, v1.Y - v2.Y);

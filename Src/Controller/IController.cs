@@ -6,35 +6,35 @@ namespace WebGal.Controller;
 
 interface IController
 {
-	// 显示
-	protected SKBitmap Draw();
+	// 渲染到指定canvas
+	void Render(SKCanvas canvas);
 
 	// 事件处理（）
-	public void ProcessMouseEvent(MouseEvent mouseEvent);
-	public void ProcessKeyboardEvent(KeyboardEvent keyboardEvent);
+	void ProcessMouseEvent(MouseEvent mouseEvent);
+	void ProcessKeyboardEvent(KeyboardEvent keyboardEvent);
 
 	// 大小处理、位置处理（左上角）
-	public void SetSize(IVector size);
-	public IVector GetSize();
-	public void SetPostion(IVector postion);
-	public IVector GetPositon();
-	public IRect GetWindow();
+	void SetSize(IVector size);
+	IVector GetSize();
+	void SetPostion(IVector postion);
+	IVector GetPositon();
+	IRect GetWindow();
 
 	// 文本处理
-	public void SetText(string s);
-	public string GetText();
-	public void SetTypeface(SKTypeface typeface);
-	public SKTypeface GetTypeface();
+	void SetText(string s);
+	string GetText();
+	void SetTypeface(SKTypeface typeface);
+	SKTypeface GetTypeface();
 
 	//设置名字
-	public void SetName(string controllerName);
-	public string GetName();
+	void SetName(string controllerName);
+	string GetName();
 
 	// 可见性
-	public void SetVisible(bool visible);
-	public bool IsVisible();
+	void SetVisible(bool visible);
+	bool IsVisible();
 
 	// 功能性
-	public void SetEnable(bool enable);
+	void SetEnable(bool enable);
 	public bool IsEnable();
 }
