@@ -80,6 +80,6 @@ class ControllerBase : IController
 	public virtual void SetName(string controllerName) => _name = controllerName;
 	public virtual string GetName() => _name;
 
-	public virtual void SetValue(int value) { }
-	public virtual int GetValue() => 0;
+	public virtual void SetValue(float value) { }
+	public virtual float GetValue() => 0;
 }

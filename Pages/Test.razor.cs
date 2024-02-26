@@ -127,10 +127,7 @@ public partial class Test : IDisposable
 		volume /= 7000;
 
 		if (_audioGain is not null)
-			try
-			{
-				await _audioGain.SetGainASync(volume);
-			}
+			try { await _audioGain.SetGainASync(volume); }
 			catch { };
 
 		int sec = DateTimeOffset.UtcNow.Second;

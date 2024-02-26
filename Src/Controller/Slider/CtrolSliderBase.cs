@@ -9,9 +9,12 @@ abstract class ControllerSliderBase : ControllerBase
 {
 	protected SKBitmap _trackImage = new();
 	protected IVector _mouseDelta = new(0, 0);
+	protected float _value = 0;
+	protected IVector _thumbSize = new();
+	protected IVector _thumbDelta;
+
 
 	// 滑轨元素：滑块
-	protected IVector _thumbSize = new();
 	public bool ThumbVisiable { get; set; } = true;
 
 	// 通用属性
@@ -20,12 +23,10 @@ abstract class ControllerSliderBase : ControllerBase
 	public IVector Size { get { return GetSize(); } set { SetSize(value); } }
 	public IRect Window { get { return GetWindow(); } }
 
-	public IVector ThumbPosition { get { return _position + ThumbDelta; } set { ThumbDelta = value - _position; } }
-	public IVector ThumbDelta;
+	public IVector ThumbPosition { get { return _position + _thumbDelta; } set { _thumbDelta = value - _position; } }
 	public IVector ThumbSize { get { return _thumbSize; } set { _thumbSize = value; } }
 	public IRect ThumbWindow { get { return new(ThumbPosition, _thumbSize); } }
 
-	public int Value { get; set; } = 0;
 
 
 	// 文本设置
@@ -146,14 +147,7 @@ abstract class ControllerSliderBase : ControllerBase
 		{
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - ThumbPosition;
-
-			// ThumbDelta = mouseEvent.Position - _position - _mouseDelta;
-
-			// ThumbDelta.X = Math.Max(0, Math.Min(_size.Width - _thumbSize.Width, ThumbDelta.X));
-			// ThumbDelta.Y = 0;
-			ThumbDelta = ThumbLimiter(mouseEvent.Position - _position - _mouseDelta);
-
-			Console.WriteLine($"{ThumbDelta.X} {ThumbDelta.Y}");
+			_thumbDelta = ThumbLimiter(mouseEvent.Position - _position - _mouseDelta);
 		}
 		else
 		{
@@ -190,4 +184,14 @@ abstract class ControllerSliderBase : ControllerBase
 		}
 	}
 	protected virtual IVector ThumbLimiter(IVector thumbDelta) => new(0, 0);
+
+
+	// range [0,1]
+	public override void SetValue(float value)
+	{
+		_value = value;
+		_thumbDelta = ThumbLimiter((IVector)((FVector)(Size - ThumbSize) * value));
+	}
+
+	public override float GetValue() => _value;
 }

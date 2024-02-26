@@ -39,6 +39,6 @@ interface IController
 	public bool IsEnable();
 
 	// 值处理
-	void SetValue(int value);
-	int GetValue();
+	void SetValue(float value);
+	float GetValue();
 }
