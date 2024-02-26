@@ -147,7 +147,7 @@ abstract class ControllerSliderBase : ControllerBase
 		{
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - ThumbPosition;
-			_thumbDelta = ThumbLimiter(mouseEvent.Position - _position - _mouseDelta);
+			ThumbLimitSet(mouseEvent.Position - _position - _mouseDelta);
 		}
 		else
 		{
@@ -166,7 +166,6 @@ abstract class ControllerSliderBase : ControllerBase
 
 		// 重新渲染
 		canvas.DrawBitmap(_trackImage, Position);
-		Console.WriteLine(Status);
 		switch (Status)
 		{
 			case ControllerStatus.Normal:
@@ -183,15 +182,15 @@ abstract class ControllerSliderBase : ControllerBase
 				break;
 		}
 	}
-	protected virtual IVector ThumbLimiter(IVector thumbDelta) => new(0, 0);
-
 
 	// range [0,1]
 	public override void SetValue(float value)
 	{
 		_value = value;
-		_thumbDelta = ThumbLimiter((IVector)((FVector)(Size - ThumbSize) * value));
+		ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * value));
 	}
 
 	public override float GetValue() => _value;
+
+	protected virtual void ThumbLimitSet(IVector thumbDelta) => _thumbDelta = new(0, 0);
 }

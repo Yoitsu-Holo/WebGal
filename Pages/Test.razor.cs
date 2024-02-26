@@ -90,7 +90,7 @@ public partial class Test : IDisposable
 		Manager.Render(canvas, NowTime.Minisecond, true);
 
 		//! test
-		TextBox tb = new TextBox
+		TextBox tb = new()
 		{
 			Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
 			BoxStyle = new()
@@ -119,6 +119,8 @@ public partial class Test : IDisposable
 
 		_sliderBoxV.ProcessMouseEvent(mouseEventCopy);
 		_sliderBoxV.Render(canvas);
+
+		Console.WriteLine(_sliderBoxH.GetValue());
 
 		//! audio test
 		var tm = NowTime.Minisecond;

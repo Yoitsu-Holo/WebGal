@@ -14,5 +14,9 @@ class ControllerSliderHorizontal : ControllerSliderBase
 		InitImage();
 	}
 
-	protected override IVector ThumbLimiter(IVector thumbDelta) => new(Math.Max(0, Math.Min(_size.Width - _thumbSize.Width, thumbDelta.X)), 0);
+	protected override void ThumbLimitSet(IVector thumbDelta)
+	{
+		_thumbDelta = new(Math.Max(0, Math.Min(_size.Width - _thumbSize.Width, thumbDelta.X)), 0);
+		_value = 1.0f * _thumbDelta.Width / (_size.Width - _thumbSize.Width);
+	}
 }
