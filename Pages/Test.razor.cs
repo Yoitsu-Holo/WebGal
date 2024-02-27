@@ -120,8 +120,6 @@ public partial class Test : IDisposable
 		_sliderBoxV.ProcessMouseEvent(mouseEventCopy);
 		_sliderBoxV.Render(canvas);
 
-		Console.WriteLine(_sliderBoxH.GetValue());
-
 		//! audio test
 		var tm = NowTime.Minisecond;
 		float volume = tm % 6000;

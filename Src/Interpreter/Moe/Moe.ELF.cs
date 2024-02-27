@@ -1,6 +1,6 @@
-using WebGal.Services.Include;
-
+// 
 namespace WebGal.MeoInterpreter;
+
 
 /// <summary>
 /// 程序加载结构描述
@@ -11,20 +11,8 @@ namespace WebGal.MeoInterpreter;
 /// form	界面配置文件，通过json文件描述
 /// start	程序开始位置
 /// </summary>
-public class MoeInterpreter
+public partial class MoeInterpreter
 {
-	private static readonly StringSplitOptions defaultStringSplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
-	private readonly ElfHeader _elfHeader = new();
-
-	private readonly SceneManager _sceneManager;
-	private readonly ResourceManager _resourceManager;
-
-	public MoeInterpreter(SceneManager sceneManager, ResourceManager resourceManager)
-	{
-		_sceneManager = sceneManager;
-		_resourceManager = resourceManager;
-	}
-
 	public async Task LoadELF(string MoeELF)
 	{
 		List<string> MoeELFs = new(MoeELF.Split('\n', defaultStringSplitOptions));
@@ -64,7 +52,7 @@ public class MoeInterpreter
 				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
 
-				_elfHeader.MoeFiles[lines[0]] = new()
+				_elfHeader.File[lines[0]] = new()
 				{
 					FileName = lines[0],
 					FileType = lines[1] switch
@@ -147,7 +135,7 @@ public class MoeInterpreter
 						Size = varSize
 					};
 
-					_elfHeader.MoeData[varName] = variable;
+					_elfHeader.Data[varName] = variable;
 				}
 				continue;
 			}
@@ -157,14 +145,14 @@ public class MoeInterpreter
 				if (lines.Count != 1)
 					throw new Exception("错误的参数数量");
 
-				_elfHeader.MoeStart = lines[0];
+				_elfHeader.Start = lines[0];
 			}
 		}
 
 
 		// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
 		List<Task> tasks = [];
-		foreach (var (_, file) in _elfHeader.MoeFiles)
+		foreach (var (_, file) in _elfHeader.File)
 		{
 			if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
 				tasks.Add(_resourceManager.PullScriptAsync(file.FileName, file.FileURL));
@@ -175,7 +163,7 @@ public class MoeInterpreter
 		await Task.WhenAll(tasks);
 
 		// 单独扫描文件
-		foreach (var (_, file) in _elfHeader.MoeFiles)
+		foreach (var (_, file) in _elfHeader.File)
 		{
 			if (file.FileType != MoeFileType.Text_script)
 				continue;
@@ -277,105 +265,15 @@ public class MoeInterpreter
 					func.CallType.Add(variable);
 				}
 
-				_elfHeader.MoeFunctions[func.FunctionName] = func;
+				_elfHeader.Function[func.FunctionName] = func;
 			}
 		}
-	}
 
-	private static bool IsAlpha(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-	private static bool IsDigital(char c) => c >= '0' && c <= '9';
+		// 加载完毕，将elf header中变量数据加入到全局运行空间
+		foreach (var item in _elfHeader.Data)
+			_globleSpace.VariableData[item.Key] = item.Value;
 
-	private static bool IsNumber(string s)
-	{
-		for (int i = (s[0] == '-') ? 1 : 0; i < s.Length; i++)
-		{
-			if (!IsDigital(s[i]))
-				return false;
-		}
-		return true;
-	}
-
-	private static bool IsLableName(string s)
-	{
-		if (!IsAlpha(s[0]))
-			return false;
-		for (int i = 1; i < s.Length; i++)
-			if (!(IsAlpha(s[i]) || IsDigital(s[i]) || s[i] == '_'))
-				return false;
-		return true;
-	}
-
-	private static int AtoI(string s)
-	{
-		int flag = (s[0] == '-') ? (-1) : 1;
-
-		int ret = 0;
-		for (int i = 0; i < s.Length; i++)
-		{
-			if (i == 0 && s[i] == '-')
-				continue;
-
-			if (s[i] < '0' || s[i] > '9')
-				throw new Exception(s + " : not A Number");
-
-			ret *= 10;
-			ret += s[i] - '0';
-		}
-		return ret * flag;
-	}
-
-	private static void LineSpcaeFormatter(ref string rawString)
-	{
-		string[] ss = rawString.Split(' ', defaultStringSplitOptions);
-		rawString = "";
-		foreach (string s in ss)
-		{
-			rawString += s;
-			rawString += " ";
-		}
-	}
-
-	private static bool CheckParamaDefine(List<string> variableDefine)
-	{
-		if (variableDefine.Count != 4)
-			throw new Exception("错误的参数定义: " + variableDefine.Count);
-
-		if (variableDefine[0] != "const" && variableDefine[0] != "static" && variableDefine[0] != "var")
-			throw new Exception("错误的变量修饰: " + variableDefine[0]);
-
-		if (variableDefine[1] != "int" && variableDefine[1] != "double" && variableDefine[1] != "string")
-			throw new Exception("错误的变量类型: " + variableDefine[1]);
-
-		if (!IsLableName(variableDefine[2]))
-			throw new Exception("错误的变量名称: " + variableDefine[2]);
-
-		if (!IsNumber(variableDefine[3]) || variableDefine[3][0] == '-')
-			throw new Exception("错误的变量长度: " + variableDefine[3]);
-
-		return true;
-	}
-
-	public void Dump()
-	{
-		Console.WriteLine(">>> Dump File: ");
-		foreach (var item in _elfHeader.MoeFiles)
-			Console.WriteLine(item.Key + ":" + item.Value);
-
-		Console.WriteLine(">>> Dump Function: ");
-		foreach (var item in _elfHeader.MoeFunctions)
-			Console.WriteLine(item.Key + ":" + item.Value);
-
-
-		Console.WriteLine(">>> Dump Vaiable: ");
-		foreach (var item in _elfHeader.MoeData)
-			Console.WriteLine(item.Key + ":" + item.Value);
-
-		Console.WriteLine(">>> Dump Form: ");
-		foreach (var item in _elfHeader.MoeData)
-			Console.WriteLine(item.Key + ":" + item.Value);
-
-		Console.WriteLine(">>> Dump Start: ");
-		Console.WriteLine(_elfHeader.MoeStart);
-		Console.WriteLine(_elfHeader.MoeFunctions[_elfHeader.MoeStart]);
+		_globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;
+		_globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
 	}
 }
