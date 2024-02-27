@@ -1,4 +1,6 @@
 // 
+using System.Security.Cryptography.X509Certificates;
+
 namespace WebGal.MeoInterpreter;
 
 
@@ -116,7 +118,7 @@ public partial class MoeInterpreter
 					var rawVarPart = rawVar.Split(':', defaultStringSplitOptions);
 
 					varName = rawVarPart[0];
-					varSize = (rawVarPart.Length == 2) ? AtoI(rawVarPart[1]) : 1;
+					varSize = (rawVarPart.Length == 2) ? Convert.ToInt32(rawVarPart[1]) : 1;
 
 					if (!IsLableName(varName) || varSize <= 0)
 						throw new Exception("Error Paramater");
@@ -232,7 +234,7 @@ public partial class MoeInterpreter
 
 					CheckParamaDefine(variableInfo);
 
-					int variableSize = AtoI(variableInfo[3]);
+					int variableSize = Convert.ToInt32(variableInfo[3]);
 
 					MoeVariable variable = new()
 					{
@@ -275,5 +277,22 @@ public partial class MoeInterpreter
 
 		_globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;
 		_globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
+
+		string input =
+		"var int x;\n" +
+		"x = 10;\n" +
+		"while (x > 0) {\n" +
+		"	x=x-100.1;\n" +
+		"	{\n" +
+		"		y__y = 100.0;\n" +
+		"	}\n" +
+		"	if (x > 1000)" +
+		"}\n" +
+		"goto end;\n" +
+		"end:";
+
+		Lexer lexer = new(input);
+		Parser parser = new(lexer);
+		parser.ParseCodeBlock();
 	}
 }

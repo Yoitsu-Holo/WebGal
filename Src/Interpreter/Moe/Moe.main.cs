@@ -11,17 +11,16 @@ public partial class MoeInterpreter(SceneManager sceneManager, ResourceManager r
 	private readonly SceneManager _sceneManager = sceneManager;
 	private readonly ResourceManager _resourceManager = resourceManager;
 
+	private readonly string _activeTaskName = "main";
+	private Stack<MoeStackFrame> _activeTask = new();
+
 
 	// 基础方法
-
-	private static bool IsAlpha(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-	private static bool IsDigital(char c) => c >= '0' && c <= '9';
-
 	private static bool IsNumber(string s)
 	{
 		for (int i = (s[0] == '-') ? 1 : 0; i < s.Length; i++)
 		{
-			if (!IsDigital(s[i]))
+			if (!char.IsDigit(s[i]))
 				return false;
 		}
 		return true;
@@ -29,31 +28,12 @@ public partial class MoeInterpreter(SceneManager sceneManager, ResourceManager r
 
 	private static bool IsLableName(string s)
 	{
-		if (!IsAlpha(s[0]))
+		if (!char.IsLetter(s[0]))
 			return false;
 		for (int i = 1; i < s.Length; i++)
-			if (!(IsAlpha(s[i]) || IsDigital(s[i]) || s[i] == '_'))
+			if (!(char.IsLetter(s[i]) || char.IsDigit(s[i]) || s[i] == '_'))
 				return false;
 		return true;
-	}
-
-	private static int AtoI(string s)
-	{
-		int flag = (s[0] == '-') ? (-1) : 1;
-
-		int ret = 0;
-		for (int i = 0; i < s.Length; i++)
-		{
-			if (i == 0 && s[i] == '-')
-				continue;
-
-			if (s[i] < '0' || s[i] > '9')
-				throw new Exception(s + " : not A Number");
-
-			ret *= 10;
-			ret += s[i] - '0';
-		}
-		return ret * flag;
 	}
 
 	private static void LineSpcaeFormatter(ref string rawString)

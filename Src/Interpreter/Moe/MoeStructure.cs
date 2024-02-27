@@ -111,5 +111,5 @@ public class MoeGlobleSpace
 	public InterpretFileInfo InterpretFile = new();
 
 
-	public Dictionary<string, Stack<MoeStackFrame>> MowStack = []; // 函数栈，可能有多个并行的函数栈
+	public Dictionary<string, Stack<MoeStackFrame>> Task = []; // 任务函数栈，可能有多个并行的函数栈
 }

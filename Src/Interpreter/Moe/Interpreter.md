@@ -386,6 +386,41 @@ print(ret1());
 
 如果不绑定play动作，那么所有动作都将不会执行，且占用注册的内存空间（运行后函数就销毁）
 
+### 基础设置
+
+#### tag() 标记 [todo]
+
+标记当前的状态机状态，可以使用该方法来回顾历史文本和剧情
+
+```c#
+int tag(string tagName);
+```
+
+#### taskCreat() 创建一个任务
+
+脚本中的任务概念类似子线程或者子进程，实现方式是新建一个函数栈
+
+```c#
+// 创建一个名称为taskName的计划，并且冲funcname开始执行
+void taskCreat(string taskName, string funcName);
+```
+
+#### taskRun() 激活一个任务
+
+运行一个指定的任务，即将活动函数栈切换到目标函数栈，并且展厅当前函数栈的执行
+
+```c#
+void taskRun(string taskName, object param [...]);
+```
+
+#### taskDispose() 销毁一个任务
+
+销毁一个任务，并且清理其所有占用的资源（不能自己销毁自己）,在销毁后依然返回自己执行。
+
+```c#
+void taskDispose(string taskName);
+```
+
 ### 图像控制
 
 基础界面图像分为以下几个部分：
@@ -522,14 +557,6 @@ int choice(string choiceName,string imageNormal,string imageHover, string imageP
 - imageNormal: 通常状态的图片
 - imageHover: 鼠标悬停的图片
 - imagePressed: 鼠标按下的图片
-
-#### tag() 标记 [todo]
-
-标记当前的状态机状态，可以使用该方法来回顾历史文本和剧情
-
-```c#
-int tag(string tagName);
-```
 
 ### 自动化
 
