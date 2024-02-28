@@ -14,13 +14,14 @@ public partial class MoeInterpreter
 	public enum TokenType
 	{
 		Void, // 空串
-		Identifier, // 标识符
+		Type, // 标识符
 		Name, // 名称
 		Number, // 数字
 		Keyword, // 字符
 		Operator, // 运算符
 		Delimiter, // 分隔符
 		Label, // 标记
+		CodeBlock, // 代码块
 		Error, // 错误
 	}
 
@@ -28,15 +29,22 @@ public partial class MoeInterpreter
 	{
 		public TokenType Type { get; set; } = tokenType;
 		public string Value { get; set; } = value;
+
+		public override string ToString()
+		{
+			return new string(Type.ToString() + ": " + Value.ToString());
+		}
 	}
 
-	public class Lexer(string input)
+	public class SyntaxBuilder(string input)
 	{
+		public HashSet<string> typeSet = [
+			"int","double","string","dictionary",
+		];
 
 		public HashSet<string> keywordsSet = [
-			"var","int","double","string","dictionary",
-			"func","return",
-			"if","else","while","goto",
+			"var","func","return",
+			"if","else","while","goto","label",
 			// 这些是函数，不属于关键字
 			// "say","ch","st","bg","anime",
 			// "bgm","voice","audio",
@@ -44,18 +52,20 @@ public partial class MoeInterpreter
 			// "play","end","pause","delay",
 		];
 
-		public HashSet<string> identifierSet = [
-			"(",")",
+		public HashSet<string> operatorSet = [
+			"(",")","<",">",
 			"=","+","-","*","-","%",
-			"++","--","+=","-=","*=","/=","%=",
-			"~","|","&","^","<<",">>",
-			"||","&&",
-			"^^",
-			"\\",
+			"~","|","&","^",
+
+			"++","--","+=","-=","*=","/=","%=","^^",
+			"<<",">>","||","&&",
 		];
 
 		private readonly string _input = input;
 		private int _position = 0;
+		private Token _currentToken = new();
+
+		public List<Token> Tokens = [];
 
 		public Token GetNextToken()
 		{
@@ -68,25 +78,28 @@ public partial class MoeInterpreter
 
 			if (char.IsWhiteSpace(_input[_position]))
 			{
-				// 空白占位符
+				//^ 空白占位符
 				_position++;
-				ret = GetNextToken();
+				return GetNextToken();
 			}
 			else if (char.IsLetter(_input[_position]) || _input[_position] == '_')
 			{
-				// 处理 名称 和 关键字
+				//^ 处理 名称 和 关键字
 				while (_position < _input.Length && (char.IsLetterOrDigit(_input[_position]) || _input[_position] == '_'))
 					_position++;
 
-				ret.Value = _input[start.._position];
-				if (keywordsSet.Contains(ret.Value))
+				string value = _input[start.._position];
+
+				if (keywordsSet.Contains(value))
 					ret.Type = TokenType.Keyword;
+				else if (typeSet.Contains(value))
+					ret.Type = TokenType.Type;
 				else
 					ret.Type = TokenType.Name;
 			}
 			else if (char.IsDigit(_input[_position]))
 			{
-				// 处理数字
+				//^ 处理数字
 
 				// 整数部分
 				while (_position < _input.Length && char.IsDigit(_input[_position]))
@@ -96,114 +109,114 @@ public partial class MoeInterpreter
 					_position++;
 				while (_position < _input.Length && char.IsDigit(_input[_position]))
 					_position++;
-
-				ret = new Token(TokenType.Number, _input[start.._position]);
+				ret.Type = TokenType.Number;
 			}
 			else if (_input[_position] == ':' || _input[_position] == '@')
 			{
-				// 处理标签
+				//^ 处理标签  ':'数组访问标签  '@'函数参数表标签
+				// todo 可能会被优化
 				_position++;
-				ret = new Token(TokenType.Label, _input[start.._position]);
+				ret.Type = TokenType.Label;
 			}
 			else if (_input[_position] == '.' || _input[_position] == ';')
 			{
-				// 处理分隔符
+				//^ 处理分隔符
 				_position++;
-				ret = new Token(TokenType.Delimiter, _input[start.._position]);
+				ret.Type = TokenType.Delimiter;
+			}
+			else if (operatorSet.Contains(_input[_position].ToString()))
+			{
+				//^ 处理运算符
+				while (operatorSet.Contains(_input[start..(_position + 1)]))
+					_position++;
+				ret.Type = TokenType.Operator;
+			}
+			else if (_input[_position] == '{' || _input[_position] == '}')
+			{
+				//^ 处理代码块
+				_position++;
+				ret.Type = TokenType.CodeBlock;
 			}
 			else
 			{
-				// Handle operators and other tokens
-				// This is just a placeholder implementation
+				//^ 处理其他 Token，默认为错误
 				_position++;
-				ret = new Token(TokenType.Operator, _input[start.._position].ToString());
+				ret.Type = TokenType.Error;
 			}
 
+			ret.Value = _input[start.._position];
 			return ret;
 		}
-	}
-	public class Parser
-	{
-		private readonly Lexer _lexer;
-		private Token _currentToken;
 
-		public Parser(Lexer lexer)
-		{
-			_lexer = lexer;
-			_currentToken = new();
-		}
-
-		public void ParseCodeBlock()
+		public void Parse()
 		{
 			// Parse statements inside the code block
-			Console.WriteLine("{");
-			_currentToken = _lexer.GetNextToken(); // Consume '{'
-			while (_currentToken.Type != TokenType.Void && _currentToken.Value != "}")
+			// _currentToken = GetNextToken(); // Consume '{'
+			do
 			{
 				// Parse individual statements inside the code block
+				_currentToken = GetNextToken();
 				if (_currentToken.Value == "{")
 				{
-					// Nested code block
-					ParseCodeBlock();
+					Tokens.Add(_currentToken);
+					Parse();
+					Tokens.Add(_currentToken);
 				}
+				else if (_currentToken.Value == "}")
+					break;
 				else
-				{
-					// Handle other tokens inside the code block
-					// You may need to recursively call other parsing methods here
-					// Console.WriteLine("Token inside code block: " + _currentToken.Value);
-					Console.WriteLine(_currentToken.Type + ": " + _currentToken.Value);
-					_currentToken = _lexer.GetNextToken();
-				}
+					Tokens.Add(_currentToken);
 			}
-			Console.WriteLine("}");
-			if (_currentToken != null)
-			{
-				_currentToken = _lexer.GetNextToken(); // Consume '}'
-			}
+			while (_currentToken.Type != TokenType.Void);
 		}
 	}
 }
 
 /*
-{
-	Keyword: var
-	Keyword: int
-	Name: x
-	Delimiter: ;
+Keyword: var
+Type: int
+Name: x
+Delimiter: ;
+Name: x
+Operator: =
+Number: 10
+Delimiter: ;
+Keyword: while
+Operator: (
+Name: x
+Operator: >
+Number: 0
+Operator: )
+CodeBlock: {
 	Name: x
 	Operator: =
-	Number: 10
+	Name: x
+	Operator: -
+	Number: 100.1
 	Delimiter: ;
-	Keyword: while
+	CodeBlock: {
+		Name: y__y
+		Operator: =
+		Number: 100.0
+		Delimiter: .
+		Number: 123
+		Delimiter: ;
+	CodeBlock: }
+	Keyword: if
 	Operator: (
 	Name: x
 	Operator: >
-	Number: 0
+	Number: 1000
 	Operator: )
-	{
-		Name: x
-		Operator: =
-		Name: x
-		Operator: -
-		Number: 100.1
-		Delimiter: ;
-		{
-			Name: y__y
-			Operator: =
-			Number: 100.0
-			Delimiter: ;
-		}
-		Keyword: if
-		Operator: (
-		Name: x
-		Operator: >
-		Number: 1000
-		Operator: )
-	}
-	Keyword: goto
-	Name: end
+	CodeBlock: {
+	CodeBlock: }
+	Name: 错误
 	Delimiter: ;
-	Name: end
-	Label: :
-}
+CodeBlock: }
+Keyword: goto
+Name: end
+Delimiter: ;
+Keyword: label
+Name: end
+Delimiter: ;
 */

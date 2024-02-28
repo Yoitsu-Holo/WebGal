@@ -284,15 +284,22 @@ public partial class MoeInterpreter
 		"while (x > 0) {\n" +
 		"	x=x-100.1;\n" +
 		"	{\n" +
-		"		y__y = 100.0;\n" +
+		"		y__y = 100.0.123;\n" +
 		"	}\n" +
 		"	if (x > 1000)" +
+		"	{}\n" +
+		"	错误;\n" +
 		"}\n" +
 		"goto end;\n" +
-		"end:";
+		"label end;" +
+		"};\n" +
+		"};\n";
 
-		Lexer lexer = new(input);
-		Parser parser = new(lexer);
-		parser.ParseCodeBlock();
+
+		SyntaxBuilder syntax = new(input);
+		syntax.Parse();
+
+		foreach (var item in syntax.Tokens)
+			Console.WriteLine(item);
 	}
 }
