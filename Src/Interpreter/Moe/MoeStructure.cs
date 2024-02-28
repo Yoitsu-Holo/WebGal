@@ -3,26 +3,22 @@ namespace WebGal.MeoInterpreter;
 public class ElfHeader
 {
 	// .file 
-	public Dictionary<string, MoeFile> MoeFiles = [];
-	// .table [Auto]
-	public Dictionary<string, MoeFunction> MoeFunctions = [];
+	public Dictionary<string, MoeFile> File = [];
 	// .data
-	public Dictionary<string, MoeVariable> MoeData = [];
+	public Dictionary<string, MoeVariable> Data = [];
 	// .form
-	public Dictionary<string, string> MoeFrom = [];
+	public Dictionary<string, string> From = [];
+	// .table [Auto Gen]
+	public Dictionary<string, MoeFunction> Function = [];
 	// .start
-	public string MoeStart = "main";
+	public string Start = "main";
 }
 
 public enum MoeELF
 {
 	Void,
-	FILE,
-	TABLE,
-	DATA,
-	FORM,
-	CODE,
-	START,
+	FILE, TABLE, DATA,
+	FORM, CODE, START,
 }
 
 public enum MoeFileType
@@ -68,7 +64,7 @@ public class MoeVariable
 	public override string ToString() => $"\tAccess: {Access}, \tType: {Type}, \tObj: {Obj}, \tSize: {Size}";
 }
 
-public class MoeFunction()
+public class MoeFunction
 {
 	public string FileName = "main.moe";
 	public int FileLine = 0;
@@ -86,4 +82,34 @@ public class MoeFunction()
 			ret += "\n\t" + call.ToString();
 		return ret;
 	}
+}
+
+
+// 正在解析的文件
+public class InterpretFileInfo
+{
+	public string Name = "main"; // 正在解析的文件名称
+	public int Line = 0; // 解析的文件行数
+}
+
+// 栈帧
+public class MoeStackFrame
+{
+	// 程序运行环境
+	public Dictionary<string, MoeVariable> VariableData = []; // 局部变量字典
+	public InterpretFileInfo InterpreterFile = new();
+
+	// 函数参数
+	public List<MoeVariable> ParamList = []; // 函数调用传入的参数列表
+	public MoeVariable ReturnData = new(); // 函数返回值
+}
+
+// 全局空间
+public class MoeGlobleSpace
+{
+	public Dictionary<string, MoeVariable> VariableData = []; // 全局变量字典
+	public InterpretFileInfo InterpretFile = new();
+
+
+	public Dictionary<string, Stack<MoeStackFrame>> Task = []; // 任务函数栈，可能有多个并行的函数栈
 }

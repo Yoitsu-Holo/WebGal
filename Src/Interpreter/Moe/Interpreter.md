@@ -382,58 +382,215 @@ print(ret1());
 
 ## 内置函数
 
+所有的内置函数都会返回一个执行器id，可以通过这个id来绑定多个动作同时执行（play）
+
+如果不绑定play动作，那么所有动作都将不会执行，且占用注册的内存空间（运行后函数就销毁）
+
+### 基础设置
+
+#### tag() 标记 [todo]
+
+标记当前的状态机状态，可以使用该方法来回顾历史文本和剧情
+
+```c#
+int tag(string tagName);
+```
+
+#### taskCreat() 创建一个任务
+
+脚本中的任务概念类似子线程或者子进程，实现方式是新建一个函数栈
+
+```c#
+// 创建一个名称为taskName的计划，并且冲funcname开始执行
+void taskCreat(string taskName, string funcName);
+```
+
+#### taskRun() 激活一个任务
+
+运行一个指定的任务，即将活动函数栈切换到目标函数栈，并且展厅当前函数栈的执行
+
+```c#
+void taskRun(string taskName, object param [...]);
+```
+
+#### taskDispose() 销毁一个任务
+
+销毁一个任务，并且清理其所有占用的资源（不能自己销毁自己）,在销毁后依然返回自己执行。
+
+```c#
+void taskDispose(string taskName);
+```
+
 ### 图像控制
 
-**say**
+基础界面图像分为以下几个部分：
 
-文字
+```txt
++-------------------------------------------+
+|                                           |
+|      bg       +----------+       bg       |
+|               |     s    |                |
+|               |     t    |                |
+|               |          |                |
++-------+[name]-----------------------------|
+|   c   |     text...................       |
+|   h   |   text.....................       |
++--------------------[........menu........]-+
+```
 
-**foreground**
+每一张图片在初始化时会被设置一个参考点，该参考点默认为图片中心点，但可以在加载文件中设置图片的参考点位置（任意坐标数值，甚至可以为负数）
 
-角色立绘
+#### say() 显示文字
 
-**background**
+将指定文字加载到文本框显示，有如下两个方法：
 
-背景
+```c#
+// 旁白，不包含人名，即直接在文本框中显示
+int say(string text);
 
-**charactor**
+// 对话，包含人名，除了文本框，还有对应的名字
+int say(string name,string text);
+```
 
-角色头像
+#### ch() 显示角色头像
+
+将指定图片作为立绘显示在文本框旁边
+
+```c#
+// 显示立绘图像，默认参考点居中
+int st(string imageName);
+int st(string imageName, string imageMask);
+
+// 显示立绘图像，指定参考点坐标
+int st(string imageName, int X, int Y);
+int st(string imageName, string imageMask, int X, int Y);
+```
+
+#### st() 显示角色立绘
+
+将指定立绘显示在背景图片上方
+
+```c#
+// 显示立绘图像，默认参考点居中
+int st(string imageName);
+int st(string imageName, string imageMask);
+
+// 显示立绘图像，指定参考点坐标
+int st(string imageName, int X, int Y);
+int st(string imageName, string imageMask, int X, int Y);
+```
+
+#### bg() 显示背景
+
+设置游戏背景图片
+
+```c#
+// 显示背景图像，默认参考点居中
+int st(string imageName);
+int st(string imageName, string imageMask);
+
+// 显示背景图像，指定参考点坐标
+int st(string imageName, int X, int Y);
+int st(string imageName, string imageMask, int X, int Y);
+```
+
+#### anime() 注册动画效果
+
+todo：可以控制图片类的出场效果，例如位置和时间
 
 ### 声音控制
 
-**bgm**
+#### bgm() 背景音乐
 
-背景音乐
+循环播放一段音频
 
-**voice**
+```c#
+// 播放音频,，默认全音量
+int bgm(string audioName);
 
-语音播放（默认一次）
+// 播放音频，指定音量 [0,1]
+int bgm(string audioName, double volume);
+```
 
-**audio**
+#### voice 语音
+
+单次播放一段音频
+
+```c#
+// 播放音频,，默认全音量
+int voice(string audioName);
+
+// 播放音频，指定音量 [0,1]
+int voice(string audioName, double volume);
+```
+
+#### audio
 
 基本音頻，bgm和voice由该基本api接口封装
 
+```c#
+// 播放音频，设置音量，音频之间的延迟，循环次数
+int voice(string audioName, double volume, int delay, int times);
+```
+
+- audioName： 一个音频数组，方法会循环播放这个列表的音乐
+- volume： 音量，范围[0,1]，可以为一个数组，方法会循环使用数组的值（注意，此数组大小处应该尽量与audioName大小一致，除非你知道你在干什么）
+- delay： 每一段音频之间的延迟，可以为负数，即前一段音频未播放完，后一段音频就加入同时播放
+- times： 播放次数，注意，播放一段音乐为一次，而非整个数组的全部音乐为一次。`-1`表示无限循环
+
 ### 事件控制
 
-**choice**
+#### choice() 选项
 
-选项
+`注意`：这是一个中断事件，会暂停动画的执行
 
-**animation**
+choice函数会更具选项的数量来自定规划选项位置，默认为水平居中，垂直尽量居中于窗口上边框和文字框下边框区域
 
-注册动画效果
+```c#
+// 显示选项
+int choice(string choiceName);
+
+// 显示选项，并且使用自定义的选项图片
+int choice(string choiceName,string imageNormal,string imageHover, string imagePress);
+```
+
+- imageNormal: 通常状态的图片
+- imageHover: 鼠标悬停的图片
+- imagePressed: 鼠标按下的图片
 
 ### 自动化
 
-**play**
+#### play() 播放动作效果
 
-播放缓冲区中所有
+播放缓冲区中效果
 
-**pause**
+```c#
+// 播放全部动作
+void play();
 
-包含play功能，等待鼠标单击事件 
+// 播放数组中的动作
+void play(int actionId);
+```
 
-**delay**
+#### end() 结束动作效果
 
-延迟一段时间，ms单位。若出现其他事件，终止延迟。
+强制结束动作效果，直接进入动作的最终状态
+
+```c#
+// 结束播放全部动作
+void end();
+
+// 结束播放数组中的动作
+void end(int actionId);
+```
+
+#### pause() 暂停执行脚本 [todo]
+
+等待程序事件 
+
+#### delay() 延迟执行脚本
+
+```c#
+// 延迟一段时间，ms单位。若出现其他事件，直接终止延迟。
+void delay(int time);
+```
