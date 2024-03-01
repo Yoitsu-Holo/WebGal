@@ -279,8 +279,8 @@ public partial class MoeInterpreter
 		_globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
 
 		string input =
-		"var int x;\n" +
-		"x = 10;\n" +
+		"var int x:10;\n" +
+		"x[0] = 10;\n" +
 		"while (x > 0) {\n" +
 		"	x=x-100.1;\n" +
 		"	{\n" +

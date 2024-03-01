@@ -53,7 +53,7 @@ public partial class MoeInterpreter
 		];
 
 		public HashSet<string> operatorSet = [
-			"(",")","<",">",
+			"(",")","[","]","<",">",
 			"=","+","-","*","-","%",
 			"~","|","&","^",
 
