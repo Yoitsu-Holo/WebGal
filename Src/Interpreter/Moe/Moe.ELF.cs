@@ -299,7 +299,6 @@ public partial class MoeInterpreter
 		SyntaxBuilder syntax = new(input);
 		syntax.Parse();
 
-		foreach (var item in syntax.Tokens)
-			Console.WriteLine(item);
+		Console.WriteLine(syntax.Tokens);
 	}
 }

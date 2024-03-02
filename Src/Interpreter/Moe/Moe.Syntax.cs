@@ -25,14 +25,22 @@ public partial class MoeInterpreter
 		Error, // 错误
 	}
 
-	public class Token(TokenType tokenType = TokenType.Void, string value = "")
+	public class Token
 	{
-		public TokenType Type { get; set; } = tokenType;
-		public string Value { get; set; } = value;
+		public TokenType Type = TokenType.Void;
+		public string Value = "";
+		public List<Token> CodeBlock = [];
 
 		public override string ToString()
 		{
-			return new string(Type.ToString() + ": " + Value.ToString());
+			string ret = "";
+			foreach (var token in CodeBlock)
+			{
+				ret += new string(token.Type.ToString() + ": " + token.Value + "\n");
+				if (token.Type == TokenType.CodeBlock)
+					ret += "{ 0x" + token.GetHashCode().ToString("X") + "\n" + token.ToString() + "} 0x" + token.GetHashCode().ToString("X") + "\n";
+			}
+			return ret;
 		}
 	}
 
@@ -63,9 +71,11 @@ public partial class MoeInterpreter
 
 		private readonly string _input = input;
 		private int _position = 0;
-		private Token _currentToken = new();
+		// private Token _currentToken = new();
 
-		public List<Token> Tokens = [];
+		// private readonly Token _baseToken = new();
+
+		public Token Tokens = new();
 
 		public Token GetNextToken()
 		{
@@ -148,26 +158,34 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public void Parse()
+		public void Parse() => Parse(Tokens);
+
+		private void Parse(Token baseToken)
 		{
 			// Parse statements inside the code block
 			// _currentToken = GetNextToken(); // Consume '{'
 			do
 			{
 				// Parse individual statements inside the code block
-				_currentToken = GetNextToken();
+				Token _currentToken = GetNextToken();
+				// Console.WriteLine(_currentToken.Type + ": " + _currentToken.Value);
 				if (_currentToken.Value == "{")
 				{
-					Tokens.Add(_currentToken);
-					Parse();
-					Tokens.Add(_currentToken);
+					_currentToken.Value = "{}";
+					baseToken.CodeBlock.Add(_currentToken);
+					_currentToken.CodeBlock = [];
+					Parse(_currentToken);
+					// Tokens.Add(_currentToken);
 				}
 				else if (_currentToken.Value == "}")
 					break;
 				else
-					Tokens.Add(_currentToken);
+					baseToken.CodeBlock.Add(_currentToken);
+
+				if (_currentToken.Type == TokenType.Void)
+					break;
 			}
-			while (_currentToken.Type != TokenType.Void);
+			while (true);
 		}
 	}
 }
@@ -176,8 +194,13 @@ public partial class MoeInterpreter
 Keyword: var
 Type: int
 Name: x
+Label: :
+Number: 10
 Delimiter: ;
 Name: x
+Operator: [
+Number: 0
+Operator: ]
 Operator: =
 Number: 10
 Delimiter: ;
@@ -187,32 +210,35 @@ Name: x
 Operator: >
 Number: 0
 Operator: )
-CodeBlock: {
+CodeBlock: {}
+{cb: 0x7C3CAF5
 	Name: x
 	Operator: =
 	Name: x
 	Operator: -
 	Number: 100.1
 	Delimiter: ;
-	CodeBlock: {
+	CodeBlock: {}
+	{cb: 0x3C77FBC7
 		Name: y__y
 		Operator: =
 		Number: 100.0
 		Delimiter: .
 		Number: 123
 		Delimiter: ;
-	CodeBlock: }
+	}cb: 0x3C77FBC7
 	Keyword: if
 	Operator: (
 	Name: x
 	Operator: >
 	Number: 1000
 	Operator: )
-	CodeBlock: {
-	CodeBlock: }
+	CodeBlock: {}
+	{cb: 0x2CCF938B
+	}cb: 0x2CCF938B
 	Name: 错误
 	Delimiter: ;
-CodeBlock: }
+}cb: 0x7C3CAF5
 Keyword: goto
 Name: end
 Delimiter: ;
