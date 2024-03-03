@@ -25,23 +25,40 @@ public partial class MoeInterpreter
 		Error, // 错误
 	}
 
-	public class Token
+	public class SingleToken
 	{
 		public TokenType Type = TokenType.Void;
 		public string Value = "";
-		public List<Token> CodeBlock = [];
+		// public List<SingleToken> CodeBlocks = [];
+
+		public override string ToString()
+		{
+			return new string(Type.ToString() + ": " + Value + "\n");
+		}
+	}
+
+	public class CodeBlock
+	{
+		public SingleToken Token = new();
+		public List<CodeBlock> CodeBlocks = [];
 
 		public override string ToString()
 		{
 			string ret = "";
-			foreach (var token in CodeBlock)
+			foreach (var codeBlock in CodeBlocks)
 			{
-				ret += new string(token.Type.ToString() + ": " + token.Value + "\n");
-				if (token.Type == TokenType.CodeBlock)
-					ret += "{ 0x" + token.GetHashCode().ToString("X") + "\n" + token.ToString() + "} 0x" + token.GetHashCode().ToString("X") + "\n";
+				ret += codeBlock.Token.ToString();
+				if (codeBlock.Token.Type == TokenType.CodeBlock)
+					ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n" + codeBlock.ToString() + "} 0x" + codeBlock.GetHashCode().ToString("X") + "\n";
 			}
 			return ret;
 		}
+	}
+
+	public class Statement
+	{
+		public List<SingleToken> Tokens = [];
+		public List<CodeBlock> CodeBlocks = [];
 	}
 
 	public class SyntaxBuilder(string input)
@@ -75,11 +92,12 @@ public partial class MoeInterpreter
 
 		// private readonly Token _baseToken = new();
 
-		public Token Tokens = new();
+		public CodeBlock GlobleCodeBlocks = new();
+		public Statement GlobleStatements = new();
 
-		public Token GetNextToken()
+		public SingleToken GetNextToken()
 		{
-			Token ret = new();
+			SingleToken ret = new();
 			if (_position >= _input.Length)
 				return ret;
 
@@ -158,31 +176,34 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public void Parse() => Parse(Tokens);
+		public void Parse() => DFSParse(GlobleCodeBlocks);
 
-		private void Parse(Token baseToken)
+		private void DFSParse(CodeBlock baseCodeBlock)
 		{
 			// Parse statements inside the code block
 			// _currentToken = GetNextToken(); // Consume '{'
 			do
 			{
 				// Parse individual statements inside the code block
-				Token _currentToken = GetNextToken();
-				// Console.WriteLine(_currentToken.Type + ": " + _currentToken.Value);
-				if (_currentToken.Value == "{")
+				CodeBlock _currentToken = new()
 				{
-					_currentToken.Value = "{}";
-					baseToken.CodeBlock.Add(_currentToken);
-					_currentToken.CodeBlock = [];
-					Parse(_currentToken);
+					Token = GetNextToken()
+				};
+				// Console.WriteLine(_currentToken.Type + ": " + _currentToken.Value);
+				if (_currentToken.Token.Value == "{")
+				{
+					_currentToken.Token.Value = "{}";
+					baseCodeBlock.CodeBlocks.Add(_currentToken);
+					_currentToken.CodeBlocks = [];
+					DFSParse(_currentToken);
 					// Tokens.Add(_currentToken);
 				}
-				else if (_currentToken.Value == "}")
+				else if (_currentToken.Token.Value == "}")
 					break;
 				else
-					baseToken.CodeBlock.Add(_currentToken);
+					baseCodeBlock.CodeBlocks.Add(_currentToken);
 
-				if (_currentToken.Type == TokenType.Void)
+				if (_currentToken.Token.Type == TokenType.Void)
 					break;
 			}
 			while (true);

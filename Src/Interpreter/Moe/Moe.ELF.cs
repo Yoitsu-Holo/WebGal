@@ -299,6 +299,6 @@ public partial class MoeInterpreter
 		SyntaxBuilder syntax = new(input);
 		syntax.Parse();
 
-		Console.WriteLine(syntax.Tokens);
+		Console.WriteLine(syntax.GlobleCodeBlocks);
 	}
 }
