@@ -42,14 +42,19 @@ public partial class MoeInterpreter
 		public SingleToken Token = new();
 		public List<CodeBlock> CodeBlocks = [];
 
+		public TokenType Type => Token.Type;
+		public string Value => Token.Value;
+
 		public override string ToString()
 		{
 			string ret = "";
 			foreach (var codeBlock in CodeBlocks)
 			{
 				ret += codeBlock.Token.ToString();
-				if (codeBlock.Token.Type == TokenType.CodeBlock)
-					ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n" + codeBlock.ToString() + "} 0x" + codeBlock.GetHashCode().ToString("X") + "\n";
+				if (codeBlock.Type == TokenType.CodeBlock)
+					ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n"
+					+ codeBlock.ToString() + "} 0x"
+					+ codeBlock.GetHashCode().ToString("X") + "\n";
 			}
 			return ret;
 		}
@@ -57,8 +62,28 @@ public partial class MoeInterpreter
 
 	public class Statement
 	{
+		public int Deep = 0;
 		public List<SingleToken> Tokens = [];
-		public List<CodeBlock> CodeBlocks = [];
+		public List<Statement> Statements = [];
+
+		public override string ToString()
+		{
+			string ret = "";
+			foreach (var statement in Statements)
+			{
+				if (statement.Tokens.Count != 0)
+				{
+					ret += new string('\t', statement.Deep);
+					foreach (var token in statement.Tokens)
+						ret += token.Value + " ";
+					ret += "\n";
+				}
+				// foreach (var state in statement.Statements)
+				if (statement.Statements.Count != 0)
+					ret += statement.ToString();
+			}
+			return ret;
+		}
 	}
 
 	public class SyntaxBuilder(string input)
@@ -176,7 +201,11 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public void Parse() => DFSParse(GlobleCodeBlocks);
+		public void Parse()
+		{
+			DFSParse(GlobleCodeBlocks);
+			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
+		}
 
 		private void DFSParse(CodeBlock baseCodeBlock)
 		{
@@ -207,6 +236,38 @@ public partial class MoeInterpreter
 					break;
 			}
 			while (true);
+		}
+
+		private static Statement RebuildStatement(CodeBlock baseCodeBlock, int deep = 0)
+		{
+			Statement statement = new() { Deep = deep };
+			Statement temp = new() { Deep = deep };
+
+			foreach (var codeBlock in baseCodeBlock.CodeBlocks)
+			{
+				if (codeBlock.Type == TokenType.Delimiter && codeBlock.Value == ";")
+				{
+					statement.Statements.Add(temp);
+					temp = new() { Deep = deep };
+					continue;
+				}
+
+				if (codeBlock.Type == TokenType.CodeBlock)
+				{
+					Statement codeBlockState = RebuildStatement(codeBlock, deep + 1);
+					foreach (var item in codeBlockState.Statements)
+						temp.Statements.Add(item);
+
+					statement.Statements.Add(temp);
+					temp = new() { Deep = deep };
+					continue;
+					// statement.Statements.Add(RebuildStatement(codeBlock));
+				}
+
+				temp.Tokens.Add(codeBlock.Token);
+			}
+
+			return statement;
 		}
 	}
 }
@@ -266,4 +327,16 @@ Delimiter: ;
 Keyword: label
 Name: end
 Delimiter: ;
+
+
+var int x : 10 
+x [ 0 ] = 10 
+while ( x > 0 ) 
+	x = x - 100.1 
+		y__y = 100.0 . 123 
+	if ( x > 1000 ) 
+		123 
+	错误 
+goto end 
+label end 
 */

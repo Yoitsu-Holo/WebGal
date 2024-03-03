@@ -287,7 +287,7 @@ public partial class MoeInterpreter
 		"		y__y = 100.0.123;\n" +
 		"	}\n" +
 		"	if (x > 1000)" +
-		"	{}\n" +
+		"	{ 123; }\n" +
 		"	错误;\n" +
 		"}\n" +
 		"goto end;\n" +
@@ -300,5 +300,6 @@ public partial class MoeInterpreter
 		syntax.Parse();
 
 		Console.WriteLine(syntax.GlobleCodeBlocks);
+		Console.WriteLine(syntax.GlobleStatements);
 	}
 }
