@@ -278,22 +278,24 @@ public partial class MoeInterpreter
 
 		//! snytax analysize test
 		string input =
-		"var int x:10;\n" +
-		"x[0] = 10;\n" +
-		"while (x > 0) {\n" +
-		"	x=x-100.1;\n" +
-		"	{\n" +
-		"		y__y = 100.0.123;\n" +
-		"	}\n" +
-		"	if (x > 1000)" +
-		"	{ 123; }\n" +
-		"	错误;\n" +
-		"}\n" +
-		"goto end;\n" +
-		"label end;" +
-		"};\n" +
-		"};\n";
-
+"""
+var int x:10;
+x[0] = 10;
+while (x > 0) {
+	x=x-100.1;
+	{
+		y__y = 100.0.123;
+	}
+	"hello\" World";
+	if (x > 1000)
+	{ 123; }
+	错误;
+}
+goto end;
+label end;
+}
+}
+""";
 
 		SyntaxBuilder syntax = new(input);
 		syntax.Parse();

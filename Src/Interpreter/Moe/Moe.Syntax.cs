@@ -17,6 +17,7 @@ public partial class MoeInterpreter
 		Type, // 标识符
 		Name, // 名称
 		Number, // 数字
+		String,
 		Keyword, // 字符
 		Operator, // 运算符
 		Delimiter, // 分隔符
@@ -118,6 +119,12 @@ public partial class MoeInterpreter
 		public CodeBlock GlobleCodeBlocks = new();
 		public Statement GlobleStatements = new();
 
+		public void AddInput(string input)
+		{
+			List<string> tempInput = new(input.Split('\n', defaultStringSplitOptions));
+			_input.AddRange(tempInput);
+		}
+
 		public SingleToken GetNextToken()
 		{
 			SingleToken ret = new() { Line = -1 };
@@ -169,14 +176,14 @@ public partial class MoeInterpreter
 					_position++;
 				ret.Type = TokenType.Number;
 			}
-			else if (_input[_line][_position] == ':' || _input[_line][_position] == '@')
+			else if (_position < _input[_line].Length && (_input[_line][_position] == ':' || _input[_line][_position] == '@'))
 			{
 				//^ 处理标签  ':'数组访问标签  '@'函数参数表标签
 				// todo 可能会被优化
 				_position++;
 				ret.Type = TokenType.Label;
 			}
-			else if (_input[_line][_position] == '.' || _input[_line][_position] == ';')
+			else if (_position < _input[_line].Length && (_input[_line][_position] == '.' || _input[_line][_position] == ';'))
 			{
 				//^ 处理分隔符
 				_position++;
@@ -185,7 +192,7 @@ public partial class MoeInterpreter
 			else if (operatorSet.Contains(_input[_line][_position].ToString()))
 			{
 				//^ 处理运算符
-				while (operatorSet.Contains(_input[_line][start..(_position + 1)]))
+				while (_position < _input[_line].Length && operatorSet.Contains(_input[_line][start..(_position + 1)]))
 					_position++;
 				ret.Type = TokenType.Operator;
 			}
@@ -194,6 +201,22 @@ public partial class MoeInterpreter
 				//^ 处理代码块
 				_position++;
 				ret.Type = TokenType.CodeBlock;
+			}
+			else if (_input[_line][_position] == '\"')
+			{
+				bool isEscape = true;
+				while (_position < _input[_line].Length && (_input[_line][_position] != '\"' || isEscape))
+				{
+					if (isEscape)
+						isEscape = false;
+					if (_input[_line][_position] == '\\')
+						isEscape = true;
+					_position++;
+					Console.WriteLine($"{_input[_line].Length} : {_position}");
+				}
+				_position++;
+
+				ret.Type = TokenType.String;
 			}
 			else
 			{
