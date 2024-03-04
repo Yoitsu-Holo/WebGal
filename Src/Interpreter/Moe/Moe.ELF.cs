@@ -1,6 +1,3 @@
-// 
-using System.Security.Cryptography.X509Certificates;
-
 namespace WebGal.MeoInterpreter;
 
 
@@ -278,28 +275,32 @@ public partial class MoeInterpreter
 		_globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;
 		_globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
 
-		string input =
-		"var int x;\n" +
-		"x = 10;\n" +
-		"while (x > 0) {\n" +
-		"	x=x-100.1;\n" +
-		"	{\n" +
-		"		y__y = 100.0.123;\n" +
-		"	}\n" +
-		"	if (x > 1000)" +
-		"	{}\n" +
-		"	错误;\n" +
-		"}\n" +
-		"goto end;\n" +
-		"label end;" +
-		"};\n" +
-		"};\n";
 
+		//! snytax analysize test
+		string input =
+"""
+var int x:10;
+x[0] = 10;
+while (x > 0) {
+	x=x-100.1;
+	{
+		y__y = 100.0.123;
+	}
+	"hello\" World";
+	if (x > 1000)
+	{ 123; }
+	错误;
+}
+goto end;
+label end;
+}
+}
+""";
 
 		SyntaxBuilder syntax = new(input);
 		syntax.Parse();
 
-		foreach (var item in syntax.Tokens)
-			Console.WriteLine(item);
+		Console.WriteLine(syntax.GlobleCodeBlocks);
+		Console.WriteLine(syntax.GlobleStatements);
 	}
 }
