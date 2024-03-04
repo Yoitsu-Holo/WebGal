@@ -29,11 +29,11 @@ public partial class MoeInterpreter
 	{
 		public TokenType Type = TokenType.Void;
 		public string Value = "";
-		// public List<SingleToken> CodeBlocks = [];
+		public int Line = 0;
 
 		public override string ToString()
 		{
-			return new string(Type.ToString() + ": " + Value + "\n");
+			return new string(Line + ":" + Type.ToString() + ": " + Value + "\n");
 		}
 	}
 
@@ -113,16 +113,14 @@ public partial class MoeInterpreter
 
 		private readonly string _input = input;
 		private int _position = 0;
-		// private Token _currentToken = new();
-
-		// private readonly Token _baseToken = new();
+		private int _line = 0;
 
 		public CodeBlock GlobleCodeBlocks = new();
 		public Statement GlobleStatements = new();
 
 		public SingleToken GetNextToken()
 		{
-			SingleToken ret = new();
+			SingleToken ret = new() { Line = _line };
 			if (_position >= _input.Length)
 				return ret;
 
@@ -132,6 +130,8 @@ public partial class MoeInterpreter
 			if (char.IsWhiteSpace(_input[_position]))
 			{
 				//^ 空白占位符
+				if (_input[_position] == '\n')
+					_line++;
 				_position++;
 				return GetNextToken();
 			}
