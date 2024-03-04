@@ -1,6 +1,3 @@
-// 
-using System.Security.Cryptography.X509Certificates;
-
 namespace WebGal.MeoInterpreter;
 
 
@@ -278,6 +275,8 @@ public partial class MoeInterpreter
 		_globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;
 		_globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
 
+
+		//! snytax analysize test
 		string input =
 		"var int x:10;\n" +
 		"x[0] = 10;\n" +

@@ -111,7 +111,7 @@ public partial class MoeInterpreter
 			"<<",">>","||","&&",
 		];
 
-		private readonly string _input = input;
+		private readonly List<string> _input = new(input.Split('\n', defaultStringSplitOptions));
 		private int _position = 0;
 		private int _line = 0;
 
@@ -120,28 +120,33 @@ public partial class MoeInterpreter
 
 		public SingleToken GetNextToken()
 		{
-			SingleToken ret = new() { Line = _line };
-			if (_position >= _input.Length)
-				return ret;
+			SingleToken ret = new() { Line = -1 };
+			if (_position >= _input[_line].Length)
+			{
+				if (_input.Count <= _line)
+					return ret;
+				_line++;
+				_position = 0;
+			}
+
+			ret.Line = _line;
 
 			// 在此执行标记化逻辑
 			int start = _position;
 
-			if (char.IsWhiteSpace(_input[_position]))
+			if (char.IsWhiteSpace(_input[_line][_position]))
 			{
 				//^ 空白占位符
-				if (_input[_position] == '\n')
-					_line++;
 				_position++;
 				return GetNextToken();
 			}
-			else if (char.IsLetter(_input[_position]) || _input[_position] == '_')
+			else if (char.IsLetter(_input[_line][_position]) || _input[_line][_position] == '_')
 			{
 				//^ 处理 名称 和 关键字
-				while (_position < _input.Length && (char.IsLetterOrDigit(_input[_position]) || _input[_position] == '_'))
+				while (_position < _input[_line].Length && (char.IsLetterOrDigit(_input[_line][_position]) || _input[_line][_position] == '_'))
 					_position++;
 
-				string value = _input[start.._position];
+				string value = _input[_line][start.._position];
 
 				if (keywordsSet.Contains(value))
 					ret.Type = TokenType.Keyword;
@@ -150,41 +155,41 @@ public partial class MoeInterpreter
 				else
 					ret.Type = TokenType.Name;
 			}
-			else if (char.IsDigit(_input[_position]))
+			else if (char.IsDigit(_input[_line][_position]))
 			{
 				//^ 处理数字
 
 				// 整数部分
-				while (_position < _input.Length && char.IsDigit(_input[_position]))
+				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
 					_position++;
 				// 小数部分
-				if (_position < _input.Length && _input[_position] == '.')
+				if (_position < _input[_line].Length && _input[_line][_position] == '.')
 					_position++;
-				while (_position < _input.Length && char.IsDigit(_input[_position]))
+				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
 					_position++;
 				ret.Type = TokenType.Number;
 			}
-			else if (_input[_position] == ':' || _input[_position] == '@')
+			else if (_input[_line][_position] == ':' || _input[_line][_position] == '@')
 			{
 				//^ 处理标签  ':'数组访问标签  '@'函数参数表标签
 				// todo 可能会被优化
 				_position++;
 				ret.Type = TokenType.Label;
 			}
-			else if (_input[_position] == '.' || _input[_position] == ';')
+			else if (_input[_line][_position] == '.' || _input[_line][_position] == ';')
 			{
 				//^ 处理分隔符
 				_position++;
 				ret.Type = TokenType.Delimiter;
 			}
-			else if (operatorSet.Contains(_input[_position].ToString()))
+			else if (operatorSet.Contains(_input[_line][_position].ToString()))
 			{
 				//^ 处理运算符
-				while (operatorSet.Contains(_input[start..(_position + 1)]))
+				while (operatorSet.Contains(_input[_line][start..(_position + 1)]))
 					_position++;
 				ret.Type = TokenType.Operator;
 			}
-			else if (_input[_position] == '{' || _input[_position] == '}')
+			else if (_input[_line][_position] == '{' || _input[_line][_position] == '}')
 			{
 				//^ 处理代码块
 				_position++;
@@ -197,35 +202,28 @@ public partial class MoeInterpreter
 				ret.Type = TokenType.Error;
 			}
 
-			ret.Value = _input[start.._position];
+			ret.Value = _input[_line][start.._position];
 			return ret;
 		}
 
 		public void Parse()
 		{
-			DFSParse(GlobleCodeBlocks);
+			ParseCodeblock(GlobleCodeBlocks);
 			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
 		}
 
-		private void DFSParse(CodeBlock baseCodeBlock)
+		private void ParseCodeblock(CodeBlock baseCodeBlock)
 		{
-			// Parse statements inside the code block
-			// _currentToken = GetNextToken(); // Consume '{'
 			do
 			{
-				// Parse individual statements inside the code block
-				CodeBlock _currentToken = new()
-				{
-					Token = GetNextToken()
-				};
-				// Console.WriteLine(_currentToken.Type + ": " + _currentToken.Value);
+				CodeBlock _currentToken = new() { Token = GetNextToken() };
+
 				if (_currentToken.Token.Value == "{")
 				{
-					_currentToken.Token.Value = "{}";
+					_currentToken.Token.Value = "{ ... }";
 					baseCodeBlock.CodeBlocks.Add(_currentToken);
 					_currentToken.CodeBlocks = [];
-					DFSParse(_currentToken);
-					// Tokens.Add(_currentToken);
+					ParseCodeblock(_currentToken);
 				}
 				else if (_currentToken.Token.Value == "}")
 					break;
@@ -261,7 +259,6 @@ public partial class MoeInterpreter
 					statement.Statements.Add(temp);
 					temp = new() { Deep = deep };
 					continue;
-					// statement.Statements.Add(RebuildStatement(codeBlock));
 				}
 
 				temp.Tokens.Add(codeBlock.Token);
@@ -271,72 +268,3 @@ public partial class MoeInterpreter
 		}
 	}
 }
-
-/*
-Keyword: var
-Type: int
-Name: x
-Label: :
-Number: 10
-Delimiter: ;
-Name: x
-Operator: [
-Number: 0
-Operator: ]
-Operator: =
-Number: 10
-Delimiter: ;
-Keyword: while
-Operator: (
-Name: x
-Operator: >
-Number: 0
-Operator: )
-CodeBlock: {}
-{cb: 0x7C3CAF5
-	Name: x
-	Operator: =
-	Name: x
-	Operator: -
-	Number: 100.1
-	Delimiter: ;
-	CodeBlock: {}
-	{cb: 0x3C77FBC7
-		Name: y__y
-		Operator: =
-		Number: 100.0
-		Delimiter: .
-		Number: 123
-		Delimiter: ;
-	}cb: 0x3C77FBC7
-	Keyword: if
-	Operator: (
-	Name: x
-	Operator: >
-	Number: 1000
-	Operator: )
-	CodeBlock: {}
-	{cb: 0x2CCF938B
-	}cb: 0x2CCF938B
-	Name: 错误
-	Delimiter: ;
-}cb: 0x7C3CAF5
-Keyword: goto
-Name: end
-Delimiter: ;
-Keyword: label
-Name: end
-Delimiter: ;
-
-
-var int x : 10 
-x [ 0 ] = 10 
-while ( x > 0 ) 
-	x = x - 100.1 
-		y__y = 100.0 . 123 
-	if ( x > 1000 ) 
-		123 
-	错误 
-goto end 
-label end 
-*/
