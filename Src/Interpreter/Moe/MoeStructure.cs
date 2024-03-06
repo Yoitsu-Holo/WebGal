@@ -19,6 +19,7 @@ public enum MoeELF
 	Void,
 	FILE, TABLE, DATA,
 	FORM, CODE, START,
+	Error,
 }
 
 public enum MoeFileType
@@ -28,21 +29,21 @@ public enum MoeFileType
 	Audio_wav, Audio_mp3, Audio_flac, Audio_midi,
 	Text_script, Text_ui,
 	Bin_font, Bin_block,
+	Error,
 }
 
 public enum MoeBasicType
 {
 	Void,
 	Int, Double, String,
+	Error,
 }
 
 public enum MoeBasicAccess
 {
 	Void,
-	// 全局变量
 	Const, Static, Variable,
-	// 局部变量，几乎等同于全局的 Variable
-	Partial = 0x10,
+	Error,
 }
 
 public class MoeFile()

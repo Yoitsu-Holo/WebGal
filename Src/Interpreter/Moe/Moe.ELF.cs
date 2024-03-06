@@ -297,10 +297,30 @@ label end;
 }
 """;
 
-		SyntaxBuilder syntax = new(input);
-		syntax.Parse();
+		// Lexer syntax = new(input);
 
-		Console.WriteLine(syntax.GlobleCodeBlocks);
-		Console.WriteLine(syntax.GlobleStatements);
+		// Snytax snytax = new();
+
+		// Console.WriteLine(syntax.GlobleCodeBlocks);
+		// Console.WriteLine(syntax.GlobleStatements);
+		foreach (var (_, file) in _elfHeader.File)
+		{
+			if (file.FileType != MoeFileType.Text_script)
+				continue;
+			Lexer lexer = new(_resourceManager.GetScript(file.FileName));
+			Snytax snytax = new();
+			lexer.Parse();
+			// Console.WriteLine("-----");
+			// Console.WriteLine(lexer.GlobleCodeBlocks);
+			// Console.WriteLine("-----");
+			// Console.WriteLine(lexer.GlobleStatements);
+			foreach (var statement in lexer.GlobleStatements.Statements)
+			{
+				// Console.WriteLine(file.FileName);
+				// // Console.WriteLine();
+				// Console.WriteLine(statement);
+				Console.WriteLine(snytax.ProgramBuild(statement).ToString());
+			}
+		}
 	}
 }

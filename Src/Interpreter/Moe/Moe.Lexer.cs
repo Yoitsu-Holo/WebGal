@@ -11,19 +11,19 @@ namespace WebGal.MeoInterpreter;
 
 public partial class MoeInterpreter
 {
+	// 词法解析阶段，完成后即构建代码块和语句信息
 	public enum TokenType
 	{
-		Void, // 空串
-		Type, // 标识符
-		Name, // 名称
-		Number, // 数字
-		String,
-		Keyword, // 字符
-		Operator, // 运算符
-		Delimiter, // 分隔符
-		Label, // 标记
-		CodeBlock, // 代码块
-		Error, // 错误
+		Void,       // 空串
+		Type,       // 类型
+		Name,       // 名称
+		Number,     // 数字
+		String,     // 字符串
+		Keyword,    // 关键字
+		Operator,   // 运算符
+		Delimiter,  // 分隔符
+		CodeBlock,  // 代码块
+		Error,      // 错误
 	}
 
 	public class SingleToken
@@ -87,15 +87,16 @@ public partial class MoeInterpreter
 		}
 	}
 
-	public class SyntaxBuilder(string input)
+	public class Lexer(string input)
 	{
 		public HashSet<string> typeSet = [
-			"int","double","string","dictionary",
+		"int","double","string","dictionary",
 		];
 
 		public HashSet<string> keywordsSet = [
 			"var","func","return",
-			"if","else","while","goto","label",
+			"if","elif","else","while","continue","break",
+			"goto","label",
 			// 这些是函数，不属于关键字
 			// "say","ch","st","bg","anime",
 			// "bgm","voice","audio",
@@ -104,12 +105,13 @@ public partial class MoeInterpreter
 		];
 
 		public HashSet<string> operatorSet = [
-			"(",")","[","]","<",">",
-			"=","+","-","*","-","%",
-			"~","|","&","^",
+			"(",")","[","]",
+			"=",
+			"+","-","*","-","%","^^",
+			"~","|","&","^","<<",">>",
 
-			"++","--","+=","-=","*=","/=","%=","^^",
-			"<<",">>","||","&&",
+			"<",">",">=","<=","==",
+			"||","&&","!",
 		];
 
 		private readonly List<string> _input = new(input.Split('\n', defaultStringSplitOptions));
@@ -125,6 +127,12 @@ public partial class MoeInterpreter
 			_input.AddRange(tempInput);
 		}
 
+		public void Parse()
+		{
+			ParseCodeblock(GlobleCodeBlocks);
+			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
+		}
+
 		public SingleToken GetNextToken()
 		{
 			SingleToken ret = new() { Line = -1 };
@@ -135,6 +143,8 @@ public partial class MoeInterpreter
 				_line++;
 				_position = 0;
 			}
+			if (_line >= _input.Count)
+				return ret;
 
 			ret.Line = _line;
 
@@ -165,25 +175,11 @@ public partial class MoeInterpreter
 			else if (char.IsDigit(_input[_line][_position]))
 			{
 				//^ 处理数字
-
-				// 整数部分
-				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
-					_position++;
-				// 小数部分
-				if (_position < _input[_line].Length && _input[_line][_position] == '.')
-					_position++;
 				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
 					_position++;
 				ret.Type = TokenType.Number;
 			}
-			else if (_position < _input[_line].Length && (_input[_line][_position] == ':' || _input[_line][_position] == '@'))
-			{
-				//^ 处理标签  ':'数组访问标签  '@'函数参数表标签
-				// todo 可能会被优化
-				_position++;
-				ret.Type = TokenType.Label;
-			}
-			else if (_position < _input[_line].Length && (_input[_line][_position] == '.' || _input[_line][_position] == ';'))
+			else if (_position < _input[_line].Length && (_input[_line][_position] == '.' || _input[_line][_position] == ';' || _input[_line][_position] == ','))
 			{
 				//^ 处理分隔符
 				_position++;
@@ -191,6 +187,7 @@ public partial class MoeInterpreter
 			}
 			else if (operatorSet.Contains(_input[_line][_position].ToString()))
 			{
+				// _position++;
 				//^ 处理运算符
 				while (_position < _input[_line].Length && operatorSet.Contains(_input[_line][start..(_position + 1)]))
 					_position++;
@@ -212,7 +209,6 @@ public partial class MoeInterpreter
 					if (_input[_line][_position] == '\\')
 						isEscape = true;
 					_position++;
-					Console.WriteLine($"{_input[_line].Length} : {_position}");
 				}
 				_position++;
 
@@ -229,12 +225,10 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public void Parse()
-		{
-			ParseCodeblock(GlobleCodeBlocks);
-			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
-		}
-
+		/// <summary>
+		/// 解析代码块，将token按照代码块来组合
+		/// </summary>
+		/// <param name="baseCodeBlock"></param>
 		private void ParseCodeblock(CodeBlock baseCodeBlock)
 		{
 			do
@@ -259,6 +253,12 @@ public partial class MoeInterpreter
 			while (true);
 		}
 
+		/// <summary>
+		/// 重建语句，将同一个语句内的多个token合并，并且保留代码块信息
+		/// </summary>
+		/// <param name="baseCodeBlock"></param>
+		/// <param name="deep"></param>
+		/// <returns></returns>
 		private static Statement RebuildStatement(CodeBlock baseCodeBlock, int deep = 0)
 		{
 			Statement statement = new() { Deep = deep };

@@ -136,7 +136,7 @@ public class Interpreter
 		//! Test Moe Script
 		// Console.WriteLine(_resourceManager.GetScript("elf"));
 		await _moeInterpreter.LoadELF(_resourceManager.GetScript("elf"));
-		_moeInterpreter.Dump();
+		// _moeInterpreter.Dump();
 	}
 
 	/// <summary>
