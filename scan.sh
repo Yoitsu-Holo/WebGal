@@ -15,8 +15,10 @@ dirictory (){
 
 files (){
 	dirictory ./Pages
-	dirictory ./Src
+	dirictory ./Services
 	dirictory ./Shared
+	dirictory ./Src
+	dirictory ./Types
 }
 
 files | xargs wc -l

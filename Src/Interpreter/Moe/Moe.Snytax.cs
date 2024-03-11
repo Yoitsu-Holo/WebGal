@@ -5,210 +5,6 @@ namespace WebGal.MeoInterpreter;
 public partial class MoeInterpreter
 {
 	// 语法解析阶段，完成后即构建AST
-
-	public enum MathType
-	{
-		Void,
-		POW,
-		MUL, DIV, MOD,
-		ADD, SUB,
-		AND, OR, XOR, NOT,
-		SHL, SHR,
-
-		VAR, EXP,
-		Error,
-	}
-
-	public enum LogicType
-	{
-		Void,
-		EQ, NEQ,
-		GT, LT, EGT, ELT,
-		AND, OR, NOT,
-
-		VAR, EXP,
-		Error,
-	}
-
-
-	public enum ASTNodeType
-	{
-		Void,                   // 空
-		VariableDeclaration,    // 变量定义
-		FunctionDeclaration,    // 函数定义
-		MathExpression,         // 算数表达式
-		LogicExpression,        // 逻辑表达式
-		FunctionCall,           // 函数调用
-		Assignment,             // 赋值
-		Conditional,            // 条件分支
-		Loop,                   // 循环
-		Program,                // 程序
-		Error,
-	}
-
-	public class VariableDefineNode
-	{
-		public VarTypeNode Info = new();       // 变量信息
-		public List<(string, int)> Variable = [];   // 变量组
-	}
-
-	public class FunctionDeclarationNode
-	{
-		public string FileName = "main.moe";
-		public int FileLine = 0;
-
-		public string FunctionName = "main";
-		public MoeBasicType ReturnType;
-		public List<MoeVariable> CallType = [];
-	}
-
-	public class MathExpressionNode
-	{
-		public MathType Type = MathType.Void;
-		public List<MathExpressionNode> Expressions = [];
-		public SingleToken token = new();
-	}
-
-	public class LogicExpressionNode
-	{
-		public LogicType Type = LogicType.Void;
-		public List<LogicExpressionNode> Expressions = [];
-		public SingleToken token = new();
-	}
-
-	public class FunctionCallNode
-	{
-		public string FunctionName = "";
-		public List<string> ParamName = [];
-	}
-
-	public class AssignmentNode
-	{
-		public string LeftVarName = "";
-		public ASTNodeType RightType = ASTNodeType.Void;
-
-		public MathExpressionNode? MathExpressions;
-		public LogicExpressionNode? LogicExpressions;
-		public FunctionCallNode? FunctionCalls;
-		public string str = "";
-	}
-
-	public class ConditionalNode
-	{
-		public LogicExpressionNode Conditional = new();
-		public ProgramNode Program = new();
-	}
-
-	public class IfCaseNode
-	{
-		public List<ConditionalNode> If = [];
-	}
-
-	public class LoopNode
-	{
-		public ConditionalNode Loop = new();
-	}
-
-	public class ASTNode // 可解释单元
-	{
-		public ASTNodeType ASTType = ASTNodeType.Void;
-
-		// public ArithmeticExpressionNode? ArithmeticException;   // 算数表达式	不可单独解释
-		// public LogicExpressionNode? LogicExpression;            // 逻辑表达式	不可单独解释
-		// public BitwiseExpressionNode? BitwiseExpression;        // 位运算表达式	不可单独解释
-		public VariableDefineNode? VarDefine;   // 变量定义
-		public AssignmentNode? Assignment;      // 赋值表达式
-		public IfCaseNode? IfCase;              // 条件分支
-		public LoopNode? Loop;                  // 循环
-		public FunctionCallNode? FunctionCall;  // 函数调用
-		public ProgramNode? CodeBlock;          // 代码块
-
-		public override string ToString()
-		{
-			string ret = "";
-			if (ASTType == ASTNodeType.Void)
-			{
-				ret += "$ Void AST\n";
-			}
-			else if (ASTType == ASTNodeType.VariableDeclaration && VarDefine is not null)
-			{
-				ret += "Access: " + VarDefine.Info.Access + " Type: " + VarDefine.Info.Type + "    ";
-				foreach (var (name, size) in VarDefine.Variable)
-					ret += "[" + name + ": " + size + "], ";
-				ret += "\n";
-			}
-			else if (ASTType == ASTNodeType.FunctionCall && FunctionCall is not null)
-			{
-				ret += "Function Call: " + FunctionCall.FunctionName + ", Param List:";
-				foreach (var param in FunctionCall.ParamName)
-					ret += param + " ";
-				if (FunctionCall.ParamName.Count == 0)
-					ret += "Void";
-				ret += "\n";
-			}
-			else if (ASTType == ASTNodeType.Assignment && Assignment is not null)
-			{
-				ret += Assignment.LeftVarName + " = ";
-				if (Assignment.RightType == ASTNodeType.MathExpression && Assignment.MathExpressions is not null)
-				{
-					foreach (var item in Assignment.MathExpressions.Expressions)
-						ret += item.token.Value + "";
-				}
-				else if (Assignment.RightType == ASTNodeType.LogicExpression && Assignment.LogicExpressions is not null)
-				{
-					foreach (var item in Assignment.LogicExpressions.Expressions)
-						ret += item.token.Value + " ";
-				}
-				ret += "\n";
-			}
-			else if (ASTType == ASTNodeType.Conditional && IfCase is not null)
-			{
-				foreach (var ifcase in IfCase.If)
-				{
-					ret += "ifcase: ";
-					foreach (var sExp in ifcase.Conditional.Expressions)
-						ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
-					ret += "\n";
-					ret += ifcase.Program.ToString();
-				}
-			}
-			else if (ASTType == ASTNodeType.Loop && Loop is not null)
-			{
-				ret += "while: ";
-				foreach (var sExp in Loop.Loop.Conditional.Expressions)
-					ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
-				ret += Loop.Loop.Program.ToString();
-			}
-			else if (ASTType == ASTNodeType.Program && CodeBlock is not null)
-				ret += CodeBlock.ToString();
-			else
-				ret += ">>> error line\n";
-			return ret;
-		}
-	}
-
-	public class ProgramNode // 程序段（由多个并列的可解释单元组成）
-	{
-		public List<ASTNode> Statements = [];
-		public override string ToString()
-		{
-			string ret = "";
-			foreach (var ast in Statements)
-				ret += ast.ToString();
-			return ret;
-		}
-	}
-
-
-	// 内部规则结构
-	public class VarTypeNode
-	{
-		public MoeBasicType Type;       // 类型
-		public MoeBasicAccess Access;   // 访问属性
-	}
-
-
-
 	public class Snytax
 	{
 		public HashSet<string> ArithmeticOperatorSet = [
@@ -248,6 +44,23 @@ public partial class MoeInterpreter
 				{
 					//todo 函数定义
 					node.ASTType = ASTNodeType.FunctionDeclaration;
+
+					if (tokens.Count < 5)
+						throw new Exception("不完整的函数定义");
+					if (tokens[1].Type != TokenType.Type)
+						throw new Exception("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Value);
+					if (tokens[2].Type != TokenType.Name)
+						throw new Exception("错误的函数名称");
+					if (tokens[3].Value != "(" || tokens[^1].Value != ")")
+						throw new Exception("错误的函数参数列表");
+
+					FunctionDefineNode functionDefine = new()
+					{
+						FunctionName = tokens[2].Value,
+						Program = ProgramBuild(statement),
+					};
+
+					throw new Exception("函数定义待实现");
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
 				{

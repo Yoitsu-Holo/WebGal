@@ -12,85 +12,11 @@ namespace WebGal.MeoInterpreter;
 public partial class MoeInterpreter
 {
 	// 词法解析阶段，完成后即构建代码块和语句信息
-	public enum TokenType
-	{
-		Void,       // 空串
-		Type,       // 类型
-		Name,       // 名称
-		Number,     // 数字
-		String,     // 字符串
-		Keyword,    // 关键字
-		Operator,   // 运算符
-		Delimiter,  // 分隔符
-		CodeBlock,  // 代码块
-		Error,      // 错误
-	}
 
-	public class SingleToken
-	{
-		public TokenType Type = TokenType.Void;
-		public string Value = "";
-		public int Line = 0;
-
-		public override string ToString()
-		{
-			return new string(Line + ":" + Type.ToString() + ": " + Value + "\n");
-		}
-	}
-
-	public class CodeBlock
-	{
-		public SingleToken Token = new();
-		public List<CodeBlock> CodeBlocks = [];
-
-		public TokenType Type => Token.Type;
-		public string Value => Token.Value;
-
-		public override string ToString()
-		{
-			string ret = "";
-			foreach (var codeBlock in CodeBlocks)
-			{
-				ret += codeBlock.Token.ToString();
-				if (codeBlock.Type == TokenType.CodeBlock)
-					ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n"
-					+ codeBlock.ToString() + "} 0x"
-					+ codeBlock.GetHashCode().ToString("X") + "\n";
-			}
-			return ret;
-		}
-	}
-
-	public class Statement
-	{
-		public int Deep = 0;
-		public List<SingleToken> Tokens = [];
-		public List<Statement> Statements = [];
-
-		public override string ToString()
-		{
-			string ret = "";
-			foreach (var statement in Statements)
-			{
-				if (statement.Tokens.Count != 0)
-				{
-					ret += new string('\t', statement.Deep);
-					foreach (var token in statement.Tokens)
-						ret += token.Value + " ";
-					ret += "\n";
-				}
-				// foreach (var state in statement.Statements)
-				if (statement.Statements.Count != 0)
-					ret += statement.ToString();
-			}
-			return ret;
-		}
-	}
-
-	public class Lexer(string input)
+	public class Lexer
 	{
 		public HashSet<string> typeSet = [
-		"int","double","string","dictionary",
+			"void","int","double","string","dictionary",
 		];
 
 		public HashSet<string> keywordsSet = [
@@ -114,12 +40,17 @@ public partial class MoeInterpreter
 			"||","&&","!",
 		];
 
-		private readonly List<string> _input = new(input.Split('\n', defaultStringSplitOptions));
+		private readonly List<string> _input = [];
 		private int _position = 0;
 		private int _line = 0;
 
 		public CodeBlock GlobleCodeBlocks = new();
 		public Statement GlobleStatements = new();
+		public List<SingleToken> Tokens = [];
+
+		public Lexer(string input) => _input = new(input.Split('\n', defaultStringSplitOptions));
+		public Lexer(List<string> input) => _input = input;
+
 
 		public void AddInput(string input)
 		{
@@ -234,7 +165,10 @@ public partial class MoeInterpreter
 			do
 			{
 				CodeBlock _currentToken = new() { Token = GetNextToken() };
+				if (_currentToken.Token.Type == TokenType.Void)
+					break;
 
+				Tokens.Add(_currentToken.Token);
 				if (_currentToken.Token.Value == "{")
 				{
 					_currentToken.Token.Value = "{ ... }";
@@ -247,8 +181,6 @@ public partial class MoeInterpreter
 				else
 					baseCodeBlock.CodeBlocks.Add(_currentToken);
 
-				if (_currentToken.Token.Type == TokenType.Void)
-					break;
 			}
 			while (true);
 		}

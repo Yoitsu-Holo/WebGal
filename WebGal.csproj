@@ -9,7 +9,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="BlazorDexie" Version="1.5.1" />
+    <PackageReference Include="BlazorDexie" Version="1.5.2" />
     <PackageReference Include="KristofferStrube.Blazor.WebAudio" Version="0.1.0-alpha.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
@@ -18,7 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference> -->
     <PackageReference Include="SkiaSharp.Views.Blazor" Version="2.88.7" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.166" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.167" />
   </ItemGroup>
 
 </Project>

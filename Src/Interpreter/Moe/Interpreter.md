@@ -10,16 +10,15 @@
 
 # 脚本目标
 
-该脚本仅用作剧本流程控制，应该满足以下基本特点：
+该脚本仅用作剧本`流程控制`，不作为剧本使用（以json为基础），其应满足以下基本特点：
 
-1. 流程化：可以方便简单的描述游戏流程
+1. 流程化：可以方便简单的描述游戏代码逻辑
 2. 结构化：可以方便的划分区块（函数），区块和区块之间可以互相调用
-3. 本地化：可以方便的进行本地化
+3. 本地化：可以方便的进行本地化（强制UTF-8编码），如设置全局变量来更改语言地区
 
 # 主加载
 
-参考 linux 下 ELF 内存分段
-将基础脚本分为
+基础脚本分为
 
 
 | 名称 | 含义 |
@@ -69,7 +68,7 @@ main script TestMoe1/main.moe
 基本格式：
 
 ```text
-[const|static|var] [int|string|double] name:[size]
+[const|static|var|ref] [int|string|double] name[size:...]
 
 .data
 const int A:10
@@ -86,16 +85,15 @@ const string S
 var double F
 ```
 
-同时，一行可以定义多个变量，每个变量之间使用空格隔开（任意个数），数组名称后面紧跟冒号表示变量长度（数组大小）
+同时，一行可以定义多个变量，每个变量之间使用逗号隔开，数组名称后面紧跟方括号，其中使用冒号分隔的数字表示变维度和大小（数组大小）
 
 例如定义三个整型全局变量A，B，C：
 
 ```text
-var int A:1, B:1, C:1
+var int A[1], B[1], C[1]
 ```
 
-同时，代码允许缺省数组长度定义，这样将会得到一个长度为1的数组（即单个变量）
-
+同时，代码允许缺省数组长度定义，这样将会得到一个长度和维度均为1的数组（即单个变量）
 
 为保证代码简单性，脚本只提供三种基本类型（与 C# 类型严格对应）：
 
@@ -112,7 +110,7 @@ var int A:1, B:1, C:1
 同时，对于其对应的数组，与类C语言数组定义方式相似
 
 ```text
-var int A:10, B:20
+var int A[10], B[20], C[100:200]
 ```
 
 注意，基本类型数组不支持动态扩容，仅能在定义时初始化大小
@@ -150,12 +148,12 @@ main
 
 如果需要全局访问，请将变量放置到主加载文件的 data 区中
 
-与全局变量又区别的是，函数中变量只能为`变量`，也就是 `var` 类型，且在函数执行完成后自动销毁，与类C函数类似，变量只能在声明或者定义后才可被使用，否者将抛出错误
+与全局变量又区别的是，函数中变量只能为`变量`和`引用`，也就是 `var`和`ref` 类型，且在函数执行完成后自动销毁，与类C函数类似，变量只能在声明或者定义后才可被使用，否者将抛出错误
 
-变量定义语法如下
+**变量定义语法如下**
 
 ```
-var [int|string|double|dictionary] name
+[var|ref] [int|string|double|dictionary] name
 ```
 
 例如定义局部整型变量 A，字符串变量 S，浮点变量 F，字典类型 D
@@ -167,15 +165,35 @@ var double F
 var dictionary D
 ```
 
+**数组定义方式如下**
+
+```
+var [int|string|double|dictionary] name [ '[' <number> : ... ']' ]
+```
+
+例如定义一维和二维整型数组（大小为9和9*9）
+
+```
+var int A[9]
+var int B[9:9]
+```
+
+对于多维变量访问同理
+
+```
+A[5]
+B[2:1]
+```
+
 ## 函数定义
 
 ```text
-func [return] [name] @ [parameter], ...
+func [return] [name] ( [parameter], ... )
 {
 	...
 }
 
-func int func1 @ var int a,var int b:10
+func int func1 ( var int a,ref int b)
 {
 	...
 }
@@ -183,21 +201,21 @@ func int func1 @ var int a,var int b:10
 
 - [return] : 返回值
 - [name] : 函数名称
-- [paramater] : 参数列表
+- [paramater] : 参数列表，只能传入引用或者单变量，不支持数组传递
 
 需要注意，没有返回值返回类型应该写入void，而不应留空
 
 例如
 
 ```text
-func int func1 @var int a,var int b
+func int func1 (var int a,var int b)
 {
 	var int c
 	c=a+b
 	return c
 }
 
-func void func2@
+func void func2()
 {
 	return
 }
@@ -253,7 +271,7 @@ if ( exp )
 {
 	...
 }
-else if( exp )
+elif( exp )
 {
 	...
 }
@@ -271,14 +289,6 @@ while ( exp )
 	continue;
 	break;
 }
-```
-
-### 标签和跳转
-
-```c++
-label jump_label;
-// 跳转
-goto jump_label;
 ```
 
 ## 运算符
@@ -336,7 +346,7 @@ goto jump_label;
 例如：
 
 ```c++
-func int ret1 @ void
+func int ret1 ()
 {
 	return 1;
 }
