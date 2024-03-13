@@ -40,6 +40,12 @@ public partial class MoeInterpreter
 			"||","&&","!",
 		];
 
+		public HashSet<char> delimiterSet = [
+			',','.',
+			':',';',
+		];
+
+
 		private readonly List<string> _input = [];
 		private int _position = 0;
 		private int _line = 0;
@@ -110,7 +116,7 @@ public partial class MoeInterpreter
 					_position++;
 				ret.Type = TokenType.Number;
 			}
-			else if (_position < _input[_line].Length && (_input[_line][_position] == '.' || _input[_line][_position] == ';' || _input[_line][_position] == ','))
+			else if (_position < _input[_line].Length && delimiterSet.Contains(_input[_line][_position]))
 			{
 				//^ 处理分隔符
 				_position++;

@@ -1,11 +1,9 @@
-using System.Linq.Expressions;
-
 namespace WebGal.MeoInterpreter;
 
 public partial class MoeInterpreter
 {
 	// 语法解析阶段，完成后即构建AST
-	public class Snytax
+	public class Syntax
 	{
 		public HashSet<string> ArithmeticOperatorSet = [
 			"+","-","*","/","%","^^",
@@ -25,6 +23,7 @@ public partial class MoeInterpreter
 			foreach (var statement in FuncStatement.Statements)
 			{
 				var tokens = statement.Tokens;
+
 				ASTNode node = new();
 
 				if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "var")
@@ -51,14 +50,22 @@ public partial class MoeInterpreter
 
 					FunctionDefineNode functionDefine = new()
 					{
-						FunctionName = tokens[2].Value,
+						ReturnType = tokens[1].Value switch
+						{
+							"void" => MoeBasicType.Void,
+							"int" => MoeBasicType.Int,
+							"double" => MoeBasicType.Double,
+							"string" => MoeBasicType.String,
+							_ => MoeBasicType.Error,
+						},
+						FuncName = tokens[2].Value,
 						Program = ProgramBuild(statement),
 					};
 
 					int start = 4;
 					for (int end = 4; end < tokens.Count; end++)
 					{
-						if (tokens[end].Type != TokenType.Operator || tokens[end].Type != TokenType.Delimiter)
+						if (tokens[end].Type != TokenType.Delimiter && !(tokens[end].Type == TokenType.Operator && tokens[end].Value == ")"))
 							continue;
 
 						VariableDefineNode variableDefine = SingleVarDec(tokens[start..end]);
@@ -66,6 +73,9 @@ public partial class MoeInterpreter
 						start = end + 1;
 					}
 
+					node.FuncDefine = functionDefine;
+
+					programNode.Statements.Add(node);
 					// throw new Exception("函数定义待实现");
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
@@ -227,11 +237,21 @@ public partial class MoeInterpreter
 
 		public VariableDefineNode MultiVarDec(List<SingleToken> tokens)
 		{
+			VariableDefineNode ret = new();
+			if (tokens.Count == 0)
+			{
+				ret.Variables.Add(new());
+				return ret;
+			}
+			foreach (var item in tokens)
+			{
+				Console.Write(item.Value + " ");
+			}
+			Console.WriteLine(" <<<<\n");
 			if (tokens.Count < 3)
 				throw new Exception("变量定义参数数量过少");
 
 			var info = VarType(tokens[0..2]);
-			VariableDefineNode ret = new();
 
 			var lestTokens = tokens[2..];
 			int pos = 0;
@@ -245,9 +265,8 @@ public partial class MoeInterpreter
 					ret.Variables.Add(
 						new()
 						{
-							Name = VarSize(tempToken).Item1,
-							Size = VarSize(tempToken).Item2,
-
+							Name = tempToken[0].Value,
+							Dimension = VarSize(tempToken),
 							Access = info.Access,
 							Type = info.Type,
 						}
@@ -285,27 +304,45 @@ public partial class MoeInterpreter
 			return varInfo;
 		}
 
-		public (string, int) VarSize(List<SingleToken> tokens)
+		public List<int> VarSize(List<SingleToken> tokens)
 		{
-			if (tokens.Count != 1 && tokens.Count != 4)
-				throw new Exception("错误的大小" + tokens.Count);
-
+			List<int> varDimension = [];
 			int varSize = 1;
-			string varName;
-			if (tokens[0].Type == TokenType.Name)
-				varName = tokens[0].Value;
-			else
-				throw new Exception("错误的变量名" + tokens[0].Value);
 
-			if (tokens.Count == 4)
+			string s = "";
+			foreach (var token in tokens)
+				s += token.Value + " ";
+
+			if (tokens[0].Type != TokenType.Name)
+				throw new Exception("错误的变量名称: " + tokens[0].Value);
+			if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
+				throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
+			if (tokens.Count == 3)
+				throw new Exception("错误的多维数组申明： 未声明数组大小: " + s);
+
+			if (tokens.Count > 3)
 			{
-				if (tokens[2].Type == TokenType.Number)
-					varSize = Convert.ToInt32(tokens[2].Value);
-				else
-					throw new Exception("错误的变量大小");
+				for (int i = 2; i < tokens.Count - 1; i++)
+				{
+					if (i % 2 == 0 && tokens[i].Type == TokenType.Number)
+					{
+						int size = Convert.ToInt32(tokens[i].Value);
+						varSize *= size;
+						varDimension.Add(size);
+					}
+					else if (i % 2 == 1)
+					{
+						if (tokens[i].Value != ":")
+							throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Value);
+					}
+					else
+						throw new Exception("错误的多维数组申明");
+				}
 			}
+			else
+				varDimension.Add(1);
 
-			return (varName, varSize);
+			return varDimension;
 		}
 
 		public List<MathExpressionNode> MathExpression(List<SingleToken> tokens)

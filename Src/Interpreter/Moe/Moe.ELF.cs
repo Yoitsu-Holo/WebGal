@@ -113,7 +113,7 @@ public partial class MoeInterpreter
 				foreach (var rawVar in lines)
 				{
 					List<int> varDimension = [];
-					int varSize = 0;
+					int varSize = 1;
 					MoeBasicType varType = type;
 
 					Lexer varLex = new(rawVar);
@@ -124,14 +124,9 @@ public partial class MoeInterpreter
 					if (tokens[0].Type != TokenType.Name)
 						throw new Exception("错误的变量名称: " + tokens[0].Value);
 					if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
-					{
-						Console.WriteLine(tokens[^1].Type + " " + tokens[1].Value + " " + tokens[^1].Value);
 						throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
-					}
 					if (tokens.Count == 3)
 						throw new Exception("错误的多维数组申明： 未声明数组大小 " + rawVar);
-
-					varSize = 1;
 
 					if (tokens.Count > 3)
 					{
@@ -210,10 +205,14 @@ public partial class MoeInterpreter
 			Lexer lexer = new(s);
 			lexer.Parse();
 
-			Snytax snytax = new();
-			var xxx = snytax.ProgramBuild(lexer.GlobleStatements);
+			Syntax syntax = new();
+			var ASTs = syntax.ProgramBuild(lexer.GlobleStatements);
 
-			Console.WriteLine("Debug:\n" + xxx);
+			foreach (var functionAST in ASTs.Statements)
+			{
+				Console.WriteLine("function AST:");
+				Console.WriteLine(functionAST);
+			}
 		}
 
 		// _globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;

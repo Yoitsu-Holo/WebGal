@@ -335,19 +335,36 @@ public class VariableDefineNode
 	// public VarTypeNode Info = new();       // 变量信息
 	// public List<(string, int)> Variable = [];   // 变量组
 	public List<MoeVariable> Variables = [];
+
+	public override string ToString()
+	{
+		string ret = "";
+		foreach (var variable in Variables)
+			ret += variable + "\t";
+		return ret;
+	}
 }
 
 public class FunctionDefineNode
 {
 	public string FileName = "main.moe";
-	public int FileLine = 0;
+	public string FuncName = "main";
 
-	public string FunctionName = "main";
 	public MoeBasicType ReturnType;
 	public List<MoeVariable> CallType = [];
 
 	public ProgramNode Program = new();
 
+	public override string ToString()
+	{
+		string ret = "";
+		ret += $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n";
+		foreach (var call in CallType)
+			ret += $"\t{call}";
+		ret += "\n";
+		ret += Program;
+		return ret;
+	}
 }
 
 public class MathExpressionNode
@@ -355,6 +372,21 @@ public class MathExpressionNode
 	public MathType Type = MathType.Void;
 	public List<MathExpressionNode> Expressions = [];
 	public SingleToken token = new();
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += "(";
+		foreach (var exp in Expressions)
+		{
+			if (exp.Type == MathType.EXP)
+				ret += exp.ToString();
+			else
+				ret += $"{exp.token.Value} ";
+		}
+		ret += ")";
+		return ret;
+	}
 }
 
 public class LogicExpressionNode
@@ -362,12 +394,36 @@ public class LogicExpressionNode
 	public LogicType Type = LogicType.Void;
 	public List<LogicExpressionNode> Expressions = [];
 	public SingleToken token = new();
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += "(";
+		foreach (var exp in Expressions)
+		{
+			if (exp.Type == LogicType.EXP)
+				ret += exp.ToString();
+			else
+				ret += $"{exp.token.Value} ";
+		}
+		ret += ")";
+		return ret;
+	}
 }
 
 public class FunctionCallNode
 {
 	public string FunctionName = "";
 	public List<string> ParamName = [];
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += $"CallFunc: {FunctionName}\n";
+		foreach (var param in ParamName)
+			ret += $"\t{param}";
+		return ret;
+	}
 }
 
 public class AssignmentNode
@@ -378,32 +434,62 @@ public class AssignmentNode
 	public MathExpressionNode? MathExpressions;
 	public LogicExpressionNode? LogicExpressions;
 	public FunctionCallNode? FunctionCalls;
-	public string str = "";
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += LeftVarName + " = ";
+		if (RightType == ASTNodeType.MathExpression && MathExpressions is not null)
+			ret += MathExpressions;
+		if (RightType == ASTNodeType.LogicExpression && LogicExpressions is not null)
+			ret += LogicExpressions;
+		if (RightType == ASTNodeType.FunctionCall && FunctionCalls is not null)
+			ret += FunctionCalls;
+		return ret;
+	}
 }
 
 public class ConditionalNode
 {
 	public LogicExpressionNode Conditional = new();
 	public ProgramNode Program = new();
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += $"{Conditional}\n{Program}";
+		return ret;
+	}
 }
 
 public class IfCaseNode
 {
 	public List<ConditionalNode> If = [];
+
+	public override string ToString()
+	{
+		string ret = "";
+		foreach (var ifcase in If)
+			ret += "IF: " + ifcase + "\n";
+		return ret;
+	}
 }
 
 public class LoopNode
 {
 	public ConditionalNode Loop = new();
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += "WHILE: " + Loop + "\n";
+		return ret;
+	}
 }
 
 public class ASTNode // 可解释单元
 {
 	public ASTNodeType ASTType = ASTNodeType.Void;
-
-	// public ArithmeticExpressionNode? ArithmeticException;   // 算数表达式	不可单独解释
-	// public LogicExpressionNode? LogicExpression;            // 逻辑表达式	不可单独解释
-	// public BitwiseExpressionNode? BitwiseExpression;        // 位运算表达式	不可单独解释
 	public VariableDefineNode? VarDefine;   // 变量定义
 	public FunctionDefineNode? FuncDefine;  // 函数定义
 	public AssignmentNode? Assignment;      // 赋值表达式
@@ -421,64 +507,82 @@ public class ASTNode // 可解释单元
 		}
 		else if (ASTType == ASTNodeType.FunctionDeclaration && FuncDefine is not null)
 		{
-			throw new Exception("函数表达未实现");
+			// throw new Exception("函数表达未实现");
+			// ret += "Function Define: ";
+			// ret += "Name: " + FuncDefine.FuncName + "   R_Type: " + FuncDefine.ReturnType + "   C_Type: ";
+			// foreach (var item in FuncDefine.CallType)
+			// 	ret += item.Name + " ";
+			// if (FuncDefine.CallType.Count == 0)
+			// 	ret += "Void";
+			// ret += "\n";
+			// ret += FuncDefine.Program.ToString();
+			// ret += "\n";
+			ret += FuncDefine + "\n";
 		}
 		else if (ASTType == ASTNodeType.VariableDeclaration && VarDefine is not null)
 		{
-			foreach (var moeVar in VarDefine.Variables)
-			{
-				ret += "Access: " + moeVar.Access + " Type: " + moeVar.Type + " ";
-				ret += " Name: " + moeVar.Name + " Size: " + moeVar.Size + "[ ";
-				foreach (var size in moeVar.Dimension)
-					ret += size + " ";
-				ret += "]\n";
-			}
-			ret += "\n";
+			// foreach (var moeVar in VarDefine.Variables)
+			// {
+			// 	ret += "Access: " + moeVar.Access + " Type: " + moeVar.Type + " ";
+			// 	ret += " Name: " + moeVar.Name + " Size: " + moeVar.Size + "[ ";
+			// 	foreach (var size in moeVar.Dimension)
+			// 		ret += size + " ";
+			// 	ret += "]\n";
+			// }
+			// ret += "\n";
+			ret += VarDefine + "\n";
 		}
 		else if (ASTType == ASTNodeType.FunctionCall && FunctionCall is not null)
 		{
-			ret += "Function Call: " + FunctionCall.FunctionName + ", Param List:";
-			foreach (var param in FunctionCall.ParamName)
-				ret += param + " ";
-			if (FunctionCall.ParamName.Count == 0)
-				ret += "Void";
-			ret += "\n";
+			// ret += "Function Call: " + FunctionCall.FunctionName + ", Param List:";
+			// foreach (var param in FunctionCall.ParamName)
+			// 	ret += param + " ";
+			// if (FunctionCall.ParamName.Count == 0)
+			// 	ret += "Void";
+			// ret += "\n";
+			ret += FunctionCall + "\n";
 		}
 		else if (ASTType == ASTNodeType.Assignment && Assignment is not null)
 		{
-			ret += Assignment.LeftVarName + " = ";
-			if (Assignment.RightType == ASTNodeType.MathExpression && Assignment.MathExpressions is not null)
-			{
-				foreach (var item in Assignment.MathExpressions.Expressions)
-					ret += item.token.Value + "";
-			}
-			else if (Assignment.RightType == ASTNodeType.LogicExpression && Assignment.LogicExpressions is not null)
-			{
-				foreach (var item in Assignment.LogicExpressions.Expressions)
-					ret += item.token.Value + " ";
-			}
-			ret += "\n";
+			// ret += Assignment.LeftVarName + " = ";
+			// if (Assignment.RightType == ASTNodeType.MathExpression && Assignment.MathExpressions is not null)
+			// {
+			// 	foreach (var item in Assignment.MathExpressions.Expressions)
+			// 		ret += item.token.Value + "";
+			// }
+			// else if (Assignment.RightType == ASTNodeType.LogicExpression && Assignment.LogicExpressions is not null)
+			// {
+			// 	foreach (var item in Assignment.LogicExpressions.Expressions)
+			// 		ret += item.token.Value + " ";
+			// }
+			// ret += "\n";
+			ret += Assignment + "\n";
 		}
 		else if (ASTType == ASTNodeType.Conditional && IfCase is not null)
 		{
-			foreach (var ifcase in IfCase.If)
-			{
-				ret += "ifcase: ";
-				foreach (var sExp in ifcase.Conditional.Expressions)
-					ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
-				ret += "\n";
-				ret += ifcase.Program.ToString();
-			}
+			// foreach (var ifcase in IfCase.If)
+			// {
+			// 	ret += "ifcase: ";
+			// 	foreach (var sExp in ifcase.Conditional.Expressions)
+			// 		ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
+			// 	ret += "\n";
+			// 	ret += ifcase.Program.ToString();
+			// 	ret += "\n";
+			// }
+			ret += IfCase + "\n";
 		}
 		else if (ASTType == ASTNodeType.Loop && Loop is not null)
 		{
-			ret += "while: ";
-			foreach (var sExp in Loop.Loop.Conditional.Expressions)
-				ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
-			ret += Loop.Loop.Program.ToString();
+			// ret += "while: ";
+			// foreach (var sExp in Loop.Loop.Conditional.Expressions)
+			// 	ret += (sExp.Type != LogicType.Void ? sExp.Type : sExp.token.Value) + " ";
+			// ret += Loop.Loop.Program.ToString();
+			// ret += "\n";
+			ret += Loop + "\n";
 		}
 		else if (ASTType == ASTNodeType.Program && CodeBlock is not null)
-			ret += CodeBlock.ToString();
+			// ret += CodeBlock.ToString();
+			ret += CodeBlock + "\n";
 		else
 			ret += ">>> error line\n";
 		return ret;
