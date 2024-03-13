@@ -27,11 +27,6 @@ public partial class MoeInterpreter
 				var tokens = statement.Tokens;
 				ASTNode node = new();
 
-				// !
-				// foreach (var item in tokens)
-				// 	Console.Write(item.Value + " ");
-				// Console.WriteLine();
-
 				if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "var")
 				{
 					//* 变量定义
@@ -60,7 +55,18 @@ public partial class MoeInterpreter
 						Program = ProgramBuild(statement),
 					};
 
-					throw new Exception("函数定义待实现");
+					int start = 4;
+					for (int end = 4; end < tokens.Count; end++)
+					{
+						if (tokens[end].Type != TokenType.Operator || tokens[end].Type != TokenType.Delimiter)
+							continue;
+
+						VariableDefineNode variableDefine = SingleVarDec(tokens[start..end]);
+						functionDefine.CallType.Add(variableDefine.Variables[0]);
+						start = end + 1;
+					}
+
+					// throw new Exception("函数定义待实现");
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
 				{
@@ -214,17 +220,18 @@ public partial class MoeInterpreter
 		public VariableDefineNode SingleVarDec(List<SingleToken> tokens)
 		{
 			VariableDefineNode varNode = MultiVarDec(tokens);
+			if (varNode.Variables.Count > 1)
+				throw new Exception("错误的定义多个变量");
 			return varNode;
 		}
 
 		public VariableDefineNode MultiVarDec(List<SingleToken> tokens)
 		{
-			if (tokens.Count < 2)
+			if (tokens.Count < 3)
 				throw new Exception("变量定义参数数量过少");
-			VariableDefineNode ret = new()
-			{
-				Info = VarType(tokens[0..2])
-			};
+
+			var info = VarType(tokens[0..2]);
+			VariableDefineNode ret = new();
 
 			var lestTokens = tokens[2..];
 			int pos = 0;
@@ -235,7 +242,16 @@ public partial class MoeInterpreter
 					tempToken.Add(lestTokens[pos]);
 				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == TokenType.Delimiter)
 				{
-					ret.Variable.Add(VarSize(tempToken));
+					ret.Variables.Add(
+						new()
+						{
+							Name = VarSize(tempToken).Item1,
+							Size = VarSize(tempToken).Item2,
+
+							Access = info.Access,
+							Type = info.Type,
+						}
+					);
 					tempToken = [];
 				}
 				pos++;

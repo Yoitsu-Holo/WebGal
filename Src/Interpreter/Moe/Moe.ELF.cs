@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WebGal.MeoInterpreter;
 
@@ -118,7 +119,7 @@ public partial class MoeInterpreter
 					Lexer varLex = new(rawVar);
 					varLex.Parse();
 
-					List<SingleToken> tokens = varLex.Tokens;
+					List<SingleToken> tokens = varLex.GlobleTokens;
 
 					if (tokens[0].Type != TokenType.Name)
 						throw new Exception("错误的变量名称: " + tokens[0].Value);
@@ -199,36 +200,20 @@ public partial class MoeInterpreter
 		foreach (var item in _elfHeader.Data)
 			_globleSpace.VariableData[item.Key] = item.Value;
 
+		Console.WriteLine("Hello Moe");
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.File)
 		{
 			if (file.FileType != MoeFileType.Text_script)
 				continue;
-			Lexer lexer = new(_resourceManager.GetScript(file.FileName));
-			Snytax snytax = new();
+			string s = _resourceManager.GetScript(file.FileName);
+			Lexer lexer = new(s);
 			lexer.Parse();
-			snytax.ProgramBuild(lexer.GlobleStatements);
-			// foreach (var statement in lexer.GlobleStatements.Statements)
-			// {
-			// 	List<SingleToken> tokens = statement.Tokens;
-			// 	if (tokens.Count < 5)
-			// 		throw new Exception("错误的函数定义");
-			// 	if (tokens[0].Type != TokenType.Keyword | tokens[0].Value != "func")
-			// 		throw new Exception("错误的函数全局定义关键字");
-			// 	if (tokens[1].Type != TokenType.Type)
-			// 		throw new Exception("错误的函数返回值类型");
-			// 	if (tokens[2].Type != TokenType.Name)
-			// 		throw new Exception("错误的函数名称");
-			// 	if (tokens[3].Value != "(" || tokens[^1].Value != ")")
-			// 		throw new Exception("错误的函数参数列表");
 
-			// 	// Console.Write(">>>: ");
-			// 	// foreach (var item in statement.Tokens)
-			// 	// 	Console.Write(item.Value + " ");
-			// 	// Console.WriteLine();
-			// 	// ProgramNode programNode = snytax.ProgramBuild(statement);
-			// 	// Console.WriteLine(programNode);
-			// }
+			Snytax snytax = new();
+			var xxx = snytax.ProgramBuild(lexer.GlobleStatements);
+
+			Console.WriteLine("Debug:\n" + xxx);
 		}
 
 		// _globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;

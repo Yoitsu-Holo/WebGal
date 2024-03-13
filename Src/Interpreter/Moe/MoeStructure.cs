@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+
 namespace WebGal.MeoInterpreter;
 
 public class ElfHeader
@@ -58,6 +60,7 @@ public class MoeFile()
 public class MoeVariable
 {
 	// 默认全为连续内存数组，不同维度的访问放置在 dimension 中
+	public string Name = "";
 	public MoeBasicAccess Access;
 	public MoeBasicType Type;
 	public object? Obj;
@@ -244,19 +247,17 @@ public class CodeBlock
 	public SingleToken Token = new();
 	public List<CodeBlock> CodeBlocks = [];
 
-	public TokenType Type => Token.Type;
-	public string Value => Token.Value;
-
 	public override string ToString()
 	{
 		string ret = "";
 		foreach (var codeBlock in CodeBlocks)
 		{
+			// Console.WriteLine(codeBlock.Token.Value);
 			ret += codeBlock.Token.ToString();
-			if (codeBlock.Type == TokenType.CodeBlock)
+			if (codeBlock.Token.Type == TokenType.CodeBlock)
 				ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n"
-				+ codeBlock.ToString() + "} 0x"
-				+ codeBlock.GetHashCode().ToString("X") + "\n";
+				+ codeBlock.ToString()
+				+ "} 0x" + codeBlock.GetHashCode().ToString("X") + "\n";
 		}
 		return ret;
 	}
@@ -331,8 +332,9 @@ public enum ASTNodeType
 
 public class VariableDefineNode
 {
-	public VarTypeNode Info = new();       // 变量信息
-	public List<(string, int)> Variable = [];   // 变量组
+	// public VarTypeNode Info = new();       // 变量信息
+	// public List<(string, int)> Variable = [];   // 变量组
+	public List<MoeVariable> Variables = [];
 }
 
 public class FunctionDefineNode
@@ -417,11 +419,20 @@ public class ASTNode // 可解释单元
 		{
 			ret += "$ Void AST\n";
 		}
+		else if (ASTType == ASTNodeType.FunctionDeclaration && FuncDefine is not null)
+		{
+			throw new Exception("函数表达未实现");
+		}
 		else if (ASTType == ASTNodeType.VariableDeclaration && VarDefine is not null)
 		{
-			ret += "Access: " + VarDefine.Info.Access + " Type: " + VarDefine.Info.Type + "    ";
-			foreach (var (name, size) in VarDefine.Variable)
-				ret += "[" + name + ": " + size + "], ";
+			foreach (var moeVar in VarDefine.Variables)
+			{
+				ret += "Access: " + moeVar.Access + " Type: " + moeVar.Type + " ";
+				ret += " Name: " + moeVar.Name + " Size: " + moeVar.Size + "[ ";
+				foreach (var size in moeVar.Dimension)
+					ret += size + " ";
+				ret += "]\n";
+			}
 			ret += "\n";
 		}
 		else if (ASTType == ASTNodeType.FunctionCall && FunctionCall is not null)

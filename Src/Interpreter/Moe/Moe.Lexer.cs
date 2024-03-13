@@ -46,7 +46,7 @@ public partial class MoeInterpreter
 
 		public CodeBlock GlobleCodeBlocks = new();
 		public Statement GlobleStatements = new();
-		public List<SingleToken> Tokens = [];
+		public List<SingleToken> GlobleTokens = [];
 
 		public Lexer(string input) => _input = new(input.Split('\n', defaultStringSplitOptions));
 		public Lexer(List<string> input) => _input = input;
@@ -60,7 +60,7 @@ public partial class MoeInterpreter
 
 		public void Parse()
 		{
-			ParseCodeblock(GlobleCodeBlocks);
+			GlobleCodeBlocks = ParseCodeblock();
 			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
 		}
 
@@ -160,29 +160,30 @@ public partial class MoeInterpreter
 		/// 解析代码块，将token按照代码块来组合
 		/// </summary>
 		/// <param name="baseCodeBlock"></param>
-		private void ParseCodeblock(CodeBlock baseCodeBlock)
+		private CodeBlock ParseCodeblock()
 		{
+			CodeBlock ret = new();
 			do
 			{
 				CodeBlock _currentToken = new() { Token = GetNextToken() };
 				if (_currentToken.Token.Type == TokenType.Void)
 					break;
 
-				Tokens.Add(_currentToken.Token);
+				GlobleTokens.Add(_currentToken.Token);
+
 				if (_currentToken.Token.Value == "{")
 				{
-					_currentToken.Token.Value = "{ ... }";
-					baseCodeBlock.CodeBlocks.Add(_currentToken);
-					_currentToken.CodeBlocks = [];
-					ParseCodeblock(_currentToken);
+					ret.CodeBlocks.Add(ParseCodeblock());
+					ret.CodeBlocks[^1].Token.Type = TokenType.CodeBlock;
 				}
 				else if (_currentToken.Token.Value == "}")
 					break;
 				else
-					baseCodeBlock.CodeBlocks.Add(_currentToken);
+					ret.CodeBlocks.Add(_currentToken);
 
 			}
 			while (true);
+			return ret;
 		}
 
 		/// <summary>
@@ -193,25 +194,25 @@ public partial class MoeInterpreter
 		/// <returns></returns>
 		private static Statement RebuildStatement(CodeBlock baseCodeBlock, int deep = 0)
 		{
-			Statement statement = new() { Deep = deep };
+			Statement ret = new() { Deep = deep };
 			Statement temp = new() { Deep = deep };
 
 			foreach (var codeBlock in baseCodeBlock.CodeBlocks)
 			{
-				if (codeBlock.Type == TokenType.Delimiter && codeBlock.Value == ";")
+				if (codeBlock.Token.Type == TokenType.Delimiter && codeBlock.Token.Value == ";")
 				{
-					statement.Statements.Add(temp);
+					ret.Statements.Add(temp);
 					temp = new() { Deep = deep };
 					continue;
 				}
 
-				if (codeBlock.Type == TokenType.CodeBlock)
+				if (codeBlock.Token.Type == TokenType.CodeBlock)
 				{
 					Statement codeBlockState = RebuildStatement(codeBlock, deep + 1);
-					foreach (var item in codeBlockState.Statements)
-						temp.Statements.Add(item);
-
-					statement.Statements.Add(temp);
+					// foreach (var item in codeBlockState.Statements)
+					// 	temp.Statements.Add(item);
+					temp.Statements.AddRange(codeBlockState.Statements);
+					ret.Statements.Add(temp);
 					temp = new() { Deep = deep };
 					continue;
 				}
@@ -219,7 +220,7 @@ public partial class MoeInterpreter
 				temp.Tokens.Add(codeBlock.Token);
 			}
 
-			return statement;
+			return ret;
 		}
 	}
 }
