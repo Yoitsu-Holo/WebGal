@@ -5,17 +5,24 @@ public partial class MoeInterpreter
 	// 语法解析阶段，完成后即构建AST
 	public class Syntax
 	{
-		public HashSet<string> ArithmeticOperatorSet = [
+		private HashSet<string> ArithmeticOperatorSet = [
 			"+","-","*","/","%","^^",
 		];
-		public HashSet<string> LogicOperatorSet = [
+		private HashSet<string> LogicOperatorSet = [
 			"==","!=",">=","<=",">","<",
 			"&&","||","^","!",
 		];
-		public HashSet<string> BitwiseOperatorSet = [
+		private HashSet<string> BitwiseOperatorSet = [
 			"&","|","^","~",
 			"<<",">>",
 		];
+		private HashSet<string> VariableType = [
+			"int","double","string",
+		];
+		private HashSet<string> VariableAccess = [
+			"var","const","static","ref,"
+		];
+
 		public ProgramNode ProgramBuild(Statement FuncStatement)
 		{
 			ProgramNode programNode = new();
@@ -26,13 +33,12 @@ public partial class MoeInterpreter
 
 				ASTNode node = new();
 
-				if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "var")
+				if (tokens[0].Type == TokenType.Keyword && VariableAccess.Contains(tokens[0].Value))
 				{
 					//* 变量定义
 					node.ASTType = ASTNodeType.VariableDeclaration;
 					node.VarDefine = MultiVarDec(tokens);
 					programNode.Statements.Add(node);
-
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "func")
 				{
@@ -52,11 +58,11 @@ public partial class MoeInterpreter
 					{
 						ReturnType = tokens[1].Value switch
 						{
-							"void" => MoeBasicType.Void,
-							"int" => MoeBasicType.Int,
-							"double" => MoeBasicType.Double,
-							"string" => MoeBasicType.String,
-							_ => MoeBasicType.Error,
+							"void" => MoeVariableType.Void,
+							"int" => MoeVariableType.Int,
+							"double" => MoeVariableType.Double,
+							"string" => MoeVariableType.String,
+							_ => MoeVariableType.Error,
 						},
 						FuncName = tokens[2].Value,
 						Program = ProgramBuild(statement),
@@ -68,15 +74,15 @@ public partial class MoeInterpreter
 						if (tokens[end].Type != TokenType.Delimiter && !(tokens[end].Type == TokenType.Operator && tokens[end].Value == ")"))
 							continue;
 
-						VariableDefineNode variableDefine = SingleVarDec(tokens[start..end]);
-						functionDefine.CallType.Add(variableDefine.Variables[0]);
+						MoeVariable variable = SingleVarDec(tokens[start..end]).Variables[0];
+						if (variable.Type != MoeVariableType.Void)
+							functionDefine.CallType.Add(variable);
 						start = end + 1;
 					}
 
 					node.FuncDefine = functionDefine;
 
 					programNode.Statements.Add(node);
-					// throw new Exception("函数定义待实现");
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
 				{
@@ -157,7 +163,7 @@ public partial class MoeInterpreter
 					if (leastTokens.Count >= 2 && leastTokens[0].Type == TokenType.Name && leastTokens[1].Value == "(" && leastTokens[^1].Value == ")")
 					{
 						Console.WriteLine("Function call is todo");
-						node.Assignment.FunctionCalls = new();
+						node.Assignment.FuncCall = new();
 					}
 					else
 					{
@@ -167,7 +173,7 @@ public partial class MoeInterpreter
 							{
 								if (LogicOperatorSet.Contains(item.Value))
 								{
-									node.Assignment.LogicExpressions = new()
+									node.Assignment.LogicExp = new()
 									{
 										Expressions = LogicExpression(leastTokens)
 									};
@@ -176,7 +182,7 @@ public partial class MoeInterpreter
 								break;
 							}
 						}
-						node.Assignment.MathExpressions = new()
+						node.Assignment.MathExp = new()
 						{
 							Expressions = MathExpression(leastTokens)
 						};
@@ -243,11 +249,7 @@ public partial class MoeInterpreter
 				ret.Variables.Add(new());
 				return ret;
 			}
-			foreach (var item in tokens)
-			{
-				Console.Write(item.Value + " ");
-			}
-			Console.WriteLine(" <<<<\n");
+
 			if (tokens.Count < 3)
 				throw new Exception("变量定义参数数量过少");
 
@@ -262,15 +264,19 @@ public partial class MoeInterpreter
 					tempToken.Add(lestTokens[pos]);
 				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == TokenType.Delimiter)
 				{
-					ret.Variables.Add(
-						new()
-						{
-							Name = tempToken[0].Value,
-							Dimension = VarSize(tempToken),
-							Access = info.Access,
-							Type = info.Type,
-						}
-					);
+
+					MoeVariable variable = new()
+					{
+						Name = tempToken[0].Value,
+						Dimension = VarSize(tempToken),
+						Access = info.Access,
+						Type = info.Type,
+					};
+					int size = 1;
+					foreach (var item in variable.Dimension)
+						size *= item;
+					variable.Dimension.Add(size);
+					ret.Variables.Add(variable);
 					tempToken = [];
 				}
 				pos++;
@@ -287,17 +293,17 @@ public partial class MoeInterpreter
 			{
 				Access = tokens[0].Value switch
 				{
-					"var" => MoeBasicAccess.Variable,
-					"const" => MoeBasicAccess.Const,
-					"static" => MoeBasicAccess.Static,
-					_ => MoeBasicAccess.Error,
+					"var" => MoeVariableAccess.Partial,
+					"const" => MoeVariableAccess.Const,
+					"static" => MoeVariableAccess.Static,
+					_ => MoeVariableAccess.Error,
 				},
 				Type = tokens[1].Value switch
 				{
-					"int" => MoeBasicType.Int,
-					"double" => MoeBasicType.Double,
-					"string" => MoeBasicType.String,
-					_ => MoeBasicType.Error,
+					"int" => MoeVariableType.Int,
+					"double" => MoeVariableType.Double,
+					"string" => MoeVariableType.String,
+					_ => MoeVariableType.Error,
 				},
 			};
 
@@ -341,7 +347,6 @@ public partial class MoeInterpreter
 			}
 			else
 				varDimension.Add(1);
-
 			return varDimension;
 		}
 
@@ -372,15 +377,15 @@ public partial class MoeInterpreter
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount == 1)
+				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount != 0)
 				{
 					for (int j = tokens.Count - 1; j >= 0; j--)
-						if (tokens[j].Type == TokenType.Operator && tokens[j - 1].Value == ")")
+						if (tokens[j].Type == TokenType.Operator && tokens[j].Value == ")")
 						{
 							arithmetic.Add(new()
 							{
 								Type = MathType.EXP,
-								Expressions = MathExpression(tokens[i..(j + 1)]),
+								Expressions = MathExpression(tokens[(i + 1)..j]),
 							});
 							i = j;
 							opCount = 0;
@@ -388,6 +393,7 @@ public partial class MoeInterpreter
 						}
 					if (opCount != 0)
 						throw new Exception("非配对的括号组");
+					opCount = 0;
 				}
 				else if (tokens[i].Type == TokenType.Operator)
 				{
@@ -417,7 +423,7 @@ public partial class MoeInterpreter
 					opCount++;
 				}
 				else
-					throw new Exception("错误的算数表达式书写");
+					throw new Exception("错误的算数表达式书写: " + tokens[i]);
 			}
 			return arithmetic;
 		}

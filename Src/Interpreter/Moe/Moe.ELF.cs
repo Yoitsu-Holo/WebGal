@@ -18,7 +18,7 @@ public partial class MoeInterpreter
 	public async Task LoadELF(string MoeELF)
 	{
 		List<string> MoeELFs = new(MoeELF.Split('\n', defaultStringSplitOptions));
-		MoeELF elfFlag = MeoInterpreter.MoeELF.Void;
+		MoeELFsegment elfFlag = MeoInterpreter.MoeELFsegment.Void;
 
 		for (int lineCount = 0; lineCount < MoeELFs.Count; lineCount++)
 		{
@@ -33,23 +33,23 @@ public partial class MoeInterpreter
 			{
 				elfFlag = line switch
 				{
-					".file" => MeoInterpreter.MoeELF.FILE,
-					".table" => MeoInterpreter.MoeELF.TABLE,
-					".data" => MeoInterpreter.MoeELF.DATA,
-					".form" => MeoInterpreter.MoeELF.FORM,
-					".start" => MeoInterpreter.MoeELF.START,
-					_ => MeoInterpreter.MoeELF.Void,
+					".file" => MeoInterpreter.MoeELFsegment.FILE,
+					".table" => MeoInterpreter.MoeELFsegment.TABLE,
+					".data" => MeoInterpreter.MoeELFsegment.DATA,
+					".form" => MeoInterpreter.MoeELFsegment.FORM,
+					".start" => MeoInterpreter.MoeELFsegment.START,
+					_ => MeoInterpreter.MoeELFsegment.Void,
 				};
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELF.Void)
+			if (elfFlag == MeoInterpreter.MoeELFsegment.Void)
 				continue;
 
 			LineSpcaeFormatter(ref line);
 			List<string> lines = new(line.Split(' ', defaultStringSplitOptions));
 
-			if (elfFlag == MeoInterpreter.MoeELF.FILE)
+			if (elfFlag == MeoInterpreter.MoeELFsegment.FILE)
 			{
 				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
@@ -81,27 +81,27 @@ public partial class MoeInterpreter
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELF.DATA)
+			if (elfFlag == MeoInterpreter.MoeELFsegment.DATA)
 			{
 				if (lines.Count < 3)
 					throw new Exception("错误的参数数量" + line);
 
-				MoeBasicAccess access = MoeBasicAccess.Void;
-				MoeBasicType type = MoeBasicType.Void;
+				MoeVariableAccess access = MoeVariableAccess.Void;
+				MoeVariableType type = MoeVariableType.Void;
 
 				access = lines[0] switch
 				{
-					"const" => MoeBasicAccess.Const,
-					"static" => MoeBasicAccess.Static,
-					"var" => MoeBasicAccess.Variable,
-					_ => MoeBasicAccess.Void,
+					"const" => MoeVariableAccess.Const,
+					"static" => MoeVariableAccess.Static,
+					"var" => MoeVariableAccess.Partial,
+					_ => MoeVariableAccess.Void,
 				};
 				type = lines[1] switch
 				{
-					"int" => MoeBasicType.Int,
-					"string" => MoeBasicType.String,
-					"double" => MoeBasicType.Double,
-					_ => MoeBasicType.Void,
+					"int" => MoeVariableType.Int,
+					"string" => MoeVariableType.String,
+					"double" => MoeVariableType.Double,
+					_ => MoeVariableType.Void,
 				};
 
 				string temp = "";
@@ -114,7 +114,7 @@ public partial class MoeInterpreter
 				{
 					List<int> varDimension = [];
 					int varSize = 1;
-					MoeBasicType varType = type;
+					MoeVariableType varType = type;
 
 					Lexer varLex = new(rawVar);
 					varLex.Parse();
@@ -157,20 +157,20 @@ public partial class MoeInterpreter
 						Dimension = varDimension,
 						Obj = varType switch
 						{
-							MoeBasicType.Int => new int[varSize],
-							MoeBasicType.Double => new double[varSize],
-							MoeBasicType.String => new string[varSize],
+							MoeVariableType.Int => new int[varSize],
+							MoeVariableType.Double => new double[varSize],
+							MoeVariableType.String => new string[varSize],
 							_ => throw new Exception("Unknow Type")
 						},
-						Size = varSize
 					};
+					variable.Dimension.Add(varSize);
 
 					_elfHeader.Data[tokens[0].Value] = variable;
 				}
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELF.START)
+			if (elfFlag == MeoInterpreter.MoeELFsegment.START)
 			{
 				if (lines.Count != 1)
 					throw new Exception("错误的参数数量");
@@ -195,7 +195,6 @@ public partial class MoeInterpreter
 		foreach (var item in _elfHeader.Data)
 			_globleSpace.VariableData[item.Key] = item.Value;
 
-		Console.WriteLine("Hello Moe");
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.File)
 		{
@@ -210,12 +209,15 @@ public partial class MoeInterpreter
 
 			foreach (var functionAST in ASTs.Statements)
 			{
-				Console.WriteLine("function AST:");
-				Console.WriteLine(functionAST);
+				if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
+					throw new Exception($"不能在全局代码区定义函数: File{file.FileName}");
+				if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
+					Console.WriteLine($"重复的函数定义: File:{file.FileName} \tFunc{functionAST.FuncDefine.FuncName}");
+
+				_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
 			}
 		}
 
-		// _globleSpace.InterpretFile.Name = _elfHeader.Function[_elfHeader.Start].FileName;
-		// _globleSpace.InterpretFile.Line = _elfHeader.Function[_elfHeader.Start].FileLine;
+		_globleSpace.Entry = _elfHeader.Start;
 	}
 }
