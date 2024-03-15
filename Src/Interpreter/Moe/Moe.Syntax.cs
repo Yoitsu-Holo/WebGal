@@ -1,293 +1,504 @@
 namespace WebGal.MeoInterpreter;
 
-/*
-词法分析（Lexical Analysis）： 首先需要将代码块中的源代码分解为词法单元，例如标识符、关键字、运算符等。你可以使用词法分析器（Lexer）来实现这一步骤。
-语法分析（Syntax Analysis）： 接下来，将词法单元按照语法规则组合成语法结构，例如表达式、语句、函数定义等。你可以使用语法分析器（Parser）来实现这一步骤。
-语义分析（Semantic Analysis）： 在语法分析的基础上，进一步检查代码块是否符合语义规则，例如变量是否被正确声明、函数是否被正确调用等。这一步骤可以在语法分析器中进行。
-构建抽象语法树（Abstract Syntax Tree，AST）： 将语法分析得到的语法结构转换为抽象语法树，以便后续的处理和分析。抽象语法树可以方便地表示代码的结构和逻辑关系。
-错误处理（Error Handling）： 在分析过程中，需要及时发现和处理语法错误、词法错误以及语义错误，并给出相应的提示和反馈信息。
-*/
-
-
 public partial class MoeInterpreter
 {
-	public enum TokenType
+	// 语法解析阶段，完成后即构建AST
+	public class Syntax
 	{
-		Void, // 空串
-		Type, // 标识符
-		Name, // 名称
-		Number, // 数字
-		String,
-		Keyword, // 字符
-		Operator, // 运算符
-		Delimiter, // 分隔符
-		Label, // 标记
-		CodeBlock, // 代码块
-		Error, // 错误
-	}
+		private HashSet<string> ArithmeticOperatorSet = [
+			"+","-","*","/","%","^^",
+		];
+		private HashSet<string> LogicOperatorSet = [
+			"==","!=",">=","<=",">","<",
+			"&&","||","^","!",
+		];
+		private HashSet<string> BitwiseOperatorSet = [
+			"&","|","^","~",
+			"<<",">>",
+		];
+		private HashSet<string> VariableType = [
+			"int","double","string",
+		];
+		private HashSet<string> VariableAccess = [
+			"var","const","static","ref,"
+		];
 
-	public class SingleToken
-	{
-		public TokenType Type = TokenType.Void;
-		public string Value = "";
-		public int Line = 0;
-
-		public override string ToString()
+		public ProgramNode ProgramBuild(Statement FuncStatement)
 		{
-			return new string(Line + ":" + Type.ToString() + ": " + Value + "\n");
-		}
-	}
+			ProgramNode programNode = new();
 
-	public class CodeBlock
-	{
-		public SingleToken Token = new();
-		public List<CodeBlock> CodeBlocks = [];
-
-		public TokenType Type => Token.Type;
-		public string Value => Token.Value;
-
-		public override string ToString()
-		{
-			string ret = "";
-			foreach (var codeBlock in CodeBlocks)
+			foreach (var statement in FuncStatement.Statements)
 			{
-				ret += codeBlock.Token.ToString();
-				if (codeBlock.Type == TokenType.CodeBlock)
-					ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n"
-					+ codeBlock.ToString() + "} 0x"
-					+ codeBlock.GetHashCode().ToString("X") + "\n";
-			}
-			return ret;
-		}
-	}
+				var tokens = statement.Tokens;
 
-	public class Statement
-	{
-		public int Deep = 0;
-		public List<SingleToken> Tokens = [];
-		public List<Statement> Statements = [];
+				ASTNode node = new();
 
-		public override string ToString()
-		{
-			string ret = "";
-			foreach (var statement in Statements)
-			{
-				if (statement.Tokens.Count != 0)
+				if (tokens[0].Type == TokenType.Keyword && VariableAccess.Contains(tokens[0].Value))
 				{
-					ret += new string('\t', statement.Deep);
-					foreach (var token in statement.Tokens)
-						ret += token.Value + " ";
-					ret += "\n";
+					//* 变量定义
+					node.ASTType = ASTNodeType.VariableDeclaration;
+					node.VarDefine = MultiVarDec(tokens);
+					programNode.Statements.Add(node);
 				}
-				// foreach (var state in statement.Statements)
-				if (statement.Statements.Count != 0)
-					ret += statement.ToString();
-			}
-			return ret;
-		}
-	}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "func")
+				{
+					//todo 函数定义
+					node.ASTType = ASTNodeType.FunctionDeclaration;
 
-	public class SyntaxBuilder(string input)
-	{
-		public HashSet<string> typeSet = [
-			"int","double","string","dictionary",
-		];
+					if (tokens.Count < 5)
+						throw new Exception("不完整的函数定义");
+					if (tokens[1].Type != TokenType.Type)
+						throw new Exception("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Value);
+					if (tokens[2].Type != TokenType.Name)
+						throw new Exception("错误的函数名称");
+					if (tokens[3].Value != "(" || tokens[^1].Value != ")")
+						throw new Exception("错误的函数参数列表");
 
-		public HashSet<string> keywordsSet = [
-			"var","func","return",
-			"if","else","while","goto","label",
-			// 这些是函数，不属于关键字
-			// "say","ch","st","bg","anime",
-			// "bgm","voice","audio",
-			// "choice","tag",
-			// "play","end","pause","delay",
-		];
+					FunctionDefineNode functionDefine = new()
+					{
+						ReturnType = tokens[1].Value switch
+						{
+							"void" => MoeVariableType.Void,
+							"int" => MoeVariableType.Int,
+							"double" => MoeVariableType.Double,
+							"string" => MoeVariableType.String,
+							_ => MoeVariableType.Error,
+						},
+						FuncName = tokens[2].Value,
+						Program = ProgramBuild(statement),
+					};
 
-		public HashSet<string> operatorSet = [
-			"(",")","[","]","<",">",
-			"=","+","-","*","-","%",
-			"~","|","&","^",
+					int start = 4;
+					for (int end = 4; end < tokens.Count; end++)
+					{
+						if (tokens[end].Type != TokenType.Delimiter && !(tokens[end].Type == TokenType.Operator && tokens[end].Value == ")"))
+							continue;
 
-			"++","--","+=","-=","*=","/=","%=","^^",
-			"<<",">>","||","&&",
-		];
+						MoeVariable variable = SingleVarDec(tokens[start..end]).Variables[0];
+						if (variable.Type != MoeVariableType.Void)
+							functionDefine.CallType.Add(variable);
+						start = end + 1;
+					}
 
-		private readonly List<string> _input = new(input.Split('\n', defaultStringSplitOptions));
-		private int _position = 0;
-		private int _line = 0;
+					node.FuncDefine = functionDefine;
 
-		public CodeBlock GlobleCodeBlocks = new();
-		public Statement GlobleStatements = new();
+					programNode.Statements.Add(node);
+				}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
+				{
+					//* if条件
+					node.ASTType = ASTNodeType.Conditional;
+					if (tokens.Count < 4 || tokens[1].Value != "(" || tokens[^1].Value != ")")
+						throw new Exception("错误的 if 条件语法");
 
-		public void AddInput(string input)
-		{
-			List<string> tempInput = new(input.Split('\n', defaultStringSplitOptions));
-			_input.AddRange(tempInput);
-		}
+					node.IfCase = new();
 
-		public SingleToken GetNextToken()
-		{
-			SingleToken ret = new() { Line = -1 };
-			if (_position >= _input[_line].Length)
-			{
-				if (_input.Count <= _line)
-					return ret;
-				_line++;
-				_position = 0;
-			}
+					ConditionalNode conditional = new();
+					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
+					conditional.Program = ProgramBuild(statement);
+					node.IfCase.If.Add(conditional);
 
-			ret.Line = _line;
+					programNode.Statements.Add(node);
+				}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "elif")
+				{
+					//* else if条件
+					node = programNode.Statements[^1];
+					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
+						throw new Exception("没有前置 if 条件");
+					if (tokens.Count < 4 || tokens[1].Value != "(" || tokens[^1].Value != ")")
+						throw new Exception("错误的 if 条件语法");
 
-			// 在此执行标记化逻辑
-			int start = _position;
+					ConditionalNode conditional = new();
+					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
+					conditional.Program = ProgramBuild(statement);
+					node.IfCase.If.Add(conditional);
+					programNode.Statements[^1] = node;
+				}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "else")
+				{
+					//* else 条件
+					node = programNode.Statements[^1];
+					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
+						throw new Exception("没有前置 if/elif 结构");
 
-			if (char.IsWhiteSpace(_input[_line][_position]))
-			{
-				//^ 空白占位符
-				_position++;
-				return GetNextToken();
-			}
-			else if (char.IsLetter(_input[_line][_position]) || _input[_line][_position] == '_')
-			{
-				//^ 处理 名称 和 关键字
-				while (_position < _input[_line].Length && (char.IsLetterOrDigit(_input[_line][_position]) || _input[_line][_position] == '_'))
-					_position++;
+					ConditionalNode conditional = new();
+					conditional.Conditional.Expressions = [];
+					conditional.Program = ProgramBuild(statement);
+					node.IfCase.If.Add(conditional);
+					programNode.Statements[^1] = node;
+				}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "while")
+				{
+					//* while 循环
+					node.ASTType = ASTNodeType.Loop;
+					if (tokens.Count < 4 || tokens[1].Value != "(" || tokens[^1].Value != ")")
+						throw new Exception("错误的 while 循环语法");
 
-				string value = _input[_line][start.._position];
+					ConditionalNode conditional = new();
+					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
+					conditional.Program = ProgramBuild(statement);
 
-				if (keywordsSet.Contains(value))
-					ret.Type = TokenType.Keyword;
-				else if (typeSet.Contains(value))
-					ret.Type = TokenType.Type;
+					node.Loop = new()
+					{
+						Loop = conditional
+					};
+
+					programNode.Statements.Add(node);
+				}
+				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "continue" || tokens[0].Value == "break")
+				{
+					Console.WriteLine("continue/break is todo");
+				}
+				else if (tokens[0].Type == TokenType.Name && tokens.Count >= 2 && tokens[1].Type == TokenType.Operator && tokens[1].Value == "=")
+				{
+					//* 赋值语句
+					node.ASTType = ASTNodeType.Assignment;
+					node.Assignment = new()
+					{
+						LeftVarName = tokens[0].Value,
+					};
+					List<SingleToken> leastTokens = tokens[2..];
+
+					if (leastTokens.Count >= 2 && leastTokens[0].Type == TokenType.Name && leastTokens[1].Value == "(" && leastTokens[^1].Value == ")")
+					{
+						Console.WriteLine("Function call is todo");
+						node.Assignment.FuncCall = new();
+					}
+					else
+					{
+						foreach (var item in leastTokens)
+						{
+							if (item.Type == TokenType.Operator)
+							{
+								if (LogicOperatorSet.Contains(item.Value))
+								{
+									node.Assignment.LogicExp = new()
+									{
+										Expressions = LogicExpression(leastTokens)
+									};
+									node.Assignment.RightType = ASTNodeType.LogicExpression;
+								}
+								break;
+							}
+						}
+						node.Assignment.MathExp = new()
+						{
+							Expressions = MathExpression(leastTokens)
+						};
+						node.Assignment.RightType = ASTNodeType.MathExpression;
+					}
+					programNode.Statements.Add(node);
+				}
+				else if (tokens[0].Type == TokenType.Name && tokens.Count > 2 && tokens[1].Value == "(" && tokens[^1].Value == ")")
+				{
+					//* 函数调用
+					node.ASTType = ASTNodeType.FunctionCall;
+					node.FunctionCall = new()
+					{
+						FunctionName = tokens[0].Value
+					};
+					List<SingleToken> lestToken = tokens[2..^1];
+					bool var = false;
+					foreach (var token in lestToken)
+					{
+						if (token.Type == TokenType.Delimiter && token.Value == ",")
+							var = false;
+						else if (var == false)
+						{
+							var = true;
+							if (token.Type == TokenType.Name)
+								node.FunctionCall.ParamName.Add(token.Value);
+							else
+								throw new Exception("错误的变量名称");
+						}
+						else
+							throw new Exception("错误的函数入参列表");
+					}
+					programNode.Statements.Add(node);
+				}
+				else if (tokens.Count == 1 && tokens[0].Value == "Null")
+				{
+					Console.WriteLine("Null");
+				}
 				else
-					ret.Type = TokenType.Name;
-			}
-			else if (char.IsDigit(_input[_line][_position]))
-			{
-				//^ 处理数字
-
-				// 整数部分
-				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
-					_position++;
-				// 小数部分
-				if (_position < _input[_line].Length && _input[_line][_position] == '.')
-					_position++;
-				while (_position < _input[_line].Length && char.IsDigit(_input[_line][_position]))
-					_position++;
-				ret.Type = TokenType.Number;
-			}
-			else if (_position < _input[_line].Length && (_input[_line][_position] == ':' || _input[_line][_position] == '@'))
-			{
-				//^ 处理标签  ':'数组访问标签  '@'函数参数表标签
-				// todo 可能会被优化
-				_position++;
-				ret.Type = TokenType.Label;
-			}
-			else if (_position < _input[_line].Length && (_input[_line][_position] == '.' || _input[_line][_position] == ';'))
-			{
-				//^ 处理分隔符
-				_position++;
-				ret.Type = TokenType.Delimiter;
-			}
-			else if (operatorSet.Contains(_input[_line][_position].ToString()))
-			{
-				//^ 处理运算符
-				while (_position < _input[_line].Length && operatorSet.Contains(_input[_line][start..(_position + 1)]))
-					_position++;
-				ret.Type = TokenType.Operator;
-			}
-			else if (_input[_line][_position] == '{' || _input[_line][_position] == '}')
-			{
-				//^ 处理代码块
-				_position++;
-				ret.Type = TokenType.CodeBlock;
-			}
-			else if (_input[_line][_position] == '\"')
-			{
-				bool isEscape = true;
-				while (_position < _input[_line].Length && (_input[_line][_position] != '\"' || isEscape))
 				{
-					if (isEscape)
-						isEscape = false;
-					if (_input[_line][_position] == '\\')
-						isEscape = true;
-					_position++;
-					Console.WriteLine($"{_input[_line].Length} : {_position}");
+					string error = "";
+					foreach (var item in tokens)
+						error += item.Value + " ";
+					throw new Exception("??? WTF " + error);
 				}
-				_position++;
+			}
 
-				ret.Type = TokenType.String;
+			return programNode;
+		}
+
+		public VariableDefineNode SingleVarDec(List<SingleToken> tokens)
+		{
+			VariableDefineNode varNode = MultiVarDec(tokens);
+			if (varNode.Variables.Count > 1)
+				throw new Exception("错误的定义多个变量");
+			return varNode;
+		}
+
+		public VariableDefineNode MultiVarDec(List<SingleToken> tokens)
+		{
+			VariableDefineNode ret = new();
+			if (tokens.Count == 0)
+			{
+				ret.Variables.Add(new());
+				return ret;
+			}
+
+			if (tokens.Count < 3)
+				throw new Exception("变量定义参数数量过少");
+
+			var info = VarType(tokens[0..2]);
+
+			var lestTokens = tokens[2..];
+			int pos = 0;
+			List<SingleToken> tempToken = [];
+			while (pos < lestTokens.Count)
+			{
+				if (lestTokens[pos].Type != TokenType.Delimiter)
+					tempToken.Add(lestTokens[pos]);
+				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == TokenType.Delimiter)
+				{
+
+					MoeVariable variable = new()
+					{
+						Name = tempToken[0].Value,
+						Dimension = VarSize(tempToken),
+						Access = info.Access,
+						Type = info.Type,
+					};
+					int size = 1;
+					foreach (var item in variable.Dimension)
+						size *= item;
+					variable.Dimension.Add(size);
+					ret.Variables.Add(variable);
+					tempToken = [];
+				}
+				pos++;
+			}
+			return ret;
+		}
+
+		public VarTypeNode VarType(List<SingleToken> tokens)
+		{
+			if (tokens[0].Type != TokenType.Keyword || tokens[1].Type != TokenType.Type)
+				throw new Exception("");
+
+			VarTypeNode varInfo = new()
+			{
+				Access = tokens[0].Value switch
+				{
+					"var" => MoeVariableAccess.Partial,
+					"const" => MoeVariableAccess.Const,
+					"static" => MoeVariableAccess.Static,
+					_ => MoeVariableAccess.Error,
+				},
+				Type = tokens[1].Value switch
+				{
+					"int" => MoeVariableType.Int,
+					"double" => MoeVariableType.Double,
+					"string" => MoeVariableType.String,
+					_ => MoeVariableType.Error,
+				},
+			};
+
+			return varInfo;
+		}
+
+		public List<int> VarSize(List<SingleToken> tokens)
+		{
+			List<int> varDimension = [];
+			int varSize = 1;
+
+			string s = "";
+			foreach (var token in tokens)
+				s += token.Value + " ";
+
+			if (tokens[0].Type != TokenType.Name)
+				throw new Exception("错误的变量名称: " + tokens[0].Value);
+			if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
+				throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
+			if (tokens.Count == 3)
+				throw new Exception("错误的多维数组申明： 未声明数组大小: " + s);
+
+			if (tokens.Count > 3)
+			{
+				for (int i = 2; i < tokens.Count - 1; i++)
+				{
+					if (i % 2 == 0 && tokens[i].Type == TokenType.Number)
+					{
+						int size = Convert.ToInt32(tokens[i].Value);
+						varSize *= size;
+						varDimension.Add(size);
+					}
+					else if (i % 2 == 1)
+					{
+						if (tokens[i].Value != ":")
+							throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Value);
+					}
+					else
+						throw new Exception("错误的多维数组申明");
+				}
 			}
 			else
-			{
-				//^ 处理其他 Token，默认为错误
-				_position++;
-				ret.Type = TokenType.Error;
-			}
-
-			ret.Value = _input[_line][start.._position];
-			return ret;
+				varDimension.Add(1);
+			return varDimension;
 		}
 
-		public void Parse()
+		public List<MathExpressionNode> MathExpression(List<SingleToken> tokens)
 		{
-			ParseCodeblock(GlobleCodeBlocks);
-			GlobleStatements = RebuildStatement(GlobleCodeBlocks);
-		}
+			List<MathExpressionNode> arithmetic = [];
 
-		private void ParseCodeblock(CodeBlock baseCodeBlock)
-		{
-			do
+			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
+			for (int i = 0; i < tokens.Count; i++)
 			{
-				CodeBlock _currentToken = new() { Token = GetNextToken() };
-
-				if (_currentToken.Token.Value == "{")
+				if ((tokens[i].Type == TokenType.Number || tokens[i].Type == TokenType.Name) && opCount != 0)
 				{
-					_currentToken.Token.Value = "{ ... }";
-					baseCodeBlock.CodeBlocks.Add(_currentToken);
-					_currentToken.CodeBlocks = [];
-					ParseCodeblock(_currentToken);
+					string value = tokens[i].Value;
+					if (tokens.Count > i + 2)
+						if (tokens[i + 1].Type == TokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == TokenType.Number)
+						{
+							value += "." + tokens[i + 2].Value;
+							i += 2;
+						}
+
+					arithmetic.Add(new()
+					{
+						Type = MathType.VAR,
+						token = {
+							Type = TokenType.Number,
+							Value = value,
+						}
+					});
+					opCount = 0;
 				}
-				else if (_currentToken.Token.Value == "}")
-					break;
+				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount != 0)
+				{
+					for (int j = tokens.Count - 1; j >= 0; j--)
+						if (tokens[j].Type == TokenType.Operator && tokens[j].Value == ")")
+						{
+							arithmetic.Add(new()
+							{
+								Type = MathType.EXP,
+								Expressions = MathExpression(tokens[(i + 1)..j]),
+							});
+							i = j;
+							opCount = 0;
+							break;
+						}
+					if (opCount != 0)
+						throw new Exception("非配对的括号组");
+					opCount = 0;
+				}
+				else if (tokens[i].Type == TokenType.Operator)
+				{
+					if (opCount == 1 && (tokens[i].Value != "-" || tokens[i].Value != "~"))
+						throw new Exception("前置运算符过多");
+
+					arithmetic.Add(new()
+					{
+						Type = tokens[i].Value switch
+						{
+							"+" => MathType.ADD,
+							"-" => MathType.SUB,
+							"*" => MathType.MUL,
+							"/" => MathType.DIV,
+							"%" => MathType.MOD,
+							"^^" => MathType.POW,
+							"&" => MathType.AND,
+							"|" => MathType.OR,
+							"^" => MathType.XOR,
+							"~" => MathType.NOT,
+							"<<" => MathType.SHL,
+							">>" => MathType.SHR,
+							_ => MathType.Void,
+						},
+						token = tokens[i],
+					});
+					opCount++;
+				}
 				else
-					baseCodeBlock.CodeBlocks.Add(_currentToken);
-
-				if (_currentToken.Token.Type == TokenType.Void)
-					break;
+					throw new Exception("错误的算数表达式书写: " + tokens[i]);
 			}
-			while (true);
+			return arithmetic;
 		}
 
-		private static Statement RebuildStatement(CodeBlock baseCodeBlock, int deep = 0)
+		public List<LogicExpressionNode> LogicExpression(List<SingleToken> tokens)
 		{
-			Statement statement = new() { Deep = deep };
-			Statement temp = new() { Deep = deep };
+			List<LogicExpressionNode> logic = [];
 
-			foreach (var codeBlock in baseCodeBlock.CodeBlocks)
+			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
+			for (int i = 0; i < tokens.Count; i++)
 			{
-				if (codeBlock.Type == TokenType.Delimiter && codeBlock.Value == ";")
+				if ((tokens[i].Type == TokenType.Number || tokens[i].Type == TokenType.Name) && opCount != 0)
 				{
-					statement.Statements.Add(temp);
-					temp = new() { Deep = deep };
-					continue;
-				}
+					string value = tokens[i].Value;
+					if (tokens.Count > i + 2)
+						if (tokens[i + 1].Type == TokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == TokenType.Number)
+						{
+							value += "." + tokens[i + 2].Value;
+							i += 2;
+						}
 
-				if (codeBlock.Type == TokenType.CodeBlock)
+					logic.Add(new()
+					{
+						Type = LogicType.Void,
+						token = {
+							Type = TokenType.Number,
+							Value = value,
+						}
+					});
+					opCount = 0;
+				}
+				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount == 1)
 				{
-					Statement codeBlockState = RebuildStatement(codeBlock, deep + 1);
-					foreach (var item in codeBlockState.Statements)
-						temp.Statements.Add(item);
-
-					statement.Statements.Add(temp);
-					temp = new() { Deep = deep };
-					continue;
+					for (int j = tokens.Count - 1; j >= 0; j--)
+						if (tokens[j].Type == TokenType.Operator && tokens[j - 1].Value == ")")
+						{
+							logic.Add(new()
+							{
+								Type = LogicType.EXP,
+								Expressions = LogicExpression(tokens[i..(j + 1)]),
+							});
+							i = j;
+							opCount = 0;
+							break;
+						}
+					if (opCount != 0)
+						throw new Exception("非配对的括号组");
 				}
+				else if (tokens[i].Type == TokenType.Operator)
+				{
+					if (opCount == 1 && tokens[i].Value != "!")
+						throw new Exception("前置运算符过多");
 
-				temp.Tokens.Add(codeBlock.Token);
+					logic.Add(new()
+					{
+						Type = tokens[i].Value switch
+						{
+							"==" => LogicType.EQ,
+							"!=" => LogicType.NEQ,
+							">" => LogicType.GT,
+							"<" => LogicType.LT,
+							">=" => LogicType.EGT,
+							"<=" => LogicType.ELT,
+							"&&" => LogicType.AND,
+							"||" => LogicType.OR,
+							_ => LogicType.Void,
+						},
+						token = tokens[i],
+					});
+					opCount++;
+				}
+				else
+					throw new Exception("错误的算数表达式书写");
 			}
-
-			return statement;
+			return logic;
 		}
 	}
 }
