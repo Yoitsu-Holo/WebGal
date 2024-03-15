@@ -30,19 +30,19 @@ public partial class MoeInterpreter(SceneManager sceneManager, ResourceManager r
 	{
 		Console.WriteLine(">>> Dump File: ");
 		foreach (var item in _elfHeader.File)
-			Console.WriteLine($"\t{item.Key}:\t{item.Value}");
+			Console.WriteLine($"{item.Key}:: {item.Value}");
 
 		Console.WriteLine(">>> Dump Function: ");
 		foreach (var item in _elfHeader.Function)
-			Console.WriteLine($"\t{item.Key}:\t{item.Value}");
+			Console.WriteLine($"{item.Key}:\n{item.Value}");
 
 		Console.WriteLine(">>> Dump Vaiable: ");
 		foreach (var item in _elfHeader.Data)
-			Console.WriteLine($"\t{item.Key}:\t{item.Value}");
+			Console.WriteLine($"{item.Key}:: {item.Value}");
 
 		Console.WriteLine(">>> Dump Form: ");
 		foreach (var item in _elfHeader.Data)
-			Console.WriteLine($"\t{item.Key}:\t{item.Value}");
+			Console.WriteLine($"{item.Key}:\n{item.Value}");
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine("\t" + _elfHeader.Start);

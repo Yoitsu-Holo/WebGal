@@ -152,6 +152,7 @@ public partial class MoeInterpreter
 
 					MoeVariable variable = new()
 					{
+						Name = tokens[0].Value,
 						Access = access,
 						Type = varType,
 						Dimension = varDimension,

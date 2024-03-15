@@ -76,8 +76,8 @@ public class MoeVariable
 
 	public override string ToString()
 	{
-		string ret = $"Access: {Access}, \tType: {Type}, \tName: {Name}, \tSize:";
-		ret += (Dimension.Count <= 0) ? "Error" : Dimension[^1];
+		string ret = $"Access: {Access}, \tType: {Type}, \tName: {Name}, \tObject: {Obj}, \tSize:";
+		ret += (Dimension.Count <= 0) ? "Error" : $"{Dimension[^1]} , \tDimension: [{string.Join(", ", Dimension)}]";
 		return ret;
 	}
 
@@ -308,9 +308,9 @@ public class FunctionDefineNode
 
 	public override string ToString()
 	{
-		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n";
+		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n\t";
 		foreach (var call in CallType)
-			ret += $"\t{call}\n";
+			ret += $"{call}\n";
 		if (CallType.Count == 0)
 			ret += "Void";
 		ret += "\n";
@@ -327,7 +327,7 @@ public class MathExpressionNode
 
 	public override string ToString()
 	{
-		string ret = "(";
+		string ret = "( ";
 		foreach (var exp in Expressions)
 		{
 			if (exp.Type == MathType.EXP)
@@ -348,7 +348,7 @@ public class LogicExpressionNode
 
 	public override string ToString()
 	{
-		string ret = "(";
+		string ret = "( ";
 		foreach (var exp in Expressions)
 		{
 			if (exp.Type == LogicType.EXP)
@@ -463,19 +463,19 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 		if (ASTType == ASTNodeType.Void)
 			ret += "$ Void AST\n";
 		else if (ASTType == ASTNodeType.FunctionDeclaration && FuncDefine is not null)
-			ret += FuncDefine + "\n";
+			ret += FuncDefine;
 		else if (ASTType == ASTNodeType.VariableDeclaration && VarDefine is not null)
-			ret += VarDefine + "\n";
+			ret += VarDefine;
 		else if (ASTType == ASTNodeType.FunctionCall && FunctionCall is not null)
-			ret += FunctionCall + "\n";
+			ret += FunctionCall;
 		else if (ASTType == ASTNodeType.Assignment && Assignment is not null)
-			ret += Assignment + "\n";
+			ret += Assignment;
 		else if (ASTType == ASTNodeType.Conditional && IfCase is not null)
-			ret += IfCase + "\n";
+			ret += IfCase;
 		else if (ASTType == ASTNodeType.Loop && Loop is not null)
-			ret += Loop + "\n";
+			ret += Loop;
 		else if (ASTType == ASTNodeType.Program && CodeBlock is not null)
-			ret += CodeBlock + "\n";
+			ret += CodeBlock;
 		else
 			ret += ">>> error line\n";
 		return ret;
