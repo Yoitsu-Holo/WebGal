@@ -2,15 +2,15 @@ using WebGal.Services.Include;
 
 namespace WebGal.MeoInterpreter;
 
-public partial class MoeInterpreter(SceneManager sceneManager, ResourceManager resourceManager)
+public partial class MoeInterpreter(ResourceManager resourceManager)
 {
 	private static readonly StringSplitOptions defaultStringSplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 	private readonly ElfHeader _elfHeader = new();
 	private readonly MoeRuntime _globleSpace = new();
 
-	private readonly SceneManager _sceneManager = sceneManager;
 	private readonly ResourceManager _resourceManager = resourceManager;
 
+	private readonly Dictionary<string, MoeStackFrame> _allTask = [];
 	private readonly string _activeTaskName = "main";
 	private Stack<MoeStackFrame> _activeTask = new();
 
