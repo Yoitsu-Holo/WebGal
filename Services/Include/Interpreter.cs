@@ -58,7 +58,7 @@ public class Interpreter
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
-		_moeInterpreter = new(_sceneManager, _resourceManager);
+		_moeInterpreter = new(_resourceManager);
 	}
 
 	public void Clear()

@@ -199,20 +199,5 @@ public partial class Test : IDisposable
 
 	#region Debug
 	private int _frameCount = 0, _fps = 0, _lastSec;
-
-
-	[JSInvokable]
-	public static Task<string> SayHello(string name)
-	{
-		// 暴露接口
-		Console.WriteLine($"Hello, {name}!");
-		return Task.FromResult($"Hello, {name}!");
-		/*
-		DotNet.invokeMethodAsync('YourAssemblyName', 'SayHello', 'World')
-			.then(result => {
-				console.log(result); // 输出：Hello, World!
-			});
-		*/
-	}
 	#endregion
 };
