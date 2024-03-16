@@ -1,20 +1,16 @@
-using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
-using WebGal.Audio;
-using WebGal.Controller;
 using WebGal.Event;
 using WebGal.Global;
-using WebGal.Libs.Base;
 using WebGal.Services;
 using WebGal.Types;
 
 namespace WebGal.Pages;
 
-public partial class Test : IDisposable
+public partial class Test// : IDisposable
 {
 	[Inject] private IJSRuntime jsRuntime { get; set; } = null!;
 	[Inject] private HttpClient httpClient { get; set; } = null!;
@@ -25,22 +21,22 @@ public partial class Test : IDisposable
 	private SKTypeface? paintTypeface;
 
 	//! test
-	private AudioSource? _audioSource;
-	private AudioGain? _audioGain;
-	private AudioSpeeker? _audioSpeeker;
-	private AudioContext? _context;
-	private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
-	private readonly ControllerSliderHorizontal _sliderBoxH = new();
-	private readonly ControllerSliderVertical _sliderBoxV = new();
+	// private AudioSource? _audioSource;
+	// private AudioGain? _audioGain;
+	// private AudioSpeeker? _audioSpeeker;
+	// private AudioContext? _context;
+	// private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
+	// private readonly ControllerSliderHorizontal _sliderBoxH = new();
+	// private readonly ControllerSliderVertical _sliderBoxV = new();
 	//!
 
 
 	protected override void OnInitialized()
 	{
 		// _audioTest = new(jsRuntime);
-		_audioGain = new(jsRuntime);
-		_audioSource = new(jsRuntime);
-		_audioSpeeker = new(jsRuntime);
+		// _audioGain = new(jsRuntime);
+		// _audioSource = new(jsRuntime);
+		// _audioSpeeker = new(jsRuntime);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,20 +48,20 @@ public partial class Test : IDisposable
 			paintTypeface = SKTypeface.FromStream(paintStream);
 
 			// ! test
-			var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
+			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
-			_context = await AudioContext.CreateAsync(jsRuntime);
-			await _audioSource!.SetContextAsync(_context);
-			await _audioGain!.SetContextAsync(_context);
-			await _audioSpeeker!.SetContextAsync(_context);
+			// _context = await AudioContext.CreateAsync(jsRuntime);
+			// await _audioSource!.SetContextAsync(_context);
+			// await _audioGain!.SetContextAsync(_context);
+			// await _audioSpeeker!.SetContextAsync(_context);
 
-			await _audioSource.SetAudioBuffer(audioBuffer);
+			// await _audioSource.SetAudioBuffer(audioBuffer);
 
-			await _audioSource.ConnectToAsync(_audioGain, new AudioWire(0, 0));
-			await _audioGain.ConnectToAsync(_audioSpeeker, new AudioWire(0, 0));
+			// await _audioSource.ConnectToAsync(_audioGain, new AudioWire(0, 0));
+			// await _audioGain.ConnectToAsync(_audioSpeeker, new AudioWire(0, 0));
 
-			await _audioSource.SetAudioLoop(true);
-			await _audioSource.PlayAsync();
+			// await _audioSource.SetAudioLoop(true);
+			// await _audioSource.PlayAsync();
 
 			// await _audioTest!.SetContextAsync(_context);
 			// await _audioTest.SetAudioAsync(audioBuffer);
@@ -89,46 +85,46 @@ public partial class Test : IDisposable
 		var canvas = e.Surface.Canvas;
 		Manager.Render(canvas, NowTime.Minisecond, true);
 
-		//! test
-		TextBox tb = new()
-		{
-			Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
-			BoxStyle = new()
-			{
-				BoxSize = new IVector(1080, 400),
-				BoxPos = new(100, 100),
-				MarginBottom = 20
-			},
-			TextPaint = new()
-			{
-				Color = SKColors.Bisque,
-				IsAntialias = true,
-				TextSize = 30,
-				Typeface = paintTypeface
-			}
-		};
+		//! text test
+		// TextBox tb = new()
+		// {
+		// 	Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
+		// 	BoxStyle = new()
+		// 	{
+		// 		BoxSize = new IVector(1080, 400),
+		// 		BoxPos = new(100, 100),
+		// 		MarginBottom = 20
+		// 	},
+		// 	TextPaint = new()
+		// 	{
+		// 		Color = SKColors.Bisque,
+		// 		IsAntialias = true,
+		// 		TextSize = 30,
+		// 		Typeface = paintTypeface
+		// 	}
+		// };
 
-		canvas.DrawTextBox(tb);
+		// canvas.DrawTextBox(tb);
 
 		// ! controller test
-		_buttom.ProcessMouseEvent(mouseEventCopy);
-		_buttom.Render(canvas);
+		// _buttom.ProcessMouseEvent(mouseEventCopy);
+		// _buttom.Render(canvas);
 
-		_sliderBoxH.ProcessMouseEvent(mouseEventCopy);
-		_sliderBoxH.Render(canvas);
+		// _sliderBoxH.ProcessMouseEvent(mouseEventCopy);
+		// _sliderBoxH.Render(canvas);
 
-		_sliderBoxV.ProcessMouseEvent(mouseEventCopy);
-		_sliderBoxV.Render(canvas);
+		// _sliderBoxV.ProcessMouseEvent(mouseEventCopy);
+		// _sliderBoxV.Render(canvas);
 
 		//! audio test
-		var tm = NowTime.Minisecond;
-		float volume = tm % 6000;
-		volume += 1000;
-		volume /= 7000;
+		// var tm = NowTime.Minisecond;
+		// float volume = tm % 6000;
+		// volume += 1000;
+		// volume /= 7000;
 
-		if (_audioGain is not null)
-			try { await _audioGain.SetGainASync(volume); }
-			catch { };
+		// if (_audioGain is not null)
+		// 	try { await _audioGain.SetGainASync(volume); }
+		// 	catch { };
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
@@ -191,11 +187,11 @@ public partial class Test : IDisposable
 			_mouseEvent.Status = MouseStatus.Hold;
 	}
 
-	public async void Dispose()
-	{
-		if (_context is not null)
-			await _context.DisposeAsync();
-	}
+	// public async void Dispose()
+	// {
+	// 	// if (_context is not null)
+	// 	// 	await _context.DisposeAsync();
+	// }
 
 	#region Debug
 	private int _frameCount = 0, _fps = 0, _lastSec;
