@@ -2,9 +2,9 @@ using SkiaSharp;
 using WebGal.Event;
 using WebGal.Types;
 
-namespace WebGal.Controller;
+namespace WebGal.Layer;
 
-interface IController
+interface ILayer
 {
 	// 渲染到指定canvas
 	void Render(SKCanvas canvas);
@@ -25,6 +25,9 @@ interface IController
 	string GetText();
 	void SetTypeface(SKTypeface typeface);
 	SKTypeface GetTypeface();
+
+	// 动画处理
+	// todo
 
 	//设置名字
 	void SetName(string controllerName);

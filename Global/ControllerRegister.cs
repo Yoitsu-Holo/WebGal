@@ -1,12 +1,12 @@
-using WebGal.Controller;
+using WebGal.Layer;
 
 namespace WebGal.Global;
 
 class ControllerRegister
 {
-	public static IController GetController(string ControllerName) => ControllerName switch
+	public static ILayer GetController(string ControllerName) => ControllerName switch
 	{
 		"brownian" => new ControllerSliderHorizontal(),
-		_ => new ControllerBase(),
+		_ => new LayerBase(),
 	};
 }

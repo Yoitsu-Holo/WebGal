@@ -3,7 +3,7 @@ using WebGal.Event;
 using WebGal.Global;
 using WebGal.Types;
 
-namespace WebGal.Controller;
+namespace WebGal.Layer;
 
 /// <summary>
 /// 包含最基本的控制组件方法.
@@ -23,7 +23,7 @@ namespace WebGal.Controller;
 /// 原则上，visiable 控制是否显示。
 /// 而 diasble 会显示，但是不能操作。
 /// </summary>
-class ControllerBase : IController
+class LayerBase : ILayer
 {
 	protected List<SKBitmap> _image = [];
 	protected IVector _position = new(100, 100);
@@ -35,7 +35,7 @@ class ControllerBase : IController
 	public ControllerStatus Status = ControllerStatus.Normal;
 	protected bool _attributeChange = true;
 
-	public ControllerBase()
+	public LayerBase()
 	{
 		SKBitmap bitmap = new(_size.X, _size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 		using SKCanvas canvas = new(bitmap);

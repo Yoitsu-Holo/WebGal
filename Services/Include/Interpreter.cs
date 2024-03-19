@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using SkiaSharp;
 using WebGal.Global;
 using WebGal.Types;
@@ -10,17 +9,6 @@ namespace WebGal.Services.Include;
 
 public class Interpreter
 {
-	private readonly JsonSerializerOptions _jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		PropertyNameCaseInsensitive = true,
-		WriteIndented = true,
-		Converters =
-		{
-			new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-		}
-	};
-
 	private readonly SceneManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 	private readonly MoeInterpreter _moeInterpreter;
@@ -121,7 +109,7 @@ public class Interpreter
 		await _resourceManager.PullScriptAsync();
 		await _resourceManager.PullScriptAsync("elf", "/TestMoe1/main.elf");
 
-		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), _jsonOptions);
+		var mainObj = JsonSerializer.Deserialize<GameStructure>(_resourceManager.GetScript(), JsonConfig.Options);
 
 		for (int nodeId = 0; nodeId < mainObj.NodeURLs.Count; nodeId++)
 		{
@@ -148,7 +136,7 @@ public class Interpreter
 	private async Task ProcessNodeAsync()
 	{
 		var nodeName = _nodesList[_parsingPointer.NodeId];
-		var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName), _jsonOptions);
+		var nowNode = JsonSerializer.Deserialize<NodeStructure>(_resourceManager.GetScript(nodeName), JsonConfig.Options);
 
 		if (nowNode == default)
 			throw new Exception("No Node");
@@ -194,7 +182,7 @@ public class Interpreter
 
 		string sceneScript = _resourceManager.GetScript(sceneName);
 
-		SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, _jsonOptions);
+		SceneStructure sceneStructure = JsonSerializer.Deserialize<SceneStructure>(sceneScript, JsonConfig.Options);
 
 		if (sceneStructure.Layers is null)
 			throw new Exception("No Scene Layer");
@@ -233,12 +221,12 @@ public class Interpreter
 	/// </summary>
 	/// <param name="layerStructure">传入图层 json 描述</param>
 	/// <exception cref="Exception">节点相关资源未被正常加载</exception>
-	private Layer PackLayer(LayerStructure layerStructure)
+	private Libs.Base.Layer PackLayer(LayerStructure layerStructure)
 	{
 		if (layerStructure.Name is null)
 			throw new Exception("layer dont have name");
 
-		Layer layer = new()
+		Libs.Base.Layer layer = new()
 		{
 			Pos = layerStructure.Position
 		};
@@ -370,7 +358,7 @@ public class Interpreter
 		while (_unloadedResPackName.Count > 0)
 		{
 			var resourcePackScript = _resourceManager.GetScript(_unloadedResPackName.Dequeue());
-			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript, _jsonOptions);
+			ResouresStructure resouresPack = JsonSerializer.Deserialize<ResouresStructure>(resourcePackScript, JsonConfig.Options);
 
 			if (resouresPack.ImageURL is not null)
 				tasks.AddRange(resouresPack.ImageURL.Select(image => _resourceManager.PullImageAsync(image.Name, image.URL)));

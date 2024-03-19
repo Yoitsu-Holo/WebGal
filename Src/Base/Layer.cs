@@ -10,10 +10,6 @@ public class Layer
 	public IVector PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new IVector(Pos.X + OffX, Pos.Y + OffY); }
 	public IVector Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
 	public IVector AbsolutePos(IVector offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
-	// public int Left => Pos.X;
-	// public int Right => Pos.X + WinSize.Width;
-	// public int Top => Pos.Y;
-	// public int Bottom => Pos.Y + WinSize.Height;
 	public SKSizeI WinSize { get; set; }
 	#endregion
 
@@ -43,7 +39,7 @@ public class Layer
 
 
 	#region Text
-	public List<LayerText> Text { get; private set; } = new();
+	public LayerText? Text { get; set; }
 	#endregion
 
 

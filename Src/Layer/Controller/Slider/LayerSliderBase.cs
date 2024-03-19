@@ -3,9 +3,9 @@ using WebGal.Event;
 using WebGal.Global;
 using WebGal.Types;
 
-namespace WebGal.Controller;
+namespace WebGal.Layer.Controller;
 
-abstract class ControllerSliderBase : ControllerBase
+abstract class ControllerSliderBase : LayerBase
 {
 	protected SKBitmap _trackImage = new();
 	protected IVector _mouseDelta = new(0, 0);

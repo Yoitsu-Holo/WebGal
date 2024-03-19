@@ -1,4 +1,7 @@
+using System.Text.Json;
 using Microsoft.JSInterop;
+using WebGal.API;
+using WebGal.Global;
 
 namespace WebGal.Driver;
 
@@ -9,8 +12,23 @@ namespace WebGal.Driver;
 public partial class Driver
 {
 	[JSInvokable]
+	public static Task<string> RegisteTextBox(string json)
+	{
+		ResponseHeader respone = new();
+		var textBox = JsonSerializer.Deserialize<TextBox>(json);
+
+
+		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+	}
+
+
+	[JSInvokable]
 	public static Task<string> Say(string json)
 	{
-		return Task.FromResult("");
+		ResponseHeader respone = new();
+
+
+
+		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
 }

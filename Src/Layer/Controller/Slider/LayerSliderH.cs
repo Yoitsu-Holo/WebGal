@@ -1,6 +1,6 @@
 using WebGal.Types;
 
-namespace WebGal.Controller;
+namespace WebGal.Layer.Controller;
 
 class ControllerSliderHorizontal : ControllerSliderBase
 {

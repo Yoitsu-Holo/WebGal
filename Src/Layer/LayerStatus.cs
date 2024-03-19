@@ -1,4 +1,4 @@
-namespace WebGal.Controller;
+namespace WebGal.Layer;
 public enum ControllerStatus : int
 {
 	Normal,     // 通常状态

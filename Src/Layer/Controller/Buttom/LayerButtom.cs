@@ -3,9 +3,9 @@ using WebGal.Event;
 using WebGal.Global;
 using WebGal.Types;
 
-namespace WebGal.Controller;
+namespace WebGal.Layer.Controller;
 
-class ControllerButtom : ControllerBase
+class ControllerButtom : LayerBase
 {
 	// 大小,位置 设置
 	public IVector Size { get { return GetSize(); } set { SetSize(value); } }

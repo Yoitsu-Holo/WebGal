@@ -66,6 +66,19 @@ public record struct LayerInfo
 	public int LayerID; // 图层编号，数字越大表示越在上方
 }
 
+
+/// <summary>
+/// 游戏设置
+/// </summary>
+public record struct GameInfo
+{
+	public RequestHeader Request;
+	public ResponseHeader Response;
+
+	public string Name;
+	public IVector Resolution;
+}
+
 /// <summary>
 /// 文本框设置，根据 RequestHeader.RequestType 字段确定行为: 
 /// Get: 获取基本信息;
@@ -130,6 +143,10 @@ public record struct ImageBoxInfo
 public record struct SetImageBoxImage(string Name, string ImageName);
 public record struct SetImageBoxOffset(string Name, IVector Offset);
 
+//^ 特化图像标签，设置背景、角色、立绘操作
+public record struct BackGround(string ImageName, IVector Offset);
+public record struct Character(string ImageName, IVector Offset);
+public record struct Stand(string ImageName, IVector Offset);
 
 /// <summary>
 /// 单颜色色彩快设置
@@ -160,4 +177,3 @@ public record struct ColorBoxInfoColor(string Name, byte R, byte G, byte B, byte
 public record struct ColorBoxInfoOffset(string Name, IVector Offset);
 
 
-public record struct Audio
