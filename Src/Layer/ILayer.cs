@@ -23,8 +23,15 @@ interface ILayer
 	// 文本处理
 	void SetText(string s);
 	string GetText();
+	void SerTextSize(int size);
+	int GetTextSize();
 	void SetTypeface(SKTypeface typeface);
 	SKTypeface GetTypeface();
+
+	// 图片处理
+	void SetImage(SKBitmap image, int id);
+	void SetColor(SKColor color, IVector size, int imageId);
+
 
 	// 动画处理
 	// todo
@@ -42,6 +49,6 @@ interface ILayer
 	public bool IsEnable();
 
 	// 值处理
-	void SetValue(float value);
-	float GetValue();
+	void SetValue(int value);
+	int GetValue();
 }

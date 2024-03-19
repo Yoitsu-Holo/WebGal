@@ -1,6 +1,5 @@
 using SkiaSharp;
 using WebGal.Event;
-using WebGal.Global;
 using WebGal.Types;
 
 namespace WebGal.Layer;
@@ -23,63 +22,73 @@ namespace WebGal.Layer;
 /// 原则上，visiable 控制是否显示。
 /// 而 diasble 会显示，但是不能操作。
 /// </summary>
-class LayerBase : ILayer
+public class LayerBase : ILayer
 {
-	protected List<SKBitmap> _image = [];
-	protected IVector _position = new(100, 100);
-	protected IVector _size = new(15, 30);
-	protected string _text = "";
-	protected string _name = "ControllerBase object";
-	protected SKTypeface _typeface = SKTypeface.Default;
-
-	public ControllerStatus Status = ControllerStatus.Normal;
+	protected bool _dirty = true;
+	public LayerStatus Status = LayerStatus.Normal;
 	protected bool _attributeChange = true;
 
-	public LayerBase()
-	{
-		SKBitmap bitmap = new(_size.X, _size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
-		using SKCanvas canvas = new(bitmap);
-		canvas.DrawRect(
-			new SKRect(0, 0, _size.X, _size.Y),
-			new SKPaint { Color = new SKColor(97, 154, 195, 128) }
-		);
-		canvas.Flush();
-		_image.Add(bitmap);
-	}
-
+	#region 外界交互
+	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
 	// 处理事件
 	public virtual void ProcessMouseEvent(MouseEvent mouseEvent) => throw new NotImplementedException();
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
 	// 渲染图像
-	public virtual void Render(SKCanvas canvas) => canvas.DrawBitmap(_image[0], GetPositon());
+	public virtual void Render(SKCanvas canvas) => throw new NotImplementedException();
+	#endregion
+
+
+	#region 自身设置
+	// 设置图片属性 (不作为基本属性设置)
+	public virtual void SetImage(SKBitmap image, int imageId = 0) => throw new NotImplementedException();
+	public virtual void SetColor(SKColor color, IVector size = new(), int imageId = 0) => throw new NotImplementedException();
+
 
 	// 设置位置属性
-	public virtual void SetPostion(IVector postion) => _position = postion;
-	public virtual void SetSize(IVector size) => _size = size;
-	public virtual IVector GetPositon() => _position;
-	public virtual IVector GetSize() => _size;
-	public virtual IRect GetWindow() => new(_position, _size);
+	public virtual void SetPostion(IVector postion) => (Position, _dirty) = (postion, true);
+	public virtual IVector GetPositon() => Position;
+	public IVector Position;
+	public virtual void SetSize(IVector size) => (Size, _dirty) = (size, true);
+	public virtual IVector GetSize() => Size;
+	public IVector Size;
+	public virtual IRect GetWindow() => new(Position, Size);
+	public IRect Window { get { return GetWindow(); } }
 
 
 	// 设置文本属性
-	public virtual void SetText(string text) => _text = text;
-	public virtual string GetText() => _text;
-	public virtual void SetTypeface(SKTypeface typeface) => _typeface = typeface;
-	public virtual SKTypeface GetTypeface() => _typeface;
+	public virtual void SetText(string text) => (Text, _dirty) = (text, true);
+	public virtual string GetText() => Text;
+	public string Text = "";
+	public void SerTextSize(int size) => (TextSize, _dirty) = (size, true);
+	public int GetTextSize() => TextSize;
+	public int TextSize;
+	public virtual void SetTypeface(SKTypeface typeface) => (Typeface, _dirty) = (typeface, true);
+	public virtual SKTypeface GetTypeface() => Typeface;
+	public SKTypeface Typeface = SKTypeface.Default;
+
 
 	// 是否启用
-	public virtual void SetEnable(bool enable) => Status = enable ? ControllerStatus.Normal : ControllerStatus.Disable;
-	public virtual bool IsEnable() => Status != ControllerStatus.Disable;
+	public virtual void SetEnable(bool enable) => (Status, _dirty) = (enable ? LayerStatus.Normal : LayerStatus.Disable, true);
+	public virtual bool IsEnable() => Status != LayerStatus.Disable;
+	public bool Enable { get { return IsEnable(); } set { SetEnable(value); } }
+
 
 	// 是否可见
-	public virtual void SetVisible(bool visible) => Status = visible ? ControllerStatus.Normal : ControllerStatus.Unvisable;
-	public virtual bool IsVisible() => Status != ControllerStatus.Unvisable;
+	public virtual void SetVisible(bool visible) => (Status, _dirty) = (visible ? LayerStatus.Normal : LayerStatus.Unvisable, true);
+	public virtual bool IsVisible() => Status != LayerStatus.Unvisable;
+	public bool Visible { get { return IsVisible(); } set { SetVisible(value); } }
+
 
 	// 名字属性
-	public virtual void SetName(string controllerName) => _name = controllerName;
-	public virtual string GetName() => _name;
+	public virtual void SetName(string controllerName) => (Name, _dirty) = (controllerName, true);
+	public virtual string GetName() => Name;
+	public string Name = "";
 
-	public virtual void SetValue(float value) { }
-	public virtual float GetValue() => 0;
+
+	// 值属性
+	public virtual void SetValue(int value) => (Value, _dirty) = (value, true);
+	public virtual int GetValue() => Value;
+	public int Value;
+	#endregion
 }

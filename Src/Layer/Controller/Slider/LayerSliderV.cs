@@ -2,7 +2,7 @@ using WebGal.Types;
 
 namespace WebGal.Layer.Controller;
 
-class ControllerSliderVertical : ControllerSliderBase
+public class ControllerSliderVertical : ControllerSliderBase
 {
 	public ControllerSliderVertical()
 	{
@@ -15,7 +15,7 @@ class ControllerSliderVertical : ControllerSliderBase
 
 	protected override void ThumbLimitSet(IVector thumbDelta)
 	{
-		_thumbDelta = new(0, Math.Max(0, Math.Min(_size.Height - _thumbSize.Height, thumbDelta.Y)));
-		_value = 1.0f * _thumbDelta.Height / (_size.Height - _thumbSize.Height);
+		_thumbDelta = new(0, Math.Max(0, Math.Min(Size.Height - _thumbSize.Height, thumbDelta.Y)));
+		_value = 1.0f * _thumbDelta.Height / (Size.Height - _thumbSize.Height);
 	}
 }

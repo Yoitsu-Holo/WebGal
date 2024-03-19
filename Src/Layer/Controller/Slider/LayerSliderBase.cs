@@ -5,8 +5,11 @@ using WebGal.Types;
 
 namespace WebGal.Layer.Controller;
 
-abstract class ControllerSliderBase : LayerBase
+public abstract class ControllerSliderBase : LayerBase
 {
+	protected SortedDictionary<int, SKBitmap> _image = [];
+
+
 	protected SKBitmap _trackImage = new();
 	protected IVector _mouseDelta = new(0, 0);
 	protected float _value = 0;
@@ -23,7 +26,7 @@ abstract class ControllerSliderBase : LayerBase
 	public IVector Size { get { return GetSize(); } set { SetSize(value); } }
 	public IRect Window { get { return GetWindow(); } }
 
-	public IVector ThumbPosition { get { return _position + _thumbDelta; } set { _thumbDelta = value - _position; } }
+	public IVector ThumbPosition { get { return Position + _thumbDelta; } set { _thumbDelta = value - Position; } }
 	public IVector ThumbSize { get { return _thumbSize; } set { _thumbSize = value; } }
 	public IRect ThumbWindow { get { return new(ThumbPosition, _thumbSize); } }
 
@@ -51,8 +54,8 @@ abstract class ControllerSliderBase : LayerBase
 
 	public void InitAttribute(IRect position, IVector thumbSize)
 	{
-		_position = new(position.X, position.Y);
-		_size = new(position.W, position.H);
+		Position = new(position.X, position.Y);
+		Size = new(position.W, position.H);
 
 		_thumbSize = thumbSize;
 
@@ -61,22 +64,22 @@ abstract class ControllerSliderBase : LayerBase
 
 	public void InitImage()
 	{
-		_trackImage = new(_size.Width, _size.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 导轨
+		_trackImage = new(Size.Width, Size.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 导轨
 
 		_image.Clear();
-		_image.Add(new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType)); // 滑块未触发
-		_image.Add(new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType)); // 滑块鼠标悬浮
-		_image.Add(new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType)); // 滑块鼠标点击
-		_image.Add(new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType)); // 滑块鼠标点击
+		_image[0] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块未触发
+		_image[1] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标悬浮
+		_image[2] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
+		_image[3] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
 
 		using SKCanvas trackCanvas = new(_trackImage);
-		using SKCanvas thumbNormalCanvas = new(_image[(int)ControllerStatus.Normal]);
-		using SKCanvas thumbHoverCanvas = new(_image[(int)ControllerStatus.Hover]);
-		using SKCanvas thumbPressedCanvas = new(_image[(int)ControllerStatus.Pressed]);
-		using SKCanvas thumbFocusedCanvas = new(_image[(int)ControllerStatus.Focused]);
+		using SKCanvas thumbNormalCanvas = new(_image[(int)LayerStatus.Normal]);
+		using SKCanvas thumbHoverCanvas = new(_image[(int)LayerStatus.Hover]);
+		using SKCanvas thumbPressedCanvas = new(_image[(int)LayerStatus.Pressed]);
+		using SKCanvas thumbFocusedCanvas = new(_image[(int)LayerStatus.Focused]);
 
 		trackCanvas.DrawRect(
-			new(0, 0, _size.Width, _size.Height),
+			new(0, 0, Size.Width, Size.Height),
 			new SKPaint { Color = new SKColor(200, 200, 200, 255) }
 		);
 
@@ -111,10 +114,25 @@ abstract class ControllerSliderBase : LayerBase
 	{
 		_trackImage = trackImage;
 
-		_image[(int)ControllerStatus.Normal] = sliderNormal;
-		_image[(int)ControllerStatus.Hover] = sliderHover;
-		_image[(int)ControllerStatus.Pressed] = sliderPressed;
-		_image[(int)ControllerStatus.Focused] = sliderPressed;
+		_image[(int)LayerStatus.Normal] = sliderNormal;
+		_image[(int)LayerStatus.Hover] = sliderHover;
+		_image[(int)LayerStatus.Pressed] = sliderPressed;
+		_image[(int)LayerStatus.Focused] = sliderPressed;
+	}
+
+	public override void SetImage(SKBitmap image, int imageId = 0) => _image[imageId] = image;
+	public override void SetColor(SKColor color, IVector size = new(), int imageId = 0)
+	{
+		if (size.X * size.Y == 0)
+			size = Size;
+		SKBitmap bitmap = new(size.X, size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+		using SKCanvas canvas = new(bitmap);
+		canvas.DrawRect(
+			new SKRect(0, 0, size.X, size.Y),
+			new SKPaint { Color = color }
+		);
+		canvas.Flush();
+		_image[imageId] = bitmap;
 	}
 
 	public ControllerSliderBase()
@@ -129,25 +147,25 @@ abstract class ControllerSliderBase : LayerBase
 
 	public override void ProcessMouseEvent(MouseEvent mouseEvent)
 	{
-		if (Status == ControllerStatus.Disable)
+		if (Status == LayerStatus.Disable)
 			return;
 
-		if (Status != ControllerStatus.Focused && !(Status == ControllerStatus.Pressed && mouseEvent.Status == MouseStatus.Hold))
+		if (Status != LayerStatus.Focused && !(Status == LayerStatus.Pressed && mouseEvent.Status == MouseStatus.Hold))
 		{
 			if (RangeComp.OutRange(ThumbWindow, mouseEvent.Position))
-				Status = ControllerStatus.Normal;
+				Status = LayerStatus.Normal;
 			else if (mouseEvent.Button == MouseButton.Empty && mouseEvent.Status == MouseStatus.Release)
-				Status = ControllerStatus.Hover;
+				Status = LayerStatus.Hover;
 			else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
-				Status = ControllerStatus.Pressed;
+				Status = LayerStatus.Pressed;
 		}
 
 		// 触发界面内，触发
-		if (Status == ControllerStatus.Pressed)
+		if (Status == LayerStatus.Pressed)
 		{
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - ThumbPosition;
-			ThumbLimitSet(mouseEvent.Position - _position - _mouseDelta);
+			ThumbLimitSet(mouseEvent.Position - Position - _mouseDelta);
 		}
 		else
 		{
@@ -157,7 +175,7 @@ abstract class ControllerSliderBase : LayerBase
 
 	public override void Render(SKCanvas canvas)
 	{
-		if (Status == ControllerStatus.Unvisable)
+		if (Status == LayerStatus.Unvisable)
 			return;
 
 		// 优先更改图层属性
@@ -168,29 +186,27 @@ abstract class ControllerSliderBase : LayerBase
 		canvas.DrawBitmap(_trackImage, Position);
 		switch (Status)
 		{
-			case ControllerStatus.Normal:
-				canvas.DrawBitmap(_image[(int)ControllerStatus.Normal], ThumbPosition);
+			case LayerStatus.Normal:
+				canvas.DrawBitmap(_image[(int)LayerStatus.Normal], ThumbPosition);
 				break;
-			case ControllerStatus.Hover:
-				canvas.DrawBitmap(_image[(int)ControllerStatus.Hover], ThumbPosition);
+			case LayerStatus.Hover:
+				canvas.DrawBitmap(_image[(int)LayerStatus.Hover], ThumbPosition);
 				break;
-			case ControllerStatus.Pressed:
-				canvas.DrawBitmap(_image[(int)ControllerStatus.Pressed], ThumbPosition);
+			case LayerStatus.Pressed:
+				canvas.DrawBitmap(_image[(int)LayerStatus.Pressed], ThumbPosition);
 				break;
-			case ControllerStatus.Focused:
-				canvas.DrawBitmap(_image[(int)ControllerStatus.Focused], ThumbPosition);
+			case LayerStatus.Focused:
+				canvas.DrawBitmap(_image[(int)LayerStatus.Focused], ThumbPosition);
 				break;
 		}
 	}
 
 	// range [0,1]
-	public override void SetValue(float value)
+	public override void SetValue(int value)
 	{
 		_value = value;
 		ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * value));
 	}
-
-	public override float GetValue() => _value;
 
 	protected virtual void ThumbLimitSet(IVector thumbDelta) => _thumbDelta = new(0, 0);
 }

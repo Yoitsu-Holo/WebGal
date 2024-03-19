@@ -1,5 +1,5 @@
 namespace WebGal.Layer;
-public enum ControllerStatus : int
+public enum LayerStatus : int
 {
 	Normal,     // 通常状态
 	Hover,      // 悬停状态
