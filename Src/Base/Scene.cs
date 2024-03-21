@@ -1,54 +1,65 @@
-using WebGal.Global;
+using SkiaSharp;
+using WebGal.Types;
 
 namespace WebGal.Libs.Base;
 
 /// <summary>
-/// 一系列场景数据，包含多个图层。
-/// 被 Scene Manager 设置，被 Render 使用。
+/// 特化的 [Layer] 数组，只用于表示 ADV 剧情
 /// </summary>
 public class Scene
 {
-	public bool StateHasChange = true;
+	#region  Position
+	public IVector Pos { get; set; }
+	public IVector PosAt(long timeoff) { var (OffX, OffY) = Anim.GetOffset(timeoff); return new IVector(Pos.X + OffX, Pos.Y + OffY); }
+	public IVector Center => new(Pos.X + WinSize.Width / 2, Pos.Y + WinSize.Height / 2);
+	public IVector AbsolutePos(IVector offset) => new(Pos.X + offset.X, Pos.Y + offset.Y);
+	public SKSizeI WinSize { get; set; }
+	#endregion
 
+	#region attribute
+	public bool StatusHasChanged;
+	public LayerAtrribute OriginalAttribute;
+	public LayerAtrribute DynamicAttribute;
+	#endregion
 
-	public readonly HashSet<string> LoopAudioSet = [];
-	public readonly HashSet<string> OneShotAudioSet = [];
-
-
-	public SortedDictionary<int, Layer> Layers = new();
-
-	public bool HasAnimation(long timeoff)
+	#region Next Frame
+	public SKBitmap? FrameBuffer { get; private set; }
+	public IVector FramePosition { get; private set; } = new(0, 0);
+	public void GenNextFrame(long timeoff, bool force = false)
 	{
-		if (StateHasChange)
+		if (BackGroundSKBitmap is null || DynamicAttribute.IsHide)
+			return;
+
+		force = false;
+
+		if (force || FrameBuffer is null)
 		{
-			StateHasChange = false;
-			return true;
+			FramePosition = PosAt(timeoff);
+			FrameBuffer = BackGroundSKBitmap.Resize(WinSize, SKFilterQuality.High);
 		}
-		bool hasAnimation = false;
-		foreach (var (_, layer) in Layers)
-			hasAnimation |= layer.HasAnimation(timeoff);
-		return hasAnimation;
 	}
-
-	public void PushLayer(int layerId, Layer layer) => Layers[layerId] = layer;
-	public void Clear() => Layers.Clear();
+	#endregion
 
 
-	public void SetBeginTime(long beginTime)
-	{
-		foreach (var (_, layer) in Layers)
-			layer.BeginTime = beginTime;
-	}
+	#region Text
+	public LayerText? Text { get; set; }
+	#endregion
 
-	public void StartAnimation()
-	{
-		SetBeginTime(NowTime.Minisecond);
-		StateHasChange = true;
-	}
 
-	public void StopAnimation()
-	{
-		SetBeginTime(long.MinValue);
-		StateHasChange = true;
-	}
+	#region Image
+	public SKBitmap? BackGroundSKBitmap { get; set; }
+	#endregion
+
+
+	#region Animation
+	public long BeginTime { get => Anim.BeginTime; set => Anim.BeginTime = value; }
+	public Animation Anim = new();
+	public bool HasAnimation(long timeoff) => Anim is not null && Anim.HasAnimation(timeoff);
+	#endregion
+
+
+	#region Style
+	public double Transparency { set; get; }
+	#endregion
 }
+

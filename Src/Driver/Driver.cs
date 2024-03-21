@@ -10,10 +10,10 @@ namespace WebGal.Driver;
 // 全局驱动程序，也是引擎暴露的接口
 public partial class Driver
 {
-	private readonly SceneManager _sceneManager;
+	private readonly LayoutManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 
-	public Driver(SceneManager sceneManager, ResourceManager resourceManager)
+	public Driver(LayoutManager sceneManager, ResourceManager resourceManager)
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;

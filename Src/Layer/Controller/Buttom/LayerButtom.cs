@@ -1,5 +1,5 @@
 using SkiaSharp;
-using WebGal.Event;
+using WebGal.Handler.Event;
 using WebGal.Global;
 using WebGal.Types;
 
@@ -86,7 +86,7 @@ public class ControllerButtom : LayerBase
 	public ControllerButtom(IRect position) { InitBase(); InitPosition(position); }
 	public ControllerButtom(IVector position, IVector size) { InitBase(); InitPosition(new IRect(position, size)); }
 
-	public override void ProcessMouseEvent(MouseEvent mouseEvent)
+	public override void ProcessMouseEvent(MouseTrigger mouseEvent)
 	{
 		if (Status == LayerStatus.Disable)
 			return;
@@ -108,6 +108,4 @@ public class ControllerButtom : LayerBase
 			return;
 		canvas.DrawBitmap(_image[(int)Status], Position);
 	}
-
-	public sealed override void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new InvalidOperationException("该类不包含此方法");
 }

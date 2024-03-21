@@ -9,7 +9,7 @@ namespace WebGal.Services.Include;
 
 public class Interpreter
 {
-	private readonly SceneManager _sceneManager;
+	private readonly LayoutManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
 	private readonly MoeInterpreter _moeInterpreter;
 
@@ -42,7 +42,7 @@ public class Interpreter
 	/// </summary>
 	private (int NodeId, int SceneId) _parsingPointer;
 
-	public Interpreter(SceneManager sceneManager, ResourceManager resourceManager)
+	public Interpreter(LayoutManager sceneManager, ResourceManager resourceManager)
 	{
 		_sceneManager = sceneManager;
 		_resourceManager = resourceManager;
@@ -187,7 +187,7 @@ public class Interpreter
 		if (sceneStructure.Layers is null)
 			throw new Exception("No Scene Layer");
 
-		Scene scene = new();
+		Layout scene = new();
 
 		foreach (var layer in sceneStructure.Layers)
 		{
@@ -221,12 +221,12 @@ public class Interpreter
 	/// </summary>
 	/// <param name="layerStructure">传入图层 json 描述</param>
 	/// <exception cref="Exception">节点相关资源未被正常加载</exception>
-	private Libs.Base.Layer PackLayer(LayerStructure layerStructure)
+	private Libs.Base.Scene PackLayer(LayerStructure layerStructure)
 	{
 		if (layerStructure.Name is null)
 			throw new Exception("layer dont have name");
 
-		Libs.Base.Layer layer = new()
+		Libs.Base.Scene layer = new()
 		{
 			Pos = layerStructure.Position
 		};

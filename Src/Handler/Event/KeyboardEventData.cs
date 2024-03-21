@@ -1,0 +1,1 @@
+namespace WebGal.Handler.Event;

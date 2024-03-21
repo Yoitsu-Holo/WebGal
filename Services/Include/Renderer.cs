@@ -12,7 +12,7 @@ public class Renderer
 		_canvas?.Clear();
 	}
 
-	public void Render(SKCanvas canvas, Scene scene, long timeoff, bool force)
+	public void Render(SKCanvas canvas, Layout scene, long timeoff, bool force)
 	{
 		if (_canvas != canvas)
 		{

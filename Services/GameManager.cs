@@ -11,9 +11,9 @@ public class GameManager
 	private readonly IJSRuntime _js;                        //^ JavaScript 互操作运行时
 	private readonly Interpreter _interpreter;              //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;      //^ 资源管理器
-	private readonly SceneManager _sceneManager = new();    //^ 场景管理器
+	private readonly LayoutManager _sceneManager = new();    //^ 场景管理器
 	private readonly Renderer _render = new();              //^ 渲染器
-	private Scene? _scene;
+	private Layout? _scene;
 
 	private string _sceneName = "StartMenu";
 

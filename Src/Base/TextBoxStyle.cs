@@ -1,6 +1,13 @@
 namespace WebGal.Libs.Base;
 using WebGal.Types;
 
+public record struct TextPadding(
+	int Top,
+	int Bottom,
+	int Left,
+	int Right
+);
+
 public class TextBoxStyle
 {
 	public IVector BoxPos { get; set; }

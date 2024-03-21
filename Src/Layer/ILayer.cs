@@ -1,5 +1,5 @@
 using SkiaSharp;
-using WebGal.Event;
+using WebGal.Handler.Event;
 using WebGal.Types;
 
 namespace WebGal.Layer;
@@ -10,7 +10,7 @@ interface ILayer
 	void Render(SKCanvas canvas);
 
 	// 事件处理（）
-	void ProcessMouseEvent(MouseEvent mouseEvent);
+	void ProcessMouseEvent(MouseTrigger mouseEvent);
 	void ProcessKeyboardEvent(KeyboardEvent keyboardEvent);
 
 	// 大小处理、位置处理（左上角）

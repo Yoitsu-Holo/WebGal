@@ -1,5 +1,5 @@
 using SkiaSharp;
-using WebGal.Event;
+using WebGal.Handler.Event;
 using WebGal.Types;
 
 namespace WebGal.Layer;
@@ -31,7 +31,7 @@ public class LayerBase : ILayer
 	#region 外界交互
 	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
 	// 处理事件
-	public virtual void ProcessMouseEvent(MouseEvent mouseEvent) => throw new NotImplementedException();
+	public virtual void ProcessMouseEvent(MouseTrigger mouseEvent) => throw new NotImplementedException();
 	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
 
 	// 渲染图像

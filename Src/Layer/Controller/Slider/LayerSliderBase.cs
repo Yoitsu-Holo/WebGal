@@ -1,5 +1,5 @@
 using SkiaSharp;
-using WebGal.Event;
+using WebGal.Handler.Event;
 using WebGal.Global;
 using WebGal.Types;
 
@@ -22,25 +22,9 @@ public abstract class ControllerSliderBase : LayerBase
 
 	// 通用属性
 	// 大小,位置 设置
-	public IVector Position { get { return GetPositon(); } set { SetPostion(value); } }
-	public IVector Size { get { return GetSize(); } set { SetSize(value); } }
-	public IRect Window { get { return GetWindow(); } }
-
 	public IVector ThumbPosition { get { return Position + _thumbDelta; } set { _thumbDelta = value - Position; } }
 	public IVector ThumbSize { get { return _thumbSize; } set { _thumbSize = value; } }
 	public IRect ThumbWindow { get { return new(ThumbPosition, _thumbSize); } }
-
-
-
-	// 文本设置
-	public string Name { get { return GetName(); } set { SetName(value); } }
-	public string Text { get { return GetText(); } set { SetText(value); } }
-	public SKTypeface Typeface { get { return GetTypeface(); } set { SetTypeface(value); } }
-
-
-	// 设置可见性、功能性
-	public bool Visible { get { return IsVisible(); } set { SetVisible(value); } }
-	public bool Enable { get { return IsEnable(); } set { SetEnable(value); } }
 
 
 	public void InitBase()
@@ -145,7 +129,7 @@ public abstract class ControllerSliderBase : LayerBase
 	}
 
 
-	public override void ProcessMouseEvent(MouseEvent mouseEvent)
+	public override void ProcessMouseEvent(MouseTrigger mouseEvent)
 	{
 		if (Status == LayerStatus.Disable)
 			return;
