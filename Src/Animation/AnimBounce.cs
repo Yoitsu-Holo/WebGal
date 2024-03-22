@@ -7,7 +7,7 @@ class AnimationBounce : IAnimation
 	private float x = 0, y = 0;
 	private float dx = 1.5F, dy = -0.79F;
 	private long timepre = -1;
-	public FVector GetOffset(float timeOff, long timeObs)
+	public FVector GetOffset(double timeOff, long timeObs)
 	{
 		if (timepre == -1)
 			timepre = timeObs;

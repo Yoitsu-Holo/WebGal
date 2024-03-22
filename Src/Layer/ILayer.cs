@@ -1,54 +1,35 @@
 using SkiaSharp;
-using WebGal.Handler.Event;
+using WebGal.Animations;
+using WebGal.Handler;
 using WebGal.Types;
 
 namespace WebGal.Layer;
 
-interface ILayer
+public interface ILayer : IAction
 {
 	// 渲染到指定canvas
-	void Render(SKCanvas canvas);
-
-	// 事件处理（）
-	void ProcessMouseEvent(MouseTrigger mouseEvent);
-	void ProcessKeyboardEvent(KeyboardEvent keyboardEvent);
-
-	// 大小处理、位置处理（左上角）
-	void SetSize(IVector size);
-	IVector GetSize();
-	void SetPostion(IVector postion);
-	IVector GetPositon();
-	IRect GetWindow();
-
-	// 文本处理
-	void SetText(string s);
-	string GetText();
-	void SerTextSize(int size);
-	int GetTextSize();
-	void SetTypeface(SKTypeface typeface);
-	SKTypeface GetTypeface();
+	public void Render(SKCanvas canvas);
 
 	// 图片处理
-	void SetImage(SKBitmap image, int id);
-	void SetColor(SKColor color, IVector size, int imageId);
-
+	public void SetImage(SKBitmap image, int id);
+	public void SetColor(SKColor color, IVector size, int imageId);
 
 	// 动画处理
-	// todo
+	public IAnimation Animation { get; set; }
 
-	//设置名字
-	void SetName(string controllerName);
-	string GetName();
 
-	// 可见性
-	void SetVisible(bool visible);
-	bool IsVisible();
+	// 大小处理、位置处理（左上角）
+	public IVector Size { get; set; }
+	public IVector Position { get; set; }
+	public IRect Window { get; }
 
-	// 功能性
-	void SetEnable(bool enable);
-	public bool IsEnable();
+	// 文本处理
+	public string Text { get; set; }
+	public int TextSize { get; set; }
+	public SKTypeface Typeface { get; set; }
 
-	// 值处理
-	void SetValue(int value);
-	int GetValue();
+	public string Name { get; set; }    // 设置名字
+	public bool Visible { get; set; }   // 可见性
+	public bool Enable { get; set; }    // 功能性
+	public object Value { get; set; }   // 值处理
 }

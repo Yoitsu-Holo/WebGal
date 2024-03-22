@@ -1,4 +1,6 @@
 using SkiaSharp;
+using WebGal.Animations;
+using WebGal.Handler;
 using WebGal.Handler.Event;
 using WebGal.Types;
 
@@ -22,7 +24,7 @@ namespace WebGal.Layer;
 /// 原则上，visiable 控制是否显示。
 /// 而 diasble 会显示，但是不能操作。
 /// </summary>
-public class LayerBase : ILayer
+public class LayerBase : ILayer, IAction
 {
 	protected bool _dirty = true;
 	public LayerStatus Status = LayerStatus.Normal;
@@ -31,8 +33,7 @@ public class LayerBase : ILayer
 	#region 外界交互
 	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
 	// 处理事件
-	public virtual void ProcessMouseEvent(MouseTrigger mouseEvent) => throw new NotImplementedException();
-	public virtual void ProcessKeyboardEvent(KeyboardEvent keyboardEvent) => throw new NotImplementedException();
+	public virtual void ExecuteAction(EventArgs eventArgs) => throw new NotImplementedException();
 
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas) => throw new NotImplementedException();
@@ -44,51 +45,25 @@ public class LayerBase : ILayer
 	public virtual void SetImage(SKBitmap image, int imageId = 0) => throw new NotImplementedException();
 	public virtual void SetColor(SKColor color, IVector size = new(), int imageId = 0) => throw new NotImplementedException();
 
+	public IAnimation Animation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+
 
 	// 设置位置属性
-	public virtual void SetPostion(IVector postion) => (Position, _dirty) = (postion, true);
-	public virtual IVector GetPositon() => Position;
-	public IVector Position;
-	public virtual void SetSize(IVector size) => (Size, _dirty) = (size, true);
-	public virtual IVector GetSize() => Size;
-	public IVector Size;
-	public virtual IRect GetWindow() => new(Position, Size);
-	public IRect Window { get { return GetWindow(); } }
+	public virtual IVector Position { get => Position; set => (Position, _dirty) = (value, true); }
+	public virtual IVector Size { get => Size; set => (Size, _dirty) = (value, true); }
+	public virtual IRect Window { get { return new(Position, Size); } }
 
 
 	// 设置文本属性
-	public virtual void SetText(string text) => (Text, _dirty) = (text, true);
-	public virtual string GetText() => Text;
-	public string Text = "";
-	public void SerTextSize(int size) => (TextSize, _dirty) = (size, true);
-	public int GetTextSize() => TextSize;
-	public int TextSize;
-	public virtual void SetTypeface(SKTypeface typeface) => (Typeface, _dirty) = (typeface, true);
-	public virtual SKTypeface GetTypeface() => Typeface;
-	public SKTypeface Typeface = SKTypeface.Default;
+	public virtual string Text { get => Text; set => (Text, _dirty) = (value, true); }
+	public virtual int TextSize { get => TextSize; set => (TextSize, _dirty) = (value, true); }
+	public virtual SKTypeface Typeface { get => Typeface; set => (Typeface, _dirty) = (value, true); }
 
 
-	// 是否启用
-	public virtual void SetEnable(bool enable) => (Status, _dirty) = (enable ? LayerStatus.Normal : LayerStatus.Disable, true);
-	public virtual bool IsEnable() => Status != LayerStatus.Disable;
-	public bool Enable { get { return IsEnable(); } set { SetEnable(value); } }
-
-
-	// 是否可见
-	public virtual void SetVisible(bool visible) => (Status, _dirty) = (visible ? LayerStatus.Normal : LayerStatus.Unvisable, true);
-	public virtual bool IsVisible() => Status != LayerStatus.Unvisable;
-	public bool Visible { get { return IsVisible(); } set { SetVisible(value); } }
-
-
-	// 名字属性
-	public virtual void SetName(string controllerName) => (Name, _dirty) = (controllerName, true);
-	public virtual string GetName() => Name;
-	public string Name = "";
-
-
-	// 值属性
-	public virtual void SetValue(int value) => (Value, _dirty) = (value, true);
-	public virtual int GetValue() => Value;
-	public int Value;
+	public virtual bool Enable { get => Status != LayerStatus.Disable; set => (Status, _dirty) = (value ? LayerStatus.Normal : LayerStatus.Disable, true); }
+	public virtual bool Visible { get => Status != LayerStatus.Unvisable; set => (Status, _dirty) = (value ? LayerStatus.Normal : LayerStatus.Unvisable, true); }
+	public virtual string Name { get => Name; set => (Name, _dirty) = (value, true); }
+	public virtual object Value { get => Value; set => (Value, _dirty) = (value, true); }
 	#endregion
 }

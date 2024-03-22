@@ -52,20 +52,20 @@ public record class FRect
 	}
 
 	public static implicit operator SKRectI(FRect rect) => new((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Bottom);
-	public static implicit operator SKRect(FRect rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
+	public static implicit operator SKRect(FRect rect) => new((float)rect.Left, (float)rect.Top, (float)rect.Right, (float)rect.Bottom);
 	public static explicit operator (IVector, IVector)(FRect rect) => (new((int)rect.X, (int)rect.Y), new((int)rect.H, (int)rect.W));
 	public static explicit operator (FVector, FVector)(FRect rect) => (new(rect.X, rect.Y), new(rect.H, rect.W));
 
 	public static explicit operator IRect(FRect rect) => new((int)rect.X, (int)rect.Y, (int)rect.W, (int)rect.H);
 
 
-	public float X = 0, Y = 0;
-	public float W = 0, H = 0;
+	public double X = 0, Y = 0;
+	public double W = 0, H = 0;
 
-	public float Left => X;
-	public float Right => X + W;
-	public float Top => Y;
-	public float Bottom => Y + H;
+	public double Left => X;
+	public double Right => X + W;
+	public double Top => Y;
+	public double Bottom => Y + H;
 
 	public FVector MidPoint => new(X + W / 2, Y + H / 2);
 }
@@ -81,7 +81,7 @@ public record struct IVector(int X, int Y)
 	public static implicit operator SKPointI(IVector p) => new(p.X, p.Y);
 	public static implicit operator SKPoint(IVector p) => new(p.X, p.Y);
 	public static explicit operator (int, int)(IVector p) => (p.X, p.Y);
-	public static explicit operator (float, float)(IVector p) => (p.X, p.Y);
+	public static explicit operator (double, double)(IVector p) => (p.X, p.Y);
 
 	public static explicit operator FVector(IVector p) => new(p.X, p.Y);
 
@@ -89,23 +89,23 @@ public record struct IVector(int X, int Y)
 	public int Height = Y;
 }
 
-public record struct FVector(float X, float Y)
+public record struct FVector(double X, double Y)
 {
-	public static FVector operator *(FVector v1, float off) => new(v1.X * off, v1.Y * off);
-	public static FVector operator /(FVector v1, float off) => new(v1.X / off, v1.Y / off);
+	public static FVector operator *(FVector v1, double off) => new(v1.X * off, v1.Y * off);
+	public static FVector operator /(FVector v1, double off) => new(v1.X / off, v1.Y / off);
 	public static FVector operator *(FVector v1, FVector v2) => new(v1.X * v2.X, v1.Y * v2.Y);
 	public static FVector operator +(FVector v1, FVector v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 	public static FVector operator -(FVector v1, FVector v2) => new(v1.X - v2.X, v1.Y - v2.Y);
 
 	public static implicit operator SKPointI(FVector p) => new((int)p.X, (int)p.Y);
-	public static implicit operator SKPoint(FVector p) => new(p.X, p.Y);
+	public static implicit operator SKPoint(FVector p) => new((float)p.X, (float)p.Y);
 	public static explicit operator (int, int)(FVector p) => ((int)p.X, (int)p.Y);
-	public static explicit operator (float, float)(FVector p) => (p.X, p.Y);
+	public static explicit operator (double, double)(FVector p) => (p.X, p.Y);
 
 	public static explicit operator IVector(FVector p) => new((int)p.X, (int)p.Y);
 
-	public float Width = X;
-	public float Height = Y;
+	public double Width = X;
+	public double Height = Y;
 }
 
 public record struct WinSizeStructure(int Width, int Height)

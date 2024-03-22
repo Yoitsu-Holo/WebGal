@@ -7,30 +7,11 @@ namespace WebGal.Libs.Base;
 /// </summary>
 public class Layout
 {
-	public bool StateHasChange = true;
 
+	public List<Scene> StaticScene = []; // 界面静态场景，如按钮、滑块等控制器，或者是文本框等。
+	public List<Scene> DynamicScene = []; // 界面动态场景，如对话框文字等。
 
-	public readonly HashSet<string> LoopAudioSet = [];
-	public readonly HashSet<string> OneShotAudioSet = [];
-
-
-	public SortedDictionary<int, Scene> Layers = new();
-
-	public bool HasAnimation(long timeoff)
-	{
-		if (StateHasChange)
-		{
-			StateHasChange = false;
-			return true;
-		}
-		bool hasAnimation = false;
-		foreach (var (_, layer) in Layers)
-			hasAnimation |= layer.HasAnimation(timeoff);
-		return hasAnimation;
-	}
-
-	public void PushLayer(int layerId, Scene layer) => Layers[layerId] = layer;
-	public void Clear() => Layers.Clear();
+	public void Clear() => StaticScene.Clear();
 
 
 	public void SetBeginTime(long beginTime)

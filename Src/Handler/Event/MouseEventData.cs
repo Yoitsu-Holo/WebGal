@@ -21,7 +21,7 @@ public enum MouseStatus : byte
 	Any = 0xFF
 }
 
-public class MouseTrigger : EventArgs
+public class MouseEventData : EventArgs
 {
 	public IVector Position;
 	public IVector Move;

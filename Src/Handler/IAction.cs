@@ -1,6 +1,6 @@
 namespace WebGal.Handler;
 
-interface IAction
+public interface IAction
 {
-	void ExecuteAction(EventArgs eventData); // 执行动作的方法
+	public void ExecuteAction(EventArgs eventArgs); // 执行动作的方法
 }

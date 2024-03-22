@@ -4,5 +4,5 @@ namespace WebGal.Animations;
 
 class AnimationDefault : IAnimation
 {
-	public FVector GetOffset(float timeOff, long timeObs) => new(timeOff, timeOff);
+	public FVector GetOffset(double timeOff, long timeObs) => new(timeOff, timeOff);
 }

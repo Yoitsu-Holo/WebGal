@@ -86,10 +86,15 @@ public class ControllerButtom : LayerBase
 	public ControllerButtom(IRect position) { InitBase(); InitPosition(position); }
 	public ControllerButtom(IVector position, IVector size) { InitBase(); InitPosition(new IRect(position, size)); }
 
-	public override void ProcessMouseEvent(MouseTrigger mouseEvent)
+	public override void ExecuteAction(EventArgs eventArgs)
 	{
+		if (eventArgs is not MouseEventData)
+			return;
 		if (Status == LayerStatus.Disable)
 			return;
+
+		MouseEventData mouseEvent = (MouseEventData)eventArgs;
+
 		if (Status != LayerStatus.Focused)
 		{
 			if (RangeComp.OutRange(Window, mouseEvent.Position))
@@ -99,7 +104,6 @@ public class ControllerButtom : LayerBase
 			else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
 				Status = LayerStatus.Pressed;
 		}
-
 	}
 
 	public override void Render(SKCanvas canvas)

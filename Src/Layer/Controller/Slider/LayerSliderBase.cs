@@ -128,11 +128,14 @@ public abstract class ControllerSliderBase : LayerBase
 		InitImage();
 	}
 
-
-	public override void ProcessMouseEvent(MouseTrigger mouseEvent)
+	public override void ExecuteAction(EventArgs eventArgs)
 	{
+		if (eventArgs is not MouseEventData)
+			return;
 		if (Status == LayerStatus.Disable)
 			return;
+
+		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
 		if (Status != LayerStatus.Focused && !(Status == LayerStatus.Pressed && mouseEvent.Status == MouseStatus.Hold))
 		{
@@ -186,10 +189,17 @@ public abstract class ControllerSliderBase : LayerBase
 	}
 
 	// range [0,1]
-	public override void SetValue(int value)
+	public override object Value
 	{
-		_value = value;
-		ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * value));
+		get => base.Value;
+		set
+		{
+			if (value is double)
+			{
+				base.Value = value;
+				ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * (double)value));
+			}
+		}
 	}
 
 	protected virtual void ThumbLimitSet(IVector thumbDelta) => _thumbDelta = new(0, 0);
