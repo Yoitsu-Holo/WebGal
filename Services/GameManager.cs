@@ -1,64 +1,43 @@
 using SkiaSharp;
 using Microsoft.JSInterop;
-using WebGal.Libs.Base;
-using WebGal.Global;
 using WebGal.Services.Include;
-using WebGal.Handler.Event;
 
 namespace WebGal.Services;
 public class GameManager
 {
-	private readonly IJSRuntime _js;                        //^ JavaScript 互操作运行时
-	private readonly Interpreter _interpreter;              //^ 脚本解释器
-	private readonly ResourceManager _resourceManager;      //^ 资源管理器
-	private readonly LayoutManager _layoutManeger = new();  //^ 界面管理器
-	private readonly Renderer _render = new();              //^ 渲染器
-
-	private string _sceneName = "StartMenu";
+	private readonly IJSRuntime _js;                   //^ JavaScript 互操作运行时
+	private readonly LayoutManager _layoutManeger;     //^ 界面管理器
+	private readonly AudioManager _audioManager;       //^ 音频管理器
+	private readonly ResourceManager _resourceManager; //^ 资源管理器
 
 	/// <summary>
 	/// 构造函数，由系统执行依赖注入
 	/// </summary>
 	/// <param name="httpClient"></param>
 	/// <param name="js"></param>
-	public GameManager(HttpClient httpClient, IJSRuntime js)
+	public GameManager(HttpClient httpClient, AudioManager audioManager, LayoutManager layoutManeger, IJSRuntime js)
 	{
 		_js = js;
+		_layoutManeger = layoutManeger;
+		_audioManager = audioManager;
 		_resourceManager = new(httpClient);
-		_interpreter = new(_layoutManeger, _resourceManager);
 	}
 
 	public void Clear()
 	{
-		_render.Clear();
 		_layoutManeger.Clear();
 		_resourceManager.Clear();
-		_interpreter.Clear();
-		_scene = null;
 	}
 
-	public void Render(SKCanvas canvas, long timeoff, bool force = false)
+	public void Render(SKCanvas canvas, bool force = false)
 	{
-		if (_scene is null)
-		{
-			return;
-			throw new Exception("render scene not set");
-		}
-		_render.Render(canvas, _scene, timeoff, force);
+		_layoutManeger.Render(canvas);
 	}
 
-	public async Task ProcessMouseEvent(MouseEventData mouseEvent)
+	public async Task ProcEvent(EventArgs eventArgs)
 	{
-		if (_scene is null)
-			return;
-		if (_scene.DoMouseEvent(mouseEvent))
-			return;
-
-		if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Up)
-		{
-			await GetNextScene();
-			Console.WriteLine("NextScene");
-		}
+		await Task.Run(() => { }); // Just make compiler happy
+		_layoutManeger.ProcessEvent(eventArgs);
 	}
 
 	/// <summary>
@@ -80,58 +59,9 @@ public class GameManager
 	[Obsolete("Debug Only")]
 	public async Task DoTest(string gameName)
 	{
-		await _interpreter.SetGameAsync(gameName);
-		await LoadNextScene();
+		await Task.Run(() => { }); // Just make compiler happy
+		_layoutManeger.BuildTest();
+		_layoutManeger.DoTest();
 	}
 	#endregion
-
-	private async Task GetNextScene()
-	{
-		if (_scene is null)
-			return;
-
-		// 如果动画没有结束，那么结束动画保留这一帧
-		if (_scene.HasAnimation(NowTime.Minisecond))
-		{
-			_scene.StopAnimation();
-			return;
-		}
-
-		// 如果当前场景动画结束，切换到下一场景
-		await LoadNextScene();
-	}
-
-	private async Task LoadNextScene()
-	{
-		await _interpreter.ParsingNextSceneAsync();
-		LoadScene();
-		// await LoadMedia();
-	}
-
-	private void LoadScene()
-	{
-		if (_layoutManeger.SceneNameList.Count != 0)
-		{
-			LoadScene(_layoutManeger.SceneNameList.Peek());
-			_layoutManeger.SceneNameList.Dequeue();
-		}
-	}
-
-	private void LoadScene(string sceneName)
-	{
-		_sceneName = sceneName;
-		_scene = _layoutManeger.LoadScene(sceneName);
-		_scene.StartAnimation();
-		_scene.OnJump = LoadNode;
-	}
-
-	private async void LoadNode(object? sender, JumpEventArgs args)
-	{
-		if (args.JumpNodeLabel is not null)
-		{
-			Console.WriteLine($"jump to {args.JumpNodeLabel}");
-			_interpreter.SetNode(args.JumpNodeLabel);
-			await LoadNextScene();
-		}
-	}
 }

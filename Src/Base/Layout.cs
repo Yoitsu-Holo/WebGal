@@ -1,5 +1,6 @@
 using SkiaSharp;
 using WebGal.Global;
+using WebGal.Handler;
 using WebGal.Layer;
 
 namespace WebGal.Libs.Base;
@@ -11,7 +12,7 @@ public class Layout
 {
 	private long StartTime { get; set; } = 0;
 
-	public int SceneId { get; set; } = 0;
+	public int SceneId { get; set; } = -1;
 
 	public Scene StstcScene { get; set; } = new();      // 界面静态场景，如按钮、滑块等控制器，或者是文本框等。
 	public SortedDictionary<int, Scene> DynamicScene { get; set; } = [];    // 界面动态场景，如对话框文字等。
@@ -38,10 +39,16 @@ public class Layout
 		}
 	}
 
+	public void ProcessEvent(EventArgs eventArgs)
+	{
+		// throw new NotImplementedException();
+	}
+
 
 	private IEnumerable<ILayer> AllScene()
 	{
-
+		if (SceneId == -1)
+			yield break;
 		IEnumerator<KeyValuePair<int, ILayer>> staticLayer = StstcScene.Layers.GetEnumerator();
 		IEnumerator<KeyValuePair<int, ILayer>> dynamicLayer = DynamicScene[SceneId].Layers.GetEnumerator();
 
@@ -74,5 +81,10 @@ public class Layout
 				dynamicLayer.MoveNext();
 			}
 		}
+	}
+
+	public void BuildTest()
+	{
+
 	}
 }

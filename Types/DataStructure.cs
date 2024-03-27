@@ -5,6 +5,12 @@ namespace WebGal.Types;
 
 public record class IRect
 {
+	public IRect()
+	{
+		(X, Y) = (0, 0);
+		(W, H) = (0, 0);
+	}
+
 	public IRect(int x, int y, int w, int h)
 	{
 		(X, Y) = (x, y);

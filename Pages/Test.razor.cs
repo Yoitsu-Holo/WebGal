@@ -5,6 +5,8 @@ using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
+using WebGal.Layer.Controller;
+using WebGal.Layer.Widget;
 using WebGal.Services;
 using WebGal.Types;
 
@@ -25,9 +27,10 @@ public partial class Test// : IDisposable
 	// private AudioGain? _audioGain;
 	// private AudioSpeeker? _audioSpeeker;
 	// private AudioContext? _context;
-	// private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
-	// private readonly ControllerSliderHorizontal _sliderBoxH = new();
-	// private readonly ControllerSliderVertical _sliderBoxV = new();
+	private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
+	private readonly ControllerSliderHorizontal _sliderBoxH = new();
+	private readonly ControllerSliderVertical _sliderBoxV = new();
+	private readonly WidgetImageBox _imageBox = new();
 	//!
 
 
@@ -48,6 +51,9 @@ public partial class Test// : IDisposable
 			paintTypeface = SKTypeface.FromStream(paintStream);
 
 			// ! test
+			_imageBox.Position = new(0, 0);
+			_imageBox.Size = new(1280, 720);
+			_imageBox.SetImage(SKBitmap.Decode(await httpClient.GetByteArrayAsync("/Data/Test1/pack/bg/bg010a.png")));
 			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
 			// _context = await AudioContext.CreateAsync(jsRuntime);
@@ -78,43 +84,50 @@ public partial class Test// : IDisposable
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
+		long startMiniSecond = NowTime.Minisecond;
+
 		var mouseEventCopy = _mouseEvent;
 		MouseStatusUpdate();
-		await Manager.ProcessMouseEvent(mouseEventCopy);
+		await Manager.ProcEvent(mouseEventCopy);
 
 		var canvas = e.Surface.Canvas;
-		Manager.Render(canvas, NowTime.Minisecond, true);
+		Manager.Render(canvas, true);
 
 		//! text test
-		// TextBox tb = new()
-		// {
-		// 	Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
-		// 	BoxStyle = new()
-		// 	{
-		// 		BoxSize = new IVector(1080, 400),
-		// 		BoxPos = new(100, 100),
-		// 		MarginBottom = 20
-		// 	},
-		// 	TextPaint = new()
-		// 	{
-		// 		Color = SKColors.Bisque,
-		// 		IsAntialias = true,
-		// 		TextSize = 30,
-		// 		Typeface = paintTypeface
-		// 	}
-		// };
+		WidgetTextBox tb = new()
+		{
+			Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
+			BoxStyle = new()
+			{
+				BoxSize = new IVector(1080, 400),
+				BoxPos = new(100, 100),
+				MarginBottom = 20
+			},
+			TextPaint = new()
+			{
+				Color = SKColors.Bisque,
+				IsAntialias = true,
+				TextSize = 30,
+				Typeface = paintTypeface
+			}
+		};
 
 		// canvas.DrawTextBox(tb);
 
 		// ! controller test
-		// _buttom.ProcessMouseEvent(mouseEventCopy);
-		// _buttom.Render(canvas);
+		_imageBox.Render(canvas);
 
-		// _sliderBoxH.ProcessMouseEvent(mouseEventCopy);
-		// _sliderBoxH.Render(canvas);
+		tb.Render(canvas);
 
-		// _sliderBoxV.ProcessMouseEvent(mouseEventCopy);
-		// _sliderBoxV.Render(canvas);
+		_buttom.ExecuteAction(mouseEventCopy);
+		_buttom.Render(canvas);
+
+		_sliderBoxH.ExecuteAction(mouseEventCopy);
+		_sliderBoxH.Render(canvas);
+
+		_sliderBoxV.ExecuteAction(mouseEventCopy);
+		_sliderBoxV.Render(canvas);
+
 
 		//! audio test
 		// var tm = NowTime.Minisecond;
@@ -134,6 +147,7 @@ public partial class Test// : IDisposable
 			_frameCount = 0;
 			await InvokeAsync(StateHasChanged);
 		}
+		_frameTime = (int)(NowTime.Minisecond - startMiniSecond);
 		_frameCount++;
 	}
 
@@ -194,6 +208,6 @@ public partial class Test// : IDisposable
 	// }
 
 	#region Debug
-	private int _frameCount = 0, _fps = 0, _lastSec;
+	private int _frameCount = 0, _frameTime = 0, _fps = 0, _lastSec;
 	#endregion
 };

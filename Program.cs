@@ -1,9 +1,8 @@
-using KristofferStrube.Blazor.WebAudio;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.JSInterop;
 using WebGal;
 using WebGal.Services;
+using WebGal.Services.Include;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -15,6 +14,8 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<GameManager>();
+builder.Services.AddScoped<LayoutManager>();
+builder.Services.AddScoped<AudioManager>();
 
 await builder.Build().RunAsync();
 

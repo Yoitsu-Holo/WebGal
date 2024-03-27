@@ -12,7 +12,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 	protected SKBitmap _trackImage = new();
 	protected IVector _mouseDelta = new(0, 0);
-	protected float _value = 0;
+	protected new float _value = 0;
 	protected IVector _thumbSize = new();
 	protected IVector _thumbDelta;
 

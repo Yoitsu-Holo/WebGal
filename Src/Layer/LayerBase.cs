@@ -51,20 +51,28 @@ public class LayerBase : ILayer, IAction
 
 
 	// 设置位置属性
-	public virtual IVector Position { get => Position; set => (Position, _dirty) = (value, true); }
-	public virtual IVector Size { get => Size; set => (Size, _dirty) = (value, true); }
+	protected IVector _position = new();
+	protected IVector _size = new();
+	public virtual IVector Position { get => _position; set => (_position, _dirty) = (value, true); }
+	public virtual IVector Size { get => _size; set => (_size, _dirty) = (value, true); }
 	public virtual IRect Window { get { return new(Position, Size); } }
 
 
 	// 设置文本属性
-	public virtual string Text { get => Text; set => (Text, _dirty) = (value, true); }
-	public virtual int TextSize { get => TextSize; set => (TextSize, _dirty) = (value, true); }
-	public virtual SKTypeface Typeface { get => Typeface; set => (Typeface, _dirty) = (value, true); }
+	protected string _text = "";
+	protected int _textSize = 0;
+	protected SKTypeface _typeface = SKTypeface.FromFamilyName("Microsoft YaHei");
+	public virtual string Text { get => _text; set => (_text, _dirty) = (value, true); }
+	public virtual int TextSize { get => _textSize; set => (_textSize, _dirty) = (value, true); }
+	public virtual SKTypeface Typeface { get => _typeface; set => (_typeface, _dirty) = (value, true); }
 
 
 	public virtual bool Enable { get => Status != LayerStatus.Disable; set => (Status, _dirty) = (value ? LayerStatus.Normal : LayerStatus.Disable, true); }
 	public virtual bool Visible { get => Status != LayerStatus.Unvisable; set => (Status, _dirty) = (value ? LayerStatus.Normal : LayerStatus.Unvisable, true); }
-	public virtual string Name { get => Name; set => (Name, _dirty) = (value, true); }
-	public virtual object Value { get => Value; set => (Value, _dirty) = (value, true); }
+
+	protected string _name = "";
+	protected object _value = new();
+	public virtual string Name { get => _name; set => (_name, _dirty) = (value, true); }
+	public virtual object Value { get => _value; set => (_value, _dirty) = (value, true); }
 	#endregion
 }

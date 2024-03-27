@@ -17,12 +17,6 @@ public class WidgetTextBox : LayerBase
 		base.SetColor(color, size, imageId);
 	}
 
-	public override void SetTypeface(SKTypeface typeface)
-	{
-		TextPaint.Typeface = Typeface;
-		base.SetTypeface(typeface);
-	}
-
 	public override void Render(SKCanvas canvas)
 	{
 		if (Status == LayerStatus.Unvisable)

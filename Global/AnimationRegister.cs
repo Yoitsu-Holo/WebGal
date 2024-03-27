@@ -8,6 +8,7 @@ class AnimationRegister
 	{
 		"brownian" => new AnimationBrownian(),
 		"bounce" => new AnimationBounce(),
+		"noting" => new AnimationNothing(),
 		_ => new AnimationDefault(),
 	};
 }
