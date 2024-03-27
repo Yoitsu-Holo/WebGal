@@ -46,6 +46,7 @@ public class LayerBase : ILayer, IAction
 	public virtual void SetColor(SKColor color, IVector size = new(), int imageId = 0) => throw new NotImplementedException();
 
 	public IAnimation Animation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+	public void DoAnimation(long timeOff) { }
 
 
 

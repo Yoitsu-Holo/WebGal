@@ -16,6 +16,7 @@ public interface ILayer : IAction
 
 	// 动画处理
 	public IAnimation Animation { get; set; }
+	public void DoAnimation(long timeOff);
 
 
 	// 大小处理、位置处理（左上角）

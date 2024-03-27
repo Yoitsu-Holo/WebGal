@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
-using WebGal.Event;
 using WebGal.Global;
+using WebGal.Handler.Event;
 using WebGal.Services;
 using WebGal.Types;
 
@@ -17,7 +17,7 @@ public partial class Test// : IDisposable
 	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
 
-	private MouseEvent _mouseEvent = new();
+	private MouseEventData _mouseEvent = new();
 	private SKTypeface? paintTypeface;
 
 	//! test

@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 using WebGal.Libs.Base;
 using WebGal.Global;
 using WebGal.Services.Include;
-using WebGal.Event;
+using WebGal.Handler.Event;
 
 namespace WebGal.Services;
 public class GameManager
@@ -11,9 +11,8 @@ public class GameManager
 	private readonly IJSRuntime _js;                        //^ JavaScript 互操作运行时
 	private readonly Interpreter _interpreter;              //^ 脚本解释器
 	private readonly ResourceManager _resourceManager;      //^ 资源管理器
-	private readonly LayoutManager _sceneManager = new();    //^ 场景管理器
+	private readonly LayoutManager _layoutManeger = new();  //^ 界面管理器
 	private readonly Renderer _render = new();              //^ 渲染器
-	private Layout? _scene;
 
 	private string _sceneName = "StartMenu";
 
@@ -26,13 +25,13 @@ public class GameManager
 	{
 		_js = js;
 		_resourceManager = new(httpClient);
-		_interpreter = new(_sceneManager, _resourceManager);
+		_interpreter = new(_layoutManeger, _resourceManager);
 	}
 
 	public void Clear()
 	{
 		_render.Clear();
-		_sceneManager.Clear();
+		_layoutManeger.Clear();
 		_resourceManager.Clear();
 		_interpreter.Clear();
 		_scene = null;
@@ -48,7 +47,7 @@ public class GameManager
 		_render.Render(canvas, _scene, timeoff, force);
 	}
 
-	public async Task ProcessMouseEvent(MouseEvent mouseEvent)
+	public async Task ProcessMouseEvent(MouseEventData mouseEvent)
 	{
 		if (_scene is null)
 			return;
@@ -111,17 +110,17 @@ public class GameManager
 
 	private void LoadScene()
 	{
-		if (_sceneManager.SceneNameList.Count != 0)
+		if (_layoutManeger.SceneNameList.Count != 0)
 		{
-			LoadScene(_sceneManager.SceneNameList.Peek());
-			_sceneManager.SceneNameList.Dequeue();
+			LoadScene(_layoutManeger.SceneNameList.Peek());
+			_layoutManeger.SceneNameList.Dequeue();
 		}
 	}
 
 	private void LoadScene(string sceneName)
 	{
 		_sceneName = sceneName;
-		_scene = _sceneManager.LoadScene(sceneName);
+		_scene = _layoutManeger.LoadScene(sceneName);
 		_scene.StartAnimation();
 		_scene.OnJump = LoadNode;
 	}

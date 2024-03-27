@@ -3,7 +3,8 @@ using WebGal.Layer;
 namespace WebGal.Libs.Base;
 
 /// <summary>
-/// 特化的 [Layer] 数组，只用于表示 ADV 剧情
+/// 场景，由多个Layer构成，每一个Layer可以是图片、色块、文本框等基本组件，也可以是控制组件。
+/// 这里只作为数据存储
 /// </summary>
 public class Scene
 {
