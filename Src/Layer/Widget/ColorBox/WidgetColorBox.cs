@@ -16,7 +16,7 @@ public class WidgetColorBox : LayerBase
 		_dirty = true;
 	}
 
-	public override void Render(SKCanvas canvas)
+	public override void Render(SKCanvas canvas, bool force)
 	{
 		if (Status == LayerStatus.Unvisable)
 			return;

@@ -86,6 +86,10 @@ public record struct IVector(int X, int Y)
 
 	public static implicit operator SKPointI(IVector p) => new(p.X, p.Y);
 	public static implicit operator SKPoint(IVector p) => new(p.X, p.Y);
+
+	public static implicit operator SKSizeI(IVector p) => new(p.X, p.Y);
+	public static implicit operator SKSize(IVector p) => new(p.X, p.Y);
+
 	public static explicit operator (int, int)(IVector p) => (p.X, p.Y);
 	public static explicit operator (double, double)(IVector p) => (p.X, p.Y);
 
@@ -105,6 +109,10 @@ public record struct FVector(double X, double Y)
 
 	public static implicit operator SKPointI(FVector p) => new((int)p.X, (int)p.Y);
 	public static implicit operator SKPoint(FVector p) => new((float)p.X, (float)p.Y);
+
+	public static implicit operator SKSizeI(FVector p) => new((int)p.X, (int)p.Y);
+	public static implicit operator SKSize(FVector p) => new((float)p.X, (float)p.Y);
+
 	public static explicit operator (int, int)(FVector p) => ((int)p.X, (int)p.Y);
 	public static explicit operator (double, double)(FVector p) => (p.X, p.Y);
 

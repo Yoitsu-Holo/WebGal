@@ -17,7 +17,7 @@ public class WidgetTextBox : LayerBase
 		base.SetColor(color, size, imageId);
 	}
 
-	public override void Render(SKCanvas canvas)
+	public override void Render(SKCanvas canvas, bool force)
 	{
 		if (Status == LayerStatus.Unvisable)
 			return;

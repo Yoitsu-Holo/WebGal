@@ -115,18 +115,18 @@ public partial class Test// : IDisposable
 		// canvas.DrawTextBox(tb);
 
 		// ! controller test
-		_imageBox.Render(canvas);
+		_imageBox.Render(canvas, false);
 
-		tb.Render(canvas);
+		// tb.Render(canvas, false);
 
 		_buttom.ExecuteAction(mouseEventCopy);
-		_buttom.Render(canvas);
+		_buttom.Render(canvas, false);
 
 		_sliderBoxH.ExecuteAction(mouseEventCopy);
-		_sliderBoxH.Render(canvas);
+		_sliderBoxH.Render(canvas, false);
 
 		_sliderBoxV.ExecuteAction(mouseEventCopy);
-		_sliderBoxV.Render(canvas);
+		_sliderBoxV.Render(canvas, false);
 
 
 		//! audio test

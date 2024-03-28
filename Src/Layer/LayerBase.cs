@@ -36,7 +36,7 @@ public class LayerBase : ILayer, IAction
 	public virtual void ExecuteAction(EventArgs eventArgs) => throw new NotImplementedException();
 
 	// 渲染图像
-	public virtual void Render(SKCanvas canvas) => throw new NotImplementedException();
+	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
 	#endregion
 
 

@@ -106,7 +106,7 @@ public class ControllerButtom : LayerBase
 		}
 	}
 
-	public override void Render(SKCanvas canvas)
+	public override void Render(SKCanvas canvas, bool force)
 	{
 		if (Status == LayerStatus.Unvisable)
 			return;

@@ -14,7 +14,7 @@ public class LayoutManager
 	public int ActiveLayout = 0; // 0: 主界面，-1: 测试界面
 
 	public void Clear() => Layouts.Clear();
-	public void Render(SKCanvas canvas) => Layouts[ActiveLayout].Render(canvas);
+	public void Render(SKCanvas canvas, bool force) => Layouts[ActiveLayout].Render(canvas, force);
 	public void ProcessEvent(EventArgs eventdata) => Layouts[ActiveLayout].ProcessEvent(eventdata);
 
 

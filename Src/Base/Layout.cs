@@ -26,7 +26,7 @@ public class Layout
 	public void SetStart() => StartTime = NowTime.Minisecond;
 	public void SetStop() => StartTime = -1;
 
-	public void Render(SKCanvas canvas)
+	public void Render(SKCanvas canvas, bool force)
 	{
 		if (StartTime == 0)
 			StartTime = NowTime.Minisecond;
@@ -35,7 +35,7 @@ public class Layout
 		foreach (var layer in AllScene())
 		{
 			layer.DoAnimation(timeOff);
-			layer.Render(canvas);
+			layer.Render(canvas, force);
 		}
 	}
 

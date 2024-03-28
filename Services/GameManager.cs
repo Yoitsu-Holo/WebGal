@@ -31,7 +31,7 @@ public class GameManager
 
 	public void Render(SKCanvas canvas, bool force = false)
 	{
-		_layoutManeger.Render(canvas);
+		_layoutManeger.Render(canvas, force);
 	}
 
 	public async Task ProcEvent(EventArgs eventArgs)

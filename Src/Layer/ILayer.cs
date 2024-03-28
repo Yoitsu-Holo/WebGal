@@ -8,7 +8,7 @@ namespace WebGal.Layer;
 public interface ILayer : IAction
 {
 	// 渲染到指定canvas
-	public void Render(SKCanvas canvas);
+	public void Render(SKCanvas canvas, bool force);
 
 	// 图片处理
 	public void SetImage(SKBitmap image, int id);
