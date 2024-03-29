@@ -15,8 +15,8 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<GameManager>();
-builder.Services.AddScoped<LayoutManager>();
-builder.Services.AddScoped<AudioManager>();
+// builder.Services.AddScoped<LayoutManager>();
+// builder.Services.AddScoped<AudioManager>();
 
 await builder.Build().RunAsync();
 

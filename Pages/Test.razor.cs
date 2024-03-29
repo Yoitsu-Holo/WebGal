@@ -146,6 +146,7 @@ public partial class Test// : IDisposable
 			_fps = _frameCount;
 			_frameCount = 0;
 			await InvokeAsync(StateHasChanged);
+			throw new Exception("Test Error");
 		}
 		_frameTime = (int)(NowTime.Minisecond - startMiniSecond);
 		_frameCount++;
