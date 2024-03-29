@@ -57,6 +57,7 @@ public partial class Driver
 	}
 
 
+	[JSInvokable]
 	public static Task<string> Bg(string jsonBackGround)
 	{
 		ResponseHeader respone = new();

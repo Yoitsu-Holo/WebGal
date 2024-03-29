@@ -22,10 +22,10 @@ public class ResourceManager
 	public async Task PullScriptAsync(string name = "main", string path = "main.json") => _scriptList[name] = await _httpClient.GetStringAsync(basePath + path);
 
 
-	public SKBitmap GetImage(string name) => _imageList.ContainsKey(name) ? _imageList[name] : throw new Exception($"Image \"{name}\" not find");
-	public byte[] GetAudio(string name) => _audioList.ContainsKey(name) ? _audioList[name] : throw new Exception($"Audio \"{name}\" not find");
-	public SKTypeface GetFont(string name) => _fontList.ContainsKey(name) ? _fontList[name] : throw new Exception($"Font \"{name}\" not find");
-	public string GetScript(string name = "main") => _scriptList.ContainsKey(name) ? _scriptList[name] : throw new Exception($"Script \"{name}\" not find");
+	public SKBitmap GetImage(string name) => _imageList.TryGetValue(name, out SKBitmap? value) ? value : throw new Exception($"Image \"{name}\" not find");
+	public byte[] GetAudio(string name) => _audioList.TryGetValue(name, out byte[]? value) ? value : throw new Exception($"Audio \"{name}\" not find");
+	public SKTypeface GetFont(string name) => _fontList.TryGetValue(name, out SKTypeface? value) ? value : throw new Exception($"Font \"{name}\" not find");
+	public string GetScript(string name = "main") => _scriptList.TryGetValue(name, out string? value) ? value : throw new Exception($"Script \"{name}\" not find");
 
 
 	public bool RemoveImage(string name) => _imageList.Remove(name);
