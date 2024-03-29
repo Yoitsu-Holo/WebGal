@@ -19,7 +19,7 @@ public partial class Driver
 		var textBox = JsonSerializer.Deserialize<TextBox>(json);
 
 
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 
 
@@ -31,7 +31,7 @@ public partial class Driver
 		var textBox = JsonSerializer.Deserialize<TextBox>(json);
 
 
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 
 
@@ -43,6 +43,6 @@ public partial class Driver
 		var textBox = JsonSerializer.Deserialize<TextBox>(json);
 
 
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 }

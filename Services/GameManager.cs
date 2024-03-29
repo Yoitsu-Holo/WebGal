@@ -6,8 +6,8 @@ namespace WebGal.Services;
 public class GameManager
 {
 	private readonly IJSRuntime _js;                   //^ JavaScript 互操作运行时
-													   // private readonly LayoutManager _layoutManeger;     //^ 界面管理器
-													   // private readonly AudioManager _audioManager;       //^ 音频管理器
+	private readonly LayoutManager _layoutManeger;     //^ 界面管理器
+	private readonly AudioManager _audioManager;       //^ 音频管理器
 	private readonly ResourceManager _resourceManager; //^ 资源管理器
 
 	/// <summary>
@@ -15,11 +15,11 @@ public class GameManager
 	/// </summary>
 	/// <param name="httpClient"></param>
 	/// <param name="js"></param>
-	public GameManager(HttpClient httpClient, IJSRuntime js)
+	public GameManager(HttpClient httpClient, LayoutManager layoutManager, AudioManager audioManager, IJSRuntime js)
 	{
 		_js = js;
-		// _layoutManeger = layoutManeger;
-		// _audioManager = audioManager;
+		_layoutManeger = layoutManager;
+		_audioManager = audioManager;
 		_resourceManager = new(httpClient);
 	}
 
@@ -37,7 +37,7 @@ public class GameManager
 	public async Task ProcEvent(EventArgs eventArgs)
 	{
 		await Task.Run(() => { }); // Just make compiler happy
-								   // _layoutManeger.ProcessEvent(eventArgs);
+		_layoutManeger.ProcessEvent(eventArgs);
 	}
 
 	/// <summary>

@@ -37,7 +37,7 @@ public partial class Driver
 				Offset = new(0, 0),
 			};
 
-			var task = RegisteTextBox(JsonSerializer.Serialize(imageBox, JsonConfig.Options));
+			var task = RegisteTextBox(JsonSerializer.Serialize(imageBox));
 			task.Wait();
 			if (JsonSerializer.Deserialize<ResponseHeader>(task.Result).Type != ResponseType.Success)
 				return Task.FromResult(task.Result);
@@ -64,7 +64,7 @@ public partial class Driver
 				Name = "MainTextBox"
 			};
 
-			var task = RegisteTextBox(JsonSerializer.Serialize(textbox, JsonConfig.Options));
+			var task = RegisteTextBox(JsonSerializer.Serialize(textbox));
 			task.Wait();
 			if (JsonSerializer.Deserialize<ResponseHeader>(task.Result).Type != ResponseType.Success)
 				return Task.FromResult(task.Result);
@@ -75,6 +75,6 @@ public partial class Driver
 			Type = ResponseType.Success,
 			Message = "",
 		};
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 }

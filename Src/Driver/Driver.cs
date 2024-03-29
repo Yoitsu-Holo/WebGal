@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.JSInterop;
 using WebGal.API;
 using WebGal.Global;
@@ -12,6 +13,17 @@ public partial class Driver
 {
 	private readonly LayoutManager _sceneManager;
 	private readonly ResourceManager _resourceManager;
+
+	// public static readonly JsonSerializerOptions JsonOptions = new()
+	// {
+	// 	PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+	// 	PropertyNameCaseInsensitive = true,
+	// 	WriteIndented = true,
+	// 	Converters =
+	// 	{
+	// 		new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+	// 	}
+	// };
 
 	public Driver(LayoutManager sceneManager, ResourceManager resourceManager)
 	{
@@ -66,6 +78,6 @@ public partial class Driver
 
 
 		respone.Type = ResponseType.Success;
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 }
