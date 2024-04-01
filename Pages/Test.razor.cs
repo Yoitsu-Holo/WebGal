@@ -50,10 +50,10 @@ public partial class Test// : IDisposable
 			using var paintStream = new MemoryStream(paintBytes);
 			paintTypeface = SKTypeface.FromStream(paintStream);
 
-			// ! test
 			_imageBox.Position = new(0, 0);
 			_imageBox.Size = new(1280, 720);
 			_imageBox.SetImage(SKBitmap.Decode(await httpClient.GetByteArrayAsync("/Data/Test1/pack/bg/bg010a.png")));
+			// ! test
 			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
 			// _context = await AudioContext.CreateAsync(jsRuntime);
@@ -146,7 +146,7 @@ public partial class Test// : IDisposable
 			_fps = _frameCount;
 			_frameCount = 0;
 			await InvokeAsync(StateHasChanged);
-			throw new Exception("Test Error");
+			// throw new Exception("Test Error");
 		}
 		_frameTime = (int)(NowTime.Minisecond - startMiniSecond);
 		_frameCount++;

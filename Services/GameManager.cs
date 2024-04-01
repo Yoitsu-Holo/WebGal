@@ -62,6 +62,8 @@ public class GameManager
 		await Task.Run(() => { }); // Just make compiler happy
 								   // _layoutManeger.BuildTest();
 								   // _layoutManeger.DoTest();
+								   // throw new Exception("Test Error");
+
 	}
 	#endregion
 }

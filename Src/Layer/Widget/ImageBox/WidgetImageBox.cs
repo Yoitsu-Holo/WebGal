@@ -11,10 +11,11 @@ public class WidgetImageBox : LayerBase
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable)
+		if (Status == LayerStatus.Unvisable || _imageBuffer.IsNull)
 			return;
 		if (_dirty || force || _renderBuffer is null)
 		{
+			// throw new Exception("Test Error");
 			_renderBuffer = _imageBuffer.Resize(Size, SKFilterQuality.High);
 			_dirty = false;
 		}

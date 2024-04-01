@@ -162,7 +162,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable)
+		if (Status == LayerStatus.Unvisable || _image[(int)Status].IsNull || _trackImage.IsNull)
 			return;
 
 		// 优先更改图层属性
@@ -171,21 +171,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		// 重新渲染
 		canvas.DrawBitmap(_trackImage, Position);
-		switch (Status)
-		{
-			case LayerStatus.Normal:
-				canvas.DrawBitmap(_image[(int)LayerStatus.Normal], ThumbPosition);
-				break;
-			case LayerStatus.Hover:
-				canvas.DrawBitmap(_image[(int)LayerStatus.Hover], ThumbPosition);
-				break;
-			case LayerStatus.Pressed:
-				canvas.DrawBitmap(_image[(int)LayerStatus.Pressed], ThumbPosition);
-				break;
-			case LayerStatus.Focused:
-				canvas.DrawBitmap(_image[(int)LayerStatus.Focused], ThumbPosition);
-				break;
-		}
+		canvas.DrawBitmap(_image[(int)Status], ThumbPosition);
 	}
 
 	// range [0,1]

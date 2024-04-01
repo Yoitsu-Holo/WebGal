@@ -108,7 +108,7 @@ public class ControllerButtom : LayerBase
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable)
+		if (Status == LayerStatus.Unvisable || _image[(int)Status].IsNull)
 			return;
 		canvas.DrawBitmap(_image[(int)Status], Position);
 	}

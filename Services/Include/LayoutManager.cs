@@ -15,7 +15,12 @@ public class LayoutManager
 
 	public void Clear() => Layouts.Clear();
 	public void Render(SKCanvas canvas, bool force) => Layouts[ActiveLayout].Render(canvas, force);
-	public void ProcessEvent(EventArgs eventdata) => Layouts[ActiveLayout].ProcessEvent(eventdata);
+	public void ProcessEvent(EventArgs eventdata)
+	{
+		if (Layouts.TryGetValue(ActiveLayout, out Layout? value))
+			value.ProcessEvent(eventdata);
+		return;
+	}
 
 
 
