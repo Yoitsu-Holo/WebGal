@@ -52,7 +52,7 @@ public partial class Test// : IDisposable
 
 			_imageBox.Position = new(0, 0);
 			_imageBox.Size = new(1280, 720);
-			_imageBox.SetImage(SKBitmap.Decode(await httpClient.GetByteArrayAsync("/Data/Test1/pack/bg/bg010a.png")));
+			_imageBox.SetImage(SKBitmap.Decode(await httpClient.GetByteArrayAsync("/Data/Test1/pack/bg/bg010a.png")), new IRect(400, 0, 128 * 5, 72 * 5));
 			// ! test
 			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 

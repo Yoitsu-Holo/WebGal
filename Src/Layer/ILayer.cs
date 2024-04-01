@@ -11,7 +11,9 @@ public interface ILayer : IAction
 	public void Render(SKCanvas canvas, bool force);
 
 	// 图片处理
-	public void SetImage(SKBitmap image, int id);
+	public void SetImage(SKBitmap image, int imageId);
+	public void SetImage(SKBitmap image, IVector satrtPosition, int imageId);
+	public void SetImage(SKBitmap image, IRect imageWindow, int imageId);
 	public void SetColor(SKColor color, IVector size, int imageId);
 
 	// 动画处理
