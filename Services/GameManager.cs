@@ -1,6 +1,7 @@
 using SkiaSharp;
 using Microsoft.JSInterop;
 using WebGal.Services.Include;
+using WebGal.API;
 
 namespace WebGal.Services;
 public class GameManager
@@ -21,17 +22,25 @@ public class GameManager
 		_layoutManeger = layoutManager;
 		_audioManager = audioManager;
 		_resourceManager = new(httpClient);
+		Driver.Init(_layoutManeger, _resourceManager, _audioManager);
 	}
 
 	public void Clear()
 	{
-		// _layoutManeger.Clear();
 		_resourceManager.Clear();
+		_layoutManeger.Clear();
+		_audioManager.Clear();
+	}
+
+	public void Init(string GameName)
+	{
+		Clear();
+		_resourceManager.BasePath = "Data/" + GameName;
 	}
 
 	public void Render(SKCanvas canvas, bool force = false)
 	{
-		// _layoutManeger.Render(canvas, force);
+		_layoutManeger.Render(canvas, force);
 	}
 
 	public async Task ProcEvent(EventArgs eventArgs)
@@ -60,10 +69,8 @@ public class GameManager
 	public async Task DoTest(string gameName)
 	{
 		await Task.Run(() => { }); // Just make compiler happy
-								   // _layoutManeger.BuildTest();
-								   // _layoutManeger.DoTest();
-								   // throw new Exception("Test Error");
 
+		// var ret = await Driver.Test();
 	}
 	#endregion
 }

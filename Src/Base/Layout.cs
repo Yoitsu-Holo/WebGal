@@ -13,13 +13,11 @@ public class Layout
 
 	public int SceneId { get; set; } = -1;
 
-	public Scene StstcScene { get; set; } = new();      // 界面静态场景，如按钮、滑块等控制器，或者是文本框等。
-	public SortedDictionary<int, Scene> DynamicScene { get; set; } = [];    // 界面动态场景，如对话框文字等。
+	public SortedDictionary<int, ILayer> Layers { get; set; } = [];    // 界面动态场景，如对话框文字等。
 
 	public void Clear()
 	{
-		StstcScene.Clear();
-		DynamicScene.Clear();
+		Layers.Clear();
 	}
 
 	public void SetStart() => StartTime = NowTime.Minisecond;
@@ -31,7 +29,7 @@ public class Layout
 			StartTime = NowTime.Minisecond;
 		long timeOff = NowTime.Minisecond - StartTime;
 
-		foreach (var layer in AllScene())
+		foreach (var (_, layer) in Layers)
 		{
 			layer.DoAnimation(timeOff);
 			layer.Render(canvas, force);
@@ -40,50 +38,7 @@ public class Layout
 
 	public void ProcessEvent(EventArgs eventArgs)
 	{
-		// throw new NotImplementedException();
-	}
-
-
-	private IEnumerable<ILayer> AllScene()
-	{
-		if (SceneId == -1)
-			yield break;
-		IEnumerator<KeyValuePair<int, ILayer>> staticLayer = StstcScene.Layers.GetEnumerator();
-		IEnumerator<KeyValuePair<int, ILayer>> dynamicLayer = DynamicScene[SceneId].Layers.GetEnumerator();
-
-		while (staticLayer != null && dynamicLayer != null && (staticLayer.Current.Value != null || dynamicLayer.Current.Value != null))
-		{
-			if (staticLayer.Current.Value is null)
-			{
-				if (dynamicLayer.Current.Value != null)
-					yield return dynamicLayer.Current.Value;
-				dynamicLayer.MoveNext();
-				continue;
-			}
-
-			if (dynamicLayer.Current.Value is null)
-			{
-				if (staticLayer.Current.Value != null)
-					yield return staticLayer.Current.Value;
-				staticLayer.MoveNext();
-				continue;
-			}
-
-			if (staticLayer.Current.Key < dynamicLayer.Current.Key)
-			{
-				yield return staticLayer.Current.Value;
-				staticLayer.MoveNext();
-			}
-			else
-			{
-				yield return dynamicLayer.Current.Value;
-				dynamicLayer.MoveNext();
-			}
-		}
-	}
-
-	public void BuildTest()
-	{
-
+		foreach (var (_, layer) in Layers)
+			layer.ExecuteAction(eventArgs);
 	}
 }

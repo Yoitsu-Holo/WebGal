@@ -31,8 +31,10 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<GameManager>();
-builder.Services.AddScoped<LayoutManager>();
-builder.Services.AddScoped<AudioManager>();
+
+builder.Services.AddScoped<ResourceManager>();  // GameManeger 依赖
+builder.Services.AddScoped<LayoutManager>();    // GameManeger 依赖
+builder.Services.AddScoped<AudioManager>();     // GameManeger 依赖
 
 await builder.Build().RunAsync();
 

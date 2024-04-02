@@ -1,9 +1,13 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
-using WebGal.API;
-using WebGal.Global;
+using SkiaSharp;
+using WebGal.API.Data;
+using WebGal.Layer;
+using WebGal.Layer.Widget;
+using WebGal.Libs.Base;
+using WebGal.Types;
 
-namespace WebGal.Driver;
+namespace WebGal.API;
 
 
 /// <summary>
@@ -12,23 +16,88 @@ namespace WebGal.Driver;
 public partial class Driver
 {
 	[JSInvokable]
-	public static Task<string> RegisteTextBox(string json)
+	public static string SetTextBoxInfo(string json)
 	{
-		ResponseHeader respone = new();
-		var textBox = JsonSerializer.Deserialize<TextBox>(json);
+		ResponseHeader respone = new()
+		{
+			Type = ResponseType.Fail,
+			Message = "",
+		};
+		var info = JsonSerializer.Deserialize<TextBoxInfo>(json);
+
+		if (_resourceManager is null || _layoutManager is null)
+		{
+			respone.Message = "LayoutManager not set OR Game not loading";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		if (info.Font != "" && _resourceManager.CheckFont(info.Font) == false)
+		{
+			respone.Message = $"Image: {info.Font} is not loaded";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
+		{
+			respone.Message = $"Layout:{info.LayoutID} not registered";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		Layout layout = _layoutManager.Layouts[info.LayoutID];
+		if (layout.Layers.ContainsKey(info.LayerID) == false)
+		{
+			respone.Message = $"Layer:{info.LayerID} not registered";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		ILayer layer = layout.Layers[info.LayerID];
 
 
-		return Task.FromResult(JsonSerializer.Serialize(respone));
+		if (layer is WidgetTextBox textBox)
+		{
+			textBox.Text = info.Text;
+			textBox.Style = new()
+			{
+				MarginBottom = 20
+			};
+			textBox.SetColor(SKColors.Red);
+			textBox.SetFontSize(info.FontSize);
+			textBox.SetFontStyle(_resourceManager.GetFont(info.Font));
+		}
+		else
+		{
+			respone.Message = $"Layout:{info.LayoutID} Layer:{info.LayerID} not WidgetTextBox";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		respone.Type = ResponseType.Success;
+		return JsonSerializer.Serialize(respone);
 	}
 
-
 	[JSInvokable]
-	public static Task<string> Say(string json)
+	public static string SetTextBoxText(string json)
 	{
 		ResponseHeader respone = new();
+		var text = JsonSerializer.Deserialize<TextBoxText>(json);
 
+		return JsonSerializer.Serialize(respone);
+	}
 
+	[JSInvokable]
+	public static string SetTextBoxFont(string json)
+	{
+		ResponseHeader respone = new();
+		var font = JsonSerializer.Deserialize<TextBoxFont>(json);
 
-		return Task.FromResult(JsonSerializer.Serialize(respone));
+		return JsonSerializer.Serialize(respone);
+	}
+
+	[JSInvokable]
+	public static string SetTextBoxFontSize(string json)
+	{
+		ResponseHeader respone = new();
+		var size = JsonSerializer.Deserialize<TextBoxFontSize>(json);
+
+		return JsonSerializer.Serialize(respone);
 	}
 }

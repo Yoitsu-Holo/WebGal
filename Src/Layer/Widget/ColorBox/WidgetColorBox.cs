@@ -31,4 +31,6 @@ public class WidgetColorBox : LayerBase
 		}
 		canvas.DrawBitmap(_imageBuffer, Position);
 	}
+
+	public override void ExecuteAction(EventArgs eventArgs) { }
 }

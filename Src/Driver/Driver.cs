@@ -1,44 +1,34 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.JSInterop;
-using WebGal.API;
-using WebGal.Global;
+using WebGal.API.Data;
 using WebGal.Services.Include;
 
-namespace WebGal.Driver;
+namespace WebGal.API;
 
 
 // 全局驱动程序，也是引擎暴露的接口
 public partial class Driver
 {
-	private readonly LayoutManager _sceneManager;
-	private readonly ResourceManager _resourceManager;
+	private static LayoutManager? _layoutManager;
+	private static ResourceManager? _resourceManager;
+	private static AudioManager? _audioManager;
 
-	// public static readonly JsonSerializerOptions JsonOptions = new()
-	// {
-	// 	PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-	// 	PropertyNameCaseInsensitive = true,
-	// 	WriteIndented = true,
-	// 	Converters =
-	// 	{
-	// 		new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-	// 	}
-	// };
 
-	public Driver(LayoutManager sceneManager, ResourceManager resourceManager)
+	public static void Init(LayoutManager layoutManager, ResourceManager resourceManager, AudioManager audioManager)
 	{
-		_sceneManager = sceneManager;
+		_layoutManager = layoutManager;
 		_resourceManager = resourceManager;
+		_audioManager = audioManager;
 	}
-
 
 	//! test
 	[JSInvokable]
-	public static Task<string> SayHelloAsync(string name)
+	public static async Task<string> SayHelloAsync(string name)
 	{
 		// 暴露接口
 		Console.WriteLine($"Hello, {name}!");
-		return Task.FromResult($"Hello, {name}!");
+		await Task.Run(() => { });
+		return $"Hello, {name}!";
 		/*
 		DotNet.invokeMethodAsync('WebGal', 'SayHelloAsync', 'World');
 
@@ -63,21 +53,13 @@ public partial class Driver
 
 	//! test
 	[JSInvokable]
-	public static Task<string> Demo(string json)
+	public static Task<string> Empty()
 	{
-		return Task.FromResult("Result json");
-	}
-
-
-	[JSInvokable]
-	public static Task<string> Bg(string jsonBackGround)
-	{
-		ResponseHeader respone = new();
-		var bg = JsonSerializer.Deserialize<BackGround>(jsonBackGround);
-
-
-
-		respone.Type = ResponseType.Success;
+		ResponseHeader respone = new()
+		{
+			Type = ResponseType.Success,
+			Message = "",
+		};
 		return Task.FromResult(JsonSerializer.Serialize(respone));
 	}
 }

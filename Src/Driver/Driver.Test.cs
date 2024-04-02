@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
-using WebGal.API;
+using WebGal.API.Data;
 using WebGal.Global;
+using FileInfo = WebGal.API.Data.FileInfo;
 
-namespace WebGal.Driver;
+namespace WebGal.API;
 
 
 /// <summary>
@@ -12,14 +13,72 @@ namespace WebGal.Driver;
 public partial class Driver
 {
 	[JSInvokable]
-	public static Task<string> Test()
+	public static async Task<string> Test(string json)
 	{
-		// 注册Layout
-
-
-		// 注册背景图片 layer0
+		// DotNet.invokeMethodAsync('WebGal', 'Test', '');
+		/*
+		DotNet.invokeMethodAsync('WebGal', 'Test', '')
+			.then(result => {
+				console.log(result);
+			});
+		*/
+		//! 拉取文件
 		{
-			ImageBox imageBox = new()
+			Console.WriteLine("Pull background image ...");
+			FileInfo fileInfo = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Type = FileType.Image,
+				URL = "/Image/bg010a.png",
+				Name = "bg010a",
+			};
+
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		{
+			Console.WriteLine("Pull Font ...");
+			FileInfo fileInfo = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Type = FileType.Font,
+				URL = "/simhei.ttf",
+				Name = "simhei",
+			};
+
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		//! 注册Layout
+		{
+			Console.WriteLine("Register Layout:0 ...");
+			LayoutInfo layoutInfo = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				LayoutId = 0,
+			};
+
+			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+		//! 注册背景图片 layer0
+		{
+			Console.WriteLine("Register Layer:0 ...");
+			LayerBox imageBox = new()
 			{
 				Request = new()
 				{
@@ -27,25 +86,25 @@ public partial class Driver
 				},
 				Attribute = new()
 				{
-					Type = LayerType.TextBox,
+					Type = LayerType.ImageBox,
 					Position = new(0, 0),
 					Size = new(1280, 720),
 
+					LayoutID = 0,
 					LayerID = 0,
 				},
-				Name = "MainBgBox",
-				Offset = new(0, 0),
 			};
 
-			var task = RegisteTextBox(JsonSerializer.Serialize(imageBox));
-			task.Wait();
-			if (JsonSerializer.Deserialize<ResponseHeader>(task.Result).Type != ResponseType.Success)
-				return Task.FromResult(task.Result);
+			string result = RegisterLayer(JsonSerializer.Serialize(imageBox));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
 		}
 
-		// 注册文本框 layer3
+		//! 注册文本框 layer3
 		{
-			TextBox textbox = new()
+			Console.WriteLine("Register Layer:3 ...");
+
+			LayerBox textbox = new()
 			{
 				Request = new()
 				{
@@ -57,24 +116,56 @@ public partial class Driver
 					Position = new(20, 550),
 					Size = new(1240, 150),
 
+					LayoutID = 0,
 					LayerID = 3,
-				},
-				FontSize = 30,
-				Font = "agaveMono",
-				Name = "MainTextBox"
+				}
 			};
 
-			var task = RegisteTextBox(JsonSerializer.Serialize(textbox));
-			task.Wait();
-			if (JsonSerializer.Deserialize<ResponseHeader>(task.Result).Type != ResponseType.Success)
-				return Task.FromResult(task.Result);
+			string result = RegisterLayer(JsonSerializer.Serialize(textbox));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
 		}
 
-		ResponseHeader respone = new()
+
+		//! 设置图片
+		{
+			Console.WriteLine("Set Image Layer:0 ...");
+
+			ImageBoxInfo image = new()
+			{
+				LayoutID = 0,
+				LayerID = 0,
+				ImageName = "bg010a",
+			};
+			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+
+		//! 设置文字
+		{
+			Console.WriteLine("Set Text Layer:3 ...");
+			TextBoxInfo text = new()
+			{
+				LayoutID = 0,
+				LayerID = 3,
+				Text = "Hello Wrold, 你好世界",
+				Font = "simhei",
+				FontSize = 30,
+			};
+			string result = SetTextBoxInfo(JsonSerializer.Serialize(text));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		ResponseHeader response = new()
 		{
 			Type = ResponseType.Success,
-			Message = "",
+			Message = "Hello WebGal"
 		};
-		return Task.FromResult(JsonSerializer.Serialize(respone));
+
+		Console.WriteLine(JsonSerializer.Serialize(response, JsonConfig.Options));
+		return JsonSerializer.Serialize(response);
 	}
 }

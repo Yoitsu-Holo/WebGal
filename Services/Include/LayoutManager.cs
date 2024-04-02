@@ -14,28 +14,15 @@ public class LayoutManager
 	public int ActiveLayout = 0; // 0: 主界面，-1: 测试界面
 
 	public void Clear() => Layouts.Clear();
-	public void Render(SKCanvas canvas, bool force) => Layouts[ActiveLayout].Render(canvas, force);
+	public void Render(SKCanvas canvas, bool force)
+	{
+		if (Layouts.TryGetValue(ActiveLayout, out Layout? layout))
+			layout.Render(canvas, force);
+	}
+
 	public void ProcessEvent(EventArgs eventdata)
 	{
 		if (Layouts.TryGetValue(ActiveLayout, out Layout? value))
 			value.ProcessEvent(eventdata);
-		return;
-	}
-
-
-
-	public void BuildTest()
-	{
-		if (Layouts.ContainsKey(-1) == false)
-		{
-			Layout layout = new();
-			layout.BuildTest();
-			Layouts[-1] = layout;
-		}
-	}
-
-	public void DoTest()
-	{
-		ActiveLayout = -1;
 	}
 }

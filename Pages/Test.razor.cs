@@ -5,6 +5,7 @@ using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
+using WebGal.Layer;
 using WebGal.Layer.Controller;
 using WebGal.Layer.Widget;
 using WebGal.Services;
@@ -27,9 +28,9 @@ public partial class Test// : IDisposable
 	// private AudioGain? _audioGain;
 	// private AudioSpeeker? _audioSpeeker;
 	// private AudioContext? _context;
-	private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
-	private readonly ControllerSliderHorizontal _sliderBoxH = new();
-	private readonly ControllerSliderVertical _sliderBoxV = new();
+	// private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
+	// private readonly ControllerSliderHorizontal _sliderBoxH = new();
+	// private readonly ControllerSliderVertical _sliderBoxV = new();
 	private readonly WidgetImageBox _imageBox = new();
 	//!
 
@@ -46,9 +47,12 @@ public partial class Test// : IDisposable
 	{
 		if (firstRender)
 		{
-			var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
-			using var paintStream = new MemoryStream(paintBytes);
-			paintTypeface = SKTypeface.FromStream(paintStream);
+			await Task.Run(() => { });
+			Manager.Init(Game);
+
+			// var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
+			// using var paintStream = new MemoryStream(paintBytes);
+			// paintTypeface = SKTypeface.FromStream(paintStream);
 
 			_imageBox.Position = new(0, 0);
 			_imageBox.Size = new(1280, 720);
@@ -78,55 +82,56 @@ public partial class Test// : IDisposable
 
 	protected override async Task OnParametersSetAsync()
 	{
-		Manager.Clear();
-		await Manager.DoTest(Game);
+		await Task.Run(() => { });
+		// await Manager.DoTest(Game);
 	}
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
 		long startMiniSecond = NowTime.Minisecond;
-
 		var mouseEventCopy = _mouseEvent;
+		var canvas = e.Surface.Canvas;
+
 		MouseStatusUpdate();
 		await Manager.ProcEvent(mouseEventCopy);
+		Manager.Render(canvas, false);
 
-		var canvas = e.Surface.Canvas;
-		Manager.Render(canvas, true);
+		// //! text test
+		// WidgetTextBox tb = new()
+		// {
+		// 	Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
+		// 	BoxStyle = new()
+		// 	{
+		// 		BoxSize = new IVector(1080, 400),
+		// 		BoxPos = new(100, 100),
+		// 		MarginBottom = 20
+		// 	},
+		// 	TextPaint = new()
+		// 	{
+		// 		Color = SKColors.Bisque,
+		// 		IsAntialias = true,
+		// 		TextSize = 30,
+		// 		Typeface = paintTypeface
+		// 	}
+		// };
 
-		//! text test
-		WidgetTextBox tb = new()
-		{
-			Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
-			BoxStyle = new()
-			{
-				BoxSize = new IVector(1080, 400),
-				BoxPos = new(100, 100),
-				MarginBottom = 20
-			},
-			TextPaint = new()
-			{
-				Color = SKColors.Bisque,
-				IsAntialias = true,
-				TextSize = 30,
-				Typeface = paintTypeface
-			}
-		};
+		// // canvas.DrawTextBox(tb);
 
-		// canvas.DrawTextBox(tb);
+		// // ! controller test
+		// _imageBox.Render(canvas, false);
+		// ILayer layer = _imageBox;
+		// layer.Render(canvas, true);
 
-		// ! controller test
-		_imageBox.Render(canvas, false);
+		// // tb.Render(canvas, false);
 
-		// tb.Render(canvas, false);
+		// _buttom.ExecuteAction(mouseEventCopy);
+		// _buttom.Render(canvas, false);
 
-		_buttom.ExecuteAction(mouseEventCopy);
-		_buttom.Render(canvas, false);
+		// _sliderBoxH.ExecuteAction(mouseEventCopy);
+		// _sliderBoxH.Render(canvas, false);
 
-		_sliderBoxH.ExecuteAction(mouseEventCopy);
-		_sliderBoxH.Render(canvas, false);
-
-		_sliderBoxV.ExecuteAction(mouseEventCopy);
-		_sliderBoxV.Render(canvas, false);
+		// _sliderBoxV.ExecuteAction(mouseEventCopy);
+		// _sliderBoxV.Render(canvas, false);
 
 
 		//! audio test

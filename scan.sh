@@ -1,4 +1,3 @@
-#!/bin/bash                                                                                                                                                                                          
 dirictory (){
 	local dir="$1"
 	for f in `ls $1`

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SkiaSharp;
 
 namespace WebGal.Global;
@@ -27,18 +29,18 @@ public static class LayerConfig
 	#endregion
 }
 
-// public static class JsonConfig
-// {
-// 	#region Default Settings
-// 	public static readonly JsonSerializerOptions Options = new()
-// 	{
-// 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-// 		PropertyNameCaseInsensitive = true,
-// 		WriteIndented = true,
-// 		Converters =
-// 		{
-// 			new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-// 		}
-// 	};
-// 	#endregion
-// }
+public static class JsonConfig
+{
+	#region Default Settings
+	public static readonly JsonSerializerOptions Options = new()
+	{
+		PropertyNamingPolicy = JsonNamingPolicy.CamelCase, // 驼峰命名
+		PropertyNameCaseInsensitive = true, // 不区分大小写
+		WriteIndented = true, // 缩进
+		Converters =
+		{
+			new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+		}
+	};
+	#endregion
+}

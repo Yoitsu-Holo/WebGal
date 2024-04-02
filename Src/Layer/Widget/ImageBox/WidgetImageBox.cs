@@ -24,4 +24,6 @@ public class WidgetImageBox : LayerBase
 		}
 		canvas.DrawBitmap(_renderBuffer, Position);
 	}
+
+	public override void ExecuteAction(EventArgs eventArgs) { }
 }
