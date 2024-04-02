@@ -23,17 +23,6 @@ public partial class Test// : IDisposable
 	private MouseEventData _mouseEvent = new();
 	private SKTypeface? paintTypeface;
 
-	//! test
-	// private AudioSource? _audioSource;
-	// private AudioGain? _audioGain;
-	// private AudioSpeeker? _audioSpeeker;
-	// private AudioContext? _context;
-	// private readonly ControllerButtom _buttom = new(new(100, 200, 30, 15));
-	// private readonly ControllerSliderHorizontal _sliderBoxH = new();
-	// private readonly ControllerSliderVertical _sliderBoxV = new();
-	private readonly WidgetImageBox _imageBox = new();
-	//!
-
 
 	protected override void OnInitialized()
 	{
@@ -50,13 +39,6 @@ public partial class Test// : IDisposable
 			await Task.Run(() => { });
 			Manager.Init(Game);
 
-			// var paintBytes = await httpClient.GetByteArrayAsync("/Data/simhei.ttf");
-			// using var paintStream = new MemoryStream(paintBytes);
-			// paintTypeface = SKTypeface.FromStream(paintStream);
-
-			_imageBox.Position = new(0, 0);
-			_imageBox.Size = new(1280, 720);
-			_imageBox.SetImage(SKBitmap.Decode(await httpClient.GetByteArrayAsync("/Data/Test1/pack/bg/bg010a.png")), new IRect(400, 0, 128 * 5, 72 * 5));
 			// ! test
 			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
 
@@ -95,44 +77,6 @@ public partial class Test// : IDisposable
 		MouseStatusUpdate();
 		await Manager.ProcEvent(mouseEventCopy);
 		Manager.Render(canvas, false);
-
-		// //! text test
-		// WidgetTextBox tb = new()
-		// {
-		// 	Text = "这是一段中文文本测试，测试包含ascii可打印字符的显示、换行，以及中文字体的加载 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
-		// 	BoxStyle = new()
-		// 	{
-		// 		BoxSize = new IVector(1080, 400),
-		// 		BoxPos = new(100, 100),
-		// 		MarginBottom = 20
-		// 	},
-		// 	TextPaint = new()
-		// 	{
-		// 		Color = SKColors.Bisque,
-		// 		IsAntialias = true,
-		// 		TextSize = 30,
-		// 		Typeface = paintTypeface
-		// 	}
-		// };
-
-		// // canvas.DrawTextBox(tb);
-
-		// // ! controller test
-		// _imageBox.Render(canvas, false);
-		// ILayer layer = _imageBox;
-		// layer.Render(canvas, true);
-
-		// // tb.Render(canvas, false);
-
-		// _buttom.ExecuteAction(mouseEventCopy);
-		// _buttom.Render(canvas, false);
-
-		// _sliderBoxH.ExecuteAction(mouseEventCopy);
-		// _sliderBoxH.Render(canvas, false);
-
-		// _sliderBoxV.ExecuteAction(mouseEventCopy);
-		// _sliderBoxV.Render(canvas, false);
-
 
 		//! audio test
 		// var tm = NowTime.Minisecond;
