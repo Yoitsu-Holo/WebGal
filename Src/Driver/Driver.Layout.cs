@@ -78,7 +78,7 @@ public partial class Driver
 				Type = ResponseType.Fail,
 				Message = "LayoutManager not set OR Game not loading",
 			};
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return JsonSerializer.Serialize(respone);
 	}
 
 

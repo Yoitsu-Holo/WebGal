@@ -39,13 +39,14 @@ public class WidgetTextBox : LayerBase
 			string s = "";
 			foreach (var c in Text)
 			{
-				s += c;
-				float length = TextPaint.MeasureText(s);
-				if (length > lineWidth)
+				float length = TextPaint.MeasureText(s + c);
+				if (length > lineWidth || c == '\n')
 				{
-					_textLine.Add((s.Length > 1) ? s[..^1] : s);
-					s = (s[^1..] != " ") ? s[^1..] : "";
+					_textLine.Add(s);
+					s = "";
 				}
+				if (c != '\n')
+					s += c;
 			}
 
 			if (s.Length != 0)

@@ -18,9 +18,14 @@ public partial class Driver
 		// DotNet.invokeMethodAsync('WebGal', 'Test', '');
 		/*
 		DotNet.invokeMethodAsync('WebGal', 'Test', '')
-			.then(result => {
-				console.log(result);
-			});
+			.then(result => {console.log(result);});
+		
+		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":{"Type":1,"Message":null},"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
+			.then(result => {console.log(result);});
+		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0,"Width":0,"Height":0},"Size":{"X":928,"Y":1536,"Width":928,"Height":1536},"LayoutID":0,"LayerID":1}}')
+			.then(result => {console.log(result);});
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"ImageName":"st-aoi"}')
+			.then(result => {console.log(result);});
 		*/
 		//! 拉取文件
 		{
@@ -163,6 +168,7 @@ public partial class Driver
 				LayerID = 0,
 				ImageName = "bg010a",
 			};
+
 			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
 			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
 				return result;
@@ -194,7 +200,7 @@ public partial class Driver
 			{
 				LayoutID = 0,
 				LayerID = 3,
-				Text = "Hello Wrold, 你好世界",
+				Text = "Hello Wrold, 你好世界: 中文测试: ascii可打印字符、换行、中文字体\n1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
 				Font = "simhei",
 				FontSize = 30,
 			};
