@@ -5,7 +5,6 @@ using WebGal.API.Data;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
 using WebGal.Libs.Base;
-using WebGal.Types;
 
 namespace WebGal.API;
 
@@ -20,38 +19,31 @@ public partial class Driver
 	{
 		ResponseHeader respone = new()
 		{
-			Type = ResponseType.Fail,
+			Type = ResponseType.Success,
 			Message = "",
 		};
 		var info = JsonSerializer.Deserialize<TextBoxInfo>(json);
 
 		if (_resourceManager is null || _layoutManager is null)
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
 			return JsonSerializer.Serialize(respone);
 		}
 
 		if (info.Font != "" && _resourceManager.CheckFont(info.Font) == false)
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = $"Image: {info.Font} is not loaded";
 			return JsonSerializer.Serialize(respone);
 		}
 
-		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
-		{
-			respone.Message = $"Layout:{info.LayoutID} not registered";
-			return JsonSerializer.Serialize(respone);
-		}
+		string responeString = CheckLayer(info.LayoutID, info.LayerID);
+		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		if (respone.Type != ResponseType.Success)
+			return responeString;
 
-		Layout layout = _layoutManager.Layouts[info.LayoutID];
-		if (layout.Layers.ContainsKey(info.LayerID) == false)
-		{
-			respone.Message = $"Layer:{info.LayerID} not registered";
-			return JsonSerializer.Serialize(respone);
-		}
-
-		ILayer layer = layout.Layers[info.LayerID];
-
+		ILayer layer = _layoutManager.Layouts[info.LayoutID].Layers[info.LayerID];
 
 		if (layer is WidgetTextBox textBox)
 		{
@@ -66,6 +58,7 @@ public partial class Driver
 		}
 		else
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.LayoutID} Layer:{info.LayerID} not WidgetTextBox";
 			return JsonSerializer.Serialize(respone);
 		}

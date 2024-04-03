@@ -18,37 +18,31 @@ public partial class Driver
 	{
 		ResponseHeader respone = new()
 		{
-			Type = ResponseType.Fail,
+			Type = ResponseType.Success,
 			Message = "",
 		};
 		var info = JsonSerializer.Deserialize<ImageBoxInfo>(json);
 
 		if (_resourceManager is null || _layoutManager is null)
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
 			return JsonSerializer.Serialize(respone);
 		}
 
 		if (_resourceManager.CheckImage(info.ImageName) == false)
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = $"Image: {info.ImageName} is not loaded";
 			return JsonSerializer.Serialize(respone);
 		}
 
-		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
-		{
-			respone.Message = $"Layout:{info.LayoutID} not registered";
-			return JsonSerializer.Serialize(respone);
-		}
+		string responeString = CheckLayer(info.LayoutID, info.LayerID);
+		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		if (respone.Type != ResponseType.Success)
+			return responeString;
 
-		Layout layout = _layoutManager.Layouts[info.LayoutID];
-		if (layout.Layers.ContainsKey(info.LayerID) == false)
-		{
-			respone.Message = $"Layer:{info.LayerID} not registered";
-			return JsonSerializer.Serialize(respone);
-		}
-
-		ILayer layer = layout.Layers[info.LayerID];
+		ILayer layer = _layoutManager.Layouts[info.LayoutID].Layers[info.LayerID];
 
 
 		if (layer is WidgetImageBox imageBox)
@@ -57,6 +51,7 @@ public partial class Driver
 		}
 		else
 		{
+			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.LayoutID} Layer:{info.LayerID} not WidgetImageBox";
 			return JsonSerializer.Serialize(respone);
 		}

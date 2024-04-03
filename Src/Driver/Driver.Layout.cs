@@ -82,16 +82,61 @@ public partial class Driver
 	}
 
 
-	// [JSInvokable]
-	// public static string CheckLayout(int LayoutID)
-	// {
+	[JSInvokable]
+	public static string CheckLayout(int LayoutID)
+	{
+		ResponseHeader respone = new()
+		{
+			Type = ResponseType.Success,
+			Message = "",
+		};
 
-	// }
+		if (_layoutManager is null)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = "LayoutManager not set OR Game not loading";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		if (_layoutManager.Layouts.ContainsKey(LayoutID) == false)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = $"Layout:{LayoutID} not registered";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		respone.Type = ResponseType.Success;
+		return JsonSerializer.Serialize(respone);
+	}
 
 
-	// [JSInvokable]
-	// public static string CheckLayer(int LayoutID, int LayerID)
-	// {
+	[JSInvokable]
+	public static string CheckLayer(int LayoutID, int LayerID)
+	{
+		ResponseHeader respone = new()
+		{
+			Type = ResponseType.Success,
+			Message = "",
+		};
 
-	// }
+		if (_layoutManager is null)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = "LayoutManager not set OR Game not loading";
+			return JsonSerializer.Serialize(respone);
+		}
+
+		string responeString = CheckLayout(LayoutID);
+		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		if (respone.Type != ResponseType.Success)
+			return responeString;
+
+		if (_layoutManager.Layouts[LayoutID].Layers.ContainsKey(LayerID) == false)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = $"Layer:{LayerID} not registered";
+		}
+
+		return JsonSerializer.Serialize(respone);
+	}
 }

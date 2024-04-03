@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
-using WebGal.Layer;
-using WebGal.Layer.Controller;
-using WebGal.Layer.Widget;
 using WebGal.Services;
 using WebGal.Types;
 
@@ -15,8 +11,6 @@ namespace WebGal.Pages;
 
 public partial class Test// : IDisposable
 {
-	[Inject] private IJSRuntime jsRuntime { get; set; } = null!;
-	[Inject] private HttpClient httpClient { get; set; } = null!;
 	[Parameter] public string Game { get; set; } = null!;
 	[Inject] private GameManager Manager { get; set; } = null!;
 
@@ -76,7 +70,7 @@ public partial class Test// : IDisposable
 
 		MouseStatusUpdate();
 		await Manager.ProcEvent(mouseEventCopy);
-		Manager.Render(canvas, false);
+		Manager.Render(canvas);
 
 		//! audio test
 		// var tm = NowTime.Minisecond;
