@@ -15,13 +15,12 @@ public partial class Test// : IDisposable
 	[Inject] private GameManager Manager { get; set; } = null!;
 
 	private MouseEventData _mouseEvent = new();
-	private SKTypeface? paintTypeface;
 
 
 	protected override void OnInitialized()
 	{
 		// _audioTest = new(jsRuntime);
-		// _audioGain = new(jsRuntime);
+		// _audioGain = new(jsRuntime); 
 		// _audioSource = new(jsRuntime);
 		// _audioSpeeker = new(jsRuntime);
 	}

@@ -3,7 +3,6 @@ using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
-using WebGal.Libs.Base;
 
 namespace WebGal.API;
 

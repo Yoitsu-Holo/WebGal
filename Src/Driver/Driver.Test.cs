@@ -100,11 +100,37 @@ public partial class Driver
 				return result;
 		}
 
+		//! 注册文本底色框 layer2
+		{
+			Console.WriteLine("Register Layer:2 ...");
+
+			LayerBox colorBox = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Attribute = new()
+				{
+					Type = LayerType.ColorBox,
+					Position = new(20, 530),
+					Size = new(1240, 170),
+
+					LayoutID = 0,
+					LayerID = 2,
+				}
+			};
+
+			string result = RegisterLayer(JsonSerializer.Serialize(colorBox));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
 		//! 注册文本框 layer3
 		{
 			Console.WriteLine("Register Layer:3 ...");
 
-			LayerBox textbox = new()
+			LayerBox textBox = new()
 			{
 				Request = new()
 				{
@@ -113,15 +139,15 @@ public partial class Driver
 				Attribute = new()
 				{
 					Type = LayerType.TextBox,
-					Position = new(20, 550),
-					Size = new(1240, 150),
+					Position = new(40, 550),
+					Size = new(1200, 150),
 
 					LayoutID = 0,
 					LayerID = 3,
 				}
 			};
 
-			string result = RegisterLayer(JsonSerializer.Serialize(textbox));
+			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
 			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
 				return result;
 		}
@@ -138,6 +164,24 @@ public partial class Driver
 				ImageName = "bg010a",
 			};
 			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		//! 设置图片
+		{
+			Console.WriteLine("Set Color Layer:2 ...");
+
+			ColorBoxInfo image = new()
+			{
+				LayoutID = 0,
+				LayerID = 2,
+				R = 112,
+				G = 146,
+				B = 190,
+				A = 160,
+			};
+			string result = SetColorBoxInfo(JsonSerializer.Serialize(image));
 			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
 				return result;
 		}
