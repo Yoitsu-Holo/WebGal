@@ -48,13 +48,13 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public void InitImage()
 	{
-		_trackImage = new(Size.Width, Size.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 导轨
+		_trackImage = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 导轨
 
 		_image.Clear();
-		_image[0] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块未触发
-		_image[1] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标悬浮
-		_image[2] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
-		_image[3] = new(_thumbSize.Width, _thumbSize.Height, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
+		_image[0] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块未触发
+		_image[1] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标悬浮
+		_image[2] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
+		_image[3] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
 
 		using SKCanvas trackCanvas = new(_trackImage);
 		using SKCanvas thumbNormalCanvas = new(_image[(int)LayerStatus.Normal]);
@@ -63,27 +63,27 @@ public abstract class ControllerSliderBase : LayerBase
 		using SKCanvas thumbFocusedCanvas = new(_image[(int)LayerStatus.Focused]);
 
 		trackCanvas.DrawRect(
-			new(0, 0, Size.Width, Size.Height),
+			new(0, 0, Size.X, Size.Y),
 			new SKPaint { Color = new SKColor(200, 200, 200, 255) }
 		);
 
 		thumbNormalCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
+			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
 			new SKPaint { Color = new SKColor(89, 166, 97, 255) }
 		);
 
 		thumbHoverCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
+			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
 			new SKPaint { Color = new SKColor(166, 206, 170, 255) }
 		);
 
 		thumbPressedCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
+			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
 			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
 		);
 
 		thumbFocusedCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.Width, _thumbSize.Height),
+			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
 			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
 		);
 

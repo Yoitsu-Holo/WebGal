@@ -25,7 +25,10 @@ public partial class Driver
 		};
 
 		if (_layoutManager is not null)
-			_layoutManager.Layouts[layoutInfo.LayoutId] = new();
+		{
+			if (_layoutManager.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
+				_layoutManager.Layouts[layoutInfo.LayoutId] = new();
+		}
 		else
 			respone = new()
 			{

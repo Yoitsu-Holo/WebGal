@@ -15,7 +15,7 @@ public class ControllerSliderVertical : ControllerSliderBase
 
 	protected override void ThumbLimitSet(IVector thumbDelta)
 	{
-		_thumbDelta = new(0, Math.Max(0, Math.Min(Size.Height - _thumbSize.Height, thumbDelta.Y)));
-		_value = 1.0f * _thumbDelta.Height / (Size.Height - _thumbSize.Height);
+		_thumbDelta = new(0, Math.Max(0, Math.Min(Size.Y - _thumbSize.Y, thumbDelta.Y)));
+		_value = 1.0f * _thumbDelta.Y / (Size.Y - _thumbSize.Y);
 	}
 }

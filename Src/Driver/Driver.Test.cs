@@ -15,15 +15,16 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> Test(string json)
 	{
-		// DotNet.invokeMethodAsync('WebGal', 'Test', '');
 		/*
 		DotNet.invokeMethodAsync('WebGal', 'Test', '')
 			.then(result => {console.log(result);});
-		
+
 		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":{"Type":1,"Message":null},"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
 			.then(result => {console.log(result);});
-		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0,"Width":0,"Height":0},"Size":{"X":928,"Y":1536,"Width":928,"Height":1536},"LayoutID":0,"LayerID":1}}')
+
+		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
 			.then(result => {console.log(result);});
+
 		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"ImageName":"st-aoi"}')
 			.then(result => {console.log(result);});
 		*/

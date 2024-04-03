@@ -94,9 +94,6 @@ public record struct IVector(int X, int Y)
 	public static explicit operator (double, double)(IVector p) => (p.X, p.Y);
 
 	public static explicit operator FVector(IVector p) => new(p.X, p.Y);
-
-	public readonly int Width => X;
-	public readonly int Height => Y;
 }
 
 public record struct FVector(double X, double Y)
@@ -117,9 +114,6 @@ public record struct FVector(double X, double Y)
 	public static explicit operator (double, double)(FVector p) => (p.X, p.Y);
 
 	public static explicit operator IVector(FVector p) => new((int)p.X, (int)p.Y);
-
-	public readonly double Width => X;
-	public readonly double Height => Y;
 }
 
 public record struct WinSizeStructure(int Width, int Height)
