@@ -68,8 +68,8 @@ public class ControllerButtom : LayerBase
 	public void InitImage(SKBitmap normal, SKBitmap hover, SKBitmap pressed, SKBitmap focused) => (_image[0], _image[1], _image[2], _image[4]) = (normal, hover, pressed, focused);
 
 	public override void SetImage(SKBitmap image, int imageId = 0) => _image[imageId] = image;
-	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _image[imageId] = image.CropBitmap(imageWindow);
-	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _image[imageId] = image.CropBitmap(new IRect(satrtPosition, Size));
+	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _image[imageId] = image.SubBitmap(imageWindow);
+	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _image[imageId] = image.SubBitmap(new IRect(satrtPosition, Size));
 
 
 	public override void SetColor(SKColor color, IVector size = new(), int imageId = 0)

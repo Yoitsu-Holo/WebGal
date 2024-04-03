@@ -9,8 +9,8 @@ public class WidgetImageBox : LayerBase
 	private SKBitmap? _renderBuffer;
 
 	public override void SetImage(SKBitmap image, int imageId = 0) => _imageBuffer = image;
-	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _imageBuffer = image.CropBitmap(imageWindow);
-	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _imageBuffer = image.CropBitmap(new IRect(satrtPosition, Size));
+	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _imageBuffer = image.SubBitmap(imageWindow);
+	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _imageBuffer = image.SubBitmap(new IRect(satrtPosition, Size));
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
