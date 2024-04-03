@@ -1,4 +1,4 @@
-using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
 using SkiaSharp;
 
 namespace WebGal.Types;
@@ -34,12 +34,12 @@ public record class IRect
 	public int X = 0, Y = 0;
 	public int W = 0, H = 0;
 
-	public int Left => X;
-	public int Right => X + W;
-	public int Top => Y;
-	public int Bottom => Y + H;
+	[JsonIgnore] public int Left => X;
+	[JsonIgnore] public int Right => X + W;
+	[JsonIgnore] public int Top => Y;
+	[JsonIgnore] public int Bottom => Y + H;
 
-	public IVector MidPoint => new(X + W / 2, Y + H / 2);
+	[JsonIgnore] public IVector MidPoint => new(X + W / 2, Y + H / 2);
 }
 
 
@@ -68,12 +68,12 @@ public record class FRect
 	public double X = 0, Y = 0;
 	public double W = 0, H = 0;
 
-	public double Left => X;
-	public double Right => X + W;
-	public double Top => Y;
-	public double Bottom => Y + H;
+	[JsonIgnore] public double Left => X;
+	[JsonIgnore] public double Right => X + W;
+	[JsonIgnore] public double Top => Y;
+	[JsonIgnore] public double Bottom => Y + H;
 
-	public FVector MidPoint => new(X + W / 2, Y + H / 2);
+	[JsonIgnore] public FVector MidPoint => new(X + W / 2, Y + H / 2);
 }
 
 public record struct IVector(int X, int Y)
@@ -94,6 +94,9 @@ public record struct IVector(int X, int Y)
 	public static explicit operator (double, double)(IVector p) => (p.X, p.Y);
 
 	public static explicit operator FVector(IVector p) => new(p.X, p.Y);
+
+	[JsonIgnore] public readonly int Width => X;
+	[JsonIgnore] public readonly int Height => Y;
 }
 
 public record struct FVector(double X, double Y)
@@ -114,12 +117,15 @@ public record struct FVector(double X, double Y)
 	public static explicit operator (double, double)(FVector p) => (p.X, p.Y);
 
 	public static explicit operator IVector(FVector p) => new((int)p.X, (int)p.Y);
+
+	[JsonIgnore] public readonly double Width => X;
+	[JsonIgnore] public readonly double Height => Y;
 }
 
 public record struct WinSizeStructure(int Width, int Height)
 {
-	public static implicit operator SKSizeI(WinSizeStructure winSize) => new SKSizeI(winSize.Width, winSize.Height);
-	public static implicit operator SKSize(WinSizeStructure winSize) => new SKSize(winSize.Width, winSize.Height);
+	public static implicit operator SKSizeI(WinSizeStructure winSize) => new(winSize.Width, winSize.Height);
+	public static implicit operator SKSize(WinSizeStructure winSize) => new(winSize.Width, winSize.Height);
 	public static implicit operator (int, int)(WinSizeStructure win) => (win.Width, win.Height);
 }
 
