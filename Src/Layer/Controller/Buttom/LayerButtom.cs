@@ -2,6 +2,7 @@ using SkiaSharp;
 using WebGal.Handler.Event;
 using WebGal.Global;
 using WebGal.Types;
+using WebGal.Extend;
 
 namespace WebGal.Layer.Controller;
 

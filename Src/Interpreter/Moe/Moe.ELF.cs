@@ -213,7 +213,7 @@ public partial class MoeInterpreter
 				if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
 					throw new Exception($"不能在全局代码区定义函数: File{file.FileName}");
 				if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
-					Console.WriteLine($"重复的函数定义: File:{file.FileName} \tFunc{functionAST.FuncDefine.FuncName}");
+					throw new Exception($"重复的函数定义: File:{file.FileName} \tFunc{functionAST.FuncDefine.FuncName}");
 
 				_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
 			}

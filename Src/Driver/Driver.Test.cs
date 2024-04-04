@@ -25,7 +25,7 @@ public partial class Driver
 		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
 			.then(result => {console.log(result);});
 
-		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"ImageName":"st-aoi"}')
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}')
 			.then(result => {console.log(result);});
 		*/
 		//! 拉取文件
@@ -218,7 +218,6 @@ public partial class Driver
 			Message = "Hello WebGal"
 		};
 
-		Console.WriteLine(JsonSerializer.Serialize(response, JsonConfig.Options));
 		return JsonSerializer.Serialize(response);
 	}
 }

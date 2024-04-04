@@ -122,7 +122,6 @@ public partial class Test// : IDisposable
 	private void OnMouseDown(MouseEventArgs e)
 	{
 		_mouseEvent.Status = MouseStatus.Down;
-		// Console.WriteLine(e.Button);
 
 		_mouseEvent.Button = e.Button switch
 		{

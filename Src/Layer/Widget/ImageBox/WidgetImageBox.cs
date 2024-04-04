@@ -1,4 +1,5 @@
 using SkiaSharp;
+using WebGal.Extend;
 using WebGal.Types;
 
 namespace WebGal.Layer.Widget;
@@ -8,9 +9,21 @@ public class WidgetImageBox : LayerBase
 	private SKBitmap _imageBuffer = new();
 	private SKBitmap? _renderBuffer;
 
-	public override void SetImage(SKBitmap image, int imageId = 0) => _imageBuffer = image;
-	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _imageBuffer = image.SubBitmap(imageWindow);
-	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _imageBuffer = image.SubBitmap(new IRect(satrtPosition, Size));
+	public override void SetImage(SKBitmap image, int imageId = 0)
+	{
+		_imageBuffer = image;
+		_dirty = true;
+	}
+	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0)
+	{
+		_imageBuffer = image.SubBitmap(imageWindow);
+		_dirty = true;
+	}
+	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0)
+	{
+		_imageBuffer = image.SubBitmap(new IRect(satrtPosition, Size));
+		_dirty = true;
+	}
 
 	public override void Render(SKCanvas canvas, bool force)
 	{

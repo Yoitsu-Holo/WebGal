@@ -35,7 +35,7 @@ public class WidgetTextBox : LayerBase
 		{
 			_textLine.Clear();
 			int lineWidth = Size.X - (Style.Padding.Left + Style.Padding.Right);
-			Console.WriteLine($"{Size.X}:{Size.Y} ");
+
 			string s = "";
 			foreach (var c in Text)
 			{
@@ -61,8 +61,6 @@ public class WidgetTextBox : LayerBase
 			startPos.Y += (int)TextPaint.TextSize;
 			canvas.DrawText(_textLine[i], startPos, TextPaint);
 			startPos.Y += Style.MarginBottom;
-
-			// Console.WriteLine(startPos.X + ": " + startPos.Y);
 		}
 	}
 

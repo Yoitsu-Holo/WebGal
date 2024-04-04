@@ -7,7 +7,7 @@ public static class SKBitmapExtend
 	public static SKBitmap SubBitmap(this SKBitmap source, SKRectI subRect)
 	{
 		if (subRect.Width == 0 || subRect.Height == 0)
-			return source.Copy();
+			subRect = new(0, 0, source.Width, source.Height);
 		// 创建一个新的 SKBitmap 对象用于存储裁剪后的图片
 		var croppedBitmap = new SKBitmap(subRect.Width, subRect.Height);
 
@@ -15,9 +15,8 @@ public static class SKBitmapExtend
 		using (var canvas = new SKCanvas(croppedBitmap))
 		{
 			// 绘制裁剪后的图片
-			canvas.DrawBitmap(source, subRect, new SKRectI(0, 0, subRect.Width, subRect.Height));
+			canvas.DrawBitmap(source, subRect, subRect);
 		}
-
 		// 返回裁剪后的 SKBitmap 图片
 		return croppedBitmap;
 	}
