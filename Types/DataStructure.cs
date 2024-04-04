@@ -31,8 +31,10 @@ public record class IRect
 	public static explicit operator FRect(IRect rect) => new(rect.X, rect.Y, rect.W, rect.H);
 
 
-	public int X = 0, Y = 0;
-	public int W = 0, H = 0;
+	public int X { get; set; } = 0;
+	public int Y { get; set; } = 0;
+	public int W { get; set; } = 0;
+	public int H { get; set; } = 0;
 
 	[JsonIgnore] public int Left => X;
 	[JsonIgnore] public int Right => X + W;
@@ -65,8 +67,10 @@ public record class FRect
 	public static explicit operator IRect(FRect rect) => new((int)rect.X, (int)rect.Y, (int)rect.W, (int)rect.H);
 
 
-	public double X = 0, Y = 0;
-	public double W = 0, H = 0;
+	public double X { get; set; } = 0;
+	public double Y { get; set; } = 0;
+	public double W { get; set; } = 0;
+	public double H { get; set; } = 0;
 
 	[JsonIgnore] public double Left => X;
 	[JsonIgnore] public double Right => X + W;

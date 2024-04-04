@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
+using WebGal.Types;
 
 namespace WebGal.API;
 
@@ -46,7 +47,7 @@ public partial class Driver
 
 		if (layer is WidgetImageBox imageBox)
 		{
-			imageBox.SetImage(_resourceManager.GetImage(info.ImageName));
+			imageBox.SetImage(_resourceManager.GetImage(info.ImageName), info.SubRect);
 		}
 		else
 		{

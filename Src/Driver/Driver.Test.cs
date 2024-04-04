@@ -167,6 +167,8 @@ public partial class Driver
 			{
 				LayoutID = 0,
 				LayerID = 0,
+
+				SubRect = new(0, 0, 1280, 720),
 				ImageName = "bg010a",
 			};
 

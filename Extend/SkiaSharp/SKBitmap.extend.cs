@@ -1,9 +1,13 @@
 using SkiaSharp;
 
+namespace WebGal.Extend;
+
 public static class SKBitmapExtend
 {
 	public static SKBitmap SubBitmap(this SKBitmap source, SKRectI subRect)
 	{
+		if (subRect.Width == 0 || subRect.Height == 0)
+			return source.Copy();
 		// 创建一个新的 SKBitmap 对象用于存储裁剪后的图片
 		var croppedBitmap = new SKBitmap(subRect.Width, subRect.Height);
 
