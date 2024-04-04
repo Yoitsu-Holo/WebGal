@@ -36,11 +36,11 @@ public class ResourceManager(HttpClient httpClient)
 	public bool RemoveFont(string name) => _fontList.Remove(name);
 	public bool RemoveScript(string name) => _scriptList.Remove(name);
 
-	public bool CheckImage(string name) => _imageList.ContainsKey(name);
-	public bool CheckAudio(string name) => _audioList.ContainsKey(name);
-	public bool CheckBlob(string name) => _blobList.ContainsKey(name);
-	public bool CheckFont(string name) => _fontList.ContainsKey(name);
-	public bool CheckScript(string name) => _scriptList.ContainsKey(name);
+	public bool CheckImage(string name) => name is not null && _imageList.ContainsKey(name);
+	public bool CheckAudio(string name) => name is not null && _audioList.ContainsKey(name);
+	public bool CheckBlob(string name) => name is not null && _blobList.ContainsKey(name);
+	public bool CheckFont(string name) => name is not null && _fontList.ContainsKey(name);
+	public bool CheckScript(string name) => name is not null && _scriptList.ContainsKey(name);
 
 	public void Clear()
 	{

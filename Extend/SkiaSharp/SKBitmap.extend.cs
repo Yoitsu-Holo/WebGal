@@ -15,7 +15,7 @@ public static class SKBitmapExtend
 		using (var canvas = new SKCanvas(croppedBitmap))
 		{
 			// 绘制裁剪后的图片
-			canvas.DrawBitmap(source, subRect, subRect);
+			canvas.DrawBitmap(source, subRect, new SKRect(0, 0, subRect.Width, subRect.Height));
 		}
 		// 返回裁剪后的 SKBitmap 图片
 		return croppedBitmap;

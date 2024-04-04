@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Layer;
+using WebGal.Layer.Controller;
 using WebGal.Layer.Widget;
 using WebGal.Libs.Base;
 
@@ -58,6 +59,7 @@ public partial class Driver
 					LayerType.TextBox => new WidgetTextBox(),
 					LayerType.ImageBox => new WidgetImageBox(),
 					LayerType.ColorBox => new WidgetColorBox(),
+					LayerType.ButtomBox => new ControllerButtom(),
 					LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
 					_ => throw new Exception("未标识的控件类型: todo"),
 				};

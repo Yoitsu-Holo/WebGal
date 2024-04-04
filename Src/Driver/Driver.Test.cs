@@ -48,6 +48,24 @@ public partial class Driver
 		}
 
 		{
+			Console.WriteLine("Pull Menu image ...");
+			FileInfo fileInfo = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Type = FileType.Image,
+				URL = "/Image/title01_chip.png",
+				Name = "title",
+			};
+
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		{
 			Console.WriteLine("Pull Font ...");
 			FileInfo fileInfo = new()
 			{
@@ -81,6 +99,7 @@ public partial class Driver
 			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
 				return result;
 		}
+
 		//! 注册背景图片 layer0
 		{
 			Console.WriteLine("Register Layer:0 ...");
@@ -158,6 +177,32 @@ public partial class Driver
 				return result;
 		}
 
+		//! 注册按钮 layer4
+		{
+			Console.WriteLine("Register Layer:4 ...");
+
+			LayerBox textBox = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Attribute = new()
+				{
+					Type = LayerType.ButtomBox,
+					// Position = new(870, 400),
+					Position = new(100, 100),
+					Size = new(316, 45),
+
+					LayoutID = 0,
+					LayerID = 4,
+				}
+			};
+
+			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
 
 		//! 设置图片
 		{
@@ -168,8 +213,11 @@ public partial class Driver
 				LayoutID = 0,
 				LayerID = 0,
 
-				SubRect = new(0, 0, 1280, 720),
-				ImageName = "bg010a",
+				Image = new()
+				{
+					ImageName = "bg010a",
+					SubRect = new(0, 0, 1820, 1024),
+				}
 			};
 
 			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
@@ -177,7 +225,7 @@ public partial class Driver
 				return result;
 		}
 
-		//! 设置图片
+		//! 设置颜色
 		{
 			Console.WriteLine("Set Color Layer:2 ...");
 
@@ -195,7 +243,6 @@ public partial class Driver
 				return result;
 		}
 
-
 		//! 设置文字
 		{
 			Console.WriteLine("Set Text Layer:3 ...");
@@ -208,6 +255,37 @@ public partial class Driver
 				FontSize = 30,
 			};
 			string result = SetTextBoxInfo(JsonSerializer.Serialize(text));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		//! 设置按钮
+		{
+			Console.WriteLine("Set Buttom Layer:4 ...");
+
+			ButtomBoxInfo buttom = new()
+			{
+				LayoutID = 0,
+				LayerID = 4,
+
+				NormalImage = new()
+				{
+					ImageName = "title",
+					SubRect = new(1, 723, 316, 45),
+				},
+				HoverImage = new()
+				{
+					ImageName = "title",
+					SubRect = new(321, 723, 316, 45),
+				},
+				PressedImage = new()
+				{
+					ImageName = "title",
+					SubRect = new(641, 723, 316, 45),
+				},
+			};
+
+			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom));
 			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
 				return result;
 		}

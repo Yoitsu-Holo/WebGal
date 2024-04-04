@@ -25,6 +25,7 @@ public enum ResponseType
 public enum LayerType
 {
 	TextBox, ImageBox, ColorBox,    // widget
+	ButtomBox,
 	ControllerBox, // controller
 
 	// 任意类型，空类型，自动解析，错误
@@ -42,6 +43,12 @@ public enum FileType
 
 
 	Void, Any, Auto, Error,
+}
+
+public enum ControllerStatus
+{
+	// 通常状态，悬停状态，按下状态，聚焦状态 (突出显示)
+	Normal, Hover, Pressed, Focused,
 }
 
 /// <summary> 请求结构头 </summary>
