@@ -14,16 +14,19 @@ public class WidgetTextBox : LayerBase
 	public virtual void SetFontSize(int fontSize)
 	{
 		TextPaint.TextSize = fontSize;
+		_dirty = true;
 	}
 
-	public override void SetColor(SKColor color, IVector size = default, int imageId = 0)
+	public override void SetColor(SKColor color, int imageId = 0)
 	{
 		TextPaint.Color = color;
+		_dirty = true;
 	}
 
 	public virtual void SetFontStyle(SKTypeface typeFace)
 	{
 		TextPaint.Typeface = typeFace;
+		_dirty = true;
 	}
 
 	public override void Render(SKCanvas canvas, bool force)

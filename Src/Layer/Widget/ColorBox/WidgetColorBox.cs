@@ -9,18 +9,17 @@ public class WidgetColorBox : LayerBase
 	private SKBitmap? _renderBuffer;
 	private SKColor _color = new();
 
-	public override void SetColor(SKColor color, IVector size = default, int imageId = 0)
+	public override void SetColor(SKColor color, int imageId = 0)
 	{
 		_color = color;
-		_renderBuffer = new(size.X, size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 		_dirty = true;
 	}
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable || _renderBuffer is null)
+		if (Status == LayerStatus.Unvisable)
 			return;
-		if (_dirty || force)
+		if (_dirty || force || _renderBuffer is null)
 		{
 			_renderBuffer = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 			using SKCanvas tempCanvas = new(_renderBuffer);

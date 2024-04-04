@@ -43,9 +43,8 @@ public class LayerBase : ILayer, IAction
 	#region 自身设置
 	// 设置图片属性 (不作为基本属性设置)
 	public virtual void SetImage(SKBitmap image, int imageId = 0) => throw new NotImplementedException();
-	public virtual void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => throw new NotImplementedException();
 	public virtual void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => throw new NotImplementedException();
-	public virtual void SetColor(SKColor color, IVector size = new(), int imageId = 0) => throw new NotImplementedException();
+	public virtual void SetColor(SKColor color, int imageId = 0) => throw new NotImplementedException();
 
 	public IAnimation Animation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 	public void DoAnimation(long timeOff) { }

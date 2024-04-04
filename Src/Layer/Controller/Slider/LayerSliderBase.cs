@@ -105,18 +105,23 @@ public abstract class ControllerSliderBase : LayerBase
 		_image[(int)LayerStatus.Focused] = sliderPressed;
 	}
 
-	public override void SetImage(SKBitmap image, int imageId = 0) => _image[imageId] = image;
-	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => _image[imageId] = image.SubBitmap(imageWindow);
-	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0) => _image[imageId] = image.SubBitmap(new IRect(satrtPosition, Size));
-
-	public override void SetColor(SKColor color, IVector size = new(), int imageId = 0)
+	public override void SetImage(SKBitmap image, int imageId = 0)
 	{
-		if (size.X * size.Y == 0)
-			size = Size;
-		SKBitmap bitmap = new(size.X, size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+		_image[imageId] = image;
+		_dirty = true;
+	}
+	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0)
+	{
+		_image[imageId] = image.SubBitmap(imageWindow);
+		_dirty = true;
+	}
+
+	public override void SetColor(SKColor color, int imageId = 0)
+	{
+		SKBitmap bitmap = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
 		using SKCanvas canvas = new(bitmap);
 		canvas.DrawRect(
-			new SKRect(0, 0, size.X, size.Y),
+			new SKRect(0, 0, Size.X, Size.Y),
 			new SKPaint { Color = color }
 		);
 		canvas.Flush();
@@ -184,10 +189,10 @@ public abstract class ControllerSliderBase : LayerBase
 		get => base.Value;
 		set
 		{
-			if (value is double)
+			if (value is double v)
 			{
 				base.Value = value;
-				ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * (double)value));
+				ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * v));
 			}
 		}
 	}

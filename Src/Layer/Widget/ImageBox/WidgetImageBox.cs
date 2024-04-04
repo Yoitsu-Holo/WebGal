@@ -19,11 +19,6 @@ public class WidgetImageBox : LayerBase
 		_imageBuffer = image.SubBitmap(imageWindow);
 		_dirty = true;
 	}
-	public override void SetImage(SKBitmap image, IVector satrtPosition, int imageId = 0)
-	{
-		_imageBuffer = image.SubBitmap(new IRect(satrtPosition, Size));
-		_dirty = true;
-	}
 
 	public override void Render(SKCanvas canvas, bool force)
 	{

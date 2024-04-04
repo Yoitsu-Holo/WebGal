@@ -12,9 +12,8 @@ public interface ILayer : IAction
 
 	// 图片处理
 	public void SetImage(SKBitmap image, int imageId);
-	public void SetImage(SKBitmap image, IVector satrtPosition, int imageId);
 	public void SetImage(SKBitmap image, IRect imageWindow, int imageId);
-	public void SetColor(SKColor color, IVector size, int imageId);
+	public void SetColor(SKColor color, int imageId);
 
 	// 动画处理
 	public IAnimation Animation { get; set; }
