@@ -5,8 +5,8 @@ namespace WebGal.API.Data;
 /// </summary>
 public record struct ColorBoxInfo
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
+
 	public byte R { get; set; }
 	public byte G { get; set; }
 	public byte B { get; set; }
@@ -15,8 +15,7 @@ public record struct ColorBoxInfo
 
 public record struct ColorBoxColor
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public byte R { get; set; }
 	public byte G { get; set; }
 	public byte B { get; set; }

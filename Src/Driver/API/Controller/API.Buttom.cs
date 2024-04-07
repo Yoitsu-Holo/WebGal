@@ -7,8 +7,7 @@ namespace WebGal.API.Data;
 /// </summary>
 public record struct ButtomBoxInfo
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public ImageInfo NormalImage { get; set; }
 	public ImageInfo HoverImage { get; set; }
 	public ImageInfo PressedImage { get; set; }
@@ -17,16 +16,14 @@ public record struct ButtomBoxInfo
 
 public record struct ButtomBoxImage
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public ControllerStatus Status { get; set; }
 	public string ImageName { get; set; }
 }
 
 public record struct ButtomBoxSubImage
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public ControllerStatus Status { get; set; }
 	public IRect SubRect { get; set; }
 }

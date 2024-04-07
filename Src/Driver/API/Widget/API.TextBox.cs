@@ -8,8 +8,7 @@ namespace WebGal.API.Data;
 /// </summary>
 public record struct TextBoxInfo
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 
 	public string Text { get; set; }
 	public string Font { get; set; }
@@ -18,21 +17,18 @@ public record struct TextBoxInfo
 
 public record struct TextBoxText
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public string Text { get; set; }
 }
 
 public record struct TextBoxFont
 {
-	public int LayoutId { get; set; }
-	public int LayerId { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public string Font { get; set; }
 }
 
 public record struct TextBoxFontSize
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public int FontSize { get; set; }
 }

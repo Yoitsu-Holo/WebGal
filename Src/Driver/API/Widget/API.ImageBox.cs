@@ -1,4 +1,3 @@
-using System.Dynamic;
 using WebGal.Types;
 
 namespace WebGal.API.Data;
@@ -9,22 +8,19 @@ namespace WebGal.API.Data;
 /// </summary>
 public record struct ImageBoxInfo
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public ImageInfo Image { get; set; }
 }
 
 public record struct ImageBoxImage
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public string ImageName { get; set; }
 }
 
 public record struct ImageBoxSubImage
 {
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; }
+	public LayerIdInfo ID { get; set; }
 	public IRect SubRect { get; set; }
 }
 

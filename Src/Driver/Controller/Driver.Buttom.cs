@@ -36,12 +36,12 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone);
 		}
 
-		string responeString = CheckLayer(info.LayoutID, info.LayerID);
+		string responeString = CheckLayer(info.ID.LayoutID, info.ID.LayerID);
 		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
-		ILayer layer = _layoutManager.Layouts[info.LayoutID].Layers[info.LayerID];
+		ILayer layer = _layoutManager.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
 
 		if (layer is ControllerButtom buttomBox)
@@ -61,7 +61,7 @@ public partial class Driver
 		else
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{info.LayoutID} Layer:{info.LayerID} not WidgetImageBox";
+			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
 			return JsonSerializer.Serialize(respone);
 		}
 

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
-using WebGal.Global;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -25,7 +24,10 @@ public partial class Driver
 		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
 			.then(result => {console.log(result);});
 
-		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}')
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
+			.then(result => {console.log(result);});
+
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":0,"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
 			.then(result => {console.log(result);});
 		*/
 		//! 拉取文件
@@ -190,8 +192,7 @@ public partial class Driver
 				Attribute = new()
 				{
 					Type = LayerType.ButtomBox,
-					// Position = new(870, 400),
-					Position = new(100, 100),
+					Position = new(870, 400),
 					Size = new(316, 45),
 
 					LayoutID = 0,
@@ -210,8 +211,11 @@ public partial class Driver
 
 			ImageBoxInfo image = new()
 			{
-				LayoutID = 0,
-				LayerID = 0,
+				ID = new()
+				{
+					LayoutID = 0,
+					LayerID = 0,
+				},
 
 				Image = new()
 				{
@@ -231,8 +235,11 @@ public partial class Driver
 
 			ColorBoxInfo image = new()
 			{
-				LayoutID = 0,
-				LayerID = 2,
+				ID = new()
+				{
+					LayoutID = 0,
+					LayerID = 2,
+				},
 				R = 112,
 				G = 146,
 				B = 190,
@@ -248,8 +255,11 @@ public partial class Driver
 			Console.WriteLine("Set Text Layer:3 ...");
 			TextBoxInfo text = new()
 			{
-				LayoutID = 0,
-				LayerID = 3,
+				ID = new()
+				{
+					LayoutID = 0,
+					LayerID = 3,
+				},
 				Text = "Hello Wrold, 你好世界: 中文测试: ascii可打印字符、换行、中文字体\n1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
 				Font = "simhei",
 				FontSize = 30,
@@ -265,9 +275,11 @@ public partial class Driver
 
 			ButtomBoxInfo buttom = new()
 			{
-				LayoutID = 0,
-				LayerID = 4,
-
+				ID = new()
+				{
+					LayoutID = 0,
+					LayerID = 4,
+				},
 				NormalImage = new()
 				{
 					ImageName = "title",
