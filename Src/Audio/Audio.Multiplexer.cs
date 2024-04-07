@@ -1,12 +1,11 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioMutiplexer : IAudioBaseNode
+public class AudioMutiplexer(JSRuntime jsRuntime) : IAudio
 {
-	private IJSRuntime _jsRuntime;
+	private readonly IJSRuntime _jsRuntime = jsRuntime;
 	private AudioContext? _context;
 
 	private ChannelMergerNode? _merger;
@@ -14,8 +13,6 @@ public class AudioMutiplexer : IAudioBaseNode
 
 	private ulong _inputChannels = 6;
 	private ulong _outputChannels = 6;
-
-	public AudioMutiplexer(JSRuntime jsRuntime) => _jsRuntime = jsRuntime;
 
 	public async Task SetInputNumber(ulong inputChannels = 6uL)
 	{
@@ -50,7 +47,7 @@ public class AudioMutiplexer : IAudioBaseNode
 		await _merger.ConnectAsync(_splitter);
 	}
 
-	public async Task ConnectToAsync(IAudioBaseNode target, AudioWire wire)
+	public async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");

@@ -13,19 +13,14 @@ todo:	vioce:	语音播放通道	配置	用于播放人物语音	单次
 todo:	effect:	音效播放通道	数量1	用于播放场景音效	单次
 */
 
-public class AudioSimple : IAudioBaseNode
+public class AudioSimple(IJSRuntime jsRuntime) : IAudio
 {
-	private IJSRuntime _jsRuntime = null!;
+	private IJSRuntime _jsRuntime = jsRuntime;
 	private AudioContext? _context;
 
 	private AudioDestinationNode? _destination;
 	private GainNode? _gain;
 	private AudioBufferSourceNode? _currentAudioBufferNode;
-
-	public AudioSimple(IJSRuntime jsRuntime)
-	{
-		_jsRuntime = jsRuntime;
-	}
 
 	public async Task SetAudioAsync(byte[] audioBytes)
 	{
@@ -83,7 +78,7 @@ public class AudioSimple : IAudioBaseNode
 		await _gain.ConnectAsync(_destination);
 	}
 
-	public Task ConnectToAsync(IAudioBaseNode target, AudioWire wire) => throw new NotImplementedException();
+	public Task ConnectToAsync(IAudio target, AudioWire wire) => throw new NotImplementedException();
 	public AudioNode GetSocketAsync() => throw new NotImplementedException();
 	public ulong OutputChannels() => throw new NotImplementedException();
 	public ulong InputChannels() => throw new NotImplementedException();

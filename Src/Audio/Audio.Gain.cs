@@ -3,14 +3,12 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioGain : IAudioBaseNode
+public class AudioGain(IJSRuntime jsRumtine) : IAudio
 {
-	private IJSRuntime _jsRuntime;
+	private readonly IJSRuntime _jsRuntime = jsRumtine;
 	private AudioContext? _context;
 
 	private GainNode? _gain;
-
-	public AudioGain(IJSRuntime jsRumtine) => _jsRuntime = jsRumtine;
 
 	public async Task SetGainASync(float gain)
 	{
@@ -20,7 +18,7 @@ public class AudioGain : IAudioBaseNode
 	}
 
 	// Interface
-	public async Task ConnectToAsync(IAudioBaseNode target, AudioWire wire)
+	public async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");

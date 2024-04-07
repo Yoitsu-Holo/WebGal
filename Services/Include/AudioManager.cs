@@ -8,7 +8,7 @@ namespace WebGal.Services.Include;
 /// </summary>
 public class AudioManager
 {
-	public Dictionary<string, IAudioBaseNode> audioNode = [];
+	public Dictionary<string, IAudio> audioNode = [];
 
 
 	public void Clear() { }

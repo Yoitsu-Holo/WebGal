@@ -3,18 +3,15 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioSpeeker : IAudioBaseNode
+public class AudioSpeeker(IJSRuntime jsRuntime) : IAudio
 {
-	private IJSRuntime _jsRuntime = null!;
+	private IJSRuntime _jsRuntime = jsRuntime;
 	private AudioContext? _context;
 
 	private AudioDestinationNode? _destination;
 
-
-	public AudioSpeeker(IJSRuntime jsRuntime) => _jsRuntime = jsRuntime;
-
 	// Interface
-	public Task ConnectToAsync(IAudioBaseNode target, AudioWire wire) => throw new NotImplementedException();
+	public Task ConnectToAsync(IAudio target, AudioWire wire) => throw new NotImplementedException();
 
 	public AudioNode GetSocketAsync()
 	{

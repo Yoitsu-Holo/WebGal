@@ -3,14 +3,11 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioSource : IAudioBaseNode
+public class AudioSource(IJSRuntime jsRuntime) : IAudio
 {
-	private readonly IJSRuntime _jsRuntime = null!;
+	private readonly IJSRuntime _jsRuntime = jsRuntime;
 	private AudioContext _context = null!;
 	private AudioBufferSourceNode? _audioBuffer;
-
-
-	public AudioSource(IJSRuntime jsRuntime) => _jsRuntime = jsRuntime;
 
 	public async Task PlayAsync()
 	{
@@ -44,7 +41,7 @@ public class AudioSource : IAudioBaseNode
 	// Interface
 	public async Task SetContextAsync(AudioContext context) => await Task.Run(() => _context = context);
 
-	public async Task ConnectToAsync(IAudioBaseNode target, AudioWire wire)
+	public async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		var inputChannels = target.InputChannels();
 
