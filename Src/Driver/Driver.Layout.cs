@@ -88,7 +88,7 @@ public partial class Driver
 
 
 	[JSInvokable]
-	public static string CheckLayout(int LayoutID)
+	public static string CheckLayout(LayerIdInfo info)
 	{
 		ResponseHeader respone = new()
 		{
@@ -103,10 +103,10 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone);
 		}
 
-		if (_layoutManager.Layouts.ContainsKey(LayoutID) == false)
+		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{LayoutID} not registered";
+			respone.Message = $"Layout:{info.LayoutID} not registered";
 			return JsonSerializer.Serialize(respone);
 		}
 
@@ -116,7 +116,7 @@ public partial class Driver
 
 
 	[JSInvokable]
-	public static string CheckLayer(int LayoutID, int LayerID)
+	public static string CheckLayer(LayerIdInfo info)
 	{
 		ResponseHeader respone = new()
 		{
@@ -131,15 +131,15 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone);
 		}
 
-		string responeString = CheckLayout(LayoutID);
+		string responeString = CheckLayout(info);
 		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
-		if (_layoutManager.Layouts[LayoutID].Layers.ContainsKey(LayerID) == false)
+		if (_layoutManager.Layouts[info.LayoutID].Layers.ContainsKey(info.LayerID) == false)
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layer:{LayerID} not registered";
+			respone.Message = $"Layer:{info.LayerID} not registered";
 		}
 
 		return JsonSerializer.Serialize(respone);

@@ -30,7 +30,7 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone);
 		}
 
-		string responeString = CheckLayer(info.ID.LayoutID, info.ID.LayerID);
+		string responeString = CheckLayer(info.ID);
 		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
