@@ -3,11 +3,8 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioGain(IJSRuntime jsRumtine) : IAudio
+public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
-	private readonly IJSRuntime _jsRuntime = jsRumtine;
-	private AudioContext? _context;
-
 	private GainNode? _gain;
 
 	public async Task SetGainASync(float gain)
@@ -18,7 +15,7 @@ public class AudioGain(IJSRuntime jsRumtine) : IAudio
 	}
 
 	// Interface
-	public async Task ConnectToAsync(IAudio target, AudioWire wire)
+	public override async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
@@ -34,19 +31,21 @@ public class AudioGain(IJSRuntime jsRumtine) : IAudio
 		await _gain!.ConnectAsync(target.GetSocketAsync(), wire.Output, wire.Input);
 	}
 
-	public AudioNode GetSocketAsync()
+	public override AudioNode GetSocketAsync()
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
 		return _gain!;
 	}
 
-	public async Task SetContextAsync(AudioContext context)
+	public override async Task SetContextAsync(AudioContext context)
 	{
-		_context = context;
+		await base.SetContextAsync(context);
+		if (_context is null)
+			throw new Exception("Without any context");
 		_gain = await GainNode.CreateAsync(_jsRuntime, _context, new() { Gain = 1.0f });
 	}
 
-	public ulong InputChannels() => 1;
-	public ulong OutputChannels() => 1;
+	public override ulong InputChannels() => 1;
+	public override ulong OutputChannels() => 1;
 }

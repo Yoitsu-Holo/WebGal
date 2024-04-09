@@ -1,15 +1,23 @@
+using KristofferStrube.Blazor.WebAudio;
+using Microsoft.JSInterop;
 using WebGal.Audio;
 
 namespace WebGal.Services.Include;
 
 
 /// <summary>
-/// AudioManager 接收来自 Scene 或其他模块的请求，根据需要播放相应的音频。
+/// AudioManager 接收来自驱动层的请求，根据需要播放相应的音频。
 /// </summary>
-public class AudioManager
+public class AudioManager(IJSRuntime jSRuntime)
 {
-	public Dictionary<string, IAudio> audioNode = [];
+	public readonly IJSRuntime JSRuntime = jSRuntime;
+	public Dictionary<int, IAudio> AudioNodes = [];
 
+	public Dictionary<int, AudioContext> AudioContexts = [];
 
-	public void Clear() { }
+	public void Clear()
+	{
+		AudioNodes.Clear();
+		AudioContexts.Clear();
+	}
 }

@@ -3,11 +3,8 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioMutiplexer(JSRuntime jsRuntime) : IAudio
+public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
-	private readonly IJSRuntime _jsRuntime = jsRuntime;
-	private AudioContext? _context;
-
 	private ChannelMergerNode? _merger;
 	private ChannelSplitterNode? _splitter;
 
@@ -37,9 +34,11 @@ public class AudioMutiplexer(JSRuntime jsRuntime) : IAudio
 	}
 
 	// Interface
-	public async Task SetContextAsync(AudioContext context)
+	public override async Task SetContextAsync(AudioContext context)
 	{
-		_context = context;
+		await base.SetContextAsync(context);
+		if (_context is null)
+			throw new Exception("Without any context");
 		// 默认设置 6 in 6 out
 		_merger = await ChannelMergerNode.CreateAsync(_jsRuntime, _context);
 		_splitter = await ChannelSplitterNode.CreateAsync(_jsRuntime, _context);
@@ -47,7 +46,7 @@ public class AudioMutiplexer(JSRuntime jsRuntime) : IAudio
 		await _merger.ConnectAsync(_splitter);
 	}
 
-	public async Task ConnectToAsync(IAudio target, AudioWire wire)
+	public override async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
@@ -63,13 +62,13 @@ public class AudioMutiplexer(JSRuntime jsRuntime) : IAudio
 		await _splitter!.ConnectAsync(target.GetSocketAsync(), wire.Output, wire.Input);
 	}
 
-	public AudioNode GetSocketAsync()
+	public override AudioNode GetSocketAsync()
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
 		return _merger!;
 	}
 
-	public ulong InputChannels() => _inputChannels;
-	public ulong OutputChannels() => _outputChannels;
+	public override ulong InputChannels() => _inputChannels;
+	public override ulong OutputChannels() => _outputChannels;
 }

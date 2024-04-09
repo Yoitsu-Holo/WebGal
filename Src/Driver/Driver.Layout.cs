@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
-using WebGal.Global;
 using WebGal.Layer;
 using WebGal.Layer.Controller;
 using WebGal.Layer.Widget;

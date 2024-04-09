@@ -3,10 +3,8 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioSource(IJSRuntime jsRuntime) : IAudio
+public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
-	private readonly IJSRuntime _jsRuntime = jsRuntime;
-	private AudioContext _context = null!;
 	private AudioBufferSourceNode? _audioBuffer;
 
 	public async Task PlayAsync()
@@ -26,6 +24,9 @@ public class AudioSource(IJSRuntime jsRuntime) : IAudio
 	public async Task SetAudioBuffer(byte[] audioBytes)
 	{
 		AudioBuffer currentAudioBuffer = default!;
+		if (_context is null)
+			throw new Exception("Without any context");
+
 		await _context.DecodeAudioDataAsync(audioBytes, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
 		_audioBuffer = await _context.CreateBufferSourceAsync();
 		await _audioBuffer.SetBufferAsync(currentAudioBuffer);
@@ -39,9 +40,9 @@ public class AudioSource(IJSRuntime jsRuntime) : IAudio
 	}
 
 	// Interface
-	public async Task SetContextAsync(AudioContext context) => await Task.Run(() => _context = context);
+	public override async Task SetContextAsync(AudioContext context) => await base.SetContextAsync(context);
 
-	public async Task ConnectToAsync(IAudio target, AudioWire wire)
+	public override async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
 		var inputChannels = target.InputChannels();
 
@@ -53,8 +54,6 @@ public class AudioSource(IJSRuntime jsRuntime) : IAudio
 		await _audioBuffer.ConnectAsync(target.GetSocketAsync(), 0, wire.Input);
 	}
 
-	public ulong InputChannels() => 0;
-	public ulong OutputChannels() => 1;
-	public AudioNode GetSocketAsync() => throw new NotImplementedException();
-	public string NodeMeta() => throw new NotImplementedException();
+	public override ulong InputChannels() => 0;
+	public override ulong OutputChannels() => 1;
 }

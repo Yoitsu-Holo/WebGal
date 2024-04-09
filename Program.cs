@@ -1,26 +1,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.JSInterop;
 using WebGal;
 using WebGal.Services;
 using WebGal.Services.Include;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.Logging.SetMinimumLevel(LogLevel.Warning);
-// builder.Logging.
-builder.Logging.AddFilter((category, level) =>
-{
-	if (level == LogLevel.Warning)
-	{
-		// 处理警告作为错误
-		Console.Error.WriteLine($"Warning treated as error: {category}");
-		return true; // 返回 true 表示允许日志消息通过
-	}
-
-	// 其他日志级别保持原样
-	return level >= LogLevel.Information;
-});
-
 
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
