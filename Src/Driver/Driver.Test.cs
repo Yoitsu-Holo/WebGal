@@ -1,6 +1,8 @@
 using System.Text.Json;
+using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
+using WebGal.Audio;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -27,7 +29,7 @@ public partial class Driver
 		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":1,"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
 			.then(result => {console.log(result);});
 
-		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":0,"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"LayoutID":0,"LayerID":0,"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":1280,"H":720}}}')
 			.then(result => {console.log(result);});
 		*/
 		//! 拉取文件
@@ -307,6 +309,65 @@ public partial class Driver
 			Type = ResponseType.Success,
 			Message = "Hello WebGal"
 		};
+
+		return JsonSerializer.Serialize(response);
+	}
+
+	[JSInvokable]
+	public static async Task<string> AudioTestAsync()
+	{
+		/*
+		DotNet.invokeMethodAsync('WebGal', 'AudioTestAsync', '')
+			.then(result => {console.log(result);});
+		*/
+
+		ResponseHeader response = new();
+		if (_audioManager is null || _resourceManager is null)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = "AudioManager not set OR Game not loading";
+			return JsonSerializer.Serialize(response);
+		}
+
+		//! 拉取文件
+		{
+			Console.WriteLine("Pull background image ...");
+			FileInfo fileInfo = new()
+			{
+				Request = new()
+				{
+					Type = RequestType.Set,
+				},
+				Type = FileType.Audio,
+				URL = "/pack/sound/bgm/bgm04_b.ogg",
+				Name = "bgm04",
+			};
+
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		// 简单测试
+		{
+			// _audioTest = new(jsRuntime);
+			// _audioGain = new(jsRuntime);
+			// _audioSource = new(jsRuntime);
+			// _audioSpeeker = new(jsRuntime);
+			AudioSimple simple = new(_audioManager.JSRuntime);
+			// simple.SetContextAsync
+			_audioManager.AudioNodes[0] = simple;
+			_audioManager.AudioContexts[0] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
+
+			await simple.SetContextAsync(_audioManager.AudioContexts[0]);
+			await simple.SetLoopAsync(true);
+			await simple.SetAudioAsync(_resourceManager.GetAudio("bgm04"));
+			await simple.StartAsync();
+		}
+
+
+		response.Type = ResponseType.Success;
+		response.Message = "Hello WebGal.Audio";
 
 		return JsonSerializer.Serialize(response);
 	}

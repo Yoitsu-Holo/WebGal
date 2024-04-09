@@ -1,8 +1,7 @@
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
-using WebGal.Audio;
 
-namespace WebGal.Libs.Base;
+namespace WebGal.Audio;
 
 /*
 ? 基本音频分为四类
@@ -32,7 +31,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await _currentAudioBufferNode!.SetBufferAsync(currentAudioBuffer);
 	}
 
-	public async Task SetLoop(bool loop)
+	public async Task SetLoopAsync(bool loop)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
