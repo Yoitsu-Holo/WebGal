@@ -1,4 +1,5 @@
 using System.Text.Json;
+using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Audio;
@@ -13,74 +14,79 @@ namespace WebGal.API;
 public partial class Driver
 {
 	[JSInvokable]
-	public static string RegisterAudioContext(string json)
+	public static async Task<string> RegisterAudioContextAsync(string json)
 	{
-		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json);
+		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json);
 		ResponseHeader respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
 		};
 
-		if (_layoutManager is not null)
+		if (_audioManager is not null)
 		{
-			if (_layoutManager.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
-				_layoutManager.Layouts[layoutInfo.LayoutId] = new();
+			if (_audioManager.AudioContexts.ContainsKey(audioContext.ContextID) == false)
+				_audioManager.AudioContexts[audioContext.ContextID] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
 		}
+
 		else
 			respone = new()
 			{
 				Type = ResponseType.Fail,
-				Message = "LayoutManager not set OR Game not loading",
+				Message = "AudioManager not set OR Game not loading",
 			};
 		return JsonSerializer.Serialize(respone);
 	}
 
 	[JSInvokable]
-	public static string RegisterAudioNode(string json)
+	public static async Task<string> RegisterAudioNodeAsync(string json)
 	{
-		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json);
+		var audioInfo = JsonSerializer.Deserialize<AudioInfo>(json);
 		ResponseHeader respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
 		};
 
-		if (_layoutManager is not null)
+		if (_audioManager is not null)
 		{
-			if (_layoutManager.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
-				_layoutManager.Layouts[layoutInfo.LayoutId] = new();
+			if (_audioManager.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? value))
+			{
+				_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch
+				{
+					AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
+					AudioNodeType.Source => new AudioSource(_audioManager.JSRuntime),
+					AudioNodeType.Speeker => new AudioSpeeker(_audioManager.JSRuntime),
+					AudioNodeType.Gain => new AudioGain(_audioManager.JSRuntime),
+					AudioNodeType.Multiplexer => new AudioMutiplexer(_audioManager.JSRuntime),
+					AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
+					_ => throw new Exception("未标识的控件类型: todo"),
+				};
+				await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(_audioManager.AudioContexts[audioInfo.ID.ContextID]);
+			}
+			else
+			{
+				respone = new()
+				{
+					Type = ResponseType.Fail,
+					Message = $"Audiocontext {audioInfo.ID.ContextID} not registed",
+				};
+			}
 		}
 		else
 			respone = new()
 			{
 				Type = ResponseType.Fail,
-				Message = "LayoutManager not set OR Game not loading",
+				Message = "AudioManager not set OR Game not loading",
 			};
+
 		return JsonSerializer.Serialize(respone);
 	}
 
-	[JSInvokable]
-	public static string CheckAudioContext(string json)
+	public static bool CheckAudioContext(AudioIdInfo info)
 	{
-		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json);
-		ResponseHeader respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
-
-		if (_layoutManager is not null)
-		{
-			if (_layoutManager.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
-				_layoutManager.Layouts[layoutInfo.LayoutId] = new();
-		}
-		else
-			respone = new()
-			{
-				Type = ResponseType.Fail,
-				Message = "LayoutManager not set OR Game not loading",
-			};
-		return JsonSerializer.Serialize(respone);
+		if (_audioManager is null || _audioManager.AudioContexts.ContainsKey(info.ContextID) == false)
+			return false;
+		return true;
 	}
 }

@@ -1,0 +1,2 @@
+namespace WebGal.API.Data;
+

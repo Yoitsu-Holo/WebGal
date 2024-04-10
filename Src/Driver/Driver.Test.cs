@@ -42,10 +42,7 @@ public partial class Driver
 			Console.WriteLine("Pull background image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Type = FileType.Image,
 				URL = "/Image/bg010a.png",
 				Name = "bg010a",
@@ -60,10 +57,7 @@ public partial class Driver
 			Console.WriteLine("Pull Menu image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Type = FileType.Image,
 				URL = "/Image/title01_chip.png",
 				Name = "title",
@@ -78,10 +72,7 @@ public partial class Driver
 			Console.WriteLine("Pull Font ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Type = FileType.Font,
 				URL = "/simhei.ttf",
 				Name = "simhei",
@@ -97,10 +88,7 @@ public partial class Driver
 			Console.WriteLine("Register Layout:0 ...");
 			LayoutInfo layoutInfo = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				LayoutId = 0,
 			};
 
@@ -114,10 +102,7 @@ public partial class Driver
 			Console.WriteLine("Register Layer:0 ...");
 			LayerBox imageBox = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Attribute = new()
 				{
 					Type = LayerType.ImageBox,
@@ -140,10 +125,7 @@ public partial class Driver
 
 			LayerBox colorBox = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Attribute = new()
 				{
 					Type = LayerType.ColorBox,
@@ -166,10 +148,7 @@ public partial class Driver
 
 			LayerBox textBox = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Attribute = new()
 				{
 					Type = LayerType.TextBox,
@@ -192,10 +171,7 @@ public partial class Driver
 
 			LayerBox textBox = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Attribute = new()
 				{
 					Type = LayerType.ButtomBox,
@@ -218,17 +194,9 @@ public partial class Driver
 
 			ImageBoxInfo image = new()
 			{
-				ID = new()
-				{
-					LayoutID = 0,
-					LayerID = 0,
-				},
+				ID = new() { LayoutID = 0, LayerID = 0, },
 
-				Image = new()
-				{
-					ImageName = "bg010a",
-					SubRect = new(0, 0, 1820, 1024),
-				}
+				Image = new() { ImageName = "bg010a", SubRect = new(0, 0, 1820, 1024), }
 			};
 
 			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
@@ -242,11 +210,7 @@ public partial class Driver
 
 			ColorBoxInfo image = new()
 			{
-				ID = new()
-				{
-					LayoutID = 0,
-					LayerID = 2,
-				},
+				ID = new() { LayoutID = 0, LayerID = 2, },
 				R = 112,
 				G = 146,
 				B = 190,
@@ -262,11 +226,7 @@ public partial class Driver
 			Console.WriteLine("Set Text Layer:3 ...");
 			TextBoxInfo text = new()
 			{
-				ID = new()
-				{
-					LayoutID = 0,
-					LayerID = 3,
-				},
+				ID = new() { LayoutID = 0, LayerID = 3, },
 				Text = "Hello Wrold, 你好世界: 中文测试: ascii可打印字符、换行、中文字体\n1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
 				Font = "simhei",
 				FontSize = 30,
@@ -282,26 +242,10 @@ public partial class Driver
 
 			ButtomBoxInfo buttom = new()
 			{
-				ID = new()
-				{
-					LayoutID = 0,
-					LayerID = 4,
-				},
-				NormalImage = new()
-				{
-					ImageName = "title",
-					SubRect = new(1, 723, 316, 45),
-				},
-				HoverImage = new()
-				{
-					ImageName = "title",
-					SubRect = new(321, 723, 316, 45),
-				},
-				PressedImage = new()
-				{
-					ImageName = "title",
-					SubRect = new(641, 723, 316, 45),
-				},
+				ID = new() { LayoutID = 0, LayerID = 4, },
+				NormalImage = new() { ImageName = "title", SubRect = new(1, 723, 316, 45), },
+				HoverImage = new() { ImageName = "title", SubRect = new(321, 723, 316, 45), },
+				PressedImage = new() { ImageName = "title", SubRect = new(641, 723, 316, 45), },
 			};
 
 			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom));
@@ -337,13 +281,10 @@ public partial class Driver
 
 		//! 拉取文件
 		{
-			Console.WriteLine("Pull background image ...");
+			Console.WriteLine("Pull BackgroundMusic ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new()
-				{
-					Type = RequestType.Set,
-				},
+				Request = new() { Type = RequestType.Set, },
 				Type = FileType.Audio,
 				URL = "/pack/sound/bgm/bgm04_b.ogg",
 				Name = "bgm04",
@@ -360,21 +301,59 @@ public partial class Driver
 			// _audioGain = new(jsRuntime);
 			// _audioSource = new(jsRuntime);
 			// _audioSpeeker = new(jsRuntime);
-			AudioSimple simple = new(_audioManager.JSRuntime);
-			// simple.SetContextAsync
-			_audioManager.AudioNodes[0] = simple;
-			_audioManager.AudioContexts[0] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
+			// AudioSimple simple = new(_audioManager.JSRuntime);
+			// // simple.SetContextAsync
+			// _audioManager.AudioNodes[0] = simple;
+			// _audioManager.AudioContexts[0] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
 
-			await simple.SetContextAsync(_audioManager.AudioContexts[0]);
-			await simple.SetLoopAsync(true);
-			await simple.SetAudioAsync(_resourceManager.GetAudio("bgm04"));
-			await simple.StartAsync();
+			// await simple.SetContextAsync(_audioManager.AudioContexts[0]);
+			// await simple.SetLoopAsync(true);
+			// await simple.SetAudioAsync(_resourceManager.GetAudio("bgm04"));
+			// await simple.StartAsync();
 		}
+
+		{
+			Console.WriteLine("Register AudioContext:0 ...");
+			AudioIdInfo info = new() { ContextID = 0, };
+
+			string result = await RegisterAudioContextAsync(JsonSerializer.Serialize(info));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		{
+			Console.WriteLine("Register AudioNode:0 ...");
+			AudioInfo info = new()
+			{
+				Request = new() { Type = RequestType.Set, },
+				ID = new() { ContextID = 0, NodeID = 0, },
+
+				Type = AudioNodeType.Simple,
+			};
+
+			string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
+		{
+			Console.WriteLine("Set AudioNode:0 ...");
+			AudioSimpleInfo info = new()
+			{
+				ID = new() { ContextID = 0, NodeID = 0, },
+				AudioName = "bgm04",
+				Start = true,
+			};
+
+			string result = await SetAudioSimpleInfoAsync(JsonSerializer.Serialize(info));
+			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+				return result;
+		}
+
 
 
 		response.Type = ResponseType.Success;
 		response.Message = "Hello WebGal.Audio";
-
 		return JsonSerializer.Serialize(response);
 	}
 }

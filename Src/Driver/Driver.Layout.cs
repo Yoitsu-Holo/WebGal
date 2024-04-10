@@ -65,14 +65,13 @@ public partial class Driver
 				ILayer layer = layout.Layers[layerInfo.Attribute.LayerID];
 				layer.Size = layerInfo.Attribute.Size;
 				layer.Position = layerInfo.Attribute.Position;
-				layer.Name = Convert.ToString((int)layerInfo.Attribute.Type);
 			}
 			else
 			{
 				respone = new()
 				{
 					Type = ResponseType.Fail,
-					Message = $"Layout:{layerInfo.Attribute.LayoutID}",
+					Message = $"Layout {layerInfo.Attribute.LayoutID} not registed",
 				};
 			}
 		}
@@ -85,8 +84,6 @@ public partial class Driver
 		return JsonSerializer.Serialize(respone);
 	}
 
-
-	[JSInvokable]
 	public static string CheckLayout(LayerIdInfo info)
 	{
 		ResponseHeader respone = new()
@@ -113,8 +110,6 @@ public partial class Driver
 		return JsonSerializer.Serialize(respone);
 	}
 
-
-	[JSInvokable]
 	public static string CheckLayer(LayerIdInfo info)
 	{
 		ResponseHeader respone = new()
