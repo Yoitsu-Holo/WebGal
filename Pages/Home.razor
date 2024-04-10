@@ -1,3 +1,45 @@
 @page "/"
 
 <h1>Hello World</h1>
+
+<p>
+	Demo 样例：
+</p>
+
+<p>
+	点击Test1，进入Test1 界面，在界面中存在一个 1280*720 分辨率的游戏界面，此时引擎已经开始运行，但未设置任何显示内容。
+</p>
+
+<div>
+	在进入 Test1 界面后，在浏览器控制台界面可以调用引擎接口<br>
+	在Demo中，提供了如下接口以供测试调用：
+	<div>
+		//测试画面 包括文本框，按钮，背景图片，文字显示<br>
+		DotNet.invokeMethodAsync('WebGal', 'Test', '')<br>
+		.then(result => {console.log(result);});<br>
+		<br>
+		// 拉取图片资源 立绘<br>
+		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync',<br>
+		'{"Request":{"Type":1,"Message":null},"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')<br>
+		.then(result => {console.log(result);});<br>
+		<br>
+		// 注册图层 1 立绘<br>
+		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer',<br>
+		'{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')<br>
+		.then(result => {console.log(result);});<br>
+		<br>
+		// 设置图层 1 立绘<br>
+		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo',<br>
+		'{"ID":{"LayoutID":0,"LayerID":1},"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')<br>
+		.then(result => {console.log(result);});<br>
+		<br>
+		// 裁切背景图片 原背景图片为2048*1024，裁切为1280*720<br>
+		DotNet.invokeMethodAsync('WebGal',
+		'SetImageBoxInfo','{"ID":{"LayoutID":0,"LayerID":0},"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":1280,"H":720}}}')<br>
+		.then(result => {console.log(result);});<br>
+		<br>
+		// 音频测试 循环播放一段音频<br>
+		DotNet.invokeMethodAsync('WebGal', 'AudioTestAsync', '')<br>
+		.then(result => {console.log(result);});<br>
+	</div>
+</div>

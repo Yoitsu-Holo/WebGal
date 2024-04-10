@@ -17,18 +17,23 @@ public partial class Driver
 	public static async Task<string> Test(string json)
 	{
 		/*
+		//测试画面
 		DotNet.invokeMethodAsync('WebGal', 'Test', '')
 			.then(result => {console.log(result);});
 
+		// 拉取图片资源
 		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":{"Type":1,"Message":null},"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
 			.then(result => {console.log(result);});
 
+		// 注册图层 1
 		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
 			.then(result => {console.log(result);});
 
+		// 设置图层 1
 		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":0,"LayerID":1},"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
 			.then(result => {console.log(result);});
 
+		// 裁切背景图片
 		DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":0,"LayerID":0},"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":1280,"H":720}}}')
 			.then(result => {console.log(result);});
 		*/
@@ -317,6 +322,7 @@ public partial class Driver
 	public static async Task<string> AudioTestAsync()
 	{
 		/*
+		// 音频测试
 		DotNet.invokeMethodAsync('WebGal', 'AudioTestAsync', '')
 			.then(result => {console.log(result);});
 		*/
