@@ -21,30 +21,6 @@ public enum ResponseType
 	Void, Any, Auto, Error,
 }
 
-/// <summary> 图层类型 </summary>
-public enum LayerType
-{
-	TextBox, ImageBox, ColorBox,    // widget
-	ButtomBox,
-	ControllerBox, // controller
-
-	// 任意类型，空类型，自动解析，错误
-	Void, Any, Auto, Error,
-}
-
-/// <summary> 文件类型 </summary>
-public enum FileType
-{
-	Script,
-	Image,
-	Audio,
-	Bin,
-	Font,
-
-
-	Void, Any, Auto, Error,
-}
-
 public enum ControllerStatus
 {
 	// 通常状态，悬停状态，按下状态，聚焦状态 (突出显示)
@@ -63,25 +39,6 @@ public record struct ResponseHeader
 {
 	public ResponseType Type { get; set; }
 	public string Message { get; set; }
-}
-
-/// <summary> 布局信息 </summary>
-public record struct LayoutInfo
-{
-	public RequestHeader Request { get; set; }
-
-	public int LayoutId { get; set; }
-}
-
-/// <summary> 图层信息 </summary>
-public record struct LayerInfo
-{
-	public LayerType Type { get; set; }
-	public IVector Position { get; set; }
-	public IVector Size { get; set; }
-
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; } // 图层编号，数字越大表示越在上方
 }
 
 /// <summary>  游戏设置  </summary>
