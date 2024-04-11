@@ -11,8 +11,8 @@ public class AudioBase(IJSRuntime jsRuntime) : IAudio
 	// Interface
 	public virtual Task ConnectToAsync(IAudio target, AudioWire wire) => throw new NotImplementedException();
 	public virtual AudioNode GetSocketAsync() => throw new NotImplementedException();
-	public virtual ulong InputChannels() => throw new NotImplementedException();
-	public virtual ulong OutputChannels() => throw new NotImplementedException();
+	public virtual ulong InputChannels() => 0;
+	public virtual ulong OutputChannels() => 0;
 	public virtual async Task SetContextAsync(AudioContext context)
 	{
 		await Task.Run(() => { });

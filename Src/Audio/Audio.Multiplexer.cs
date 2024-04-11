@@ -11,7 +11,7 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	private ulong _inputChannels = 6;
 	private ulong _outputChannels = 6;
 
-	public async Task SetInputNumber(ulong inputChannels = 6uL)
+	public async Task SetInputNumberAsync(ulong inputChannels = 6uL)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
@@ -22,7 +22,7 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await _merger!.ConnectAsync(_splitter!);
 	}
 
-	public async Task SetOutputNumber(ulong outputChannels = 6uL)
+	public async Task SetOutputNumberAsync(ulong outputChannels = 6uL)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
@@ -54,12 +54,12 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		var inputChannels = target.InputChannels();
 		var outputChannels = OutputChannels();
 
-		if (wire.Input >= inputChannels)
+		if (wire.Dst >= inputChannels)
 			throw new Exception("input out of range");
-		if (wire.Output >= outputChannels)
+		if (wire.Src >= outputChannels)
 			throw new Exception("output out of range");
 
-		await _splitter!.ConnectAsync(target.GetSocketAsync(), wire.Output, wire.Input);
+		await _splitter!.ConnectAsync(target.GetSocketAsync(), wire.Src, wire.Dst);
 	}
 
 	public override AudioNode GetSocketAsync()

@@ -32,14 +32,14 @@ public partial class Driver
 
 		if (audio is AudioSimple audioSimple)
 		{
-			await audioSimple.SetAudioAsync(_resourceManager.GetAudio(info.AudioName));
-			if (info.Start)
-				await audioSimple.StartAsync();
+			await audioSimple.SetAudioBufferAsync(_resourceManager.GetAudio(info.AudioName));
+			await audioSimple.StartAsync(info.Start);
+			await audioSimple.SetLoopAsync(info.Loop);
 		}
 		else
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = $"AudioNode:{info.ID.NodeID} not AudioSimpleNode";
+			respone.Message = $"AudioNode:{info.ID.NodeID} not AudioSimple";
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 

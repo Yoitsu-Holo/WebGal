@@ -11,4 +11,8 @@ public interface IAudio
 	public ulong InputChannels();
 }
 
-public record struct AudioWire(ulong Input = 0, ulong Output = 0);
+public record struct AudioWire
+{
+	public ulong Src;
+	public ulong Dst;
+}

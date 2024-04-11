@@ -7,7 +7,7 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
 	private AudioBufferSourceNode? _audioBuffer;
 
-	public async Task PlayAsync(bool start = true)
+	public async Task StartAsync(bool start = true)
 	{
 		if (_audioBuffer is null)
 			throw new Exception("without any auiod buffer");
@@ -18,7 +18,7 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _audioBuffer.StopAsync();
 	}
 
-	public async Task SetAudioBuffer(byte[] audioBytes)
+	public async Task SetAudioBufferAsync(byte[] audioBytes)
 	{
 		AudioBuffer currentAudioBuffer = default!;
 		if (_context is null)
@@ -29,7 +29,7 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await _audioBuffer.SetBufferAsync(currentAudioBuffer);
 	}
 
-	public async Task SetAudioLoop(bool loop)
+	public async Task SetLoopAsync(bool loop)
 	{
 		if (_audioBuffer is null)
 			throw new Exception("without any auiod buffer");
@@ -43,12 +43,12 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	{
 		var inputChannels = target.InputChannels();
 
-		if (wire.Input >= inputChannels)
+		if (wire.Dst >= inputChannels)
 			throw new Exception("input out of range");
 
 		if (_audioBuffer is null)
 			throw new Exception("without any auiod buffer");
-		await _audioBuffer.ConnectAsync(target.GetSocketAsync(), 0, wire.Input);
+		await _audioBuffer.ConnectAsync(target.GetSocketAsync(), 0, wire.Dst);
 	}
 
 	public override ulong InputChannels() => 0;

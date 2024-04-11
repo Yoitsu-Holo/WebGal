@@ -23,12 +23,12 @@ public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		var inputChannels = target.InputChannels();
 		var outputChannels = OutputChannels();
 
-		if (wire.Input >= inputChannels)
+		if (wire.Dst >= inputChannels)
 			throw new Exception("input out of range");
-		if (wire.Output >= outputChannels)
+		if (wire.Src >= outputChannels)
 			throw new Exception("output out of range");
 
-		await _gain!.ConnectAsync(target.GetSocketAsync(), wire.Output, wire.Input);
+		await _gain!.ConnectAsync(target.GetSocketAsync(), wire.Src, wire.Dst);
 	}
 
 	public override AudioNode GetSocketAsync()

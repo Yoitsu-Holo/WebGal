@@ -18,7 +18,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	private GainNode? _gain;
 	private AudioBufferSourceNode? _currentAudioBufferNode;
 
-	public async Task SetAudioAsync(byte[] audioBytes)
+	public async Task SetAudioBufferAsync(byte[] audioBytes)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");

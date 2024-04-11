@@ -4,6 +4,6 @@ public record struct AudioMutiplexerInfo
 {
 	public AudioIdInfo ID { get; set; }
 
-	public int InputChannels { get; set; }
-	public int OutputChannels { get; set; }
+	public ulong InputChannels { get; set; }
+	public ulong OutputChannels { get; set; }
 }
