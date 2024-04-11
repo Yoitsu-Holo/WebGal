@@ -43,9 +43,20 @@ public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await base.SetContextAsync(context);
 		if (_context is null)
 			throw new Exception("Without any context");
-		_gain = await GainNode.CreateAsync(_jsRuntime, _context, new() { Gain = 1.0f });
+		_gain = await _context.CreateGainAsync();
 	}
 
 	public override ulong InputChannels() => 1;
 	public override ulong OutputChannels() => 1;
+
+	public override async Task DisposeAsync()
+	{
+		if (_gain is not null)
+		{
+			await _gain.DisconnectAsync();
+			await _gain.DisposeAsync();
+		}
+
+		_gain = null;
+	}
 }

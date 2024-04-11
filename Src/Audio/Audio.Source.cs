@@ -53,4 +53,16 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public override ulong InputChannels() => 0;
 	public override ulong OutputChannels() => 1;
+
+	public override async Task DisposeAsync()
+	{
+		if (_audioBuffer is not null)
+		{
+			await _audioBuffer.DisconnectAsync();
+			await _audioBuffer.StopAsync();
+			await _audioBuffer.DisposeAsync();
+		}
+
+		_audioBuffer = null;
+	}
 }

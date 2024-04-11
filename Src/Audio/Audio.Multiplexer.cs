@@ -40,8 +40,8 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		if (_context is null)
 			throw new Exception("Without any context");
 		// 默认设置 6 in 6 out
-		_merger = await ChannelMergerNode.CreateAsync(_jsRuntime, _context);
-		_splitter = await ChannelSplitterNode.CreateAsync(_jsRuntime, _context);
+		_merger = await _context.CreateChannelMergerAsync(_inputChannels);
+		_splitter = await _context.CreateChannelSplitterAsync(_inputChannels);
 		// 内部连接
 		await _merger.ConnectAsync(_splitter);
 	}
@@ -71,4 +71,21 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public override ulong InputChannels() => _inputChannels;
 	public override ulong OutputChannels() => _outputChannels;
+
+	public override async Task DisposeAsync()
+	{
+		if (_merger is not null)
+		{
+			await _merger.DisconnectAsync();
+			await _merger.DisposeAsync();
+		}
+
+		if (_splitter is not null)
+		{
+			await _splitter.DisconnectAsync();
+			await _splitter.DisposeAsync();
+		}
+		_merger = null;
+		_splitter = null;
+	}
 }

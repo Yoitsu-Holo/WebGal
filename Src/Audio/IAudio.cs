@@ -9,6 +9,7 @@ public interface IAudio
 	public Task SetContextAsync(AudioContext context);
 	public ulong OutputChannels();
 	public ulong InputChannels();
+	public Task DisposeAsync();
 }
 
 public record struct AudioWire

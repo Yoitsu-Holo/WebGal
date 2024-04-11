@@ -25,16 +25,16 @@ public class GameManager
 		Driver.Init(_layoutManeger, _resourceManager, _audioManager);
 	}
 
-	public void Clear()
+	public async Task Clear()
 	{
 		_resourceManager.Clear();
 		_layoutManeger.Clear();
-		_audioManager.Clear();
+		await _audioManager.Clear();
 	}
 
-	public void Init(string GameName)
+	public async Task Init(string GameName)
 	{
-		Clear();
+		await Clear();
 		_resourceManager.BasePath = "Data/" + GameName;
 	}
 

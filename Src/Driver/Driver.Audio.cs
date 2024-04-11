@@ -43,8 +43,13 @@ public partial class Driver
 		var (flag, ret) = CheckInit();
 		if (flag == false) return ret;
 
-		if (_audioManager!.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? value))
+		if (_audioManager!.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? context))
 		{
+			if (_audioManager.AudioNodes.TryGetValue(audioInfo.ID.NodeID, out IAudio? node))
+			{
+				await node.DisposeAsync();
+			}
+
 			_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch
 			{
 				AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
@@ -55,7 +60,7 @@ public partial class Driver
 				AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
 				_ => throw new Exception("未标识的控件类型: todo"),
 			};
-			await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(_audioManager.AudioContexts[audioInfo.ID.ContextID]);
+			await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(context);
 		}
 		else
 		{

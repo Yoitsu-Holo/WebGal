@@ -15,9 +15,20 @@ public class AudioManager(IJSRuntime jSRuntime)
 
 	public Dictionary<int, AudioContext> AudioContexts = [];
 
-	public void Clear()
+	public async Task Clear()
 	{
+		foreach (var (_, audioContext) in AudioContexts)
+		{
+			await audioContext.CloseAsync();
+			await audioContext.DisposeAsync();
+		}
+
 		AudioNodes.Clear();
 		AudioContexts.Clear();
+	}
+
+	~AudioManager()
+	{
+		Clear().GetAwaiter().GetResult();
 	}
 }

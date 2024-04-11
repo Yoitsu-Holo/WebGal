@@ -23,4 +23,15 @@ public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 		_destination = await context.GetDestinationAsync();
 	}
+
+	public override async Task DisposeAsync()
+	{
+		if (_destination is not null)
+		{
+			await _destination.DisconnectAsync();
+			await _destination.DisposeAsync();
+		}
+
+		_destination = null;
+	}
 }

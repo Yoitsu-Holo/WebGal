@@ -18,10 +18,6 @@ public partial class Test// : IDisposable
 
 	protected override void OnInitialized()
 	{
-		// _audioTest = new(jsRuntime);
-		// _audioGain = new(jsRuntime); 
-		// _audioSource = new(jsRuntime);
-		// _audioSpeeker = new(jsRuntime);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -29,35 +25,12 @@ public partial class Test// : IDisposable
 		if (firstRender)
 		{
 			await Task.Run(() => { });
-			Manager.Init(Game);
-
-			// ! test
-			// var audioBuffer = await httpClient.GetByteArrayAsync("Data/Test1/pack/sound/bgm/bgm02_b.ogg");
-
-			// _context = await AudioContext.CreateAsync(jsRuntime);
-			// await _audioSource!.SetContextAsync(_context);
-			// await _audioGain!.SetContextAsync(_context);
-			// await _audioSpeeker!.SetContextAsync(_context);
-
-			// await _audioSource.SetAudioBuffer(audioBuffer);
-
-			// await _audioSource.ConnectToAsync(_audioGain, new AudioWire(0, 0));
-			// await _audioGain.ConnectToAsync(_audioSpeeker, new AudioWire(0, 0));
-
-			// await _audioSource.SetAudioLoop(true);
-			// await _audioSource.PlayAsync();
-
-			// await _audioTest!.SetContextAsync(_context);
-			// await _audioTest.SetAudioAsync(audioBuffer);
-			// await _audioTest.SetLoop(true);
-			// await _audioTest.StartAsync();
 		}
 	}
 
 	protected override async Task OnParametersSetAsync()
 	{
-		await Task.Run(() => { });
-		// await Manager.DoTest(Game);
+		await Manager.Init(Game);
 	}
 
 	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
@@ -70,16 +43,6 @@ public partial class Test// : IDisposable
 		await Manager.ProcEvent(mouseEventCopy);
 		Manager.Render(canvas);
 
-		//! audio test
-		// var tm = NowTime.Minisecond;
-		// float volume = tm % 6000;
-		// volume += 1000;
-		// volume /= 7000;
-
-		// if (_audioGain is not null)
-		// 	try { await _audioGain.SetGainASync(volume); }
-		// 	catch { };
-
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)
 		{
@@ -87,7 +50,6 @@ public partial class Test// : IDisposable
 			_fps = _frameCount;
 			_frameCount = 0;
 			await InvokeAsync(StateHasChanged);
-			// throw new Exception("Test Error");
 		}
 		_frameTime = (int)(NowTime.Minisecond - startMiniSecond);
 		_frameCount++;

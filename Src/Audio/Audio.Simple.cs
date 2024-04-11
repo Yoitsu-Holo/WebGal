@@ -16,7 +16,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
 	private AudioDestinationNode? _destination;
 	private GainNode? _gain;
-	private AudioBufferSourceNode? _currentAudioBufferNode;
+	private AudioBufferSourceNode? _audioBuffer;
 
 	public async Task SetAudioBufferAsync(byte[] audioBytes)
 	{
@@ -28,7 +28,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		// 创建音频缓冲区
 		AudioBuffer currentAudioBuffer = default!;
 		await _context.DecodeAudioDataAsync(audioBytes, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
-		await _currentAudioBufferNode!.SetBufferAsync(currentAudioBuffer);
+		await _audioBuffer!.SetBufferAsync(currentAudioBuffer);
 	}
 
 	public async Task SetLoopAsync(bool loop)
@@ -37,7 +37,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			throw new Exception("Without any context");
 
 		// 设置循环属性
-		await _currentAudioBufferNode!.SetLoopAsync(loop);
+		await _audioBuffer!.SetLoopAsync(loop);
 	}
 
 	public async Task StartAsync(bool start = true)
@@ -45,9 +45,9 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		if (_context is null)
 			throw new Exception("Without any context");
 		if (start)
-			await _currentAudioBufferNode!.StartAsync();
+			await _audioBuffer!.StartAsync();
 		else
-			await _currentAudioBufferNode!.StopAsync();
+			await _audioBuffer!.StopAsync();
 	}
 
 	public async Task SetGain(float Gain)
@@ -64,11 +64,34 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		if (_context is null)
 			throw new Exception("Without any context");
 
-		_currentAudioBufferNode = await _context.CreateBufferSourceAsync();
-		_gain = await GainNode.CreateAsync(_jsRuntime, _context, new() { Gain = 0.8f });
+		_audioBuffer = await _context.CreateBufferSourceAsync();
+		_gain = await _context.CreateGainAsync();
 		_destination = await context.GetDestinationAsync();
 
-		await _currentAudioBufferNode.ConnectAsync(_gain);
+		await _audioBuffer.ConnectAsync(_gain);
 		await _gain.ConnectAsync(_destination);
+	}
+
+	public override async Task DisposeAsync()
+	{
+		if (_destination is not null)
+		{
+			await _destination.DisconnectAsync();
+			await _destination.DisposeAsync();
+		}
+		if (_gain is not null)
+		{
+			await _gain.DisconnectAsync();
+			await _gain.DisposeAsync();
+		}
+		if (_audioBuffer is not null)
+		{
+			await _audioBuffer.DisconnectAsync();
+			await _audioBuffer.DisposeAsync();
+		}
+
+		_destination = null;
+		_gain = null;
+		_audioBuffer = null;
 	}
 }
