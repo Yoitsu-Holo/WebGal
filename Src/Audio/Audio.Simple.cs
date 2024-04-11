@@ -86,6 +86,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		}
 		if (_audioBuffer is not null)
 		{
+			await _audioBuffer.StopAsync();
 			await _audioBuffer.DisconnectAsync();
 			await _audioBuffer.DisposeAsync();
 		}

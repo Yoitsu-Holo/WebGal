@@ -48,6 +48,9 @@ public partial class Driver
 			if (_audioManager.AudioNodes.TryGetValue(audioInfo.ID.NodeID, out IAudio? node))
 			{
 				await node.DisposeAsync();
+				node.Dispose();
+
+				_audioManager.AudioNodes.Remove(audioInfo.ID.NodeID);
 			}
 
 			_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch

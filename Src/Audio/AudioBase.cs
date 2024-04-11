@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioBase(IJSRuntime jsRuntime) : IAudio, IDisposable
+public class AudioBase(IJSRuntime jsRuntime) : IAudio
 {
 	protected readonly IJSRuntime _jsRuntime = jsRuntime;
 	protected AudioContext? _context;
@@ -22,7 +22,7 @@ public class AudioBase(IJSRuntime jsRuntime) : IAudio, IDisposable
 
 	public virtual void Dispose()
 	{
-		DisposeAsync().GetAwaiter().GetResult();
+		DisposeAsync();
 		GC.SuppressFinalize(this);
 	}
 }

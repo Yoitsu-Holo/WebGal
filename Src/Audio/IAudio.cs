@@ -2,7 +2,7 @@ using KristofferStrube.Blazor.WebAudio;
 
 namespace WebGal.Audio;
 
-public interface IAudio
+public interface IAudio : IDisposable
 {
 	public Task ConnectToAsync(IAudio target, AudioWire wire);
 	public AudioNode GetSocketAsync();

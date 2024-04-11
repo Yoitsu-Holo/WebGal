@@ -14,7 +14,7 @@ public partial class Driver
 {
 	/*
 	//测试画面
-	DotNet.invokeMethodAsync('WebGal', 'Test', '')
+	DotNet.invokeMethodAsync('WebGal', 'TestAsync', '')
 		.then(result => {console.log(result);});
 
 	// 拉取图片资源
@@ -38,7 +38,7 @@ public partial class Driver
 		.then(result => {console.log(result);});
 	*/
 	[JSInvokable]
-	public static async Task<string> Test(string json)
+	public static async Task<string> TestAsync()
 	{
 		//! 拉取文件
 		{
