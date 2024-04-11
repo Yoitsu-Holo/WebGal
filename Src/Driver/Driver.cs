@@ -22,6 +22,34 @@ public partial class Driver
 		_audioManager = audioManager;
 	}
 
+	public static (bool, string) CheckInit()
+	{
+		Response respone = new();
+
+		if (_layoutManager is null)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = "LayoutManager not set OR Game not loading";
+			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		}
+
+		if (_resourceManager is null)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = "ResourceManager not set OR Game not loading";
+			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		}
+
+		if (_audioManager is null)
+		{
+			respone.Type = ResponseType.Fail;
+			respone.Message = "AudioManager not set OR Game not loading";
+			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		}
+
+		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
+	}
+
 	//! test
 	[JSInvokable]
 	public static async Task<string> SayHelloAsync(string name)

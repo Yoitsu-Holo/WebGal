@@ -30,6 +30,12 @@ public enum ControllerStatus
 /// <summary> 响应结构头 </summary>
 public record struct Response
 {
+	public Response()
+	{
+		Type = ResponseType.Success;
+		Message = "";
+	}
+
 	public ResponseType Type { get; set; }
 	public string Message { get; set; }
 }

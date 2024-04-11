@@ -4,7 +4,6 @@ using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Audio;
 using WebGal.Global;
-using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
 
@@ -17,12 +16,8 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> RegisterAudioContextAsync(string json)
 	{
+		Response respone = new();
 		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json, JsonConfig.Options);
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
 
 		if (_audioManager is not null)
 		{
@@ -42,44 +37,34 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> RegisterAudioNodeAsync(string json)
 	{
+		Response respone = new();
 		var audioInfo = JsonSerializer.Deserialize<AudioNodeInfo>(json, JsonConfig.Options);
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
 
-		if (_audioManager is not null)
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
+
+		if (_audioManager!.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? value))
 		{
-			if (_audioManager.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? value))
+			_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch
 			{
-				_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch
-				{
-					AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
-					AudioNodeType.Source => new AudioSource(_audioManager.JSRuntime),
-					AudioNodeType.Speeker => new AudioSpeeker(_audioManager.JSRuntime),
-					AudioNodeType.Gain => new AudioGain(_audioManager.JSRuntime),
-					AudioNodeType.Multiplexer => new AudioMutiplexer(_audioManager.JSRuntime),
-					AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
-					_ => throw new Exception("未标识的控件类型: todo"),
-				};
-				await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(_audioManager.AudioContexts[audioInfo.ID.ContextID]);
-			}
-			else
-			{
-				respone = new()
-				{
-					Type = ResponseType.Fail,
-					Message = $"Audiocontext {audioInfo.ID.ContextID} not registed",
-				};
-			}
+				AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
+				AudioNodeType.Source => new AudioSource(_audioManager.JSRuntime),
+				AudioNodeType.Speeker => new AudioSpeeker(_audioManager.JSRuntime),
+				AudioNodeType.Gain => new AudioGain(_audioManager.JSRuntime),
+				AudioNodeType.Multiplexer => new AudioMutiplexer(_audioManager.JSRuntime),
+				AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
+				_ => throw new Exception("未标识的控件类型: todo"),
+			};
+			await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(_audioManager.AudioContexts[audioInfo.ID.ContextID]);
 		}
 		else
+		{
 			respone = new()
 			{
 				Type = ResponseType.Fail,
-				Message = "AudioManager not set OR Game not loading",
+				Message = $"Audiocontext {audioInfo.ID.ContextID} not registed",
 			};
+		}
 
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
@@ -118,8 +103,6 @@ public partial class Driver
 
 		await outputNode.ConnectToAsync(inputNode, wire);
 
-		respone.Type = ResponseType.Success;
-		respone.Message = "";
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 

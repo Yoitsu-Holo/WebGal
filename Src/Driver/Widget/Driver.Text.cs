@@ -18,33 +18,20 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetTextBoxInfo(string json)
 	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
+		Response respone = new();
 		var info = JsonSerializer.Deserialize<TextBoxInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null || _layoutManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckLayer(info.ID);
+		if (flag == false) return ret;
 
-		if (info.Font != "" && _resourceManager.CheckFont(info.Font) == false)
+		if (info.Font != "" && _resourceManager!.CheckFont(info.Font) == false)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Image: {info.Font} is not loaded";
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
-		if (respone.Type != ResponseType.Success)
-			return responeString;
-
-		ILayer layer = _layoutManager.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
+		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
 		if (layer is WidgetTextBox textBox)
 		{
@@ -55,7 +42,7 @@ public partial class Driver
 			};
 			textBox.SetColor(SKColors.Red);
 			textBox.SetFontSize(info.FontSize);
-			textBox.SetFontStyle(_resourceManager.GetFont(info.Font));
+			textBox.SetFontStyle(_resourceManager!.GetFont(info.Font));
 		}
 		else
 		{
@@ -64,7 +51,6 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		respone.Type = ResponseType.Success;
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 

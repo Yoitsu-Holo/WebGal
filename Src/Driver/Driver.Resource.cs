@@ -19,31 +19,27 @@ public partial class Driver
 		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
 
 		try
 		{
 			switch (fileInfo.Type)
 			{
 				case FileType.Script:
-					await _resourceManager.PullScriptAsync(fileInfo.Name, fileInfo.URL);
+					await _resourceManager!.PullScriptAsync(fileInfo.Name, fileInfo.URL);
 					break;
 				case FileType.Audio:
-					await _resourceManager.PullAudioAsync(fileInfo.Name, fileInfo.URL);
+					await _resourceManager!.PullAudioAsync(fileInfo.Name, fileInfo.URL);
 					break;
 				case FileType.Bin:
-					await _resourceManager.PullBlobAsync(fileInfo.Name, fileInfo.URL);
+					await _resourceManager!.PullBlobAsync(fileInfo.Name, fileInfo.URL);
 					break;
 				case FileType.Image:
-					await _resourceManager.PullImageAsync(fileInfo.Name, fileInfo.URL);
+					await _resourceManager!.PullImageAsync(fileInfo.Name, fileInfo.URL);
 					break;
 				case FileType.Font:
-					await _resourceManager.PullFontAsync(fileInfo.Name, fileInfo.URL);
+					await _resourceManager!.PullFontAsync(fileInfo.Name, fileInfo.URL);
 					break;
 				default:
 					break;
@@ -55,8 +51,6 @@ public partial class Driver
 			respone.Message = exception.Message;
 		}
 
-		respone.Type = ResponseType.Success;
-		respone.Message = "";
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
@@ -67,12 +61,8 @@ public partial class Driver
 		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
 
 		respone.Type = ResponseType.Success;
 		try
@@ -80,19 +70,19 @@ public partial class Driver
 			switch (fileInfo.Type)
 			{
 				case FileType.Script:
-					_resourceManager.GetScript(fileInfo.Name);
+					_resourceManager!.GetScript(fileInfo.Name);
 					break;
 				case FileType.Audio:
-					_resourceManager.GetAudio(fileInfo.Name);
+					_resourceManager!.GetAudio(fileInfo.Name);
 					break;
 				case FileType.Bin:
-					_resourceManager.GetBlob(fileInfo.Name);
+					_resourceManager!.GetBlob(fileInfo.Name);
 					break;
 				case FileType.Image:
-					_resourceManager.GetImage(fileInfo.Name);
+					_resourceManager!.GetImage(fileInfo.Name);
 					break;
 				case FileType.Font:
-					_resourceManager.GetFont(fileInfo.Name);
+					_resourceManager!.GetFont(fileInfo.Name);
 					break;
 				default:
 					break;
@@ -112,29 +102,25 @@ public partial class Driver
 		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
 
 		switch (fileInfo.Type)
 		{
 			case FileType.Script:
-				_resourceManager.RemoveScript(fileInfo.Name);
+				_resourceManager!.RemoveScript(fileInfo.Name);
 				break;
 			case FileType.Audio:
-				_resourceManager.RemoveAudio(fileInfo.Name);
+				_resourceManager!.RemoveAudio(fileInfo.Name);
 				break;
 			case FileType.Bin:
-				_resourceManager.RemoveBlob(fileInfo.Name);
+				_resourceManager!.RemoveBlob(fileInfo.Name);
 				break;
 			case FileType.Image:
-				_resourceManager.RemoveImage(fileInfo.Name);
+				_resourceManager!.RemoveImage(fileInfo.Name);
 				break;
 			case FileType.Font:
-				_resourceManager.RemoveFont(fileInfo.Name);
+				_resourceManager!.RemoveFont(fileInfo.Name);
 				break;
 			default:
 				break;

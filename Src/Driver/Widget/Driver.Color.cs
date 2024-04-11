@@ -17,27 +17,13 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetColorBoxInfo(string json)
 	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
+		Response respone = new();
 		var info = JsonSerializer.Deserialize<ColorBoxInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null || _layoutManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckLayer(info.ID);
+		if (flag == false) return ret;
 
-		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
-		if (respone.Type != ResponseType.Success)
-			return responeString;
-
-		ILayer layer = _layoutManager.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
-
+		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
 		if (layer is WidgetColorBox imageBox)
 		{
@@ -50,7 +36,6 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		respone.Type = ResponseType.Success;
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 

@@ -14,12 +14,8 @@ public partial class Driver
 		Response respone = new();
 		var info = JsonSerializer.Deserialize<AudioMutiplexerInfo>(json, JsonConfig.Options);
 
-		if (_resourceManager is null || _audioManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "AudioManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
 
 		if (CheckAudioContext(info.ID) == false)
 		{
@@ -28,7 +24,7 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		IAudio audio = _audioManager.AudioNodes[info.ID.NodeID];
+		IAudio audio = _audioManager!.AudioNodes[info.ID.NodeID];
 
 		if (audio is AudioMutiplexer audioMultiplexer)
 		{
@@ -42,8 +38,6 @@ public partial class Driver
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		respone.Type = ResponseType.Success;
-		respone.Message = "";
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 }

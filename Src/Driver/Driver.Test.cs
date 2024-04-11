@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
-using WebGal.Audio;
 using WebGal.Global;
 using FileInfo = WebGal.API.Data.FileInfo;
 

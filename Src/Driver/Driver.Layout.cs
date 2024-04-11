@@ -19,124 +19,98 @@ public partial class Driver
 	public static string RegisterLayout(string json)
 	{
 		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json, JsonConfig.Options);
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
+		Response respone = new();
 
-		if (_layoutManager is not null)
-		{
-			if (_layoutManager.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
-				_layoutManager.Layouts[layoutInfo.LayoutId] = new();
-		}
-		else
-			respone = new()
-			{
-				Type = ResponseType.Fail,
-				Message = "LayoutManager not set OR Game not loading",
-			};
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
+
+		if (_layoutManager!.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
+			_layoutManager.Layouts[layoutInfo.LayoutId] = new();
+
 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string RegisterLayer(string json)
 	{
+		Response respone = new();
 		var layerInfo = JsonSerializer.Deserialize<LayerBox>(json, JsonConfig.Options);
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
 
-		if (_layoutManager is not null)
+		var (flag, ret) = CheckInit();
+		if (flag == false) return ret;
+
+		if (_layoutManager!.Layouts.TryGetValue(layerInfo.Attribute.LayoutID, out Layout? value))
 		{
-			if (_layoutManager.Layouts.TryGetValue(layerInfo.Attribute.LayoutID, out Layout? value))
+			Layout layout = value;
+			layout.Layers[layerInfo.Attribute.LayerID] = layerInfo.Attribute.Type switch
 			{
-				Layout layout = value;
-				layout.Layers[layerInfo.Attribute.LayerID] = layerInfo.Attribute.Type switch
-				{
-					LayerType.TextBox => new WidgetTextBox(),
-					LayerType.ImageBox => new WidgetImageBox(),
-					LayerType.ColorBox => new WidgetColorBox(),
-					LayerType.ButtomBox => new ControllerButtom(),
-					LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
-					_ => throw new Exception("未标识的控件类型: todo"),
-				};
-				ILayer layer = layout.Layers[layerInfo.Attribute.LayerID];
-				layer.Size = layerInfo.Attribute.Size;
-				layer.Position = layerInfo.Attribute.Position;
-			}
-			else
-			{
-				respone = new()
-				{
-					Type = ResponseType.Fail,
-					Message = $"Layout {layerInfo.Attribute.LayoutID} not registed",
-				};
-			}
+				LayerType.TextBox => new WidgetTextBox(),
+				LayerType.ImageBox => new WidgetImageBox(),
+				LayerType.ColorBox => new WidgetColorBox(),
+				LayerType.ButtomBox => new ControllerButtom(),
+				LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
+				_ => throw new Exception("未标识的控件类型: todo"),
+			};
+			ILayer layer = layout.Layers[layerInfo.Attribute.LayerID];
+			layer.Size = layerInfo.Attribute.Size;
+			layer.Position = layerInfo.Attribute.Position;
 		}
 		else
-			respone = new()
-			{
-				Type = ResponseType.Fail,
-				Message = "LayoutManager not set OR Game not loading",
-			};
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
-	}
-
-	public static string CheckLayout(LayerIdInfo info)
-	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
-
-		if (_layoutManager is null)
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
+			respone.Message = $"Layout {layerInfo.Attribute.LayoutID} not registed";
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
-		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+	}
+
+	[JSInvokable]
+	public static string SetActiveLayout(string json)
+	{
+		Response respone = new();
+		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
+
+		var (flag, ret) = CheckLayout(info);
+		if (flag == false) return ret;
+
+		_layoutManager!.ActiveLayout = info.LayoutID;
+
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+	}
+
+	public static (bool, string) CheckLayout(LayerIdInfo info)
+	{
+		Response respone = new();
+
+		var (flag, ret) = CheckInit();
+		if (flag == false)
+			return (flag, ret);
+
+		if (_layoutManager!.Layouts.ContainsKey(info.LayoutID) == false)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.LayoutID} not registered";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
 		}
 
-		respone.Type = ResponseType.Success;
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
 
-	public static string CheckLayer(LayerIdInfo info)
+	public static (bool, string) CheckLayer(LayerIdInfo info)
 	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
+		Response respone = new();
 
-		if (_layoutManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+		var (flag, ret) = CheckLayout(info);
+		if (flag == false)
+			return (flag, ret);
 
-		string responeString = CheckLayout(info);
-		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
-		if (respone.Type != ResponseType.Success)
-			return responeString;
-
-		if (_layoutManager.Layouts[info.LayoutID].Layers.ContainsKey(info.LayerID) == false)
+		if (_layoutManager!.Layouts[info.LayoutID].Layers.ContainsKey(info.LayerID) == false)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layer:{info.LayerID} not registered";
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
 }
