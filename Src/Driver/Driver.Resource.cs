@@ -16,7 +16,7 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> PullFileAsync(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
 
 		if (_resourceManager is null)
@@ -64,7 +64,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string CheckFile(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
 
 		if (_resourceManager is null)
@@ -109,7 +109,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string RemoveFile(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
 
 		if (_resourceManager is null)

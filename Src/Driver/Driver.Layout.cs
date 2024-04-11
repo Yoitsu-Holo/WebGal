@@ -18,7 +18,7 @@ public partial class Driver
 	public static string RegisterLayout(string json)
 	{
 		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json);
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -42,7 +42,7 @@ public partial class Driver
 	public static string RegisterLayer(string json)
 	{
 		var layerInfo = JsonSerializer.Deserialize<LayerBox>(json);
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -86,7 +86,7 @@ public partial class Driver
 
 	public static string CheckLayout(LayerIdInfo info)
 	{
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -112,7 +112,7 @@ public partial class Driver
 
 	public static string CheckLayer(LayerIdInfo info)
 	{
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -126,7 +126,7 @@ public partial class Driver
 		}
 
 		string responeString = CheckLayout(info);
-		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 

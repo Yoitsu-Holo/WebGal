@@ -1,8 +1,6 @@
 using System.Text.Json;
-using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
-using WebGal.Audio;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -22,11 +20,11 @@ public partial class Driver
 			.then(result => {console.log(result);});
 
 		// 拉取图片资源
-		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":{"Type":1,"Message":null},"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
+		DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":"set","Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
 			.then(result => {console.log(result);});
 
 		// 注册图层 1
-		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":{"Type":1,"Message":null},"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
+		DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":1,"Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
 			.then(result => {console.log(result);});
 
 		// 设置图层 1
@@ -42,14 +40,15 @@ public partial class Driver
 			Console.WriteLine("Pull background image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Type = FileType.Image,
+
 				URL = "/Image/bg010a.png",
 				Name = "bg010a",
 			};
 
 			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -57,14 +56,15 @@ public partial class Driver
 			Console.WriteLine("Pull Menu image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Type = FileType.Image,
+
 				URL = "/Image/title01_chip.png",
 				Name = "title",
 			};
 
 			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -72,14 +72,15 @@ public partial class Driver
 			Console.WriteLine("Pull Font ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Type = FileType.Font,
+
 				URL = "/simhei.ttf",
 				Name = "simhei",
 			};
 
 			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -88,12 +89,12 @@ public partial class Driver
 			Console.WriteLine("Register Layout:0 ...");
 			LayoutInfo layoutInfo = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				LayoutId = 0,
 			};
 
 			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -102,7 +103,7 @@ public partial class Driver
 			Console.WriteLine("Register Layer:0 ...");
 			LayerBox imageBox = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Attribute = new()
 				{
 					Type = LayerType.ImageBox,
@@ -115,7 +116,7 @@ public partial class Driver
 			};
 
 			string result = RegisterLayer(JsonSerializer.Serialize(imageBox));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -125,7 +126,7 @@ public partial class Driver
 
 			LayerBox colorBox = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Attribute = new()
 				{
 					Type = LayerType.ColorBox,
@@ -138,7 +139,7 @@ public partial class Driver
 			};
 
 			string result = RegisterLayer(JsonSerializer.Serialize(colorBox));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -148,7 +149,7 @@ public partial class Driver
 
 			LayerBox textBox = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Attribute = new()
 				{
 					Type = LayerType.TextBox,
@@ -161,7 +162,7 @@ public partial class Driver
 			};
 
 			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -171,7 +172,7 @@ public partial class Driver
 
 			LayerBox textBox = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Attribute = new()
 				{
 					Type = LayerType.ButtomBox,
@@ -184,7 +185,7 @@ public partial class Driver
 			};
 
 			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -200,7 +201,7 @@ public partial class Driver
 			};
 
 			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -217,7 +218,7 @@ public partial class Driver
 				A = 160,
 			};
 			string result = SetColorBoxInfo(JsonSerializer.Serialize(image));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -232,7 +233,7 @@ public partial class Driver
 				FontSize = 30,
 			};
 			string result = SetTextBoxInfo(JsonSerializer.Serialize(text));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -249,11 +250,11 @@ public partial class Driver
 			};
 
 			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
-		ResponseHeader response = new()
+		Response response = new()
 		{
 			Type = ResponseType.Success,
 			Message = "Hello WebGal"
@@ -271,7 +272,7 @@ public partial class Driver
 			.then(result => {console.log(result);});
 		*/
 
-		ResponseHeader response = new();
+		Response response = new();
 		if (_audioManager is null || _resourceManager is null)
 		{
 			response.Type = ResponseType.Fail;
@@ -284,32 +285,16 @@ public partial class Driver
 			Console.WriteLine("Pull BackgroundMusic ...");
 			FileInfo fileInfo = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				Type = FileType.Audio,
+
 				URL = "/pack/sound/bgm/bgm04_b.ogg",
 				Name = "bgm04",
 			};
 
 			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
-		}
-
-		// 简单测试
-		{
-			// _audioTest = new(jsRuntime);
-			// _audioGain = new(jsRuntime);
-			// _audioSource = new(jsRuntime);
-			// _audioSpeeker = new(jsRuntime);
-			// AudioSimple simple = new(_audioManager.JSRuntime);
-			// // simple.SetContextAsync
-			// _audioManager.AudioNodes[0] = simple;
-			// _audioManager.AudioContexts[0] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
-
-			// await simple.SetContextAsync(_audioManager.AudioContexts[0]);
-			// await simple.SetLoopAsync(true);
-			// await simple.SetAudioAsync(_resourceManager.GetAudio("bgm04"));
-			// await simple.StartAsync();
 		}
 
 		{
@@ -317,7 +302,7 @@ public partial class Driver
 			AudioIdInfo info = new() { ContextID = 0, };
 
 			string result = await RegisterAudioContextAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -325,14 +310,14 @@ public partial class Driver
 			Console.WriteLine("Register AudioNode:0 ...");
 			AudioInfo info = new()
 			{
-				Request = new() { Type = RequestType.Set, },
+				Request = RequestType.Set,
 				ID = new() { ContextID = 0, NodeID = 0, },
 
 				Type = AudioNodeType.Simple,
 			};
 
 			string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -346,11 +331,9 @@ public partial class Driver
 			};
 
 			string result = await SetAudioSimpleInfoAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<ResponseHeader>(result).Type != ResponseType.Success)
+			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
 				return result;
 		}
-
-
 
 		response.Type = ResponseType.Success;
 		response.Message = "Hello WebGal.Audio";

@@ -55,7 +55,7 @@ public partial class Driver
 	[JSInvokable]
 	public static Task<string> Empty()
 	{
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",

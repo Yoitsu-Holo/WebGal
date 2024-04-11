@@ -17,7 +17,7 @@ public partial class Driver
 	public static async Task<string> RegisterAudioContextAsync(string json)
 	{
 		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json);
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -42,7 +42,7 @@ public partial class Driver
 	public static async Task<string> RegisterAudioNodeAsync(string json)
 	{
 		var audioInfo = JsonSerializer.Deserialize<AudioInfo>(json);
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",

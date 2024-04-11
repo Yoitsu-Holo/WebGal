@@ -27,15 +27,8 @@ public enum ControllerStatus
 	Normal, Hover, Pressed, Focused,
 }
 
-/// <summary> 请求结构头 </summary>
-public record struct RequestHeader
-{
-	public RequestType Type { get; set; }
-	public string Message { get; set; }
-}
-
 /// <summary> 响应结构头 </summary>
-public record struct ResponseHeader
+public record struct Response
 {
 	public ResponseType Type { get; set; }
 	public string Message { get; set; }
@@ -44,7 +37,7 @@ public record struct ResponseHeader
 /// <summary>  游戏设置  </summary>
 public record struct GameInfo
 {
-	public RequestHeader Request { get; set; }
+	public RequestType Request { get; set; }
 
 	public string Name { get; set; }
 	public IVector Resolution { get; set; }

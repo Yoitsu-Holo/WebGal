@@ -10,7 +10,7 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> SetAudioSimpleInfoAsync(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var info = JsonSerializer.Deserialize<AudioSimpleInfo>(json);
 
 		if (_resourceManager is null || _audioManager is null)

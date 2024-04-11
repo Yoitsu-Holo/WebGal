@@ -16,7 +16,7 @@ public enum LayerType
 /// <summary> 布局信息 </summary>
 public record struct LayoutInfo
 {
-	public RequestHeader Request { get; set; }
+	public RequestType Request { get; set; }
 
 	public int LayoutId { get; set; }
 }
@@ -34,7 +34,7 @@ public record struct LayerInfo
 
 public record struct LayerBox
 {
-	public RequestHeader Request { get; set; }
+	public RequestType Request { get; set; }
 	public LayerInfo Attribute { get; set; }
 }
 

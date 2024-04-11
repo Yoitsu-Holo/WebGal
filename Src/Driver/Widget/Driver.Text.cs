@@ -17,7 +17,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetTextBoxInfo(string json)
 	{
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -39,7 +39,7 @@ public partial class Driver
 		}
 
 		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
@@ -70,7 +70,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetTextBoxText(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var text = JsonSerializer.Deserialize<TextBoxText>(json);
 
 		return JsonSerializer.Serialize(respone);
@@ -79,7 +79,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetTextBoxFont(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var font = JsonSerializer.Deserialize<TextBoxFont>(json);
 
 		return JsonSerializer.Serialize(respone);
@@ -88,7 +88,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetTextBoxFontSize(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var size = JsonSerializer.Deserialize<TextBoxFontSize>(json);
 
 		return JsonSerializer.Serialize(respone);

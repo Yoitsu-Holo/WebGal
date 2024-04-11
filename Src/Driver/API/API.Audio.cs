@@ -15,7 +15,7 @@ public record struct AudioIdInfo
 
 public record struct AudioInfo
 {
-	public RequestHeader Request { get; set; }
+	public RequestType Request { get; set; }
 	public AudioIdInfo ID { get; set; }
 
 	public AudioNodeType Type { get; set; }

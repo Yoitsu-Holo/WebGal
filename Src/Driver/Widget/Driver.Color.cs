@@ -16,7 +16,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetColorBoxInfo(string json)
 	{
-		ResponseHeader respone = new()
+		Response respone = new()
 		{
 			Type = ResponseType.Success,
 			Message = "",
@@ -31,7 +31,7 @@ public partial class Driver
 		}
 
 		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<ResponseHeader>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
@@ -56,7 +56,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string SetColorBoxImage(string json)
 	{
-		ResponseHeader respone = new();
+		Response respone = new();
 		var image = JsonSerializer.Deserialize<ColorBoxColor>(json);
 
 		return JsonSerializer.Serialize(respone);
