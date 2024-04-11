@@ -40,25 +40,21 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await _currentAudioBufferNode!.SetLoopAsync(loop);
 	}
 
-	public async Task StartAsync()
+	public async Task StartAsync(bool start = true)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
-		await _currentAudioBufferNode!.StartAsync();
+		if (start)
+			await _currentAudioBufferNode!.StartAsync();
+		else
+			await _currentAudioBufferNode!.StopAsync();
 	}
 
-	public async Task StopAsunc()
+	public async Task SetGain(float Gain)
 	{
 		if (_context is null)
 			throw new Exception("Without any context");
-		await _currentAudioBufferNode!.StopAsync();
-	}
-
-	public async Task SetVolume(float volume)
-	{
-		if (_context is null)
-			throw new Exception("Without any context");
-		await (await _gain!.GetGainAsync()).SetValueAsync(volume);
+		await (await _gain!.GetGainAsync()).SetValueAsync(Gain);
 	}
 
 	// Interface
@@ -69,7 +65,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			throw new Exception("Without any context");
 
 		_currentAudioBufferNode = await _context.CreateBufferSourceAsync();
-		_gain = await GainNode.CreateAsync(_jsRuntime, _context, new() { Gain = 1.0f });
+		_gain = await GainNode.CreateAsync(_jsRuntime, _context, new() { Gain = 0.8f });
 		_destination = await context.GetDestinationAsync();
 
 		await _currentAudioBufferNode.ConnectAsync(_gain);

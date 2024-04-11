@@ -7,18 +7,15 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 {
 	private AudioBufferSourceNode? _audioBuffer;
 
-	public async Task PlayAsync()
+	public async Task PlayAsync(bool start = true)
 	{
 		if (_audioBuffer is null)
 			throw new Exception("without any auiod buffer");
-		await _audioBuffer.StartAsync();
-	}
 
-	public async Task StopAsync()
-	{
-		if (_audioBuffer is null)
-			throw new Exception("without any auiod buffer");
-		await _audioBuffer.StopAsync();
+		if (start)
+			await _audioBuffer.StartAsync();
+		else
+			await _audioBuffer.StopAsync();
 	}
 
 	public async Task SetAudioBuffer(byte[] audioBytes)
