@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using WebGal.API.Data;
+using WebGal.Global;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
 
@@ -21,17 +22,17 @@ public partial class Driver
 			Type = ResponseType.Success,
 			Message = "",
 		};
-		var info = JsonSerializer.Deserialize<ColorBoxInfo>(json);
+		var info = JsonSerializer.Deserialize<ColorBoxInfo>(json, JsonConfig.Options);
 
 		if (_resourceManager is null || _layoutManager is null)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<Response>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
@@ -46,19 +47,19 @@ public partial class Driver
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		respone.Type = ResponseType.Success;
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string SetColorBoxImage(string json)
 	{
 		Response respone = new();
-		var image = JsonSerializer.Deserialize<ColorBoxColor>(json);
+		var image = JsonSerializer.Deserialize<ColorBoxColor>(json, JsonConfig.Options);
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 }

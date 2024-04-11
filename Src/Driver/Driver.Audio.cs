@@ -3,6 +3,7 @@ using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Audio;
+using WebGal.Global;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -16,7 +17,7 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task<string> RegisterAudioContextAsync(string json)
 	{
-		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json);
+		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json, JsonConfig.Options);
 		Response respone = new()
 		{
 			Type = ResponseType.Success,
@@ -35,13 +36,13 @@ public partial class Driver
 				Type = ResponseType.Fail,
 				Message = "AudioManager not set OR Game not loading",
 			};
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static async Task<string> RegisterAudioNodeAsync(string json)
 	{
-		var audioInfo = JsonSerializer.Deserialize<AudioInfo>(json);
+		var audioInfo = JsonSerializer.Deserialize<AudioInfo>(json, JsonConfig.Options);
 		Response respone = new()
 		{
 			Type = ResponseType.Success,
@@ -80,7 +81,7 @@ public partial class Driver
 				Message = "AudioManager not set OR Game not loading",
 			};
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	public static bool CheckAudioContext(AudioIdInfo info)

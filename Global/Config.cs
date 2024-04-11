@@ -36,7 +36,7 @@ public static class JsonConfig
 	{
 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase, // 驼峰命名
 		PropertyNameCaseInsensitive = true, // 不区分大小写
-		WriteIndented = true, // 缩进
+											// WriteIndented = true, // 缩进
 		Converters =
 		{
 			new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)

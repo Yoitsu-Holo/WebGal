@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.JSInterop;
 using SkiaSharp;
 using WebGal.API.Data;
+using WebGal.Global;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
 using WebGal.Libs.Base;
@@ -22,24 +23,24 @@ public partial class Driver
 			Type = ResponseType.Success,
 			Message = "",
 		};
-		var info = JsonSerializer.Deserialize<TextBoxInfo>(json);
+		var info = JsonSerializer.Deserialize<TextBoxInfo>(json, JsonConfig.Options);
 
 		if (_resourceManager is null || _layoutManager is null)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		if (info.Font != "" && _resourceManager.CheckFont(info.Font) == false)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Image: {info.Font} is not loaded";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		string responeString = CheckLayer(info.ID);
-		respone = JsonSerializer.Deserialize<Response>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
@@ -60,37 +61,37 @@ public partial class Driver
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		respone.Type = ResponseType.Success;
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string SetTextBoxText(string json)
 	{
 		Response respone = new();
-		var text = JsonSerializer.Deserialize<TextBoxText>(json);
+		var text = JsonSerializer.Deserialize<TextBoxText>(json, JsonConfig.Options);
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string SetTextBoxFont(string json)
 	{
 		Response respone = new();
-		var font = JsonSerializer.Deserialize<TextBoxFont>(json);
+		var font = JsonSerializer.Deserialize<TextBoxFont>(json, JsonConfig.Options);
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string SetTextBoxFontSize(string json)
 	{
 		Response respone = new();
-		var size = JsonSerializer.Deserialize<TextBoxFontSize>(json);
+		var size = JsonSerializer.Deserialize<TextBoxFontSize>(json, JsonConfig.Options);
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
+using WebGal.Global;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -47,8 +48,8 @@ public partial class Driver
 				Name = "bg010a",
 			};
 
-			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -63,8 +64,8 @@ public partial class Driver
 				Name = "title",
 			};
 
-			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -79,8 +80,8 @@ public partial class Driver
 				Name = "simhei",
 			};
 
-			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -93,8 +94,8 @@ public partial class Driver
 				LayoutId = 0,
 			};
 
-			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -115,8 +116,8 @@ public partial class Driver
 				},
 			};
 
-			string result = RegisterLayer(JsonSerializer.Serialize(imageBox));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = RegisterLayer(JsonSerializer.Serialize(imageBox, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -138,8 +139,8 @@ public partial class Driver
 				}
 			};
 
-			string result = RegisterLayer(JsonSerializer.Serialize(colorBox));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = RegisterLayer(JsonSerializer.Serialize(colorBox, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -161,8 +162,8 @@ public partial class Driver
 				}
 			};
 
-			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = RegisterLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -184,8 +185,8 @@ public partial class Driver
 				}
 			};
 
-			string result = RegisterLayer(JsonSerializer.Serialize(textBox));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = RegisterLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -200,8 +201,8 @@ public partial class Driver
 				Image = new() { ImageName = "bg010a", SubRect = new(0, 0, 1820, 1024), }
 			};
 
-			string result = SetImageBoxInfo(JsonSerializer.Serialize(image));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = SetImageBoxInfo(JsonSerializer.Serialize(image, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -217,8 +218,8 @@ public partial class Driver
 				B = 190,
 				A = 160,
 			};
-			string result = SetColorBoxInfo(JsonSerializer.Serialize(image));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = SetColorBoxInfo(JsonSerializer.Serialize(image, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -232,8 +233,8 @@ public partial class Driver
 				Font = "simhei",
 				FontSize = 30,
 			};
-			string result = SetTextBoxInfo(JsonSerializer.Serialize(text));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = SetTextBoxInfo(JsonSerializer.Serialize(text, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -249,8 +250,8 @@ public partial class Driver
 				PressedImage = new() { ImageName = "title", SubRect = new(641, 723, 316, 45), },
 			};
 
-			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -260,7 +261,7 @@ public partial class Driver
 			Message = "Hello WebGal"
 		};
 
-		return JsonSerializer.Serialize(response);
+		return JsonSerializer.Serialize(response, JsonConfig.Options);
 	}
 
 	[JSInvokable]
@@ -277,7 +278,7 @@ public partial class Driver
 		{
 			response.Type = ResponseType.Fail;
 			response.Message = "AudioManager not set OR Game not loading";
-			return JsonSerializer.Serialize(response);
+			return JsonSerializer.Serialize(response, JsonConfig.Options);
 		}
 
 		//! 拉取文件
@@ -292,8 +293,8 @@ public partial class Driver
 				Name = "bgm04",
 			};
 
-			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await PullFileAsync(JsonSerializer.Serialize(fileInfo, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -301,8 +302,8 @@ public partial class Driver
 			Console.WriteLine("Register AudioContext:0 ...");
 			AudioIdInfo info = new() { ContextID = 0, };
 
-			string result = await RegisterAudioContextAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await RegisterAudioContextAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -316,8 +317,8 @@ public partial class Driver
 				Type = AudioNodeType.Simple,
 			};
 
-			string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
@@ -330,13 +331,13 @@ public partial class Driver
 				Start = true,
 			};
 
-			string result = await SetAudioSimpleInfoAsync(JsonSerializer.Serialize(info));
-			if (JsonSerializer.Deserialize<Response>(result).Type != ResponseType.Success)
+			string result = await SetAudioSimpleInfoAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
 
 		response.Type = ResponseType.Success;
 		response.Message = "Hello WebGal.Audio";
-		return JsonSerializer.Serialize(response);
+		return JsonSerializer.Serialize(response, JsonConfig.Options);
 	}
 }

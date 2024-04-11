@@ -17,13 +17,13 @@ public partial class Driver
 	public static async Task<string> PullFileAsync(string json)
 	{
 		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
+		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
 		if (_resourceManager is null)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		try
@@ -57,7 +57,7 @@ public partial class Driver
 
 		respone.Type = ResponseType.Success;
 		respone.Message = "";
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 
@@ -65,13 +65,13 @@ public partial class Driver
 	public static string CheckFile(string json)
 	{
 		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
+		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
 		if (_resourceManager is null)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		respone.Type = ResponseType.Success;
@@ -102,7 +102,7 @@ public partial class Driver
 		catch (Exception exception)
 		{ respone.Message = exception.Message; }
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 
@@ -110,13 +110,13 @@ public partial class Driver
 	public static string RemoveFile(string json)
 	{
 		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json);
+		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 
 		if (_resourceManager is null)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		switch (fileInfo.Type)
@@ -140,6 +140,6 @@ public partial class Driver
 				break;
 		}
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 }

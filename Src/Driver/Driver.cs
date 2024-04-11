@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
+using WebGal.Global;
 using WebGal.Services.Include;
 
 namespace WebGal.API;
@@ -60,6 +61,6 @@ public partial class Driver
 			Type = ResponseType.Success,
 			Message = "",
 		};
-		return Task.FromResult(JsonSerializer.Serialize(respone));
+		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
 }

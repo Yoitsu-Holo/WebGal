@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
+using WebGal.Global;
 using WebGal.Layer;
 using WebGal.Layer.Controller;
 using WebGal.Layer.Widget;
@@ -17,7 +18,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string RegisterLayout(string json)
 	{
-		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json);
+		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json, JsonConfig.Options);
 		Response respone = new()
 		{
 			Type = ResponseType.Success,
@@ -35,13 +36,13 @@ public partial class Driver
 				Type = ResponseType.Fail,
 				Message = "LayoutManager not set OR Game not loading",
 			};
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string RegisterLayer(string json)
 	{
-		var layerInfo = JsonSerializer.Deserialize<LayerBox>(json);
+		var layerInfo = JsonSerializer.Deserialize<LayerBox>(json, JsonConfig.Options);
 		Response respone = new()
 		{
 			Type = ResponseType.Success,
@@ -81,7 +82,7 @@ public partial class Driver
 				Type = ResponseType.Fail,
 				Message = "LayoutManager not set OR Game not loading",
 			};
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	public static string CheckLayout(LayerIdInfo info)
@@ -96,18 +97,18 @@ public partial class Driver
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		if (_layoutManager.Layouts.ContainsKey(info.LayoutID) == false)
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = $"Layout:{info.LayoutID} not registered";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		respone.Type = ResponseType.Success;
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 
 	public static string CheckLayer(LayerIdInfo info)
@@ -122,11 +123,11 @@ public partial class Driver
 		{
 			respone.Type = ResponseType.Fail;
 			respone.Message = "LayoutManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone);
+			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 
 		string responeString = CheckLayout(info);
-		respone = JsonSerializer.Deserialize<Response>(responeString);
+		respone = JsonSerializer.Deserialize<Response>(responeString, JsonConfig.Options);
 		if (respone.Type != ResponseType.Success)
 			return responeString;
 
@@ -136,6 +137,6 @@ public partial class Driver
 			respone.Message = $"Layer:{info.LayerID} not registered";
 		}
 
-		return JsonSerializer.Serialize(respone);
+		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	}
 }
