@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using SkiaSharp;
 using SkiaSharp.Views.Blazor;
-using WebGal.API;
 using WebGal.Global;
 using WebGal.Handler.Event;
 using WebGal.Services;
@@ -19,6 +19,20 @@ public partial class Test// : IDisposable
 
 	protected override void OnInitialized()
 	{
+		SKMatrix matrix = SKMatrix.Identity;
+		float[] array = new float[9];
+		matrix.GetValues(array);
+
+		for (int i = 0; i < 3; i++)
+		{
+			Console.Write("[ ");
+			for (int j = 0; j < 3; j++)
+			{
+				Console.Write(array[i * 3 + j]);
+				Console.Write(" ");
+			}
+			Console.WriteLine(" ]");
+		}
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

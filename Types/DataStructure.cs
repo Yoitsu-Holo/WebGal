@@ -128,12 +128,12 @@ public record struct FVector(double X, double Y)
 
 
 // Animation
-public record struct AnimationData
+public record class AnimationData
 {
-	public FVector PosOff; // default = (0,0) 渲染偏移
+	public FVector PosOff = new(0, 0); // default = (0,0) 渲染偏移
 
 	//^ [x]   [ScaleX,  SkewX, TransX]   [x']
 	//^ [y] x [SkewY,  ScaleY, TransY] = [y']
 	//^ [1]   [Persp0, Persp1, Persp2]   [z']
-	public SKMatrix Transform; // Transform Matrix
+	public SKMatrix Transform = SKMatrix.Identity; // Transform Matrix
 }

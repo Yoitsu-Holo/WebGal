@@ -49,7 +49,7 @@ public class LayerBase : ILayer, IAction
 	public virtual void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => throw new NotImplementedException();
 	public virtual void SetColor(SKColor color, int imageId = 0) => throw new NotImplementedException();
 
-	public IAnimation Animation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+	public IAnimation Animation { get; set; } = new AnimationNothing();
 	public void DoAnimation(long timeOff) { }
 
 
