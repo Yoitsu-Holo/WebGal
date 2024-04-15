@@ -38,10 +38,9 @@ public class GameManager
 		_resourceManager.BasePath = "Data/" + GameName;
 	}
 
-	public void Render(SKCanvas canvas, bool force = false)
-	{
-		_layoutManeger.Render(canvas, force);
-	}
+	public bool ShouldRender() => _layoutManeger.ShouldRender();
+
+	public void Render(SKCanvas canvas, bool force = false) => _layoutManeger.Render(canvas, force);
 
 	public async Task ProcEvent(EventArgs eventArgs)
 	{

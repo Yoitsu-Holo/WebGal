@@ -23,6 +23,18 @@ public class Layout
 	public void SetStart() => StartTime = NowTime.Minisecond;
 	public void SetStop() => StartTime = -1;
 
+	public bool ShouldRender()
+	{
+		if (StartTime == 0)
+			StartTime = NowTime.Minisecond;
+		long timeOff = NowTime.Minisecond - StartTime;
+
+		foreach (var (_, layer) in Layers)
+			if (layer.ShouldRender(timeOff))
+				return true;
+		return false;
+	}
+
 	public void Render(SKCanvas canvas, bool force)
 	{
 		if (StartTime == 0)

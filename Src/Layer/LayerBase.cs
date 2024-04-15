@@ -37,6 +37,9 @@ public class LayerBase : ILayer, IAction
 
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
+
+	public bool ShouldRender(long timeOff) => true;
+
 	#endregion
 
 
@@ -48,9 +51,6 @@ public class LayerBase : ILayer, IAction
 
 	public IAnimation Animation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 	public void DoAnimation(long timeOff) { }
-
-
-
 
 
 	// 设置位置属性

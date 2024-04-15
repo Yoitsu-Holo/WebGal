@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SkiaSharp.Views.Blazor;
+using WebGal.API;
 using WebGal.Global;
 using WebGal.Handler.Event;
 using WebGal.Services;
@@ -41,6 +42,7 @@ public partial class Test// : IDisposable
 
 		MouseStatusUpdate();
 		await Manager.ProcEvent(mouseEventCopy);
+		canvas.Clear();
 		Manager.Render(canvas);
 
 		int sec = DateTimeOffset.UtcNow.Second;

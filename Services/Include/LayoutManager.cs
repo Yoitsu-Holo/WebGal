@@ -14,6 +14,15 @@ public class LayoutManager
 	public int ActiveLayout = 0; // 0: 主界面，-1: 测试界面
 
 	public void Clear() => Layouts.Clear();
+
+	public bool ShouldRender()
+	{
+		if (Layouts.TryGetValue(ActiveLayout, out Layout? layout))
+			if (layout.ShouldRender())
+				return true;
+		return false;
+	}
+
 	public void Render(SKCanvas canvas, bool force)
 	{
 		if (Layouts.TryGetValue(ActiveLayout, out Layout? layout))
