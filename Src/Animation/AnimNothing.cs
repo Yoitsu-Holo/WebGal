@@ -4,5 +4,5 @@ namespace WebGal.Animations;
 
 class AnimationNothing : IAnimation
 {
-	public AnimationData GetOffset(long timeOff) => new();
+	public AnimationData DoAnimation(long timeOff) => new();
 }

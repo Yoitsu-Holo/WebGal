@@ -1,7 +1,10 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
+using SkiaSharp;
+using WebGal.Animations;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Layer.Widget;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -35,6 +38,9 @@ public partial class Driver
 
 	// 音频测试
 	DotNet.invokeMethodAsync('WebGal', 'AudioTestAsync', '')
+		.then(result => {console.log(result);});
+	
+	DotNet.invokeMethodAsync('WebGal', 'DirectTestAsync', '')
 		.then(result => {console.log(result);});
 	*/
 	[JSInvokable]
@@ -418,5 +424,27 @@ public partial class Driver
 		response.Type = ResponseType.Success;
 		response.Message = "Hello WebGal.Audio";
 		return JsonSerializer.Serialize(response, JsonConfig.Options);
+	}
+
+	[JSInvokable]
+	public static async Task DirectTestAsync()
+	{
+		await Task.Run(() => { });
+		SKBitmap bitmap = new(40, 40);
+		using (var canvas = new SKCanvas(bitmap))
+		{
+			canvas.DrawRect(0, 0, 40, 40, new SKPaint() { Color = SKColors.Azure, }); canvas.Flush();
+		}
+
+		WidgetImageBox imageLayer = new()
+		{
+			Size = new(40, 40),
+			Position = new(40, 40),
+			Animation = new AnimationBounce(new(1200, 640), new(0.3, 0.5)),
+		};
+
+		imageLayer.SetImage(bitmap);
+
+		_layoutManager!.Layouts[0].Layers[0xff] = imageLayer;
 	}
 }

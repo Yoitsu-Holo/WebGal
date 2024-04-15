@@ -29,8 +29,13 @@ public class WidgetImageBox : LayerBase
 			_renderBuffer = _imageBuffer.Resize(Size, SKFilterQuality.High);
 			_dirty = false;
 		}
-		canvas.DrawBitmap(_renderBuffer, Position);
+		canvas.Save();
+		canvas.SetMatrix(_animationData.Transform);
+		canvas.DrawBitmap(_renderBuffer, Position + (IVector)_animationData.PosOff);
+		canvas.Restore();
 	}
 
 	public override void ExecuteAction(EventArgs eventArgs) { }
+
+	public override void DoAnimation(long timeOff) => _animationData = Animation.DoAnimation(timeOff);
 }

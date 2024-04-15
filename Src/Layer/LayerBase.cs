@@ -29,6 +29,7 @@ public class LayerBase : ILayer, IAction
 	protected bool _dirty = true;
 	public LayerStatus Status = LayerStatus.Normal;
 	protected bool _attributeChange = true;
+	protected AnimationData _animationData = new();
 
 	#region 外界交互
 	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
@@ -50,7 +51,7 @@ public class LayerBase : ILayer, IAction
 	public virtual void SetColor(SKColor color, int imageId = 0) => throw new NotImplementedException();
 
 	public IAnimation Animation { get; set; } = new AnimationNothing();
-	public void DoAnimation(long timeOff) { }
+	public virtual void DoAnimation(long timeOff) { }
 
 
 	// 设置位置属性

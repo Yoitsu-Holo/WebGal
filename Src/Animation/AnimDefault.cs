@@ -4,5 +4,5 @@ namespace WebGal.Animations;
 
 class AnimationDefault : IAnimation
 {
-	public AnimationData GetOffset(long timeOff) => new() { PosOff = new(timeOff, timeOff), };
+	public AnimationData DoAnimation(long timeOff) => new() { PosOff = new(timeOff, timeOff), };
 }

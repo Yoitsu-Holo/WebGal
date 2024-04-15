@@ -1,31 +1,41 @@
+using SkiaSharp;
 using WebGal.Types;
 
 namespace WebGal.Animations;
 
 class AnimationBounce : IAnimation
 {
-	private float x = 0, y = 0;
-	private float dx = 1.5F, dy = -0.79F;
+	public FVector Range;
+	public FVector Delta;
+	private FVector _pos;
+	private SKMatrix _matrix = SKMatrix.Identity;
 	private double timepre = -1;
-	public AnimationData GetOffset(long timeOff)
+
+
+	public AnimationBounce() { }
+
+	public AnimationBounce(FVector range, FVector delta)
 	{
-		double timeObs = Global.NowTime.UtcMinisecond / 1000f;
+		Range = range;
+		Delta = delta;
+	}
+
+	public AnimationData DoAnimation(long timeOff)
+	{
+		double timeObs = Global.NowTime.UtcMinisecond;
 		if (timepre < 0)
 			timepre = timeObs;
-		float dt = (float)(timeObs - timepre) / 1000;
-		var (nx, ny) = (x + dx * dt, y + dy * dt);
+		double dt = timeObs - timepre;
+		FVector npos = new(_pos.X + Delta.X * dt, _pos.Y + Delta.Y * dt);
 
-		if (nx > 1 || nx < 0) dx = -dx;
-		if (ny > 1 || ny < 0) dy = -dy;
+		if (npos.X < 0) { npos.X = 0; Delta.X = -Delta.X; }
+		if (npos.X > Range.X) { npos.X = Range.X; Delta.X = -Delta.X; }
 
-		if (x < 0) x = 0;
-		if (x > 1) x = 1;
-		if (y < 0) y = 0;
-		if (y > 1) y = 1;
+		if (npos.Y < 0) { npos.Y = 0; Delta.Y = -Delta.Y; }
+		if (npos.Y > Range.Y) { npos.Y = Range.Y; Delta.Y = -Delta.Y; }
 
-		(x, y) = (x + dx * dt, y + dy * dt);
-
+		_pos = npos;
 		timepre = timeObs;
-		return new() { PosOff = new(x, y), };
+		return new() { PosOff = _pos, Transform = _matrix, };
 	}
 }
