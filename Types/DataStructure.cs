@@ -133,26 +133,14 @@ public record struct WinSizeStructure(int Width, int Height)
 	public static implicit operator (int, int)(WinSizeStructure win) => (win.Width, win.Height);
 }
 
-public record struct UrlStructure(string Name = "", string URL = "");
-public record struct ColorStructure(byte R, byte G, byte B, byte A);
-public record struct PaintStructure
-(
-	ColorStructure Color,
-	int TextSize,
-	bool Blod,
-	bool Antialias
-);
 
+// Animation
+public record struct AnimationData
+{
+	public FVector PosOff; // default = (0,0) 渲染偏移
 
-// csv Register
-public record struct IVectorRegister(int C_iX, int C_iY);
-public record struct FVectorRegister(int C_fX, int C_fY);
-public record struct WinSizeStructureRegister(int C_iWidth, int C_iHeight);
-public record struct UrlStructureRegister(int C_sName, int C_sURL);
-public record struct ColorStructureRegister(int C_cR, int C_cG, int C_cB, int C_cA);
-public record struct PaintStructureRegister(
-	ColorStructureRegister O_Color,
-	int C_iTextSize,
-	int C_bBlod,
-	int C_bAntialias
-);
+	//^ [x]   [ScaleX,  SkewX, TransX]   [x']
+	//^ [y] x [SkewY,  ScaleY, TransY] = [y']
+	//^ [1]   [Persp0, Persp1, Persp2]   [z']
+	public SKMatrix Transform; // Transform Matrix
+}
