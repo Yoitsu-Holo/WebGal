@@ -126,13 +126,6 @@ public record struct FVector(double X, double Y)
 	[JsonIgnore] public readonly double Height => Y;
 }
 
-public record struct WinSizeStructure(int Width, int Height)
-{
-	public static implicit operator SKSizeI(WinSizeStructure winSize) => new(winSize.Width, winSize.Height);
-	public static implicit operator SKSize(WinSizeStructure winSize) => new(winSize.Width, winSize.Height);
-	public static implicit operator (int, int)(WinSizeStructure win) => (win.Width, win.Height);
-}
-
 
 // Animation
 public record struct AnimationData
