@@ -66,6 +66,4 @@ public class WidgetTextBox : LayerBase
 			startPos.Y += Style.MarginBottom;
 		}
 	}
-
-	public override void ExecuteAction(EventArgs eventArgs) { }
 }

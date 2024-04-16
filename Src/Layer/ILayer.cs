@@ -1,4 +1,3 @@
-using System.Dynamic;
 using SkiaSharp;
 using WebGal.Animations;
 using WebGal.Handler;
@@ -6,7 +5,7 @@ using WebGal.Types;
 
 namespace WebGal.Layer;
 
-public interface ILayer : IAction
+public interface ILayer : IAction, IEvent
 {
 	// 渲染到指定canvas
 	public void Render(SKCanvas canvas, bool force);

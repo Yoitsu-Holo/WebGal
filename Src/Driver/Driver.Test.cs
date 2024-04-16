@@ -4,6 +4,8 @@ using SkiaSharp;
 using WebGal.Animations;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Handler;
+using WebGal.Handler.Event;
 using WebGal.Layer.Widget;
 using FileInfo = WebGal.API.Data.FileInfo;
 
@@ -450,5 +452,11 @@ public partial class Driver
 			_layoutManager.Layouts[0] = new();
 		// _layoutManager.Layouts[0].Layers[0xff] = imageLayer;
 		_layoutManager.Layouts[0].Layers[1] = imageLayer;
+
+		if (_layoutManager.Layouts[0].Layers.TryGetValue(4, out Layer.ILayer? buttom))
+		{
+			LogEventHandler logEventHandler = new();
+			logEventHandler.RegistEvent(buttom);
+		}
 	}
 }

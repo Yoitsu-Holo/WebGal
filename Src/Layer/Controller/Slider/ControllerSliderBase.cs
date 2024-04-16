@@ -137,7 +137,7 @@ public abstract class ControllerSliderBase : LayerBase
 		InitImage();
 	}
 
-	public override void ExecuteAction(EventArgs eventArgs)
+	public override void Action(object? sender, EventArgs eventArgs)
 	{
 		if (eventArgs is not MouseEventData)
 			return;

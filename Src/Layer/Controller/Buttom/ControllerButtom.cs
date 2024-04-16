@@ -51,7 +51,7 @@ public class ControllerButtom : LayerBase
 		_imageBuffer[imageId] = bitmap;
 	}
 
-	public override void ExecuteAction(EventArgs eventArgs)
+	public override void Action(object? sender, EventArgs eventArgs)
 	{
 		if (eventArgs is not MouseEventData)
 			return;
@@ -60,14 +60,22 @@ public class ControllerButtom : LayerBase
 
 		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
+		LayerStatus nowStatus = new();
 		if (Status != LayerStatus.Focused)
 		{
 			if (RangeComp.OutRange(Window, mouseEvent.Position))
-				Status = LayerStatus.Normal;
+				nowStatus = LayerStatus.Normal;
 			else if (mouseEvent.Button == MouseButton.Empty && mouseEvent.Status == MouseStatus.Release)
-				Status = LayerStatus.Hover;
+				nowStatus = LayerStatus.Hover;
 			else if (mouseEvent.Button == MouseButton.LButton && mouseEvent.Status == MouseStatus.Hold)
-				Status = LayerStatus.Pressed;
+				nowStatus = LayerStatus.Pressed;
+		}
+
+		if (nowStatus != Status)
+		{
+			Status = nowStatus;
+			LogEventData log = new($"Status Change : {nowStatus}");
+			TriggerEvent(log);
 		}
 	}
 

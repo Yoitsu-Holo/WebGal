@@ -44,7 +44,5 @@ public class WidgetImageBox : LayerBase
 		canvas.Restore();
 	}
 
-	public override void ExecuteAction(EventArgs eventArgs) { }
-
 	public override void DoAnimation(long timeOff) => _animationData = Animation.DoAnimation(timeOff);
 }

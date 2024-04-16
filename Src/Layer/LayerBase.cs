@@ -24,7 +24,7 @@ namespace WebGal.Layer;
 /// 原则上，visiable 控制是否显示。
 /// 而 diasble 会显示，但是不能操作。
 /// </summary>
-public class LayerBase : ILayer, IAction
+public class LayerBase : ILayer
 {
 	protected bool _dirty = true;
 	public LayerStatus Status = LayerStatus.Normal;
@@ -33,14 +33,21 @@ public class LayerBase : ILayer, IAction
 
 	#region 外界交互
 	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
+	// 事件订阅
+	public event EventHandler<EventArgs>? Subscribers;
+	public virtual void TriggerEvent(EventArgs args)
+	{
+		if (Subscribers is not null)
+			Subscribers(this, args);
+	}
+
 	// 处理事件
-	public virtual void ExecuteAction(EventArgs eventArgs) => throw new NotImplementedException();
+	public virtual void Action(object? sender, EventArgs eventArgs) { }
+	public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
 
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
-
 	public bool HasAnimation(long timeOff) => true;
-
 	#endregion
 
 
@@ -79,6 +86,7 @@ public class LayerBase : ILayer, IAction
 
 	protected string _name = "";
 	protected object _value = new();
+
 	public virtual string Name { get => _name; set => (_name, _dirty) = (value, true); }
 	public virtual object Value { get => _value; set => (_value, _dirty) = (value, true); }
 	#endregion

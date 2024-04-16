@@ -51,6 +51,6 @@ public class Layout
 	public void ProcessEvent(EventArgs eventArgs)
 	{
 		foreach (var (_, layer) in Layers)
-			layer.ExecuteAction(eventArgs);
+			layer.Action(this, eventArgs);
 	}
 }

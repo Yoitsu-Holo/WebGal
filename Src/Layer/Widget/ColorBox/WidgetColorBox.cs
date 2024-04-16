@@ -45,6 +45,4 @@ public class WidgetColorBox : LayerBase
 		canvas.Restore();
 
 	}
-
-	public override void ExecuteAction(EventArgs eventArgs) { }
 }
