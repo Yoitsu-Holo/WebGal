@@ -440,7 +440,8 @@ public partial class Driver
 		{
 			Size = new(40, 40),
 			Position = new(400, 400),
-			Animation = new AnimationRotate(1),
+			Offset = new(20, 20),
+			Animation = new AnimationRotate(2.5),
 		};
 
 		imageLayer.SetImage(bitmap);

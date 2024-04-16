@@ -1,3 +1,4 @@
+using System.Dynamic;
 using SkiaSharp;
 using WebGal.Animations;
 using WebGal.Handler;
@@ -24,6 +25,7 @@ public interface ILayer : IAction
 	// 大小处理、位置处理（左上角）
 	public IVector Size { get; set; }
 	public IVector Position { get; set; }
+	public IVector Offset { get; set; }
 	public IRect Window { get; }
 
 	// 文本处理

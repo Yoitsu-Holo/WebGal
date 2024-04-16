@@ -56,8 +56,11 @@ public class LayerBase : ILayer, IAction
 
 	// 设置位置属性
 	protected IVector _position = new();
+	protected IVector _offset = new();
 	protected IVector _size = new();
 	public virtual IVector Position { get => _position; set => (_position, _dirty) = (value, true); }
+	public IVector Offset { get => _offset; set => (_offset, _dirty) = (value, true); }
+
 	public virtual IVector Size { get => _size; set => (_size, _dirty) = (value, true); }
 	public virtual IRect Window { get { return new(Position, Size); } }
 

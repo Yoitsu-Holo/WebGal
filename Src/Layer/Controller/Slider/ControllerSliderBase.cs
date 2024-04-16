@@ -179,8 +179,32 @@ public abstract class ControllerSliderBase : LayerBase
 			InitImage();
 
 		// 重新渲染
-		canvas.DrawBitmap(_trackImage, Position);
-		canvas.DrawBitmap(_image[(int)Status], ThumbPosition);
+		SKMatrix matrix = SKMatrix.Identity;
+		FVector pos = (FVector)Position + _animationData.PosOff;
+
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
+		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(-_offset.X, -_offset.Y));
+
+		canvas.Save();
+		canvas.SetMatrix(matrix);
+		canvas.DrawBitmap(_trackImage, new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.Restore();
+
+		matrix = SKMatrix.Identity;
+		pos = (FVector)ThumbPosition + _animationData.PosOff;
+
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
+		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(-_offset.X, -_offset.Y));
+
+		canvas.Save();
+		canvas.SetMatrix(matrix);
+		canvas.DrawBitmap(_image[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.Restore();
+
+		// canvas.DrawBitmap(_trackImage, Position);
+		// canvas.DrawBitmap(_image[(int)Status], ThumbPosition);
 	}
 
 	// range [0,1]
