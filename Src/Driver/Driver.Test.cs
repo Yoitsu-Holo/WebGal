@@ -433,18 +433,21 @@ public partial class Driver
 		SKBitmap bitmap = new(40, 40);
 		using (var canvas = new SKCanvas(bitmap))
 		{
-			canvas.DrawRect(0, 0, 40, 40, new SKPaint() { Color = SKColors.Azure, }); canvas.Flush();
+			canvas.DrawRect(0, 0, 40, 40, new SKPaint() { Color = SKColors.Bisque, }); canvas.Flush();
 		}
 
 		WidgetImageBox imageLayer = new()
 		{
 			Size = new(40, 40),
-			Position = new(40, 40),
-			Animation = new AnimationBounce(new(1200, 640), new(0.3, 0.5)),
+			Position = new(400, 400),
+			Animation = new AnimationRotate(1),
 		};
 
 		imageLayer.SetImage(bitmap);
 
-		_layoutManager!.Layouts[0].Layers[0xff] = imageLayer;
+		if (!_layoutManager!.Layouts.ContainsKey(0))
+			_layoutManager.Layouts[0] = new();
+		// _layoutManager.Layouts[0].Layers[0xff] = imageLayer;
+		_layoutManager.Layouts[0].Layers[1] = imageLayer;
 	}
 }

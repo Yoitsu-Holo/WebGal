@@ -39,7 +39,7 @@ public class LayerBase : ILayer, IAction
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
 
-	public bool ShouldRender(long timeOff) => true;
+	public bool HasAnimation(long timeOff) => true;
 
 	#endregion
 

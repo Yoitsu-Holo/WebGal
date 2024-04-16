@@ -6,7 +6,7 @@ namespace WebGal.Layer.Widget;
 
 public class WidgetColorBox : LayerBase
 {
-	private SKBitmap? _renderBuffer;
+	// private SKBitmap? _renderBuffer;
 	private SKColor _color = new();
 
 	public override void SetColor(SKColor color, int imageId = 0)
@@ -19,18 +19,19 @@ public class WidgetColorBox : LayerBase
 	{
 		if (Status == LayerStatus.Unvisable)
 			return;
-		if (_dirty || force || _renderBuffer is null)
-		{
-			_renderBuffer = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
-			using SKCanvas tempCanvas = new(_renderBuffer);
-			tempCanvas.DrawRect(
-				new SKRect(0, 0, _renderBuffer.Width, _renderBuffer.Height),
-				new SKPaint { Color = _color }
-			);
-			tempCanvas.Flush();
-			_dirty = false;
-		}
-		canvas.DrawBitmap(_renderBuffer, Position);
+		// if (_dirty || force || _renderBuffer is null)
+		// {
+		// 	_renderBuffer = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType);
+		// 	using SKCanvas tempCanvas = new(_renderBuffer);
+		// 	tempCanvas.DrawRect(
+		// 		new SKRect(0, 0, _renderBuffer.Width, _renderBuffer.Height),
+		// 		new SKPaint { Color = _color }
+		// 	);
+		// 	tempCanvas.Flush();
+		// 	_dirty = false;
+		// }
+		canvas.DrawRect(new SKRect(Position.X, Position.Y, Position.X + Size.Width, Position.Y + Size.Height), new SKPaint() { Color = _color, IsAntialias = true, });
+		// canvas.DrawBitmap(_renderBuffer, Position);
 	}
 
 	public override void ExecuteAction(EventArgs eventArgs) { }

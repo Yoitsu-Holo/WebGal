@@ -7,7 +7,7 @@ namespace WebGal.Layer.Widget;
 
 public class WidgetTextBox : LayerBase
 {
-	public SKPaint TextPaint { get; set; } = LayerConfig.DefaultTextPaint;
+	public SKPaint TextPaint { get; set; } = RenderConfig.DefaultTextPaint;
 	public TextBoxStyle Style { get; set; } = new();
 	private readonly List<string> _textLine = [];
 

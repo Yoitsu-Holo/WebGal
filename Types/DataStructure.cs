@@ -87,6 +87,7 @@ public record struct IVector(int X, int Y)
 	public static IVector operator *(IVector v1, IVector v2) => new(v1.X * v2.X, v1.Y * v2.Y);
 	public static IVector operator +(IVector v1, IVector v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 	public static IVector operator -(IVector v1, IVector v2) => new(v1.X - v2.X, v1.Y - v2.Y);
+	public static IVector operator -(IVector v1) => new(-v1.X, -v1.Y);
 
 	public static implicit operator SKPointI(IVector p) => new(p.X, p.Y);
 	public static implicit operator SKPoint(IVector p) => new(p.X, p.Y);
@@ -110,6 +111,7 @@ public record struct FVector(double X, double Y)
 	public static FVector operator *(FVector v1, FVector v2) => new(v1.X * v2.X, v1.Y * v2.Y);
 	public static FVector operator +(FVector v1, FVector v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 	public static FVector operator -(FVector v1, FVector v2) => new(v1.X - v2.X, v1.Y - v2.Y);
+	public static FVector operator -(FVector v1) => new(-v1.X, -v1.Y);
 
 	public static implicit operator SKPointI(FVector p) => new((int)p.X, (int)p.Y);
 	public static implicit operator SKPoint(FVector p) => new((float)p.X, (float)p.Y);

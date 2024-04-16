@@ -8,9 +8,7 @@ class AnimationBounce : IAnimation
 	public FVector Range;
 	public FVector Delta;
 	private FVector _pos;
-	private SKMatrix _matrix = SKMatrix.Identity;
 	private double timepre = -1;
-
 
 	public AnimationBounce() { }
 
@@ -36,6 +34,6 @@ class AnimationBounce : IAnimation
 
 		_pos = npos;
 		timepre = timeObs;
-		return new() { PosOff = _pos, Transform = _matrix, };
+		return new() { PosOff = _pos };
 	}
 }

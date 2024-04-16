@@ -14,10 +14,18 @@ public static class SceneConfig
 	#endregion
 }
 
-public static class LayerConfig
+public static class RenderConfig
 {
 	#region Default Settings
 	public static SKPaint DefaultTextPaint => new()
+	{
+		Color = SKColors.Black,
+		TextSize = 30,
+		FakeBoldText = true,
+		IsAntialias = true
+	};
+
+	public static SKPaint DefaultPaint => new()
 	{
 		Color = SKColors.Black,
 		TextSize = 30,

@@ -30,7 +30,7 @@ public class Layout
 		long timeOff = NowTime.Minisecond - StartTime;
 
 		foreach (var (_, layer) in Layers)
-			if (layer.ShouldRender(timeOff))
+			if (layer.HasAnimation(timeOff))
 				return true;
 		return false;
 	}

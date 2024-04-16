@@ -49,13 +49,13 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public void InitImage()
 	{
-		_trackImage = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 导轨
+		_trackImage = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 导轨
 
 		_image.Clear();
-		_image[0] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块未触发
-		_image[1] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标悬浮
-		_image[2] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
-		_image[3] = new(_thumbSize.X, _thumbSize.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType); // 滑块鼠标点击
+		_image[0] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块未触发
+		_image[1] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标悬浮
+		_image[2] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标点击
+		_image[3] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标点击
 
 		using SKCanvas trackCanvas = new(_trackImage);
 		using SKCanvas thumbNormalCanvas = new(_image[(int)LayerStatus.Normal]);
@@ -118,7 +118,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public override void SetColor(SKColor color, int imageId = 0)
 	{
-		SKBitmap bitmap = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+		SKBitmap bitmap = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType);
 		using SKCanvas canvas = new(bitmap);
 		canvas.DrawRect(
 			new SKRect(0, 0, Size.X, Size.Y),

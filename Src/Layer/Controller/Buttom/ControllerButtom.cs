@@ -41,7 +41,7 @@ public class ControllerButtom : LayerBase
 	{
 		if (imageId > _imageBuffer.Count)
 			return;
-		SKBitmap bitmap = new(Size.X, Size.Y, LayerConfig.DefaultColorType, LayerConfig.DefaultAlphaType);
+		SKBitmap bitmap = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType);
 		using SKCanvas canvas = new(bitmap);
 		canvas.DrawRect(
 			new SKRect(0, 0, Size.X, Size.Y),

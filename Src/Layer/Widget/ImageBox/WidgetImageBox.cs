@@ -1,5 +1,6 @@
 using SkiaSharp;
 using WebGal.Extend;
+using WebGal.Global;
 using WebGal.Types;
 
 namespace WebGal.Layer.Widget;
@@ -29,9 +30,17 @@ public class WidgetImageBox : LayerBase
 			_renderBuffer = _imageBuffer.Resize(Size, SKFilterQuality.High);
 			_dirty = false;
 		}
+
+		SKMatrix matrix = SKMatrix.Identity;
+		FVector pos = (FVector)Position + _animationData.PosOff;
+
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
+		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
+
 		canvas.Save();
-		canvas.SetMatrix(_animationData.Transform);
-		canvas.DrawBitmap(_renderBuffer, Position + (IVector)_animationData.PosOff);
+		canvas.SetMatrix(matrix);
+		canvas.DrawBitmap(_renderBuffer, new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		// canvas.SetMatrix(matrix.Invert());
 		canvas.Restore();
 	}
 
