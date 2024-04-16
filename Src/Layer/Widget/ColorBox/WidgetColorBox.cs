@@ -30,6 +30,7 @@ public class WidgetColorBox : LayerBase
 		// 	tempCanvas.Flush();
 		// 	_dirty = false;
 		// }
+		_dirty = false;
 		canvas.DrawRect(new SKRect(Position.X, Position.Y, Position.X + Size.Width, Position.Y + Size.Height), new SKPaint() { Color = _color, IsAntialias = true, });
 		// canvas.DrawBitmap(_renderBuffer, Position);
 	}
