@@ -28,8 +28,9 @@ public record struct LayerInfo
 	public IVector Position { get; set; }
 	public IVector Size { get; set; }
 
-	public int LayoutID { get; set; }
-	public int LayerID { get; set; } // 图层编号，数字越大表示越在上方
+	public LayerIdInfo ID { get; set; }
+	// public int LayoutID { get; set; }
+	// public int LayerID { get; set; } // 图层编号，数字越大表示越在上方
 }
 
 public record struct LayerBox

@@ -39,10 +39,10 @@ public partial class Driver
 		var (flag, ret) = CheckInit();
 		if (flag == false) return ret;
 
-		if (_layoutManager!.Layouts.TryGetValue(layerInfo.Attribute.LayoutID, out Layout? value))
+		if (_layoutManager!.Layouts.TryGetValue(layerInfo.Attribute.ID.LayoutID, out Layout? value))
 		{
 			Layout layout = value;
-			layout.Layers[layerInfo.Attribute.LayerID] = layerInfo.Attribute.Type switch
+			layout.Layers[layerInfo.Attribute.ID.LayerID] = layerInfo.Attribute.Type switch
 			{
 				LayerType.TextBox => new WidgetTextBox(),
 				LayerType.ImageBox => new WidgetImageBox(),
@@ -51,14 +51,14 @@ public partial class Driver
 				LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
 				_ => throw new Exception("未标识的控件类型: todo"),
 			};
-			ILayer layer = layout.Layers[layerInfo.Attribute.LayerID];
+			ILayer layer = layout.Layers[layerInfo.Attribute.ID.LayerID];
 			layer.Size = layerInfo.Attribute.Size;
 			layer.Position = layerInfo.Attribute.Position;
 		}
 		else
 		{
 			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout {layerInfo.Attribute.LayoutID} not registed";
+			respone.Message = $"Layout {layerInfo.Attribute.ID.LayoutID} not registed";
 			return JsonSerializer.Serialize(respone, JsonConfig.Options);
 		}
 

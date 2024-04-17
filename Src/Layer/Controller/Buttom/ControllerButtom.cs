@@ -3,7 +3,6 @@ using WebGal.Handler.Event;
 using WebGal.Global;
 using WebGal.Types;
 using WebGal.Extend;
-using WebGal.Pages;
 
 namespace WebGal.Layer.Controller;
 
@@ -74,8 +73,7 @@ public class ControllerButtom : LayerBase
 		if (nowStatus != Status)
 		{
 			Status = nowStatus;
-			LogEventData log = new($"Status Change : {nowStatus}");
-			TriggerEvent(log);
+			TriggerEvent(mouseEvent);
 		}
 	}
 

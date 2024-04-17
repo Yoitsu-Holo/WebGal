@@ -6,7 +6,9 @@ using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Handler;
 using WebGal.Handler.Event;
+using WebGal.Layer.Controller;
 using WebGal.Layer.Widget;
+using WebGal.Types;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.API;
@@ -27,15 +29,15 @@ public partial class Driver
 		.then(result => {console.log(result);});
 
 	// 注册图层 1
-	DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":"set","Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"LayoutID":0,"LayerID":1}}')
+	DotNet.invokeMethodAsync('WebGal', 'RegisterLayer', '{"Request":"set","Attribute":{"Type":1,"Position":{"X":0,"Y":0},"Size":{"X":464,"Y":763},"ID":{"LayoutID":10,"LayerID":1}}}')
 		.then(result => {console.log(result);});
 
 	// 设置图层 1
-	DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":0,"LayerID":1},"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
+	DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":10,"LayerID":1},"Image":{"ImageName":"st-aoi","SubRect":{"X":0,"Y":0,"W":0,"H":0}}}')
 		.then(result => {console.log(result);});
 
 	// 裁切背景图片
-	DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":0,"LayerID":0},"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":1280,"H":720}}}')
+	DotNet.invokeMethodAsync('WebGal', 'SetImageBoxInfo', '{"ID":{"LayoutID":10,"LayerID":0},"Image":{"ImageName":"bg010a","SubRect":{"X":0,"Y":0,"W":1280,"H":720}}}')
 		.then(result => {console.log(result);});
 
 	// 音频测试
@@ -45,6 +47,10 @@ public partial class Driver
 	DotNet.invokeMethodAsync('WebGal', 'DirectTestAsync', '')
 		.then(result => {console.log(result);});
 	*/
+
+	private const int _menuLayout = 0;
+	private const int _gameLayout = 10;
+
 	[JSInvokable]
 	public static async Task<string> TestAsync()
 	{
@@ -103,7 +109,7 @@ public partial class Driver
 			LayoutInfo layoutInfo = new()
 			{
 				Request = RequestType.Set,
-				LayoutId = 0,
+				LayoutId = _gameLayout,
 			};
 
 			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo, JsonConfig.Options));
@@ -122,9 +128,7 @@ public partial class Driver
 					Type = LayerType.ImageBox,
 					Position = new(0, 0),
 					Size = new(1280, 720),
-
-					LayoutID = 0,
-					LayerID = 0,
+					ID = new() { LayoutID = _gameLayout, LayerID = 0, },
 				},
 			};
 
@@ -145,9 +149,7 @@ public partial class Driver
 					Type = LayerType.ColorBox,
 					Position = new(20, 530),
 					Size = new(1240, 170),
-
-					LayoutID = 0,
-					LayerID = 2,
+					ID = new() { LayoutID = _gameLayout, LayerID = 2, },
 				}
 			};
 
@@ -168,9 +170,7 @@ public partial class Driver
 					Type = LayerType.TextBox,
 					Position = new(40, 550),
 					Size = new(1200, 150),
-
-					LayoutID = 0,
-					LayerID = 3,
+					ID = new() { LayoutID = _gameLayout, LayerID = 3, },
 				}
 			};
 
@@ -191,9 +191,7 @@ public partial class Driver
 					Type = LayerType.ButtomBox,
 					Position = new(870, 400),
 					Size = new(316, 45),
-
-					LayoutID = 0,
-					LayerID = 4,
+					ID = new() { LayoutID = _gameLayout, LayerID = 4, },
 				}
 			};
 
@@ -208,7 +206,7 @@ public partial class Driver
 
 			ImageBoxInfo image = new()
 			{
-				ID = new() { LayoutID = 0, LayerID = 0, },
+				ID = new() { LayoutID = _gameLayout, LayerID = 0, },
 
 				Image = new() { ImageName = "bg010a", SubRect = new(0, 0, 1820, 1024), }
 			};
@@ -224,7 +222,7 @@ public partial class Driver
 
 			ColorBoxInfo image = new()
 			{
-				ID = new() { LayoutID = 0, LayerID = 2, },
+				ID = new() { LayoutID = _gameLayout, LayerID = 2, },
 				R = 112,
 				G = 146,
 				B = 190,
@@ -240,7 +238,7 @@ public partial class Driver
 			Console.WriteLine("Set Text Layer:3 ...");
 			TextBoxInfo text = new()
 			{
-				ID = new() { LayoutID = 0, LayerID = 3, },
+				ID = new() { LayoutID = _gameLayout, LayerID = 3, },
 				Text = "Hello Wrold, 你好世界: 中文测试: ascii可打印字符、换行、中文字体\n1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ,.:+-=_!@#$%^&*'\"`~ <>()[]{} /|\\",
 				Font = "simhei",
 				FontSize = 30,
@@ -256,13 +254,29 @@ public partial class Driver
 
 			ButtomBoxInfo buttom = new()
 			{
-				ID = new() { LayoutID = 0, LayerID = 4, },
+				ID = new() { LayoutID = _gameLayout, LayerID = 4, },
 				NormalImage = new() { ImageName = "title", SubRect = new(1, 723, 316, 45), },
 				HoverImage = new() { ImageName = "title", SubRect = new(321, 723, 316, 45), },
 				PressedImage = new() { ImageName = "title", SubRect = new(641, 723, 316, 45), },
 			};
 
 			string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom, JsonConfig.Options));
+			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
+				return result;
+
+			if (_layoutManager!.Layouts[_gameLayout].Layers.TryGetValue(4, out Layer.ILayer? value))
+			{
+				LogEventHandler logEventHandler = new();
+				logEventHandler.RegistEvent(value);
+			}
+		}
+
+		//! 设置活动节点
+		{
+			Console.WriteLine($"Set Active Layout: {_gameLayout}");
+			LayerIdInfo info = new() { LayoutID = _gameLayout, };
+
+			string result = SetActiveLayout(JsonSerializer.Serialize(info, JsonConfig.Options));
 			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 				return result;
 		}
@@ -431,32 +445,65 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task DirectTestAsync()
 	{
-		await Task.Run(() => { });
+		// await Task.Run(() => { });
+		if (!_layoutManager!.Layouts.ContainsKey(_gameLayout))
+			_layoutManager.Layouts[_gameLayout] = new();
+		await _resourceManager!.PullImageAsync("title", "/Image/title01_chip.png");
+
+		//!
+		WidgetImageBox imageLayer1 = new()
+		{
+			Size = new(40, 40),
+			Position = new(400, 400),
+			Offset = new(-20, -20),
+			Animation = new AnimationRotate(2.5),
+		};
+
 		SKBitmap bitmap = new(40, 40);
 		using (var canvas = new SKCanvas(bitmap))
 		{
 			canvas.DrawRect(0, 0, 40, 40, new SKPaint() { Color = SKColors.Bisque, }); canvas.Flush();
+			imageLayer1.SetImage(bitmap);
 		}
 
-		WidgetImageBox imageLayer = new()
+		_layoutManager.Layouts[_gameLayout].Layers[10] = imageLayer1;
+
+		//!
+		WidgetImageBox imageLayer2 = new()
 		{
-			Size = new(40, 40),
-			Position = new(400, 400),
-			Offset = new(20, 20),
-			Animation = new AnimationRotate(2.5),
+			Size = new(1280, 720),
+			Position = new(0, 0),
 		};
+		imageLayer2.SetImage(_resourceManager!.GetImage("title"), new IRect(0, 0, 1280, 720));
 
-		imageLayer.SetImage(bitmap);
+		if (!_layoutManager!.Layouts.ContainsKey(_menuLayout))
+			_layoutManager.Layouts[_menuLayout] = new();
 
-		if (!_layoutManager!.Layouts.ContainsKey(0))
-			_layoutManager.Layouts[0] = new();
-		// _layoutManager.Layouts[0].Layers[0xff] = imageLayer;
-		_layoutManager.Layouts[0].Layers[1] = imageLayer;
-
-		if (_layoutManager.Layouts[0].Layers.TryGetValue(4, out Layer.ILayer? buttom))
+		//! 
+		ControllerButtom buttom = new()
 		{
-			LogEventHandler logEventHandler = new();
-			logEventHandler.RegistEvent(buttom);
-		}
+			Size = new(316, 45),
+			Position = new(1280 / 2, 720 / 2),
+			Offset = new(-316 / 2, -45 / 2),
+		};
+		buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(1, 723, 316, 45), 0);
+		buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(321, 723, 316, 45), 1);
+		buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(641, 723, 316, 45), 2);
+		_layoutManager.Layouts[_menuLayout].Layers[1] = buttom;
+
+		_layoutManager.ActiveLayout = _menuLayout;
+
+		HandlerBase handler = new();
+		handler.SetAction((value) =>
+		{
+			Console.WriteLine("Trigger!");
+			if (value is MouseEventData mouse)
+			{
+				if (mouse.Status == MouseStatus.Hold)
+					_layoutManager.ActiveLayout = _gameLayout;
+			}
+		});
+
+		handler.RegistEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
 	}
 }
