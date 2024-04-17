@@ -184,7 +184,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
-		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(-_offset.X, -_offset.Y));
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
@@ -196,7 +196,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
-		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(-_offset.X, -_offset.Y));
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);

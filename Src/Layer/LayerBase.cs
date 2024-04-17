@@ -69,7 +69,7 @@ public class LayerBase : ILayer
 	public IVector Offset { get => _offset; set => (_offset, _dirty) = (value, true); }
 
 	public virtual IVector Size { get => _size; set => (_size, _dirty) = (value, true); }
-	public virtual IRect Window { get { return new(Position, Size); } }
+	public virtual IRect Window { get { return new(Position + Offset, Size); } }
 
 
 	// 设置文本属性
