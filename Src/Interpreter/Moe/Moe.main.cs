@@ -10,9 +10,8 @@ public partial class MoeInterpreter(ResourceManager resourceManager)
 
 	private readonly ResourceManager _resourceManager = resourceManager;
 
-	private readonly Dictionary<string, MoeStackFrame> _allTask = [];
-	private readonly string _activeTaskName = "main";
-	private Stack<MoeStackFrame> _activeTask = new();
+	private readonly Dictionary<int, Stack<MoeStackFrame>> _allTasks = [];
+	private readonly int _activeTaskName;
 
 
 	private static void LineSpcaeFormatter(ref string rawString)
