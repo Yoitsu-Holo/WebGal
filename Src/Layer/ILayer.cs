@@ -5,7 +5,7 @@ using WebGal.Types;
 
 namespace WebGal.Layer;
 
-public interface ILayer : IAction, IEvent
+public interface ILayer : IHandler
 {
 	// 渲染到指定canvas
 	public void Render(SKCanvas canvas, bool force);
