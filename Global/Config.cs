@@ -4,6 +4,21 @@ using SkiaSharp;
 
 namespace WebGal.Global;
 
+public enum CallMode
+{
+	Direct,
+	API,
+}
+
+/// <summary>
+/// 全局驱动调用方式：
+/// Direct：直接通过C#调用; API：通过暴露的javascript接口调用.
+/// </summary>
+public static class DriverCallMode
+{
+	public const CallMode Mode = CallMode.Direct;
+}
+
 public static class SceneConfig
 {
 	#region Default Settings

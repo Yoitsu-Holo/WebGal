@@ -1,5 +1,6 @@
-using System.ComponentModel;
-using System.Diagnostics;
+using WebGal.API;
+using WebGal.API.Data;
+using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
 
@@ -17,8 +18,14 @@ public partial class MoeInterpreter
 {
 	public async Task LoadELF(string MoeELF)
 	{
+		static void LineSpaceFormatter(ref string rawString)
+		{
+			string[] ss = rawString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			rawString = string.Join(" ", ss);
+		}
+
 		List<string> MoeELFs = new(MoeELF.Split('\n', defaultStringSplitOptions));
-		MoeELFsegment elfFlag = MeoInterpreter.MoeELFsegment.Void;
+		MoeELFsegment elfFlag = MoeELFsegment.Void;
 
 		for (int lineCount = 0; lineCount < MoeELFs.Count; lineCount++)
 		{
@@ -33,23 +40,23 @@ public partial class MoeInterpreter
 			{
 				elfFlag = line switch
 				{
-					".file" => MeoInterpreter.MoeELFsegment.FILE,
-					".table" => MeoInterpreter.MoeELFsegment.TABLE,
-					".data" => MeoInterpreter.MoeELFsegment.DATA,
-					".form" => MeoInterpreter.MoeELFsegment.FORM,
-					".start" => MeoInterpreter.MoeELFsegment.START,
-					_ => MeoInterpreter.MoeELFsegment.Void,
+					".file" => MoeELFsegment.FILE,
+					".table" => MoeELFsegment.TABLE,
+					".data" => MoeELFsegment.DATA,
+					".form" => MoeELFsegment.FORM,
+					".start" => MoeELFsegment.START,
+					_ => MoeELFsegment.Void,
 				};
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELFsegment.Void)
+			if (elfFlag == MoeELFsegment.Void)
 				continue;
 
-			LineSpcaeFormatter(ref line);
+			LineSpaceFormatter(ref line);
 			List<string> lines = new(line.Split(' ', defaultStringSplitOptions));
 
-			if (elfFlag == MeoInterpreter.MoeELFsegment.FILE)
+			if (elfFlag == MoeELFsegment.FILE)
 			{
 				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
@@ -81,29 +88,25 @@ public partial class MoeInterpreter
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELFsegment.DATA)
+			if (elfFlag == MoeELFsegment.DATA)
 			{
 				if (lines.Count < 3)
 					throw new Exception("错误的参数数量" + line);
 
-				MoeVariableAccess access = MoeVariableAccess.Void;
-				MoeVariableType type = MoeVariableType.Void;
-
-				access = lines[0] switch
+				MoeVariableAccess access = lines[0] switch
 				{
 					"const" => MoeVariableAccess.Const,
 					"static" => MoeVariableAccess.Static,
 					"var" => MoeVariableAccess.Partial,
 					_ => MoeVariableAccess.Void,
 				};
-				type = lines[1] switch
+				MoeVariableType type = lines[1] switch
 				{
 					"int" => MoeVariableType.Int,
 					"string" => MoeVariableType.String,
 					"double" => MoeVariableType.Double,
 					_ => MoeVariableType.Void,
 				};
-
 				string temp = "";
 				for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
 					temp += lines[tempIndex];
@@ -171,7 +174,7 @@ public partial class MoeInterpreter
 				continue;
 			}
 
-			if (elfFlag == MeoInterpreter.MoeELFsegment.START)
+			if (elfFlag == MoeELFsegment.START)
 			{
 				if (lines.Count != 1)
 					throw new Exception("错误的参数数量");
@@ -184,25 +187,32 @@ public partial class MoeInterpreter
 		List<Task> tasks = [];
 		foreach (var (_, file) in _elfHeader.File)
 		{
+			FileInfo fileInfo;
 			if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
-				tasks.Add(_resourceManager.PullScriptAsync(file.FileName, file.FileURL));
+				fileInfo = new() { Type = FileType.Script, Name = file.FileName, URL = file.FileURL, };
 			else if (file.FileType == MoeFileType.Bin_font)
-				tasks.Add(_resourceManager.PullFontAsync(file.FileName, file.FileURL));
+				fileInfo = new() { Type = FileType.Font, Name = file.FileName, URL = file.FileURL, };
+			else
+				continue;
+			tasks.Add(Driver.PullFileAsync(fileInfo));
 		}
 		await Task.WhenAll(tasks);
 
 
 		// 加载完毕，将elf header中变量数据加入到全局运行空间
 		foreach (var item in _elfHeader.Data)
-			_globleSpace.VariableData[item.Key] = item.Value;
+			_runtime.Variables[item.Key] = item.Value;
 
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.File)
 		{
-			if (file.FileType != MoeFileType.Text_script)
-				continue;
-			string s = _resourceManager.GetScript(file.FileName);
-			Lexer lexer = new(s);
+			if (file.FileType != MoeFileType.Text_script) continue;
+
+			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.FileName };
+			Response response = await Driver.GetScriptAsync(fileInfo);
+			if (response.Type != ResponseType.Success) throw new Exception(response.Message);
+
+			Lexer lexer = new(response.Message);
 			lexer.Parse();
 
 			Syntax syntax = new();
@@ -219,6 +229,6 @@ public partial class MoeInterpreter
 			}
 		}
 
-		_globleSpace.Entry = _elfHeader.Start;
+		_runtime.Entry = _elfHeader.Start;
 	}
 }

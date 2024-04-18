@@ -11,9 +11,6 @@ public enum FileType
 
 public record struct FileInfo
 {
-	public RequestType Request { get; set; }
-
-
 	public FileType Type { get; set; }
 	public string Name { get; set; }
 	public string URL { get; set; }

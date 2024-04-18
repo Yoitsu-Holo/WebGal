@@ -34,6 +34,13 @@ public partial class Driver
 		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
 		return JsonSerializer.Serialize(RemoveFile(info), JsonConfig.Options);
 	}
+
+	[JSInvokable]
+	public static async Task<string> GetScriptAsync(string json)
+	{
+		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await GetScriptAsync(info), JsonConfig.Options);
+	}
 	#endregion
 
 	public static async Task<Response> PullFileAsync(FileInfo info)
@@ -143,6 +150,33 @@ public partial class Driver
 				break;
 		}
 
+		return response;
+	}
+
+	public static async Task<Response> GetScriptAsync(FileInfo info)
+	{
+		Response response = CheckInit();
+
+		if (response.Type != ResponseType.Success) return response;
+
+		if (info.Type != FileType.Script)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = "Interpreter cannot fetch non-script type files";
+			return response;
+		}
+
+		try
+		{
+			response.Message = _resourceManager!.GetScript(info.Name);
+		}
+		catch (Exception exception)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = exception.Message;
+		}
+
+		await Task.Run(() => { });
 		return response;
 	}
 }

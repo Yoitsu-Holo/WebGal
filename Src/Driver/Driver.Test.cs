@@ -25,7 +25,7 @@ public partial class Driver
 		.then(result => {console.log(result);});
 
 	// 拉取图片资源
-	DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Request":"set","Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
+	DotNet.invokeMethodAsync('WebGal', 'PullFileAsync', '{"Type":1,"Name":"st-aoi","URL":"/Image/st-aoi_a101.png"}')
 		.then(result => {console.log(result);});
 
 	// 注册图层 1
@@ -59,7 +59,6 @@ public partial class Driver
 			Console.WriteLine("Pull background image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = RequestType.Set,
 				Type = FileType.Image,
 
 				URL = "/Image/bg010a.png",
@@ -75,7 +74,6 @@ public partial class Driver
 			Console.WriteLine("Pull Menu image ...");
 			FileInfo fileInfo = new()
 			{
-				Request = RequestType.Set,
 				Type = FileType.Image,
 
 				URL = "/Image/title01_chip.png",
@@ -91,7 +89,6 @@ public partial class Driver
 			Console.WriteLine("Pull Font ...");
 			FileInfo fileInfo = new()
 			{
-				Request = RequestType.Set,
 				Type = FileType.Font,
 
 				URL = "/simhei.ttf",
@@ -306,7 +303,6 @@ public partial class Driver
 			Console.WriteLine("Pull BackgroundMusic ...");
 			FileInfo fileInfo = new()
 			{
-				Request = RequestType.Set,
 				Type = FileType.Audio,
 
 				URL = "/pack/sound/bgm/bgm04_b.ogg",
