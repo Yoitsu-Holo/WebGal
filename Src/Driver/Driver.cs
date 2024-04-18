@@ -10,6 +10,7 @@ namespace WebGal.API;
 // 全局驱动程序，也是引擎暴露的接口
 public partial class Driver
 {
+	private static IJSRuntime? _jsRuntime;
 	private static LayoutManager? _layoutManager;
 	private static ResourceManager? _resourceManager;
 	private static AudioManager? _audioManager;
@@ -20,75 +21,53 @@ public partial class Driver
 		_layoutManager = layoutManager;
 		_resourceManager = resourceManager;
 		_audioManager = audioManager;
+		_jsRuntime = audioManager.JSRuntime;
 	}
 
 	public static Response CheckInit()
 	{
-		Response response = new();
-
+		Response response = new() { Type = ResponseType.Fail };
 		if (_layoutManager is null)
 		{
-			response.Type = ResponseType.Fail;
 			response.Message = "LayoutManager not set OR Game not loading";
 			return response;
 		}
-
 		if (_resourceManager is null)
 		{
-			response.Type = ResponseType.Fail;
 			response.Message = "ResourceManager not set OR Game not loading";
 			return response;
 		}
-
 		if (_audioManager is null)
 		{
-			response.Type = ResponseType.Fail;
 			response.Message = "AudioManager not set OR Game not loading";
 			return response;
 		}
 
+		response.Type = ResponseType.Success;
 		return response;
 	}
 
 	//! test
-	[JSInvokable, Obsolete]
+	[JSInvokable]
 	public static async Task<string> SayHelloAsync(string name)
 	{
-		// 暴露接口
-		Console.WriteLine($"Hello, {name}!");
 		await Task.Run(() => { });
-		return $"Hello, {name}!";
-		/*
-		DotNet.invokeMethodAsync('WebGal', 'SayHelloAsync', 'World');
-
-		DotNet.invokeMethodAsync('WebGal', 'SayHelloAsync', 'World')
-			.then(result => {
-				console.log(result); // 输出：Hello, World!
-			});
-		*/
+		return SayHello(name);
 	}
 
 	//! test
-	[JSInvokable, Obsolete]
+	[JSInvokable]
 	public static string SayHello(string name)
 	{
-		// 暴露接口
 		Console.WriteLine($"Hello, {name}!");
 		return $"Hello, {name}!";
-		/*
-		DotNet.invokeMethod('WebGal', 'SayHello', 'World');
-		*/
 	}
 
 	//! test
-	[JSInvokable, Obsolete]
+	[JSInvokable]
 	public static Task<string> Empty()
 	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = "",
-		};
+		Response respone = new();
 		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
 }

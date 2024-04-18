@@ -9,6 +9,5 @@ public partial class Driver
 	[JSInvokable]
 	public static void Help()
 	{
-
 	}
 }
