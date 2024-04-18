@@ -15,20 +15,48 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static string SetTextBoxInfo(string json)
 	{
-		Response respone = new();
 		var info = JsonSerializer.Deserialize<TextBoxInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetTextBoxInfo(info), JsonConfig.Options);
+	}
 
-		var (flag, ret) = CheckLayer(info.ID);
-		if (flag == false) return ret;
+	[JSInvokable]
+	public static string SetTextBoxText(string json)
+	{
+		var info = JsonSerializer.Deserialize<TextBoxText>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetTextBoxText(info), JsonConfig.Options);
+	}
+
+	[JSInvokable]
+	public static string SetTextBoxFont(string json)
+	{
+		var info = JsonSerializer.Deserialize<TextBoxFont>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetTextBoxFont(info), JsonConfig.Options);
+	}
+
+	[JSInvokable]
+	public static string SetTextBoxFontSize(string json)
+	{
+		var info = JsonSerializer.Deserialize<TextBoxFontSize>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetTextBoxFontSize(info), JsonConfig.Options);
+	}
+	#endregion
+
+
+	public static Response SetTextBoxInfo(TextBoxInfo info)
+	{
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
 
 		if (info.Font != "" && _resourceManager!.CheckFont(info.Font) == false)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Image: {info.Font} is not loaded";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Image: {info.Font} is not loaded";
+			return response;
 		}
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
@@ -46,38 +74,29 @@ public partial class Driver
 		}
 		else
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
+			return response;
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetTextBoxText(string json)
+	public static Response SetTextBoxText(TextBoxText json)
 	{
-		Response respone = new();
-		var text = JsonSerializer.Deserialize<TextBoxText>(json, JsonConfig.Options);
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		Response response = new();
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetTextBoxFont(string json)
+	public static Response SetTextBoxFont(TextBoxFont json)
 	{
-		Response respone = new();
-		var font = JsonSerializer.Deserialize<TextBoxFont>(json, JsonConfig.Options);
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		Response response = new();
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetTextBoxFontSize(string json)
+	public static Response SetTextBoxFontSize(TextBoxFontSize json)
 	{
-		Response respone = new();
-		var size = JsonSerializer.Deserialize<TextBoxFontSize>(json, JsonConfig.Options);
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		Response response = new();
+		return response;
 	}
 }

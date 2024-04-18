@@ -14,14 +14,28 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static string SetColorBoxInfo(string json)
 	{
-		Response respone = new();
 		var info = JsonSerializer.Deserialize<ColorBoxInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetColorBoxInfo(info), JsonConfig.Options);
+	}
 
-		var (flag, ret) = CheckLayer(info.ID);
-		if (flag == false) return ret;
+	[JSInvokable]
+	public static string SetColorBoxImage(string json)
+	{
+		var info = JsonSerializer.Deserialize<ColorBoxColor>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetColorBoxImage(info), JsonConfig.Options);
+	}
+	#endregion
+
+
+	public static Response SetColorBoxInfo(ColorBoxInfo info)
+	{
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
@@ -31,20 +45,16 @@ public partial class Driver
 		}
 		else
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetColorBoxImage(string json)
+	public static Response SetColorBoxImage(ColorBoxColor json)
 	{
-		Response respone = new();
-		var image = JsonSerializer.Deserialize<ColorBoxColor>(json, JsonConfig.Options);
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		Response response = new();
+		return response;
 	}
 }

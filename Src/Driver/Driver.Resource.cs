@@ -12,120 +12,137 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	// 获取文件，根据文件名自动分类
 	[JSInvokable]
 	public static async Task<string> PullFileAsync(string json)
 	{
-		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
-
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
-
-		try
-		{
-			switch (fileInfo.Type)
-			{
-				case FileType.Script:
-					await _resourceManager!.PullScriptAsync(fileInfo.Name, fileInfo.URL);
-					break;
-				case FileType.Audio:
-					await _resourceManager!.PullAudioAsync(fileInfo.Name, fileInfo.URL);
-					break;
-				case FileType.Bin:
-					await _resourceManager!.PullBlobAsync(fileInfo.Name, fileInfo.URL);
-					break;
-				case FileType.Image:
-					await _resourceManager!.PullImageAsync(fileInfo.Name, fileInfo.URL);
-					break;
-				case FileType.Font:
-					await _resourceManager!.PullFontAsync(fileInfo.Name, fileInfo.URL);
-					break;
-				default:
-					break;
-			}
-		}
-		catch (Exception exception)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = exception.Message;
-		}
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await PullFileAsync(info), JsonConfig.Options);
 	}
-
 
 	[JSInvokable]
 	public static string CheckFile(string json)
 	{
-		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
-
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
-
-		respone.Type = ResponseType.Success;
-		try
-		{
-			switch (fileInfo.Type)
-			{
-				case FileType.Script:
-					_resourceManager!.GetScript(fileInfo.Name);
-					break;
-				case FileType.Audio:
-					_resourceManager!.GetAudio(fileInfo.Name);
-					break;
-				case FileType.Bin:
-					_resourceManager!.GetBlob(fileInfo.Name);
-					break;
-				case FileType.Image:
-					_resourceManager!.GetImage(fileInfo.Name);
-					break;
-				case FileType.Font:
-					_resourceManager!.GetFont(fileInfo.Name);
-					break;
-				default:
-					break;
-			}
-			respone.Message = $"File already exists: {fileInfo.Name}";
-		}
-		catch (Exception exception)
-		{ respone.Message = exception.Message; }
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(CheckFile(info), JsonConfig.Options);
 	}
-
 
 	[JSInvokable]
 	public static string RemoveFile(string json)
 	{
-		Response respone = new();
-		var fileInfo = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(RemoveFile(info), JsonConfig.Options);
+	}
+	#endregion
 
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
+	public static async Task<Response> PullFileAsync(FileInfo info)
+	{
+		Response response = CheckInit();
 
-		switch (fileInfo.Type)
+		if (response.Type != ResponseType.Success) return response;
+
+		try
+		{
+			switch (info.Type)
+			{
+				case FileType.Script:
+					await _resourceManager!.PullScriptAsync(info.Name, info.URL);
+					break;
+				case FileType.Audio:
+					await _resourceManager!.PullAudioAsync(info.Name, info.URL);
+					break;
+				case FileType.Bin:
+					await _resourceManager!.PullBlobAsync(info.Name, info.URL);
+					break;
+				case FileType.Image:
+					await _resourceManager!.PullImageAsync(info.Name, info.URL);
+					break;
+				case FileType.Font:
+					await _resourceManager!.PullFontAsync(info.Name, info.URL);
+					break;
+				default:
+					break;
+			}
+		}
+		catch (Exception exception)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = exception.Message;
+		}
+
+		return response;
+	}
+
+
+	public static Response CheckFile(FileInfo info)
+	{
+		Response response = CheckInit();
+
+		if (response.Type != ResponseType.Success) return response;
+
+		response.Type = ResponseType.Success;
+		try
+		{
+			switch (info.Type)
+			{
+				case FileType.Script:
+					_resourceManager!.GetScript(info.Name);
+					break;
+				case FileType.Audio:
+					_resourceManager!.GetAudio(info.Name);
+					break;
+				case FileType.Bin:
+					_resourceManager!.GetBlob(info.Name);
+					break;
+				case FileType.Image:
+					_resourceManager!.GetImage(info.Name);
+					break;
+				case FileType.Font:
+					_resourceManager!.GetFont(info.Name);
+					break;
+				default:
+					break;
+			}
+			response.Message = $"File already exists: {info.Name}";
+		}
+		catch (Exception exception)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = exception.Message;
+		}
+
+		return response;
+	}
+
+
+	public static Response RemoveFile(FileInfo info)
+	{
+		Response response = CheckInit();
+		if (response.Type != ResponseType.Success) return response;
+
+
+		switch (info.Type)
 		{
 			case FileType.Script:
-				_resourceManager!.RemoveScript(fileInfo.Name);
+				_resourceManager!.RemoveScript(info.Name);
 				break;
 			case FileType.Audio:
-				_resourceManager!.RemoveAudio(fileInfo.Name);
+				_resourceManager!.RemoveAudio(info.Name);
 				break;
 			case FileType.Bin:
-				_resourceManager!.RemoveBlob(fileInfo.Name);
+				_resourceManager!.RemoveBlob(info.Name);
 				break;
 			case FileType.Image:
-				_resourceManager!.RemoveImage(fileInfo.Name);
+				_resourceManager!.RemoveImage(info.Name);
 				break;
 			case FileType.Font:
-				_resourceManager!.RemoveFont(fileInfo.Name);
+				_resourceManager!.RemoveFont(info.Name);
 				break;
 			default:
 				break;
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 }

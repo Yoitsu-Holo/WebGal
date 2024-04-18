@@ -22,36 +22,36 @@ public partial class Driver
 		_audioManager = audioManager;
 	}
 
-	public static (bool, string) CheckInit()
+	public static Response CheckInit()
 	{
-		Response respone = new();
+		Response response = new();
 
 		if (_layoutManager is null)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "LayoutManager not set OR Game not loading";
-			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+			response.Type = ResponseType.Fail;
+			response.Message = "LayoutManager not set OR Game not loading";
+			return response;
 		}
 
 		if (_resourceManager is null)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "ResourceManager not set OR Game not loading";
-			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+			response.Type = ResponseType.Fail;
+			response.Message = "ResourceManager not set OR Game not loading";
+			return response;
 		}
 
 		if (_audioManager is null)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "AudioManager not set OR Game not loading";
-			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+			response.Type = ResponseType.Fail;
+			response.Message = "AudioManager not set OR Game not loading";
+			return response;
 		}
 
-		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return response;
 	}
 
 	//! test
-	[JSInvokable]
+	[JSInvokable, Obsolete]
 	public static async Task<string> SayHelloAsync(string name)
 	{
 		// 暴露接口
@@ -69,7 +69,7 @@ public partial class Driver
 	}
 
 	//! test
-	[JSInvokable]
+	[JSInvokable, Obsolete]
 	public static string SayHello(string name)
 	{
 		// 暴露接口
@@ -81,7 +81,7 @@ public partial class Driver
 	}
 
 	//! test
-	[JSInvokable]
+	[JSInvokable, Obsolete]
 	public static Task<string> Empty()
 	{
 		Response respone = new()

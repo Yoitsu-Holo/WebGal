@@ -8,15 +8,23 @@ namespace WebGal.API;
 
 public partial class Driver
 {
-	[JSInvokable]
-	public static async Task<string> SetAudioSpeekerInfoAsync(string json)
-	{
-		Response respone = new()
-		{
-			Type = ResponseType.Success,
-			Message = ""
-		};
-		await Task.Run(() => { });
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
-	}
+	#region API
+	// [JSInvokable]
+	// public static async Task<string> SetAudioSpeekerInfoAsync(string json)
+	// {
+	// 	return JsonSerializer.Serialize(await SetAudioSpeekerInfoAsync(), JsonConfig.Options);
+	// }
+	#endregion
+
+
+	// 	public static async Task<string> SetAudioSpeekerInfoAsync()
+	// 	{
+	// 		Response respone = new()
+	// 		{
+	// 			Type = ResponseType.Success,
+	// 			Message = ""
+	// 		};
+	// 		await Task.Run(() => { });
+	// 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+	// 	}
 }

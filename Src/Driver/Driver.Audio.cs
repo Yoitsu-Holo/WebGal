@@ -13,47 +13,58 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static async Task<string> RegisterAudioContextAsync(string json)
 	{
-		Response respone = new();
-		var audioContext = JsonSerializer.Deserialize<AudioIdInfo>(json, JsonConfig.Options);
-
-		if (_audioManager is not null)
-		{
-			if (_audioManager.AudioContexts.ContainsKey(audioContext.ContextID) == false)
-				_audioManager.AudioContexts[audioContext.ContextID] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
-		}
-
-		else
-			respone = new()
-			{
-				Type = ResponseType.Fail,
-				Message = "AudioManager not set OR Game not loading",
-			};
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<AudioIdInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await RegisterAudioContextAsync(info), JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static async Task<string> RegisterAudioNodeAsync(string json)
 	{
-		Response respone = new();
-		var audioInfo = JsonSerializer.Deserialize<AudioNodeInfo>(json, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<AudioNodeInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await RegisterAudioNodeAsync(info), JsonConfig.Options);
+	}
 
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
+	[JSInvokable]
+	public static async Task<string> ConnectAudioNode(string json)
+	{
+		var info = JsonSerializer.Deserialize<AudioWireInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await ConnectAudioNode(info), JsonConfig.Options);
+	}
+	#endregion
 
-		if (_audioManager!.AudioContexts.TryGetValue(audioInfo.ID.ContextID, out AudioContext? context))
+	public static async Task<Response> RegisterAudioContextAsync(AudioIdInfo info)
+	{
+		Response response = CheckInit();
+		if (response.Type != ResponseType.Success) return response;
+
+
+		if (_audioManager!.AudioContexts.ContainsKey(info.ContextID) == false)
+			_audioManager.AudioContexts[info.ContextID] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
+
+		return response;
+	}
+
+	public static async Task<Response> RegisterAudioNodeAsync(AudioNodeInfo info)
+	{
+		Response response = CheckInit();
+		if (response.Type != ResponseType.Success) return response;
+
+
+		if (_audioManager!.AudioContexts.TryGetValue(info.ID.ContextID, out AudioContext? context))
 		{
-			if (_audioManager.AudioNodes.TryGetValue(audioInfo.ID.NodeID, out IAudio? node))
+			if (_audioManager.AudioNodes.TryGetValue(info.ID.NodeID, out IAudio? node))
 			{
 				await node.DisposeAsync();
 				node.Dispose();
 
-				_audioManager.AudioNodes.Remove(audioInfo.ID.NodeID);
+				_audioManager.AudioNodes.Remove(info.ID.NodeID);
 			}
 
-			_audioManager.AudioNodes[audioInfo.ID.NodeID] = audioInfo.Type switch
+			_audioManager.AudioNodes[info.ID.NodeID] = info.Type switch
 			{
 				AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
 				AudioNodeType.Source => new AudioSource(_audioManager.JSRuntime),
@@ -63,60 +74,92 @@ public partial class Driver
 				AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
 				_ => throw new Exception("未标识的控件类型: todo"),
 			};
-			await _audioManager.AudioNodes[audioInfo.ID.NodeID].SetContextAsync(context);
+			await _audioManager.AudioNodes[info.ID.NodeID].SetContextAsync(context);
 		}
 		else
 		{
-			respone = new()
+			response = new()
 			{
 				Type = ResponseType.Fail,
-				Message = $"Audiocontext {audioInfo.ID.ContextID} not registed",
+				Message = $"Audiocontext {info.ID.ContextID} not registed",
 			};
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	[JSInvokable]
-	public static async Task<string> ConnectAudioNode(string json)
+	public static async Task<Response> ConnectAudioNode(AudioWireInfo info)
 	{
-		Response respone = new();
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckAudioNodeOutput(info.SrcID); if (response.Type != ResponseType.Success) return response;
+		response = CheckAudioNodeInput(info.DstID); if (response.Type != ResponseType.Success) return response;
 
-		var info = JsonSerializer.Deserialize<AudioWireInfo>(json, JsonConfig.Options);
 
-		if (_audioManager is null)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "AudioManager not set OR Game not loading";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
-
-		if (!CheckAudioNodeOutput(info.SrcID))
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "Error AudioContext OR AudioNode OR OutputChannelID";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
-
-		if (!CheckAudioNodeInput(info.DstID))
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = "Error AudioContext OR AudioNode OR InputChannelID";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
-
-		IAudio outputNode = _audioManager.AudioNodes[info.SrcID.NodeID];
+		IAudio outputNode = _audioManager!.AudioNodes[info.SrcID.NodeID];
 		IAudio inputNode = _audioManager.AudioNodes[info.DstID.NodeID];
 		AudioWire wire = new() { Src = info.SrcID.SocketID, Dst = info.DstID.SocketID, };
 
 		await outputNode.ConnectToAsync(inputNode, wire);
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	public static bool CheckAudioContext(AudioIdInfo info) => _audioManager is not null && _audioManager.AudioContexts.ContainsKey(info.ContextID);
-	public static bool CheckAudioNode(AudioIdInfo info) => CheckAudioContext(info) && _audioManager!.AudioNodes.ContainsKey(info.NodeID);
+	public static Response CheckAudioContext(AudioIdInfo info)
+	{
+		Response response = new();
+		if (_audioManager is null)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = "AudioManager is NULL";
+			return response;
+		}
+		if (!_audioManager.AudioContexts.ContainsKey(info.ContextID))
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"AudioContext {info.ContextID} not find";
+			return response;
+		}
+		return response;
+	}
 
-	public static bool CheckAudioNodeInput(AudioIdInfo info) => CheckAudioNode(info) && _audioManager!.AudioNodes[info.NodeID].InputChannels() > info.SocketID;
-	public static bool CheckAudioNodeOutput(AudioIdInfo info) => CheckAudioNode(info) && _audioManager!.AudioNodes[info.NodeID].OutputChannels() > info.SocketID;
+	public static Response CheckAudioNode(AudioIdInfo info)
+	{
+		Response response;
+		response = CheckAudioContext(info); if (response.Type != ResponseType.Success) return response;
+
+		if (!_audioManager!.AudioNodes.ContainsKey(info.NodeID))
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"AudioContext {info.ContextID}:{info.NodeID} not find";
+			return response;
+		}
+		return response;
+	}
+
+	public static Response CheckAudioNodeInput(AudioIdInfo info)
+	{
+		Response response;
+		response = CheckAudioNode(info); if (response.Type != ResponseType.Success) return response;
+		if (_audioManager!.AudioNodes[info.NodeID].InputChannels() <= info.SocketID)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Error InputChannelID";
+			return response;
+		}
+		return response;
+	}
+
+	public static Response CheckAudioNodeOutput(AudioIdInfo info)
+	{
+		Response response;
+		response = CheckAudioNode(info); if (response.Type != ResponseType.Success) return response;
+		if (_audioManager!.AudioNodes[info.NodeID].OutputChannels() <= info.SocketID)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Error OutputChannelID";
+			return response;
+		}
+		return response;
+	}
 }

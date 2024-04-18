@@ -8,21 +8,22 @@ namespace WebGal.API;
 
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static async Task<string> SetAudioSimpleInfoAsync(string json)
 	{
-		Response respone = new();
 		var info = JsonSerializer.Deserialize<AudioSimpleInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(await SetAudioSimpleInfoAsync(info), JsonConfig.Options);
+	}
+	#endregion
 
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
 
-		if (CheckAudioContext(info.ID) == false)
-		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"AudioContext {info.ID.ContextID}:{info.ID.NodeID} not find";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
-		}
+	public static async Task<Response> SetAudioSimpleInfoAsync(AudioSimpleInfo info)
+	{
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckAudioContext(info.ID); if (response.Type != ResponseType.Success) return response;
+
 
 		IAudio audio = _audioManager!.AudioNodes[info.ID.NodeID];
 
@@ -34,11 +35,11 @@ public partial class Driver
 		}
 		else
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"AudioNode:{info.ID.NodeID} not AudioSimple";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"AudioNode:{info.ID.NodeID} not AudioSimple";
+			return response;
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 }

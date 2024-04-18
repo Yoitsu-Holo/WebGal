@@ -15,34 +15,53 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static string RegisterLayout(string json)
 	{
-		var layoutInfo = JsonSerializer.Deserialize<LayoutInfo>(json, JsonConfig.Options);
-		Response respone = new();
-
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
-
-		if (_layoutManager!.Layouts.ContainsKey(layoutInfo.LayoutId) == false)
-			_layoutManager.Layouts[layoutInfo.LayoutId] = new();
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<LayoutInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(RegisterLayout(info), JsonConfig.Options);
 	}
 
 	[JSInvokable]
 	public static string RegisterLayer(string json)
 	{
-		Response respone = new();
-		var layerInfo = JsonSerializer.Deserialize<LayerBox>(json, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<LayerBox>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(RegisterLayer(info), JsonConfig.Options);
+	}
 
-		var (flag, ret) = CheckInit();
-		if (flag == false) return ret;
+	[JSInvokable]
+	public static string SetActiveLayout(string json)
+	{
+		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetActiveLayout(info), JsonConfig.Options);
+	}
+	#endregion
 
-		if (_layoutManager!.Layouts.TryGetValue(layerInfo.Attribute.ID.LayoutID, out Layout? value))
+	protected static Response RegisterLayout(LayoutInfo info)
+	{
+		Response response = CheckInit();
+
+		if (response.Type != ResponseType.Success) return response;
+
+		if (_layoutManager!.Layouts.ContainsKey(info.LayoutId) == false)
+			_layoutManager.Layouts[info.LayoutId] = new();
+
+		response.Type = ResponseType.Success;
+		response.Message = "";
+		return response;
+	}
+
+	protected static Response RegisterLayer(LayerBox info)
+	{
+		Response response = CheckInit();
+
+		if (response.Type != ResponseType.Success) return response;
+
+		if (_layoutManager!.Layouts.TryGetValue(info.Attribute.ID.LayoutID, out Layout? value))
 		{
 			Layout layout = value;
-			layout.Layers[layerInfo.Attribute.ID.LayerID] = layerInfo.Attribute.Type switch
+			layout.Layers[info.Attribute.ID.LayerID] = info.Attribute.Type switch
 			{
 				LayerType.TextBox => new WidgetTextBox(),
 				LayerType.ImageBox => new WidgetImageBox(),
@@ -51,66 +70,55 @@ public partial class Driver
 				LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
 				_ => throw new Exception("未标识的控件类型: todo"),
 			};
-			ILayer layer = layout.Layers[layerInfo.Attribute.ID.LayerID];
-			layer.Size = layerInfo.Attribute.Size;
-			layer.Position = layerInfo.Attribute.Position;
+			ILayer layer = layout.Layers[info.Attribute.ID.LayerID];
+			layer.Size = info.Attribute.Size;
+			layer.Position = info.Attribute.Position;
 		}
 		else
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout {layerInfo.Attribute.ID.LayoutID} not registed";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout {info.Attribute.ID.LayoutID} not registed";
+			return response;
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetActiveLayout(string json)
+	protected static Response SetActiveLayout(LayerIdInfo info)
 	{
-		Response respone = new();
-		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
-
-		var (flag, ret) = CheckLayout(info);
-		if (flag == false) return ret;
+		Response response = CheckLayout(info);
+		if (response.Type != ResponseType.Success) return response;
 
 		_layoutManager!.ActiveLayout = info.LayoutID;
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	public static (bool, string) CheckLayout(LayerIdInfo info)
+	protected static Response CheckLayout(LayerIdInfo info)
 	{
-		Response respone = new();
-
-		var (flag, ret) = CheckInit();
-		if (flag == false)
-			return (flag, ret);
+		Response response = CheckInit();
+		if (response.Type != ResponseType.Success) return response;
 
 		if (_layoutManager!.Layouts.ContainsKey(info.LayoutID) == false)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{info.LayoutID} not registered";
-			return (false, JsonSerializer.Serialize(respone, JsonConfig.Options));
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.LayoutID} not registered";
 		}
 
-		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return response;
 	}
 
-	public static (bool, string) CheckLayer(LayerIdInfo info)
+	protected static Response CheckLayer(LayerIdInfo info)
 	{
-		Response respone = new();
-
-		var (flag, ret) = CheckLayout(info);
-		if (flag == false)
-			return (flag, ret);
+		Response response = CheckLayout(info);
+		if (response.Type != ResponseType.Success) return response;
 
 		if (_layoutManager!.Layouts[info.LayoutID].Layers.ContainsKey(info.LayerID) == false)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layer:{info.LayerID} not registered";
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layer:{info.LayerID} not registered";
 		}
 
-		return (true, JsonSerializer.Serialize(respone, JsonConfig.Options));
+		return response;
 	}
 }

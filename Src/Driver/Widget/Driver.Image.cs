@@ -14,20 +14,35 @@ namespace WebGal.API;
 /// </summary>
 public partial class Driver
 {
+	#region API
 	[JSInvokable]
 	public static string SetImageBoxInfo(string json)
 	{
-		Response respone = new();
 		var info = JsonSerializer.Deserialize<ImageBoxInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetImageBoxInfo(info), JsonConfig.Options);
+	}
 
-		var (flag, ret) = CheckLayer(info.ID);
-		if (flag == false) return ret;
+	[JSInvokable]
+	public static string SetImageBoxImage(string json)
+	{
+		var info = JsonSerializer.Deserialize<ImageBoxImage>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetImageBoxImage(info), JsonConfig.Options);
+	}
+	#endregion
+
+
+	public static Response SetImageBoxInfo(ImageBoxInfo info)
+	{
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
+
 
 		if (_resourceManager!.CheckImage(info.Image.ImageName) == false)
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Image: {info.Image.ImageName} is not loaded";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Image: {info.Image.ImageName} is not loaded";
+			return response;
 		}
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
@@ -38,20 +53,17 @@ public partial class Driver
 		}
 		else
 		{
-			respone.Type = ResponseType.Fail;
-			respone.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return JsonSerializer.Serialize(respone, JsonConfig.Options);
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
+			return response;
 		}
 
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		return response;
 	}
 
-	[JSInvokable]
-	public static string SetImageBoxImage(string json)
+	public static Response SetImageBoxImage(ImageBoxImage json)
 	{
-		Response respone = new();
-		var image = JsonSerializer.Deserialize<ImageBoxImage>(json, JsonConfig.Options);
-
-		return JsonSerializer.Serialize(respone, JsonConfig.Options);
+		Response response = new();
+		return response;
 	}
 }
