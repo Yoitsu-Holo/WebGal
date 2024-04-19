@@ -106,7 +106,7 @@ public partial class Driver
 			LayoutInfo layoutInfo = new()
 			{
 				Request = RequestType.Set,
-				LayoutId = _gameLayout,
+				LayoutID = _gameLayout,
 			};
 
 			string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo, JsonConfig.Options));

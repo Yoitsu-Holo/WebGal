@@ -1,3 +1,4 @@
+using System.Text.Json;
 using WebGal.API;
 using WebGal.API.Data;
 using FileInfo = WebGal.API.Data.FileInfo;
@@ -16,7 +17,7 @@ namespace WebGal.MeoInterpreter;
 /// </summary>
 public partial class MoeInterpreter
 {
-	public async Task LoadELF(string MoeELF)
+	public static async Task LoadELF(string MoeELF)
 	{
 		static void LineSpaceFormatter(ref string rawString)
 		{
@@ -41,9 +42,7 @@ public partial class MoeInterpreter
 				elfFlag = line switch
 				{
 					".file" => MoeELFsegment.FILE,
-					".table" => MoeELFsegment.TABLE,
 					".data" => MoeELFsegment.DATA,
-					".form" => MoeELFsegment.FORM,
 					".start" => MoeELFsegment.START,
 					_ => MoeELFsegment.Void,
 				};
@@ -63,12 +62,12 @@ public partial class MoeInterpreter
 
 				_elfHeader.File[lines[0]] = new()
 				{
-					FileName = lines[0],
-					FileType = lines[1] switch
+					Name = lines[0],
+					Type = lines[1] switch
 					{
-						"png" => MoeFileType.Img_png,
-						"jpg" => MoeFileType.Img_jpg,
-						"bmp" => MoeFileType.Img_bmp,
+						"png" => MoeFileType.Image_png,
+						"jpg" => MoeFileType.Image_jpg,
+						"bmp" => MoeFileType.Image_bmp,
 
 						"wav" => MoeFileType.Audio_wav,
 						"mp3" => MoeFileType.Audio_mp3,
@@ -76,14 +75,14 @@ public partial class MoeInterpreter
 						"midi" => MoeFileType.Audio_midi,
 
 						"script" => MoeFileType.Text_script,
-						"ui" => MoeFileType.Text_ui,
+						"form" => MoeFileType.Text_form,
 
 						"bin" => MoeFileType.Bin_font,
 						"block" => MoeFileType.Bin_block,
 
 						_ => MoeFileType.Void,
 					},
-					FileURL = lines[2],
+					URL = lines[2],
 				};
 				continue;
 			}
@@ -188,10 +187,10 @@ public partial class MoeInterpreter
 		foreach (var (_, file) in _elfHeader.File)
 		{
 			FileInfo fileInfo;
-			if (file.FileType == MoeFileType.Text_script || file.FileType == MoeFileType.Text_ui)
-				fileInfo = new() { Type = FileType.Script, Name = file.FileName, URL = file.FileURL, };
-			else if (file.FileType == MoeFileType.Bin_font)
-				fileInfo = new() { Type = FileType.Font, Name = file.FileName, URL = file.FileURL, };
+			if (file.Type == MoeFileType.Text_script || file.Type == MoeFileType.Text_form)
+				fileInfo = new() { Type = FileType.Script, Name = file.Name, URL = file.URL, };
+			else if (file.Type == MoeFileType.Bin_font)
+				fileInfo = new() { Type = FileType.Font, Name = file.Name, URL = file.URL, };
 			else
 				continue;
 			tasks.Add(Driver.PullFileAsync(fileInfo));
@@ -206,11 +205,18 @@ public partial class MoeInterpreter
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.File)
 		{
-			if (file.FileType != MoeFileType.Text_script) continue;
+			if ((file.Type & MoeFileType.Text) == 0) continue;
 
-			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.FileName };
+			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.Name };
 			Response response = await Driver.GetScriptAsync(fileInfo);
 			if (response.Type != ResponseType.Success) throw new Exception(response.Message);
+
+			if (file.Type == MoeFileType.Text_form)
+			{
+				var layout = JsonSerializer.Deserialize<FromLayoutInfo>(response.Message, Global.JsonConfig.Options);
+				_elfHeader.Form[layout.LayoutID] = layout;
+				continue;
+			}
 
 			Lexer lexer = new(response.Message);
 			lexer.Parse();
@@ -221,14 +227,38 @@ public partial class MoeInterpreter
 			foreach (var functionAST in ASTs.Statements)
 			{
 				if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
-					throw new Exception($"不能在全局代码区定义函数: File{file.FileName}");
+					throw new Exception($"不能在全局代码区定义函数: File{file.Name}");
 				if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
-					throw new Exception($"重复的函数定义: File:{file.FileName} \tFunc{functionAST.FuncDefine.FuncName}");
+					throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{functionAST.FuncDefine.FuncName}");
 
 				_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
 			}
 		}
 
 		_runtime.Entry = _elfHeader.Start;
+	}
+
+	public static void FormRegister()
+	{
+		foreach (var (_, layout) in _elfHeader.Form)
+		{
+			var layers = layout.Layers;
+			int layoutID = layout.LayoutID;
+			LayoutInfo layoutInfo = new() { Request = RequestType.Set, LayoutID = layoutID, };
+			Driver.RegisterLayout(layoutInfo);
+			foreach (var layer in layers)
+			{
+				LayerInfo layerInfo = new()
+				{
+					ID = new() { LayoutID = layoutID, LayerID = layer.LayerID, },
+
+					Size = layer.Size,
+					Position = layer.Position,
+					Type = layer.Type,
+				};
+
+				Driver.RegisterLayer(new LayerBox() { Request = RequestType.Set, Attribute = layerInfo });
+			}
+		}
 	}
 }

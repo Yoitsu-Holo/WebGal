@@ -1,3 +1,7 @@
+using System.Text.Json;
+using WebGal.API.Data;
+using WebGal.Types;
+
 namespace WebGal.MeoInterpreter;
 
 public class ElfHeader
@@ -6,9 +10,9 @@ public class ElfHeader
 	public Dictionary<string, MoeFile> File = [];
 	// .data
 	public Dictionary<string, MoeVariable> Data = [];
-	// .form
-	public Dictionary<string, string> From = [];
-	// .table [Auto Gen]
+	// .form [Audo Gen]
+	public Dictionary<int, FromLayoutInfo> Form = [];
+	// .func [Auto Gen]
 	public Dictionary<string, ASTNode> Function = [];
 	// .start
 	public string Start = "main";
@@ -17,7 +21,7 @@ public class ElfHeader
 	{
 		File.Clear();
 		Data.Clear();
-		From.Clear();
+		Form.Clear();
 		Function.Clear();
 	}
 }
@@ -26,17 +30,18 @@ public enum MoeELFsegment
 {
 	Void,
 	FILE, TABLE, DATA,
-	FORM, CODE, START,
+	FORM, START,
 	Error,
 }
 
-public enum MoeFileType
+public enum MoeFileType : ulong
 {
-	Void,
-	Img_png, Img_jpg, Img_bmp,
-	Audio_wav, Audio_mp3, Audio_flac, Audio_midi,
-	Text_script, Text_ui,
-	Bin_font, Bin_block,
+	Void = 0,
+	Image = 0xf, Audio = 0xf0, Text = 0xf00, Bin = 0xf000,
+	Image_png = 0x1, Image_jpg = 0x2, Image_bmp = 0x4,
+	Audio_wav = 0x10, Audio_mp3 = 0x20, Audio_flac = 0x40, Audio_midi = 0x8,
+	Text_script = 0x100, Text_form = 0x200,
+	Bin_font = 0x1000, Bin_block = 0x2000,
 	Error,
 }
 
@@ -64,11 +69,11 @@ public enum TokenType
 
 public class MoeFile()
 {
-	public string FileName = "";
-	public MoeFileType FileType = MoeFileType.Void;
-	public string FileURL = "";
+	public string Name = "";
+	public MoeFileType Type = MoeFileType.Void;
+	public string URL = "";
 
-	override public string ToString() => $"\tFileName: {FileName}, \tFileType: {FileType}, \tFileURL: {FileURL}";
+	override public string ToString() => $"\tFileName: {Name}, \tFileType: {Type}, \tFileURL: {URL}";
 }
 
 public class MoeVariable
@@ -84,7 +89,7 @@ public class MoeVariable
 
 	public override string ToString()
 	{
-		string ret = $"Access: {Access}, \tType: {Type}, \tName: {Name}, \tObject: {Obj}, \tSize:";
+		string ret = $"Name: {Name}, \tType: {Type}, \tAccess: {Access}, \tObject: {Obj}, \tSize:";
 		ret += (Dimension.Count <= 0) ? "Error" : $"{Dimension[^1]} , \tDimension: [{string.Join(", ", Dimension)}]";
 		return ret;
 	}
@@ -194,6 +199,69 @@ public class MoeRuntime
 		Entry = "main";
 		Variables.Clear();
 		Tasks.Clear();
+	}
+}
+
+//^ ----------------------------------- Scene ------------------------------------
+public record struct Behave
+{
+	public Behave() { Func = ""; Param = ""; }
+
+	public string Func { get; set; }
+	public string Param { get; set; }
+}
+
+public record struct Scene
+{
+	public Scene() { Behaves = []; }
+
+	public int SceneID { get; set; }
+	public List<Behave> Behaves { get; set; }
+	public int SceneBack { get; set; }
+	public int SceneNext { get; set; }
+}
+
+public record struct SceneList
+{
+	public SceneList() { SceneName = ""; Scenes = []; }
+
+	public string SceneName { get; set; }
+	public List<Scene> Scenes { get; set; }
+}
+
+
+//^ ----------------------------------- Form -------------------------------------
+
+public record struct FormLayerInfo
+{
+	public FormLayerInfo() { Name = ""; Visible = Enable = true; }
+
+	public int LayerID { get; set; }
+	public string Name { get; set; }    // 设置名字
+	public LayerType Type { get; set; }
+
+	public IVector Position { get; set; }
+	public IVector Size { get; set; }
+	public IVector Offset { get; set; }
+
+	public bool Visible { get; set; }   // 可见性
+	public bool Enable { get; set; }    // 功能性
+
+	public override readonly string ToString() => JsonSerializer.Serialize(this);
+}
+
+public record struct FromLayoutInfo
+{
+	public int LayoutID { get; set; }
+	public List<FormLayerInfo> Layers { get; set; }
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += LayoutID.ToString() + "\n";
+		foreach (var layer in Layers)
+			ret += layer.ToString() + "\n";
+		return ret;
 	}
 }
 

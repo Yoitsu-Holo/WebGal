@@ -18,7 +18,7 @@ public record struct LayoutInfo
 {
 	public RequestType Request { get; set; }
 
-	public int LayoutId { get; set; }
+	public int LayoutID { get; set; }
 }
 
 /// <summary> 图层信息 </summary>
@@ -29,8 +29,6 @@ public record struct LayerInfo
 	public IVector Size { get; set; }
 
 	public LayerIdInfo ID { get; set; }
-	// public int LayoutID { get; set; }
-	// public int LayerID { get; set; } // 图层编号，数字越大表示越在上方
 }
 
 public record struct LayerBox

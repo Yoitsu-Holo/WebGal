@@ -36,23 +36,36 @@ public partial class Driver
 		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
 		return JsonSerializer.Serialize(SetActiveLayout(info), JsonConfig.Options);
 	}
+
+	[JSInvokable]
+	public static void DumpLayout()
+	{
+		if (_layoutManager is null)
+			return;
+		foreach (var (layoutID, layout) in _layoutManager.Layouts)
+		{
+			Console.WriteLine("Layout : " + layoutID + " : ");
+			foreach (var (layerID, layer) in layout.Layers)
+				Console.WriteLine($"\t Layer : {layerID} : {layer}");
+		}
+	}
 	#endregion
 
-	protected static Response RegisterLayout(LayoutInfo info)
+	public static Response RegisterLayout(LayoutInfo info)
 	{
 		Response response = CheckInit();
 
 		if (response.Type != ResponseType.Success) return response;
 
-		if (_layoutManager!.Layouts.ContainsKey(info.LayoutId) == false)
-			_layoutManager.Layouts[info.LayoutId] = new();
+		if (_layoutManager!.Layouts.ContainsKey(info.LayoutID) == false)
+			_layoutManager.Layouts[info.LayoutID] = new();
 
 		response.Type = ResponseType.Success;
 		response.Message = "";
 		return response;
 	}
 
-	protected static Response RegisterLayer(LayerBox info)
+	public static Response RegisterLayer(LayerBox info)
 	{
 		Response response = CheckInit();
 
@@ -84,7 +97,7 @@ public partial class Driver
 		return response;
 	}
 
-	protected static Response SetActiveLayout(LayerIdInfo info)
+	public static Response SetActiveLayout(LayerIdInfo info)
 	{
 		Response response = CheckLayout(info);
 		if (response.Type != ResponseType.Success) return response;
@@ -94,7 +107,7 @@ public partial class Driver
 		return response;
 	}
 
-	protected static Response CheckLayout(LayerIdInfo info)
+	public static Response CheckLayout(LayerIdInfo info)
 	{
 		Response response = CheckInit();
 		if (response.Type != ResponseType.Success) return response;
@@ -108,7 +121,7 @@ public partial class Driver
 		return response;
 	}
 
-	protected static Response CheckLayer(LayerIdInfo info)
+	public static Response CheckLayer(LayerIdInfo info)
 	{
 		Response response = CheckLayout(info);
 		if (response.Type != ResponseType.Success) return response;

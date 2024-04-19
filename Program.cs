@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using WebGal;
 using WebGal.API;
+using WebGal.MeoInterpreter;
 using WebGal.Services;
 using WebGal.Services.Include;
 
@@ -21,6 +22,7 @@ builder.Services.AddScoped<GameManager>();
 builder.Services.AddScoped<ResourceManager>();  // GameManeger 依赖
 builder.Services.AddScoped<LayoutManager>();    // GameManeger 依赖
 builder.Services.AddScoped<AudioManager>();     // GameManeger 依赖
+builder.Services.AddScoped<MoeInterpreter>();
 
 var driverRef = DotNetObjectReference.Create(new Driver());
 
