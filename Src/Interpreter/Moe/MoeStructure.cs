@@ -1,5 +1,7 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using WebGal.API.Data;
+using WebGal.Extend.Json;
 using WebGal.Types;
 
 namespace WebGal.MeoInterpreter;
@@ -205,10 +207,17 @@ public class MoeRuntime
 //^ ----------------------------------- Scene ------------------------------------
 public record struct Behave
 {
-	public Behave() { Func = ""; Param = ""; }
+	public Behave() { Func = ""; Param = []; }
 
+	/// <summary>
+	/// 使用用户自定义的函数时，必须再函数名前加 "$" 标识。
+	/// 此外，系统提供一些常用函数可供调用，这些函数不需要添加标识符。
+	/// 同时可以注册函数到系统中，以简化调用时间。
+	/// </summary>
 	public string Func { get; set; }
-	public string Param { get; set; }
+
+	[JsonConverter(typeof(DictionaryStringObjectConverter))]
+	public Dictionary<string, object> Param { get; set; }
 }
 
 public record struct Scene
@@ -216,9 +225,10 @@ public record struct Scene
 	public Scene() { Behaves = []; }
 
 	public int SceneID { get; set; }
-	public List<Behave> Behaves { get; set; }
 	public int SceneBack { get; set; }
 	public int SceneNext { get; set; }
+
+	public List<Behave> Behaves { get; set; }
 }
 
 public record struct SceneList
