@@ -75,7 +75,7 @@ public class MoeFile()
 	public MoeFileType Type = MoeFileType.Void;
 	public string URL = "";
 
-	override public string ToString() => $"\tFileName: {Name}, \tFileType: {Type}, \tFileURL: {URL}";
+	override public string ToString() => $"FileName: {Name}, \tFileType: {Type}, \tFileURL: {URL}";
 }
 
 public class MoeVariable
@@ -401,12 +401,11 @@ public class FunctionDefineNode
 
 	public override string ToString()
 	{
-		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n\t";
+		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n";
 		foreach (var call in CallType)
-			ret += $"{call}\n";
+			ret += $"\tParam: {call}\n";
 		if (CallType.Count == 0)
-			ret += "Void";
-		ret += "\n";
+			ret += "\tParam: Null\n";
 		ret += Program;
 		return ret;
 	}
@@ -461,10 +460,9 @@ public class FunctionCallNode
 
 	public override string ToString()
 	{
-		string ret = "";
-		ret += $"CallFunc: {FunctionName}\n";
+		string ret = $"CallFunc: {FunctionName}\tParamName: ";
 		foreach (var param in ParamName)
-			ret += $"{param}";
+			ret += $"{param} ";
 		return ret;
 	}
 }
@@ -489,6 +487,7 @@ public class AssignmentNode
 		else if (RightType == ASTNodeType.FunctionCall && FuncCall is not null)
 			ret += FuncCall;
 		else throw new Exception("未初始化表达式");
+		ret += "\n";
 		return ret;
 	}
 }
@@ -523,7 +522,7 @@ public class LoopNode
 
 	public override string ToString()
 	{
-		return "WHILE: " + Loop + "\n";
+		return "WHILE: " + Loop;
 	}
 }
 

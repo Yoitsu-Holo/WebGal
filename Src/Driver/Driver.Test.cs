@@ -102,7 +102,7 @@ public partial class Driver
 
 		//! 注册Layout
 		{
-			Console.WriteLine("Register Layout:0 ...");
+			Console.WriteLine("Register Layout:10 ...");
 			LayoutInfo layoutInfo = new()
 			{
 				Request = RequestType.Set,

@@ -51,11 +51,11 @@ public partial class MoeInterpreter
 	{
 		Console.WriteLine(">>> Dump File: ");
 		foreach (var item in _elfHeader.File)
-			Console.WriteLine($"{item.Key}:: {item.Value}");
+			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Function: ");
 		foreach (var item in _elfHeader.Function)
-			Console.WriteLine($"{item.Key}:\n{item.Value}");
+			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Vaiable: ");
 		foreach (var item in _elfHeader.Data)
@@ -63,7 +63,7 @@ public partial class MoeInterpreter
 
 		Console.WriteLine(">>> Dump Form: ");
 		foreach (var item in _elfHeader.Form)
-			Console.WriteLine($"{item.Key}:\n{item.Value}");
+			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine("\t" + _elfHeader.Start);
