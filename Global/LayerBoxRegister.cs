@@ -10,7 +10,8 @@ class LayerBoxRegister
 	static LayerBoxRegister()
 	{
 		var query = from type in Assembly.GetExecutingAssembly().GetTypes()
-					where type.IsClass && type.Namespace == "WebGal.Layer" && typeof(ILayer).IsAssignableFrom(type)
+					where
+						type.IsClass && type.Namespace?.StartsWith("WebGal.Layer") == true && typeof(ILayer).IsAssignableFrom(type)
 					select type;
 
 		foreach (var type in query)

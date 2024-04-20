@@ -74,14 +74,15 @@ public partial class Driver
 		if (_layoutManager!.Layouts.TryGetValue(info.Attribute.ID.LayoutID, out Layout? value))
 		{
 			Layout layout = value;
-			layout.Layers[info.Attribute.ID.LayerID] = info.Attribute.Type switch
-			{
-				LayerType.TextBox => LayerBoxRegister.GetLayerBox("WidgetTextBox"),
-				LayerType.ImageBox => LayerBoxRegister.GetLayerBox("WidgetImageBox"),
-				LayerType.ColorBox => LayerBoxRegister.GetLayerBox("WidgetColorBox"),
-				LayerType.ButtomBox => LayerBoxRegister.GetLayerBox("ControllerButtom"),
-				_ => throw new Exception("未标识的控件类型: todo"),
-			};
+			// layout.Layers[info.Attribute.ID.LayerID] = info.Attribute.Type switch
+			// {
+			// 	LayerType.TextBox => LayerBoxRegister.GetLayerBox("WidgetTextBox"),
+			// 	LayerType.ImageBox => LayerBoxRegister.GetLayerBox("WidgetImageBox"),
+			// 	LayerType.ColorBox => LayerBoxRegister.GetLayerBox("WidgetColorBox"),
+			// 	LayerType.ButtomBox => LayerBoxRegister.GetLayerBox("ControllerButtom"),
+			// 	_ => throw new Exception("未标识的控件类型: todo"),
+			// };
+			layout.Layers[info.Attribute.ID.LayerID] = LayerBoxRegister.GetLayerBox(info.Attribute.Type);
 			ILayer layer = layout.Layers[info.Attribute.ID.LayerID];
 			layer.Size = info.Attribute.Size;
 			layer.Position = info.Attribute.Position;

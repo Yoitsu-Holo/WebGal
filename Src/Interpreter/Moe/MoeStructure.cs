@@ -244,11 +244,11 @@ public record struct SceneList
 
 public record struct FormLayerInfo
 {
-	public FormLayerInfo() { Name = ""; Visible = Enable = true; }
+	public FormLayerInfo() { Name = ""; Type = ""; Visible = Enable = true; }
 
 	public int LayerID { get; set; }
 	public string Name { get; set; }    // 设置名字
-	public LayerType Type { get; set; }
+	public string Type { get; set; }
 
 	public IVector Position { get; set; }
 	public IVector Size { get; set; }

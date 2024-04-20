@@ -19,6 +19,7 @@ public partial class Test// : IDisposable
 	protected override void OnInitialized()
 	{
 		AnimationRegister.Dump();
+		LayerBoxRegister.Dump();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

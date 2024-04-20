@@ -122,7 +122,7 @@ public partial class Driver
 				Request = RequestType.Set,
 				Attribute = new()
 				{
-					Type = LayerType.ImageBox,
+					Type = "WidgetImageBox",
 					Position = new(0, 0),
 					Size = new(1280, 720),
 					ID = new() { LayoutID = _gameLayout, LayerID = 0, },
@@ -143,7 +143,7 @@ public partial class Driver
 				Request = RequestType.Set,
 				Attribute = new()
 				{
-					Type = LayerType.ColorBox,
+					Type = "WidgetColorBox",
 					Position = new(20, 530),
 					Size = new(1240, 170),
 					ID = new() { LayoutID = _gameLayout, LayerID = 2, },
@@ -164,7 +164,7 @@ public partial class Driver
 				Request = RequestType.Set,
 				Attribute = new()
 				{
-					Type = LayerType.TextBox,
+					Type = "WidgetTextBox",
 					Position = new(40, 550),
 					Size = new(1200, 150),
 					ID = new() { LayoutID = _gameLayout, LayerID = 3, },
@@ -185,7 +185,7 @@ public partial class Driver
 				Request = RequestType.Set,
 				Attribute = new()
 				{
-					Type = LayerType.ButtomBox,
+					Type = "ControllerButtom",
 					Position = new(870, 400),
 					Size = new(316, 45),
 					ID = new() { LayoutID = _gameLayout, LayerID = 4, },
