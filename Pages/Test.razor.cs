@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
@@ -19,6 +18,7 @@ public partial class Test// : IDisposable
 
 	protected override void OnInitialized()
 	{
+		AnimationRegister.Dump();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

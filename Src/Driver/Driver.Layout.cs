@@ -76,11 +76,10 @@ public partial class Driver
 			Layout layout = value;
 			layout.Layers[info.Attribute.ID.LayerID] = info.Attribute.Type switch
 			{
-				LayerType.TextBox => new WidgetTextBox(),
-				LayerType.ImageBox => new WidgetImageBox(),
-				LayerType.ColorBox => new WidgetColorBox(),
-				LayerType.ButtomBox => new ControllerButtom(),
-				LayerType.ControllerBox => throw new Exception("控制组件未完善: todo"),
+				LayerType.TextBox => LayerBoxRegister.GetLayerBox("WidgetTextBox"),
+				LayerType.ImageBox => LayerBoxRegister.GetLayerBox("WidgetImageBox"),
+				LayerType.ColorBox => LayerBoxRegister.GetLayerBox("WidgetColorBox"),
+				LayerType.ButtomBox => LayerBoxRegister.GetLayerBox("ControllerButtom"),
 				_ => throw new Exception("未标识的控件类型: todo"),
 			};
 			ILayer layer = layout.Layers[info.Attribute.ID.LayerID];

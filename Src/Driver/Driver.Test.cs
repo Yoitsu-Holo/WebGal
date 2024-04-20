@@ -452,8 +452,9 @@ public partial class Driver
 			Size = new(40, 40),
 			Position = new(400, 400),
 			Offset = new(-20, -20),
-			Animation = new AnimationRotate(2.5),
+			Animation = AnimationRegister.GetAnimation("AnimationRotate"),
 		};
+		imageLayer1.Animation.SetParama(new AnimationRotateData() { Z = 2.5, });
 
 		SKBitmap bitmap = new(40, 40);
 		using (var canvas = new SKCanvas(bitmap))
