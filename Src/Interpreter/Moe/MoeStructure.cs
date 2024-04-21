@@ -57,7 +57,7 @@ public enum MoeVariableType
 public enum MoeVariableAccess
 {
 	Void,
-	Const, Static, Partial,
+	Const, Static, Variable,
 	Error,
 }
 
@@ -369,7 +369,7 @@ public enum ASTNodeType
 	Void,                   // 空
 	VariableDeclaration, FunctionDeclaration,
 	MathExpression, LogicExpression,
-	Conditional, Loop,
+	Conditional, Loop, LoopControl,
 	Assignment,
 	FunctionCall,
 	Program,
@@ -499,7 +499,7 @@ public class ConditionalNode
 
 	public override string ToString()
 	{
-		return $"{Conditional}\n{Program}";
+		return $"{Conditional} Hash:{GetHashCode()}\n{Program}";
 	}
 }
 
@@ -511,7 +511,7 @@ public class IfCaseNode
 	{
 		string ret = "";
 		foreach (var ifcase in If)
-			ret += "IF: " + ifcase + "\n";
+			ret += "IF: " + ifcase;
 		return ret;
 	}
 }
@@ -523,6 +523,18 @@ public class LoopNode
 	public override string ToString()
 	{
 		return "WHILE: " + Loop;
+	}
+}
+
+public class LoopControlNode
+{
+	public ConditionalNode Loop = new();
+
+	public bool ContinueFlag = true;
+
+	public override string ToString()
+	{
+		return (ContinueFlag ? "CONTINUE" : "BREAK") + " Hash: " + Loop.GetHashCode() + "\n";
 	}
 }
 
@@ -546,6 +558,7 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 	public AssignmentNode? Assignment;      // 赋值表达式
 	public IfCaseNode? IfCase;              // 条件分支
 	public LoopNode? Loop;                  // 循环
+	public LoopControlNode? LoopControl;                  // 循环
 	public FunctionCallNode? FunctionCall;  // 函数调用
 	public ProgramNode? CodeBlock;          // 代码块
 
@@ -566,6 +579,8 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 			ret += IfCase;
 		else if (ASTType == ASTNodeType.Loop && Loop is not null)
 			ret += Loop;
+		else if (ASTType == ASTNodeType.LoopControl && LoopControl is not null)
+			ret += LoopControl;
 		else if (ASTType == ASTNodeType.Program && CodeBlock is not null)
 			ret += CodeBlock;
 		else

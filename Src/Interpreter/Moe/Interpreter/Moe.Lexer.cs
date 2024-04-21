@@ -215,8 +215,6 @@ public partial class MoeInterpreter
 				if (codeBlock.Token.Type == TokenType.CodeBlock)
 				{
 					Statement codeBlockState = RebuildStatement(codeBlock, deep + 1);
-					// foreach (var item in codeBlockState.Statements)
-					// 	temp.Statements.Add(item);
 					temp.Statements.AddRange(codeBlockState.Statements);
 					ret.Statements.Add(temp);
 					temp = new() { Deep = deep };

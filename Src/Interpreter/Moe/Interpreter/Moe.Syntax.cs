@@ -23,7 +23,7 @@ public partial class MoeInterpreter
 			"var","const","static","ref,"
 		];
 
-		public ProgramNode ProgramBuild(Statement FuncStatement)
+		public ProgramNode ProgramBuild(Statement FuncStatement, ConditionalNode? preWhile)
 		{
 			ProgramNode programNode = new();
 
@@ -65,7 +65,7 @@ public partial class MoeInterpreter
 							_ => MoeVariableType.Error,
 						},
 						FuncName = tokens[2].Value,
-						Program = ProgramBuild(statement),
+						Program = ProgramBuild(statement, preWhile),
 					};
 
 					int start = 4;
@@ -95,7 +95,7 @@ public partial class MoeInterpreter
 
 					ConditionalNode conditional = new();
 					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
-					conditional.Program = ProgramBuild(statement);
+					conditional.Program = ProgramBuild(statement, preWhile);
 					node.IfCase.If.Add(conditional);
 
 					programNode.Statements.Add(node);
@@ -111,7 +111,7 @@ public partial class MoeInterpreter
 
 					ConditionalNode conditional = new();
 					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
-					conditional.Program = ProgramBuild(statement);
+					conditional.Program = ProgramBuild(statement, preWhile);
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
@@ -124,7 +124,7 @@ public partial class MoeInterpreter
 
 					ConditionalNode conditional = new();
 					conditional.Conditional.Expressions = [];
-					conditional.Program = ProgramBuild(statement);
+					conditional.Program = ProgramBuild(statement, preWhile);
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
@@ -137,18 +137,25 @@ public partial class MoeInterpreter
 
 					ConditionalNode conditional = new();
 					conditional.Conditional.Expressions = LogicExpression(tokens[2..^1]);
-					conditional.Program = ProgramBuild(statement);
+					conditional.Program = ProgramBuild(statement, conditional);
 
-					node.Loop = new()
-					{
-						Loop = conditional
-					};
+					node.Loop = new() { Loop = conditional };
 
 					programNode.Statements.Add(node);
 				}
 				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "continue" || tokens[0].Value == "break")
 				{
-					Console.WriteLine("continue/break is todo");
+					if (preWhile is null)
+						throw new Exception("无前置 while 循环");
+					node.ASTType = ASTNodeType.LoopControl;
+					node.LoopControl = new() { Loop = preWhile, };
+
+					if (tokens[0].Value == "continue")
+						node.LoopControl.ContinueFlag = true;
+					if (tokens[0].Value == "break")
+						node.LoopControl.ContinueFlag = false;
+
+					programNode.Statements.Add(node);
 				}
 				else if (tokens[0].Type == TokenType.Name && tokens.Count >= 2 && tokens[1].Type == TokenType.Operator && tokens[1].Value == "=")
 				{
@@ -293,7 +300,7 @@ public partial class MoeInterpreter
 			{
 				Access = tokens[0].Value switch
 				{
-					"var" => MoeVariableAccess.Partial,
+					"var" => MoeVariableAccess.Variable,
 					"const" => MoeVariableAccess.Const,
 					"static" => MoeVariableAccess.Static,
 					_ => MoeVariableAccess.Error,

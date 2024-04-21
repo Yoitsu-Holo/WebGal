@@ -96,7 +96,7 @@ public partial class MoeInterpreter
 				{
 					"const" => MoeVariableAccess.Const,
 					"static" => MoeVariableAccess.Static,
-					"var" => MoeVariableAccess.Partial,
+					"var" => MoeVariableAccess.Variable,
 					_ => MoeVariableAccess.Void,
 				};
 				MoeVariableType type = lines[1] switch
@@ -222,7 +222,7 @@ public partial class MoeInterpreter
 			lexer.Parse();
 
 			Syntax syntax = new();
-			var ASTs = syntax.ProgramBuild(lexer.GlobleStatements);
+			var ASTs = syntax.ProgramBuild(lexer.GlobleStatements, null);
 
 			foreach (var functionAST in ASTs.Statements)
 			{
