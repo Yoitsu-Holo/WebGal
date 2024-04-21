@@ -1,40 +1,59 @@
 namespace WebGal.MeoInterpreter;
 
 
-public enum TokenTypePre
+public enum SimpleTokenType
 {
 	Void,
 
-	Type, Name, Number, String,
-	Keyword, Operator, Delimiter, CodeBlock,
+	Access, Type, Name, Number, String,
+	Keyword, Operator, Point,
+
+	LeftParen, RightParen,
+	LeftRange, RangeDelimiter, RightRange,
+	LeftCodeBlock, RightCodeBlock,
+	LineEnd,
+
+	EOF,
+	Error,
+}
+
+public enum ComplexTokenType
+{
+	Void,
+
+	VariableAccess, VaribaleType,
+	VarName, FuncName,
+	IntNumber, FloatNumber, ConstString,
+	IF, ELIF, ELSE,
+	WHILE, CONTINUE, BREAK,
+	BothOperator, MathOperator, LogicOperator, AssignmentOperator,
+
+	LeftParen, RightParen,
+	LeftRange, RangeDelimiter, RightRange,
+	LeftCodeBlock, RightCodeBlock,
+
+	LineEnd, EOF,
 
 	Error,
 }
 
-public enum TokenType
+
+public class SimpleToken
 {
-	Void,
+	public SimpleTokenType Type = SimpleTokenType.Void;
+	public string Value = "";
+	public int Line = 0;
 
-	Type, Name, Number, String,
-	Keyword, Operator, Delimiter, CodeBlock,
-
-	IntigerNumber, FloatNumber, ConstString,
-	ParamName, FuncName,
-	If, Elif, Else,
-	While, Continue, Break,
-	LogicOperator, MathOperator, BothOperator,
-	ParenLeft, ParenRight,
-	RangeLeft, RangeDelimiter, RangeRight,
-	CodeBlockLeft, CodeBlockRight,
-	EOF,
-
-	Error,
+	public override string ToString()
+	{
+		return new string(Line + ":" + Type.ToString() + ": " + Value + "\n");
+	}
 }
 
 // token 类型
-public class SingleToken
+public class ComplexToken
 {
-	public TokenType Type = TokenType.Void;
+	public ComplexTokenType Type = ComplexTokenType.Void;
 	public string Value = "";
 	public int Line = 0;
 
@@ -47,7 +66,8 @@ public class SingleToken
 // 代码块
 public class CodeBlock
 {
-	public SingleToken Token = new();
+	public bool IsCodeBlock = false;
+	public ComplexToken Token = new();
 	public List<CodeBlock> CodeBlocks = [];
 
 	public override string ToString()
@@ -56,7 +76,7 @@ public class CodeBlock
 		foreach (var codeBlock in CodeBlocks)
 		{
 			ret += codeBlock.Token.ToString();
-			if (codeBlock.Token.Type == TokenType.CodeBlock)
+			if (IsCodeBlock)
 				ret += "{ 0x" + codeBlock.GetHashCode().ToString("X") + "\n"
 				+ codeBlock.ToString()
 				+ "} 0x" + codeBlock.GetHashCode().ToString("X") + "\n";
@@ -68,7 +88,7 @@ public class CodeBlock
 public class Statement
 {
 	public int Deep = 0;
-	public List<SingleToken> Tokens = [];
+	public List<ComplexToken> Tokens = [];
 	public List<Statement> Statements = [];
 
 	public override string ToString()
@@ -168,7 +188,7 @@ public class MathExpressionNode
 {
 	public MathType Type = MathType.Void;
 	public List<MathExpressionNode> Expressions = [];
-	public SingleToken token = new();
+	public ComplexToken token = new();
 
 	public override string ToString()
 	{
@@ -189,7 +209,7 @@ public class LogicExpressionNode
 {
 	public LogicType Type = LogicType.Void;
 	public List<LogicExpressionNode> Expressions = [];
-	public SingleToken token = new();
+	public ComplexToken token = new();
 
 	public override string ToString()
 	{

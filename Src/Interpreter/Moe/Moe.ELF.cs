@@ -121,9 +121,9 @@ public partial class MoeInterpreter
 					Lexer varLex = new(rawVar);
 					varLex.Parse();
 
-					List<SingleToken> tokens = varLex.GlobleTokens;
+					List<ComplexToken> tokens = varLex.GlobleTokens;
 
-					if (tokens[0].Type != TokenType.Name)
+					if (tokens[0].Type != ComplexTokenType.Name)
 						throw new Exception("错误的变量名称: " + tokens[0].Value);
 					if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
 						throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
@@ -134,7 +134,7 @@ public partial class MoeInterpreter
 					{
 						for (int i = 2; i < tokens.Count - 1; i++)
 						{
-							if (i % 2 == 0 && tokens[i].Type == TokenType.Number)
+							if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.Number)
 							{
 								int size = Convert.ToInt32(tokens[i].Value);
 								varSize *= size;

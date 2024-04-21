@@ -5,17 +5,17 @@ public partial class MoeInterpreter
 	// 语法解析阶段，完成后即构建AST
 	public class Syntax
 	{
-		private HashSet<string> ArithmeticOperatorSet = [
+		private HashSet<string> MathOperatorSet = [
 			"+","-","*","/","%","^^",
+			"&","|","^","~",
+			"<<",">>",
 		];
+
 		private HashSet<string> LogicOperatorSet = [
 			"==","!=",">=","<=",">","<",
 			"&&","||","^","!",
 		];
-		private HashSet<string> BitwiseOperatorSet = [
-			"&","|","^","~",
-			"<<",">>",
-		];
+
 		private HashSet<string> VariableType = [
 			"int","double","string",
 		];
@@ -33,23 +33,23 @@ public partial class MoeInterpreter
 
 				ASTNode node = new();
 
-				if (tokens[0].Type == TokenType.Keyword && VariableAccess.Contains(tokens[0].Value))
+				if (tokens[0].Type == ComplexTokenType.Keyword && VariableAccess.Contains(tokens[0].Value))
 				{
 					//* 变量定义
 					node.ASTType = ASTNodeType.VariableDeclaration;
 					node.VarDefine = MultiVarDec(tokens);
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "func")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "func")
 				{
 					//todo 函数定义
 					node.ASTType = ASTNodeType.FunctionDeclaration;
 
 					if (tokens.Count < 5)
 						throw new Exception("不完整的函数定义");
-					if (tokens[1].Type != TokenType.Type)
+					if (tokens[1].Type != ComplexTokenType.Type)
 						throw new Exception("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Value);
-					if (tokens[2].Type != TokenType.Name)
+					if (tokens[2].Type != ComplexTokenType.Name)
 						throw new Exception("错误的函数名称");
 					if (tokens[3].Value != "(" || tokens[^1].Value != ")")
 						throw new Exception("错误的函数参数列表");
@@ -71,7 +71,7 @@ public partial class MoeInterpreter
 					int start = 4;
 					for (int end = 4; end < tokens.Count; end++)
 					{
-						if (tokens[end].Type != TokenType.Delimiter && !(tokens[end].Type == TokenType.Operator && tokens[end].Value == ")"))
+						if (tokens[end].Type != ComplexTokenType.Delimiter && !(tokens[end].Type == ComplexTokenType.Operator && tokens[end].Value == ")"))
 							continue;
 
 						MoeVariable variable = SingleVarDec(tokens[start..end]).Variables[0];
@@ -84,7 +84,7 @@ public partial class MoeInterpreter
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "if")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "if")
 				{
 					//* if条件
 					node.ASTType = ASTNodeType.Conditional;
@@ -100,7 +100,7 @@ public partial class MoeInterpreter
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "elif")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "elif")
 				{
 					//* else if条件
 					node = programNode.Statements[^1];
@@ -115,7 +115,7 @@ public partial class MoeInterpreter
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "else")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "else")
 				{
 					//* else 条件
 					node = programNode.Statements[^1];
@@ -128,7 +128,7 @@ public partial class MoeInterpreter
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "while")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "while")
 				{
 					//* while 循环
 					node.ASTType = ASTNodeType.Loop;
@@ -143,7 +143,7 @@ public partial class MoeInterpreter
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Keyword && tokens[0].Value == "continue" || tokens[0].Value == "break")
+				else if (tokens[0].Type == ComplexTokenType.Keyword && tokens[0].Value == "continue" || tokens[0].Value == "break")
 				{
 					if (preWhile is null)
 						throw new Exception("无前置 while 循环");
@@ -157,7 +157,7 @@ public partial class MoeInterpreter
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Name && tokens.Count >= 2 && tokens[1].Type == TokenType.Operator && tokens[1].Value == "=")
+				else if (tokens[0].Type == ComplexTokenType.Name && tokens.Count >= 2 && tokens[1].Type == ComplexTokenType.Operator && tokens[1].Value == "=")
 				{
 					//* 赋值语句
 					node.ASTType = ASTNodeType.Assignment;
@@ -165,9 +165,9 @@ public partial class MoeInterpreter
 					{
 						LeftVarName = tokens[0].Value,
 					};
-					List<SingleToken> leastTokens = tokens[2..];
+					List<ComplexToken> leastTokens = tokens[2..];
 
-					if (leastTokens.Count >= 2 && leastTokens[0].Type == TokenType.Name && leastTokens[1].Value == "(" && leastTokens[^1].Value == ")")
+					if (leastTokens.Count >= 2 && leastTokens[0].Type == ComplexTokenType.Name && leastTokens[1].Value == "(" && leastTokens[^1].Value == ")")
 					{
 						Console.WriteLine("Function call is todo");
 						node.Assignment.FuncCall = new();
@@ -176,7 +176,7 @@ public partial class MoeInterpreter
 					{
 						foreach (var item in leastTokens)
 						{
-							if (item.Type == TokenType.Operator)
+							if (item.Type == ComplexTokenType.Operator)
 							{
 								if (LogicOperatorSet.Contains(item.Value))
 								{
@@ -197,7 +197,7 @@ public partial class MoeInterpreter
 					}
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == TokenType.Name && tokens.Count > 2 && tokens[1].Value == "(" && tokens[^1].Value == ")")
+				else if (tokens[0].Type == ComplexTokenType.Name && tokens.Count > 2 && tokens[1].Value == "(" && tokens[^1].Value == ")")
 				{
 					//* 函数调用
 					node.ASTType = ASTNodeType.FunctionCall;
@@ -205,16 +205,16 @@ public partial class MoeInterpreter
 					{
 						FunctionName = tokens[0].Value
 					};
-					List<SingleToken> lestToken = tokens[2..^1];
+					List<ComplexToken> lestToken = tokens[2..^1];
 					bool var = false;
 					foreach (var token in lestToken)
 					{
-						if (token.Type == TokenType.Delimiter && token.Value == ",")
+						if (token.Type == ComplexTokenType.Delimiter && token.Value == ",")
 							var = false;
 						else if (var == false)
 						{
 							var = true;
-							if (token.Type == TokenType.Name)
+							if (token.Type == ComplexTokenType.Name)
 								node.FunctionCall.ParamName.Add(token.Value);
 							else
 								throw new Exception("错误的变量名称");
@@ -240,7 +240,7 @@ public partial class MoeInterpreter
 			return programNode;
 		}
 
-		public VariableDefineNode SingleVarDec(List<SingleToken> tokens)
+		public VariableDefineNode SingleVarDec(List<ComplexToken> tokens)
 		{
 			VariableDefineNode varNode = MultiVarDec(tokens);
 			if (varNode.Variables.Count > 1)
@@ -248,7 +248,7 @@ public partial class MoeInterpreter
 			return varNode;
 		}
 
-		public VariableDefineNode MultiVarDec(List<SingleToken> tokens)
+		public VariableDefineNode MultiVarDec(List<ComplexToken> tokens)
 		{
 			VariableDefineNode ret = new();
 			if (tokens.Count == 0)
@@ -264,12 +264,12 @@ public partial class MoeInterpreter
 
 			var lestTokens = tokens[2..];
 			int pos = 0;
-			List<SingleToken> tempToken = [];
+			List<ComplexToken> tempToken = [];
 			while (pos < lestTokens.Count)
 			{
-				if (lestTokens[pos].Type != TokenType.Delimiter)
+				if (lestTokens[pos].Type != ComplexTokenType.Delimiter)
 					tempToken.Add(lestTokens[pos]);
-				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == TokenType.Delimiter)
+				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == ComplexTokenType.Delimiter)
 				{
 
 					MoeVariable variable = new()
@@ -291,9 +291,9 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public VarTypeNode VarType(List<SingleToken> tokens)
+		public VarTypeNode VarType(List<ComplexToken> tokens)
 		{
-			if (tokens[0].Type != TokenType.Keyword || tokens[1].Type != TokenType.Type)
+			if (tokens[0].Type != ComplexTokenType.Keyword || tokens[1].Type != ComplexTokenType.Type)
 				throw new Exception("");
 
 			VarTypeNode varInfo = new()
@@ -317,7 +317,7 @@ public partial class MoeInterpreter
 			return varInfo;
 		}
 
-		public List<int> VarSize(List<SingleToken> tokens)
+		public List<int> VarSize(List<ComplexToken> tokens)
 		{
 			List<int> varDimension = [];
 			int varSize = 1;
@@ -326,7 +326,7 @@ public partial class MoeInterpreter
 			foreach (var token in tokens)
 				s += token.Value + " ";
 
-			if (tokens[0].Type != TokenType.Name)
+			if (tokens[0].Type != ComplexTokenType.Name)
 				throw new Exception("错误的变量名称: " + tokens[0].Value);
 			if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
 				throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
@@ -337,7 +337,7 @@ public partial class MoeInterpreter
 			{
 				for (int i = 2; i < tokens.Count - 1; i++)
 				{
-					if (i % 2 == 0 && tokens[i].Type == TokenType.Number)
+					if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.Number)
 					{
 						int size = Convert.ToInt32(tokens[i].Value);
 						varSize *= size;
@@ -357,18 +357,18 @@ public partial class MoeInterpreter
 			return varDimension;
 		}
 
-		public List<MathExpressionNode> MathExpression(List<SingleToken> tokens)
+		public List<MathExpressionNode> MathExpression(List<ComplexToken> tokens)
 		{
 			List<MathExpressionNode> arithmetic = [];
 
 			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
 			for (int i = 0; i < tokens.Count; i++)
 			{
-				if ((tokens[i].Type == TokenType.Number || tokens[i].Type == TokenType.Name) && opCount != 0)
+				if ((tokens[i].Type == ComplexTokenType.Number || tokens[i].Type == ComplexTokenType.Name) && opCount != 0)
 				{
 					string value = tokens[i].Value;
 					if (tokens.Count > i + 2)
-						if (tokens[i + 1].Type == TokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == TokenType.Number)
+						if (tokens[i + 1].Type == ComplexTokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == ComplexTokenType.Number)
 						{
 							value += "." + tokens[i + 2].Value;
 							i += 2;
@@ -378,16 +378,16 @@ public partial class MoeInterpreter
 					{
 						Type = MathType.VAR,
 						token = {
-							Type = TokenType.Number,
+							Type = ComplexTokenType.Number,
 							Value = value,
 						}
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount != 0)
+				else if (tokens[i].Type == ComplexTokenType.Operator && tokens[i].Value == "(" && opCount != 0)
 				{
 					for (int j = tokens.Count - 1; j >= 0; j--)
-						if (tokens[j].Type == TokenType.Operator && tokens[j].Value == ")")
+						if (tokens[j].Type == ComplexTokenType.Operator && tokens[j].Value == ")")
 						{
 							arithmetic.Add(new()
 							{
@@ -402,7 +402,7 @@ public partial class MoeInterpreter
 						throw new Exception("非配对的括号组");
 					opCount = 0;
 				}
-				else if (tokens[i].Type == TokenType.Operator)
+				else if (tokens[i].Type == ComplexTokenType.Operator)
 				{
 					if (opCount == 1 && (tokens[i].Value != "-" || tokens[i].Value != "~"))
 						throw new Exception("前置运算符过多");
@@ -435,18 +435,18 @@ public partial class MoeInterpreter
 			return arithmetic;
 		}
 
-		public List<LogicExpressionNode> LogicExpression(List<SingleToken> tokens)
+		public List<LogicExpressionNode> LogicExpression(List<ComplexToken> tokens)
 		{
 			List<LogicExpressionNode> logic = [];
 
 			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
 			for (int i = 0; i < tokens.Count; i++)
 			{
-				if ((tokens[i].Type == TokenType.Number || tokens[i].Type == TokenType.Name) && opCount != 0)
+				if ((tokens[i].Type == ComplexTokenType.Number || tokens[i].Type == ComplexTokenType.Name) && opCount != 0)
 				{
 					string value = tokens[i].Value;
 					if (tokens.Count > i + 2)
-						if (tokens[i + 1].Type == TokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == TokenType.Number)
+						if (tokens[i + 1].Type == ComplexTokenType.Delimiter && tokens[i + 1].Value == "." && tokens[i + 2].Type == ComplexTokenType.Number)
 						{
 							value += "." + tokens[i + 2].Value;
 							i += 2;
@@ -456,16 +456,16 @@ public partial class MoeInterpreter
 					{
 						Type = LogicType.Void,
 						token = {
-							Type = TokenType.Number,
+							Type = ComplexTokenType.Number,
 							Value = value,
 						}
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "(" && opCount == 1)
+				else if (tokens[i].Type == ComplexTokenType.Operator && tokens[i].Value == "(" && opCount == 1)
 				{
 					for (int j = tokens.Count - 1; j >= 0; j--)
-						if (tokens[j].Type == TokenType.Operator && tokens[j - 1].Value == ")")
+						if (tokens[j].Type == ComplexTokenType.Operator && tokens[j - 1].Value == ")")
 						{
 							logic.Add(new()
 							{
@@ -479,7 +479,7 @@ public partial class MoeInterpreter
 					if (opCount != 0)
 						throw new Exception("非配对的括号组");
 				}
-				else if (tokens[i].Type == TokenType.Operator)
+				else if (tokens[i].Type == ComplexTokenType.Operator)
 				{
 					if (opCount == 1 && tokens[i].Value != "!")
 						throw new Exception("前置运算符过多");
