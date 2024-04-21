@@ -15,6 +15,10 @@ public partial class Test// : IDisposable
 
 	private MouseEventData _mouseEvent = new();
 
+	public double Scale = 1.0;
+
+	public bool RednerFlag = false;
+
 
 	protected override void OnInitialized()
 	{
@@ -22,10 +26,18 @@ public partial class Test// : IDisposable
 		LayerBoxRegister.Dump();
 	}
 
+	protected override bool ShouldRender()
+	{
+		bool flag = RednerFlag;
+		RednerFlag = false;
+		return base.ShouldRender() || flag;
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
+			// await JSRuntime.InvokeVoidAsync("updateCanvasSize", "yourCanvasId", 0.5);
 			await Task.Run(() => { });
 		}
 	}
@@ -50,12 +62,14 @@ public partial class Test// : IDisposable
 		if (sec != _lastSec)
 		{
 			_lastSec = sec;
-			_fps = _frameCount;
+			GameStatus.FPS = _frameCount;
 			_frameCount = 0;
 			await InvokeAsync(StateHasChanged);
 		}
-		_frameTime = (int)(NowTime.Minisecond - startMiniSecond);
 		_frameCount++;
+		GameStatus.FrameTime = (int)(NowTime.Minisecond - startMiniSecond);
+		GameStatus.MouseX = _mouseEvent.Position.X;
+		GameStatus.MouseY = _mouseEvent.Position.Y;
 	}
 
 
