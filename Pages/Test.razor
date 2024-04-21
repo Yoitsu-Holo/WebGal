@@ -2,10 +2,17 @@
 @using SkiaSharp.Views.Blazor
 @using WebGal.Global
 
-<div id ="gamecanvas" style="display: flex; height: 100vh; flex-direction: column; margin: 0;">
-	<SKGLView @onmousemove="OnMouseMove" @onmouseup="OnMouseUp" @onmousedown="OnMouseDown"
+<div id ="screen" style="display: flex; height: 100vh; flex-direction: column; margin: 0;">
+	<SKGLView id="gamecanvas" @ref=(this._skiaView) 
 		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; border: 2px solid; box-sizing: content-box; transform-origin: top left; transform: scale({Scale}); margin: 0; padding: 0;")
-		EnableRenderLoop="true" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
+		@onmouseup="OnMouseUp" 
+		@onmousedown="OnMouseDown"
+		onmousemove="getMousePosition(event)" 
+		IgnorePixelScaling="true"
+		OnPaintSurface="OnPaintSurface" 
+		EnableRenderLoop="true"
+		/>
 </div>
 
+		@* @onmousemove="OnMouseMove"  *@
 @* <button @onclick="OnButtClick">click here</button> *@
