@@ -112,64 +112,65 @@ public partial class MoeInterpreter
 
 				lines = new(temp.Split(',', defaultStringSplitOptions));
 
-				foreach (var rawVar in lines)
-				{
-					List<int> varDimension = [];
-					int varSize = 1;
-					MoeVariableType varType = type;
+				// foreach (var rawVar in lines)
+				// {
+				// 	List<int> varDimension = [];
+				// 	int varSize = 1;
+				// 	MoeVariableType varType = type;
 
-					Lexer varLex = new(rawVar);
-					varLex.Parse();
+				// 	Lexer varLex = new(rawVar);
+				// 	varLex.Parse();
 
-					List<ComplexToken> tokens = varLex.GlobleTokens;
+				// 	List<ComplexToken> tokens = varLex.GlobleTokens;
 
-					if (tokens[0].Type != ComplexTokenType.Name)
-						throw new Exception("错误的变量名称: " + tokens[0].Value);
-					if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
-						throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
-					if (tokens.Count == 3)
-						throw new Exception("错误的多维数组申明： 未声明数组大小 " + rawVar);
+				// 	if (tokens[0].Type != SimpleTokenType.Name)
+				// 		throw new Exception("错误的变量名称: " + tokens[0].Value);
+				// 	if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
+				// 		throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
+				// 	if (tokens.Count == 3)
+				// 		throw new Exception("错误的多维数组申明： 未声明数组大小 " + rawVar);
 
-					if (tokens.Count > 3)
-					{
-						for (int i = 2; i < tokens.Count - 1; i++)
-						{
-							if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.Number)
-							{
-								int size = Convert.ToInt32(tokens[i].Value);
-								varSize *= size;
-								varDimension.Add(size);
-							}
-							else if (i % 2 == 1)
-							{
-								if (tokens[i].Value != ":")
-									throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Value);
-							}
-							else
-								throw new Exception("错误的多维数组申明： " + rawVar);
-						}
-					}
-					else
-						varDimension.Add(1);
+				// 	if (tokens.Count > 3)
+				// 	{
+				// 		for (int i = 2; i < tokens.Count - 1; i++)
+				// 		{
+				// 			if (i % 2 == 0 && tokens[i].Type == SimpleTokenType.Number)
+				// 			{
+				// 				int size = Convert.ToInt32(tokens[i].Value);
+				// 				varSize *= size;
+				// 				varDimension.Add(size);
+				// 			}
+				// 			else if (i % 2 == 1)
+				// 			{
+				// 				if (tokens[i].Value != ":")
+				// 					throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Value);
+				// 			}
+				// 			else
+				// 				throw new Exception("错误的多维数组申明： " + rawVar);
+				// 		}
+				// 	}
+				// 	else
+				// 		varDimension.Add(1);
 
-					MoeVariable variable = new()
-					{
-						Name = tokens[0].Value,
-						Access = access,
-						Type = varType,
-						Dimension = varDimension,
-						Obj = varType switch
-						{
-							MoeVariableType.Int => new int[varSize],
-							MoeVariableType.Double => new double[varSize],
-							MoeVariableType.String => new string[varSize],
-							_ => throw new Exception("Unknow Type")
-						},
-					};
-					variable.Dimension.Add(varSize);
+				// 	MoeVariable variable = new()
+				// 	{
+				// 		Name = tokens[0].Value,
+				// 		Access = access,
+				// 		Type = varType,
+				// 		Dimension = varDimension,
+				// 		Obj = varType switch
+				// 		{
+				// 			MoeVariableType.Int => new int[varSize],
+				// 			MoeVariableType.Double => new double[varSize],
+				// 			MoeVariableType.String => new string[varSize],
+				// 			_ => throw new Exception("Unknow Type")
+				// 		},
+				// 	};
+				// 	variable.Dimension.Add(varSize);
 
-					_elfHeader.Data[tokens[0].Value] = variable;
-				}
+				// 	_elfHeader.Data[tokens[0].Value] = variable;
+				// }
+
 				continue;
 			}
 
@@ -222,17 +223,17 @@ public partial class MoeInterpreter
 			lexer.Parse();
 
 			Syntax syntax = new();
-			var ASTs = syntax.ProgramBuild(lexer.GlobleStatements, null);
+			var ASTs = syntax.PraseProgram(lexer.CodeStatement, null);
 
-			foreach (var functionAST in ASTs.Statements)
-			{
-				if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
-					throw new Exception($"不能在全局代码区定义函数: File{file.Name}");
-				if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
-					throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{functionAST.FuncDefine.FuncName}");
+			// foreach (var functionAST in ASTs.Statements)
+			// {
+			// 	if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
+			// 		throw new Exception($"不能在全局代码区定义函数: File{file.Name}");
+			// 	if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
+			// 		throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{functionAST.FuncDefine.FuncName}");
 
-				_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
-			}
+			// 	_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
+			// }
 		}
 
 		_runtime.Entry = _elfHeader.Start;
