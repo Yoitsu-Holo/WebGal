@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using System.Text.Json;
 using WebGal.API;
 using WebGal.API.Data;
@@ -91,7 +92,7 @@ public partial class MoeInterpreter
 			{
 				Lexer lexer = new(line);
 				lexer.Parse();
-				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.ComplexTokens[0..^1]);
+				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.ComplexTokens);
 
 				foreach (var variable in multiVar.Variables)
 					_elfHeader.Data[variable.Name] = variable;

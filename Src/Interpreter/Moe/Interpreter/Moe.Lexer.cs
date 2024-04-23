@@ -104,11 +104,10 @@ public partial class MoeInterpreter
 				ComplexToken token = NextComplexToken();
 				if (token.Type == ComplexTokenType.Error)
 					throw new Exception("Error Toke: " + token);
-
-				ComplexTokens.Add(token);
-
 				if (token.Type == ComplexTokenType.EOF)
 					break;
+
+				ComplexTokens.Add(token);
 			}
 		}
 
@@ -126,9 +125,6 @@ public partial class MoeInterpreter
 				ComplexToken token = ComplexTokens[_complexTokenPos++];
 
 				if (token.Type == ComplexTokenType.RightCodeBlock) // 代码块结束
-					break;
-
-				if (token.Type == ComplexTokenType.EOF) // 不加入当前
 					break;
 
 				if (token.Type == ComplexTokenType.LeftCodeBlock) // 代码块开始

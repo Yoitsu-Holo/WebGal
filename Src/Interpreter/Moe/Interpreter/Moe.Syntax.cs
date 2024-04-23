@@ -5,7 +5,7 @@ public partial class MoeInterpreter
 	// 语法解析阶段，完成后即构建AST
 	public class Syntax
 	{
-		public List<FuncntionNode> ParseFile(Statement fileStatement)
+		public static List<FuncntionNode> ParseFile(Statement fileStatement)
 		{
 			Statement temp = new();
 			List<FuncntionNode> functions = [];
@@ -19,14 +19,12 @@ public partial class MoeInterpreter
 					else
 						throw new Exception("");
 				}
-
-				// if (statement.Tokens[0].Type == ComplexTokenType.)
 			}
 
 			return functions;
 		}
 
-		public FuncntionNode ParseFunction(Statement funncStatement)
+		public static FuncntionNode ParseFunction(Statement funncStatement)
 		{
 			// function:
 			// code block[0]: func header
@@ -40,7 +38,7 @@ public partial class MoeInterpreter
 			return funcntionNode;
 		}
 
-		public ProgramNode ParseProgram(Statement programeStatement)
+		public static ProgramNode ParseProgram(Statement programeStatement)
 		{
 			ProgramNode programNode = new();
 
@@ -51,7 +49,7 @@ public partial class MoeInterpreter
 		}
 
 
-		private FunctionHeader ParseFunctionHeader(List<ComplexToken> tokens)
+		public static FunctionHeader ParseFunctionHeader(List<ComplexToken> tokens)
 		{
 			FunctionHeader header = new();
 
@@ -100,7 +98,7 @@ public partial class MoeInterpreter
 			return header;
 		}
 
-		public ProgramNode PraseProgram(Statement FuncStatement, ConditionalNode? preWhile)
+		public static ProgramNode PraseProgram(Statement FuncStatement, ConditionalNode? preWhile)
 		{
 			ProgramNode programNode = new();
 
@@ -203,7 +201,7 @@ public partial class MoeInterpreter
 			return programNode;
 		}
 
-		private ConditionalNode ParseConditional(Statement statement, ConditionalNode? preWhile)
+		public static ConditionalNode ParseConditional(Statement statement, ConditionalNode? preWhile)
 		{
 			List<ComplexToken> tokens = statement.Tokens;
 
@@ -396,22 +394,6 @@ public partial class MoeInterpreter
 					else
 						throw new Exception("错误的多维数组申明");
 				}
-				// for (int i = 2; i < tokens.Count - 1; i++)
-				// {
-				// 	if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.IntNumber)
-				// 	{
-				// 		int size = Convert.ToInt32(tokens[i].Tokens[0].Value);
-				// 		varSize *= size;
-				// 		varDimension.Add(size);
-				// 	}
-				// 	else if (i % 2 == 1)
-				// 	{
-				// 		if (tokens[i].Tokens[0].Value != ":")
-				// 			throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Tokens[0].Value);
-				// 	}
-				// 	else
-				// 		throw new Exception("错误的多维数组申明");
-				// }
 			}
 			else
 				varDimension.Add(1);
