@@ -87,70 +87,17 @@ public partial class MoeInterpreter
 				continue;
 			}
 
-			// if (elfFlag == MoeELFsegment.DATA)
-			// {
-			// 	if (lines.Count < 3)
-			// 		throw new Exception("错误的参数数量" + line);
+			if (elfFlag == MoeELFsegment.DATA)
+			{
+				Lexer lexer = new(line);
+				lexer.Parse();
+				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.ComplexTokens[0..^1]);
 
-			// 	MoeVariableAccess access = lines[0] switch
-			// 	{
-			// 		"const" => MoeVariableAccess.Const,
-			// 		"static" => MoeVariableAccess.Static,
-			// 		"var" => MoeVariableAccess.Variable,
-			// 		_ => MoeVariableAccess.Void,
-			// 	};
-			// 	MoeVariableType type = lines[1] switch
-			// 	{
-			// 		"int" => MoeVariableType.Int,
-			// 		"string" => MoeVariableType.String,
-			// 		"double" => MoeVariableType.Double,
-			// 		_ => MoeVariableType.Void,
-			// 	};
-			// 	string temp = "";
-			// 	for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
-			// 		temp += lines[tempIndex];
+				foreach (var variable in multiVar.Variables)
+					_elfHeader.Data[variable.Name] = variable;
 
-			// 	lines = new(temp.Split(',', defaultStringSplitOptions));
-
-			// 	foreach (var rawVar in lines)
-			// 	{
-			// 		List<int> varDimension = [];
-			// 		int varSize = 1;
-			// 		MoeVariableType varType = type;
-
-			// 		Lexer lexer = new(rawVar);
-			// 		lexer.Parse();
-
-			// 		List<ComplexToken> tokens = lexer.ComplexTokens;
-
-			// 		if (tokens[0].Type != ComplexTokenType.VarName)
-			// 			throw new Exception("错误的变量名称: " + tokens[0].Tokens[0].Value);
-			// 		if (tokens.Count > 1 && tokens[1].Type != ComplexTokenType.VarRange)
-			// 			throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
-
-			// 		varDimension = Syntax.VarSize(tokens);
-
-			// 		MoeVariable variable = new()
-			// 		{
-			// 			Name = tokens[0].Tokens[0].Value,
-			// 			Access = access,
-			// 			Type = varType,
-			// 			Dimension = varDimension,
-			// 			Obj = varType switch
-			// 			{
-			// 				MoeVariableType.Int => new int[varSize],
-			// 				MoeVariableType.Double => new double[varSize],
-			// 				MoeVariableType.String => new string[varSize],
-			// 				_ => throw new Exception("Unknow Type")
-			// 			},
-			// 		};
-			// 		variable.Dimension.Add(varSize);
-
-			// 		_elfHeader.Data[tokens[0].Tokens[0].Value] = variable;
-			// 	}
-
-			// 	continue;
-			// }
+				continue;
+			}
 
 			if (elfFlag == MoeELFsegment.START)
 			{

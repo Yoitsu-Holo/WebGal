@@ -222,7 +222,7 @@ public partial class MoeInterpreter
 			return conditional;
 		}
 
-		private AssignmentNode ParseAssignment(Statement statement, ConditionalNode? preWhile)
+		public static AssignmentNode ParseAssignment(Statement statement, ConditionalNode? preWhile)
 		{
 			List<ComplexToken> tokens = statement.Tokens;
 
@@ -252,7 +252,7 @@ public partial class MoeInterpreter
 			return assignment;
 		}
 
-		private FunctionCallNode ParseFunctionCall(Statement statement, ConditionalNode? preWhile)
+		public static FunctionCallNode ParseFunctionCall(Statement statement, ConditionalNode? preWhile)
 		{
 			List<ComplexToken> tokens = statement.Tokens;
 			FunctionCallNode functionCall = new();
@@ -281,14 +281,14 @@ public partial class MoeInterpreter
 			return functionCall;
 		}
 
-		private VariableDefineNode ParseVariableDefine(Statement statement, ConditionalNode? preWhile)
+		public static VariableDefineNode ParseVariableDefine(Statement statement, ConditionalNode? preWhile)
 		{
 			//* 变量定义
 			List<ComplexToken> tokens = statement.Tokens;
 			return ParseMultiVar(tokens);
 		}
 
-		private VariableDefineNode ParseSingleVar(List<ComplexToken> tokens)
+		public static VariableDefineNode ParseSingleVar(List<ComplexToken> tokens)
 		{
 			VariableDefineNode varNode = ParseMultiVar(tokens);
 			if (varNode.Variables.Count > 1)
@@ -296,7 +296,7 @@ public partial class MoeInterpreter
 			return varNode;
 		}
 
-		private VariableDefineNode ParseMultiVar(List<ComplexToken> tokens)
+		public static VariableDefineNode ParseMultiVar(List<ComplexToken> tokens)
 		{
 			VariableDefineNode ret = new();
 			if (tokens.Count == 0)
@@ -377,30 +377,41 @@ public partial class MoeInterpreter
 			if (tokens[0].Type != ComplexTokenType.VarName)
 				throw new Exception("错误的变量名称: " + tokens[0].Tokens[0].Value);
 
-			if (tokens.Count > 1 && (tokens[1].Tokens[0].Value != "[" || tokens[^1].Tokens[0].Value != "]"))
-				throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
+			// if (tokens.Count > 1 && (tokens[1].Tokens[0].Value != "[" || tokens[^1].Tokens[0].Value != "]"))
+			// 	throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
 
-			if (tokens.Count == 3)
+			if (tokens.Count == 2 && tokens[1].Tokens.Count == 0)
 				throw new Exception("错误的多维数组申明： 未声明数组大小: " + s);
 
-			if (tokens.Count > 3)
+			if (tokens.Count == 2)
 			{
-				for (int i = 2; i < tokens.Count - 1; i++)
+				foreach (var token in tokens[1].Tokens)
 				{
-					if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.IntNumber)
+					if (token.Type == SimpleTokenType.Number)
 					{
-						int size = Convert.ToInt32(tokens[i].Tokens[0].Value);
+						int size = Convert.ToInt32(token.Value);
 						varSize *= size;
 						varDimension.Add(size);
-					}
-					else if (i % 2 == 1)
-					{
-						if (tokens[i].Tokens[0].Value != ":")
-							throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Tokens[0].Value);
 					}
 					else
 						throw new Exception("错误的多维数组申明");
 				}
+				// for (int i = 2; i < tokens.Count - 1; i++)
+				// {
+				// 	if (i % 2 == 0 && tokens[i].Type == ComplexTokenType.IntNumber)
+				// 	{
+				// 		int size = Convert.ToInt32(tokens[i].Tokens[0].Value);
+				// 		varSize *= size;
+				// 		varDimension.Add(size);
+				// 	}
+				// 	else if (i % 2 == 1)
+				// 	{
+				// 		if (tokens[i].Tokens[0].Value != ":")
+				// 			throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Tokens[0].Value);
+				// 	}
+				// 	else
+				// 		throw new Exception("错误的多维数组申明");
+				// }
 			}
 			else
 				varDimension.Add(1);
