@@ -87,92 +87,70 @@ public partial class MoeInterpreter
 				continue;
 			}
 
-			if (elfFlag == MoeELFsegment.DATA)
-			{
-				if (lines.Count < 3)
-					throw new Exception("错误的参数数量" + line);
+			// if (elfFlag == MoeELFsegment.DATA)
+			// {
+			// 	if (lines.Count < 3)
+			// 		throw new Exception("错误的参数数量" + line);
 
-				MoeVariableAccess access = lines[0] switch
-				{
-					"const" => MoeVariableAccess.Const,
-					"static" => MoeVariableAccess.Static,
-					"var" => MoeVariableAccess.Variable,
-					_ => MoeVariableAccess.Void,
-				};
-				MoeVariableType type = lines[1] switch
-				{
-					"int" => MoeVariableType.Int,
-					"string" => MoeVariableType.String,
-					"double" => MoeVariableType.Double,
-					_ => MoeVariableType.Void,
-				};
-				string temp = "";
-				for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
-					temp += lines[tempIndex];
+			// 	MoeVariableAccess access = lines[0] switch
+			// 	{
+			// 		"const" => MoeVariableAccess.Const,
+			// 		"static" => MoeVariableAccess.Static,
+			// 		"var" => MoeVariableAccess.Variable,
+			// 		_ => MoeVariableAccess.Void,
+			// 	};
+			// 	MoeVariableType type = lines[1] switch
+			// 	{
+			// 		"int" => MoeVariableType.Int,
+			// 		"string" => MoeVariableType.String,
+			// 		"double" => MoeVariableType.Double,
+			// 		_ => MoeVariableType.Void,
+			// 	};
+			// 	string temp = "";
+			// 	for (int tempIndex = 2; tempIndex < lines.Count; tempIndex++)
+			// 		temp += lines[tempIndex];
 
-				lines = new(temp.Split(',', defaultStringSplitOptions));
+			// 	lines = new(temp.Split(',', defaultStringSplitOptions));
 
-				// foreach (var rawVar in lines)
-				// {
-				// 	List<int> varDimension = [];
-				// 	int varSize = 1;
-				// 	MoeVariableType varType = type;
+			// 	foreach (var rawVar in lines)
+			// 	{
+			// 		List<int> varDimension = [];
+			// 		int varSize = 1;
+			// 		MoeVariableType varType = type;
 
-				// 	Lexer varLex = new(rawVar);
-				// 	varLex.Parse();
+			// 		Lexer lexer = new(rawVar);
+			// 		lexer.Parse();
 
-				// 	List<ComplexToken> tokens = varLex.GlobleTokens;
+			// 		List<ComplexToken> tokens = lexer.ComplexTokens;
 
-				// 	if (tokens[0].Type != SimpleTokenType.Name)
-				// 		throw new Exception("错误的变量名称: " + tokens[0].Value);
-				// 	if (tokens.Count > 1 && (tokens[1].Value != "[" || tokens[^1].Value != "]"))
-				// 		throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
-				// 	if (tokens.Count == 3)
-				// 		throw new Exception("错误的多维数组申明： 未声明数组大小 " + rawVar);
+			// 		if (tokens[0].Type != ComplexTokenType.VarName)
+			// 			throw new Exception("错误的变量名称: " + tokens[0].Tokens[0].Value);
+			// 		if (tokens.Count > 1 && tokens[1].Type != ComplexTokenType.VarRange)
+			// 			throw new Exception("错误的多维数组申明： 错误的语法格式 " + rawVar);
 
-				// 	if (tokens.Count > 3)
-				// 	{
-				// 		for (int i = 2; i < tokens.Count - 1; i++)
-				// 		{
-				// 			if (i % 2 == 0 && tokens[i].Type == SimpleTokenType.Number)
-				// 			{
-				// 				int size = Convert.ToInt32(tokens[i].Value);
-				// 				varSize *= size;
-				// 				varDimension.Add(size);
-				// 			}
-				// 			else if (i % 2 == 1)
-				// 			{
-				// 				if (tokens[i].Value != ":")
-				// 					throw new Exception("错误的多维数组申明： 错误的维度分隔符 " + tokens[i].Value);
-				// 			}
-				// 			else
-				// 				throw new Exception("错误的多维数组申明： " + rawVar);
-				// 		}
-				// 	}
-				// 	else
-				// 		varDimension.Add(1);
+			// 		varDimension = Syntax.VarSize(tokens);
 
-				// 	MoeVariable variable = new()
-				// 	{
-				// 		Name = tokens[0].Value,
-				// 		Access = access,
-				// 		Type = varType,
-				// 		Dimension = varDimension,
-				// 		Obj = varType switch
-				// 		{
-				// 			MoeVariableType.Int => new int[varSize],
-				// 			MoeVariableType.Double => new double[varSize],
-				// 			MoeVariableType.String => new string[varSize],
-				// 			_ => throw new Exception("Unknow Type")
-				// 		},
-				// 	};
-				// 	variable.Dimension.Add(varSize);
+			// 		MoeVariable variable = new()
+			// 		{
+			// 			Name = tokens[0].Tokens[0].Value,
+			// 			Access = access,
+			// 			Type = varType,
+			// 			Dimension = varDimension,
+			// 			Obj = varType switch
+			// 			{
+			// 				MoeVariableType.Int => new int[varSize],
+			// 				MoeVariableType.Double => new double[varSize],
+			// 				MoeVariableType.String => new string[varSize],
+			// 				_ => throw new Exception("Unknow Type")
+			// 			},
+			// 		};
+			// 		variable.Dimension.Add(varSize);
 
-				// 	_elfHeader.Data[tokens[0].Value] = variable;
-				// }
+			// 		_elfHeader.Data[tokens[0].Tokens[0].Value] = variable;
+			// 	}
 
-				continue;
-			}
+			// 	continue;
+			// }
 
 			if (elfFlag == MoeELFsegment.START)
 			{
@@ -222,8 +200,12 @@ public partial class MoeInterpreter
 			Lexer lexer = new(response.Message);
 			lexer.Parse();
 
+			//!
+			// foreach (var token in lexer.ComplexTokens)
+			// 	Console.WriteLine(token);
+
 			Syntax syntax = new();
-			var ASTs = syntax.PraseProgram(lexer.CodeStatement, null);
+			// var ASTs = syntax.PraseProgram(lexer.CodeStatement, null);
 
 			// foreach (var functionAST in ASTs.Statements)
 			// {

@@ -38,25 +38,40 @@ public partial class MoeInterpreter
 		];
 
 
-		private readonly List<string> _input = [];
-		private int _inputPos = 0;
 		private int _line = 0;
-
-		public List<SimpleToken> SimpleTokens = [];
+		private int _inputPos = 0;
 		private int _simpleTokenPos = 0;
-		public List<ComplexToken> ComplexTokens = [];
 		private int _complexTokenPos = 0;
+
+		private List<string> _input = [];
+		public List<SimpleToken> SimpleTokens = [];
+		public List<ComplexToken> ComplexTokens = [];
 		public Statement CodeStatement = new();
 
-		[Obsolete]
-		public List<ComplexToken> GlobleTokens = [];
+		public Lexer(string input) => SetInput(input);
+		public Lexer(List<string> input) => SetInput(input);
 
-		public Lexer(string input) => _input = new(input.Split('\n', defaultStringSplitOptions));
-		public Lexer(List<string> input) => _input = input;
+		public void SetInput(string input) => SetInput(new List<string>(input.Split('\n', StringSplitOptions.TrimEntries)));
+
+		public void SetInput(List<string> input)
+		{
+			Clear();
+			_input = input;
+		}
+
+		public void Clear()
+		{
+			_line = _inputPos = _simpleTokenPos = _complexTokenPos = 0;
+
+			_input = [];
+			SimpleTokens = [];
+			ComplexTokens = [];
+			CodeStatement = new();
+		}
 
 		public void AddInput(string input)
 		{
-			List<string> tempInput = new(input.Split('\n', defaultStringSplitOptions));
+			List<string> tempInput = new(input.Split('\n', StringSplitOptions.TrimEntries));
 			_input.AddRange(tempInput);
 		}
 
@@ -64,7 +79,7 @@ public partial class MoeInterpreter
 		{
 			ParseSimpleTokens();
 			ParseComplexTokens();
-			ParseStatement();
+			CodeStatement = ParseStatement();
 		}
 
 		public void ParseSimpleTokens()
@@ -105,31 +120,39 @@ public partial class MoeInterpreter
 		/// <returns></returns>
 		private Statement ParseStatement()
 		{
-			Statement statement = new() { IsCodeblock = true, };
+			Statement statement = new() { IsCodeblock = true, CodeBlock = [new()], };
 			while (_complexTokenPos < ComplexTokens.Count)
 			{
-				ComplexToken token = ComplexTokens[_complexTokenPos];
+				ComplexToken token = ComplexTokens[_complexTokenPos++];
+
+				if (token.Type == ComplexTokenType.RightCodeBlock) // 代码块结束
+					break;
 
 				if (token.Type == ComplexTokenType.EOF) // 不加入当前
 					break;
 
-				if (token.Type == ComplexTokenType.LineEnd) // 不加入当前，并且新开一个代码块
+				if (token.Type == ComplexTokenType.LeftCodeBlock) // 代码块开始
 				{
+					_complexTokenPos++; //跳过左括号
+					if (statement.CodeBlock[^1].CodeBlock.Count != 0 || statement.CodeBlock[^1].Tokens.Count != 0)
+						statement.CodeBlock.Add(new());
+
+					statement.CodeBlock[^1] = ParseStatement();
 					statement.CodeBlock.Add(new());
 					continue;
 				}
 
-				if (token.Type == ComplexTokenType.LeftCodeBlock) // 左括号
+				if (token.Type == ComplexTokenType.LineEnd) // 不加入当前，并且新开一个代码块
 				{
-					_complexTokenPos++; //跳过左括号
-					statement.CodeBlock.Add(ParseStatement());
+					if (statement.CodeBlock[^1].CodeBlock.Count != 0 || statement.CodeBlock[^1].Tokens.Count != 0)
+						statement.CodeBlock.Add(new());
+					continue;
 				}
-
-				if (token.Type == ComplexTokenType.RightCodeBlock) // 代码块单独处理
-					break;
 
 				statement.CodeBlock[^1].Tokens.Add(token); // 直接加入
 			}
+			if (statement.CodeBlock[^1].CodeBlock.Count == 0 && statement.CodeBlock[^1].Tokens.Count == 0)
+				statement.CodeBlock.RemoveAt(statement.CodeBlock.Count - 1);
 			return statement;
 		}
 
@@ -160,7 +183,7 @@ public partial class MoeInterpreter
 			// 在此执行标记化逻辑
 			int start = _inputPos;
 
-			if (char.IsWhiteSpace(_input[_line][_inputPos]))
+			if (_input[_line] == "" || char.IsWhiteSpace(_input[_line][_inputPos]))
 			{
 				//^ 空白占位符
 				_inputPos++;
@@ -178,6 +201,8 @@ public partial class MoeInterpreter
 				{
 					ret.Type = value switch
 					{
+						"func" => SimpleTokenType.Function,
+						"retuen" => SimpleTokenType.Retuen,
 						"while" => SimpleTokenType.WHILE,
 						"continue" => SimpleTokenType.CONTINUE,
 						"break" => SimpleTokenType.BREAK,
@@ -218,54 +243,54 @@ public partial class MoeInterpreter
 			else if (_input[_line][_inputPos] == ';')
 			{
 				//^ 处理分隔符
-				_inputPos++;
 				ret.Type = SimpleTokenType.LineEnd;
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '.')
 			{
 				//^ 处理小数点 (伦理，应该不会出现单独的点)
-				_inputPos++;
 				ret.Type = SimpleTokenType.Point;
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == ',')
 			{
 				//^ 处理小数点
-				_inputPos++;
 				ret.Type = SimpleTokenType.VarDelimiter;
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '(' || _input[_line][_inputPos] == ')')
 			{
 				//^ 处理括号
-				_inputPos++;
 				ret.Type = _input[_line][_inputPos] switch
 				{
 					'(' => SimpleTokenType.LeftParen,
 					')' => SimpleTokenType.RightParen,
-					_ => throw new NotImplementedException(),
+					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
 				};
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '{' || _input[_line][_inputPos] == '}')
 			{
 				//^ 处理代码块
-				_inputPos++;
 				ret.Type = _input[_line][_inputPos] switch
 				{
 					'{' => SimpleTokenType.LeftCodeBlock,
 					'}' => SimpleTokenType.RightCodeBlock,
-					_ => throw new NotImplementedException(),
+					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
 				};
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '[' || _input[_line][_inputPos] == ':' || _input[_line][_inputPos] == ']')
 			{
 				//^ 处理范围
-				_inputPos++;
 				ret.Type = _input[_line][_inputPos] switch
 				{
 					'[' => SimpleTokenType.LeftRange,
 					':' => SimpleTokenType.RangeDelimiter,
 					']' => SimpleTokenType.RightRange,
-					_ => throw new NotImplementedException(),
+					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
 				};
+				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '\"')
 			{
@@ -276,14 +301,14 @@ public partial class MoeInterpreter
 					_inputPos++;
 				}
 
-				_inputPos++;
 				ret.Type = SimpleTokenType.String;
+				_inputPos++;
 			}
 			else
 			{
 				//^ 处理其他 Token，默认为错误
-				_inputPos++;
 				ret.Type = SimpleTokenType.Error;
+				_inputPos++;
 			}
 
 			ret.Value = _input[_line][start.._inputPos];
@@ -308,8 +333,8 @@ public partial class MoeInterpreter
 				token.Type = ComplexTokenType.VarType;
 				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
 			}
-
-
+			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.VarDelimiter)
+				token.Type = ComplexTokenType.VarDelimiter;
 
 			//^ 变量大小
 			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.LeftRange)
@@ -372,6 +397,8 @@ public partial class MoeInterpreter
 			}
 
 			//^ 关键字
+			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Function)
+				token.Type = ComplexTokenType.Function;
 			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Retuen)
 				token.Type = ComplexTokenType.Return;
 			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.IF)
@@ -403,7 +430,7 @@ public partial class MoeInterpreter
 			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.EOF)
 				token.Type = ComplexTokenType.EOF;
 			else
-				throw new Exception("???");
+				throw new Exception(" ??? " + SimpleTokens[_simpleTokenPos]);
 
 			_simpleTokenPos++;
 			return token;

@@ -64,7 +64,13 @@ public class ComplexToken
 
 	public override string ToString()
 	{
-		return new string(Line + ":" + Type + ": " + "?? todo ??");
+		string ret = $"{Line}:{Type}\t";
+		foreach (var token in Tokens)
+		{
+			ret += token.Value;
+			ret += " ";
+		}
+		return ret;
 	}
 }
 

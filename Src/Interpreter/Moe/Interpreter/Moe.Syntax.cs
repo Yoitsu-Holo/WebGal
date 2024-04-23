@@ -5,36 +5,46 @@ public partial class MoeInterpreter
 	// 语法解析阶段，完成后即构建AST
 	public class Syntax
 	{
-		private HashSet<string> MathOperatorSet = [
-			"+","-","*","/","%","^^",
-			"&","|","^","~",
-			"<<",">>",
-		];
-
-		private HashSet<string> LogicOperatorSet = [
-			"==","!=",">=","<=",">","<",
-			"&&","||","^","!",
-		];
-
-
-		public FuncntionNode ParseFunction(Statement statement)
+		public List<FuncntionNode> ParseFile(Statement fileStatement)
 		{
-			FuncntionNode funcntionNode = new();
+			Statement temp = new();
+			List<FuncntionNode> functions = [];
 
+			foreach (var statement in fileStatement.CodeBlock)
+			{
+				if (statement.Tokens[0].Type == ComplexTokenType.Function)
+				{
+					if (temp.CodeBlock.Count == 0)
+						temp.CodeBlock.Add(statement);
+					else
+						throw new Exception("");
+				}
+
+				// if (statement.Tokens[0].Type == ComplexTokenType.)
+			}
+
+			return functions;
+		}
+
+		public FuncntionNode ParseFunction(Statement funncStatement)
+		{
 			// function:
 			// code block[0]: func header
 			// code block[0]: func body
-			funcntionNode.FuncHeader = ParseFunctionHeader(statement.CodeBlock[0].Tokens);
-			funcntionNode.FuncBody = ParseProgram(statement.CodeBlock[1]);
+			FuncntionNode funcntionNode = new()
+			{
+				FuncHeader = ParseFunctionHeader(funncStatement.CodeBlock[0].Tokens),
+				FuncBody = ParseProgram(funncStatement.CodeBlock[1])
+			};
 
 			return funcntionNode;
 		}
 
-		public ProgramNode ParseProgram(Statement FuncStatement)
+		public ProgramNode ParseProgram(Statement programeStatement)
 		{
 			ProgramNode programNode = new();
 
-			foreach (var statement in FuncStatement.CodeBlock)
+			foreach (var statement in programeStatement.CodeBlock)
 				programNode = PraseProgram(statement, null);
 
 			return programNode;
@@ -329,7 +339,7 @@ public partial class MoeInterpreter
 			return ret;
 		}
 
-		public VarTypeNode VarType(List<ComplexToken> tokens)
+		public static VarTypeNode VarType(List<ComplexToken> tokens)
 		{
 			if (tokens[0].Type != ComplexTokenType.VarAccess || tokens[1].Type != ComplexTokenType.VarType)
 				throw new Exception("");
@@ -355,7 +365,7 @@ public partial class MoeInterpreter
 			return varInfo;
 		}
 
-		public List<int> VarSize(List<ComplexToken> tokens)
+		public static List<int> VarSize(List<ComplexToken> tokens)
 		{
 			List<int> varDimension = [];
 			int varSize = 1;
@@ -397,7 +407,7 @@ public partial class MoeInterpreter
 			return varDimension;
 		}
 
-		public List<ExpressionNode> MathExpression(List<ComplexToken> tokens)
+		public static List<ExpressionNode> MathExpression(List<ComplexToken> tokens)
 		{
 			List<ExpressionNode> math = [];
 
