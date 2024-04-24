@@ -67,6 +67,6 @@ public partial class MoeInterpreter
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine("\t" + _elfHeader.Start);
-		Console.WriteLine(_elfHeader.Function[_elfHeader.Start]);
+		Console.WriteLine(_elfHeader.Function[_elfHeader.Start].FuncHeader);
 	}
 }

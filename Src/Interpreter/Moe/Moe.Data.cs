@@ -14,7 +14,7 @@ public class ElfHeader
 	// .form [Audo Gen]
 	public Dictionary<int, FromLayoutInfo> Form = [];
 	// .func [Auto Gen]
-	public Dictionary<string, ASTNode> Function = [];
+	public Dictionary<string, FuncntionNode> Function = [];
 	// .start
 	public string Start = "main";
 

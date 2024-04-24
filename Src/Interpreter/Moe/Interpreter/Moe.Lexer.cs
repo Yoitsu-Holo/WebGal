@@ -129,7 +129,6 @@ public partial class MoeInterpreter
 
 				if (token.Type == ComplexTokenType.LeftCodeBlock) // 代码块开始
 				{
-					_complexTokenPos++; //跳过左括号
 					if (statement.CodeBlock[^1].CodeBlock.Count != 0 || statement.CodeBlock[^1].Tokens.Count != 0)
 						statement.CodeBlock.Add(new());
 
@@ -230,7 +229,7 @@ public partial class MoeInterpreter
 				while (_inputPos < _input[_line].Length && OperatorSet.Contains(_input[_line][start..(_inputPos + 1)]))
 					_inputPos++;
 
-				string opString = _input[_line][start..(_inputPos + 1)];
+				string opString = _input[_line][start.._inputPos];
 				if (opString == "=")
 					ret.Type = SimpleTokenType.AssignmentOperator;
 				else

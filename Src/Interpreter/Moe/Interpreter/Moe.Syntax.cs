@@ -12,13 +12,26 @@ public partial class MoeInterpreter
 
 			foreach (var statement in fileStatement.CodeBlock)
 			{
-				if (statement.Tokens[0].Type == ComplexTokenType.Function)
+				if (statement.IsCodeblock == false && statement.Tokens[0].Type == ComplexTokenType.Function)
 				{
 					if (temp.CodeBlock.Count == 0)
 						temp.CodeBlock.Add(statement);
 					else
 						throw new Exception("");
 				}
+				else if (statement.IsCodeblock == true)
+				{
+					if (temp.CodeBlock.Count == 1)
+					{
+						temp.CodeBlock.Add(statement);
+						functions.Add(ParseFunction(temp));
+						temp = new();
+					}
+					else
+						throw new Exception("");
+				}
+				else
+					throw new Exception("");
 			}
 
 			return functions;
@@ -42,8 +55,8 @@ public partial class MoeInterpreter
 		{
 			ProgramNode programNode = new();
 
-			foreach (var statement in programeStatement.CodeBlock)
-				programNode = PraseProgram(statement, null);
+			// foreach (var statement in programeStatement.CodeBlock)
+			programNode = PraseProgram(programeStatement, null);
 
 			return programNode;
 		}
@@ -102,8 +115,9 @@ public partial class MoeInterpreter
 		{
 			ProgramNode programNode = new();
 
-			foreach (var statement in FuncStatement.CodeBlock)
+			for (int i = 0; i < FuncStatement.CodeBlock.Count; i++)
 			{
+				Statement statement = FuncStatement.CodeBlock[i];
 				ASTNode node = new();
 				List<ComplexToken> tokens = statement.Tokens;
 
@@ -116,7 +130,10 @@ public partial class MoeInterpreter
 				else if (tokens[0].Type == ComplexTokenType.IF)
 				{
 					//* if条件
-					ConditionalNode conditional = ParseConditional(statement, preWhile);
+					if (i + 1 >= FuncStatement.CodeBlock.Count)
+						throw new Exception("没有 if 语句");
+					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
+					i++;
 
 					node.ASTType = ASTNodeType.Conditional;
 					node.IfCase = new() { If = [conditional] };
@@ -129,8 +146,12 @@ public partial class MoeInterpreter
 					//* else if条件
 					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
 						throw new Exception("没有前置 if 条件");
+					if (i + 1 >= FuncStatement.CodeBlock.Count)
+						throw new Exception("没有 if 语句");
 
-					ConditionalNode conditional = ParseConditional(statement, preWhile);
+					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
+					i++;
+
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
@@ -141,15 +162,19 @@ public partial class MoeInterpreter
 
 					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
 						throw new Exception("没有前置 if 结构");
+					if (i + 1 >= FuncStatement.CodeBlock.Count)
+						throw new Exception("没有 if 语句");
+					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
+					i++;
 
-					ConditionalNode conditional = ParseConditional(statement, preWhile);
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
 				else if (tokens[0].Type == ComplexTokenType.WHILE)
 				{
 					//* while 循环
-					ConditionalNode conditional = ParseConditional(statement, preWhile);
+					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
+					i++;
 
 					node.ASTType = ASTNodeType.Loop;
 					node.Loop = new() { Loop = conditional };
@@ -170,14 +195,14 @@ public partial class MoeInterpreter
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.VarName && tokens.Count >= 2 && tokens[1].Type == ComplexTokenType.AssignmentOperator)
+				else if (tokens[0].Type == ComplexTokenType.VarName)
 				{
 					//* 赋值语句
 					node.ASTType = ASTNodeType.Assignment;
 					node.Assignment = ParseAssignment(statement, preWhile);
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.FuncName && tokens.Count > 2 && tokens[1].Type == ComplexTokenType.LeftParen && tokens[^1].Type == ComplexTokenType.RightParen)
+				else if (tokens[0].Type == ComplexTokenType.FuncName)
 				{
 					//* 函数调用
 					node.ASTType = ASTNodeType.FunctionCall;
@@ -194,19 +219,19 @@ public partial class MoeInterpreter
 					foreach (var ComplexToken in tokens)
 						foreach (var token in ComplexToken.Tokens)
 							error += token.Value + " ";
-					throw new Exception("??? WTF " + error);
+					throw new Exception($"??? WTF \nLine: {tokens[0].Line} : {error}");
 				}
 			}
 
 			return programNode;
 		}
 
-		public static ConditionalNode ParseConditional(Statement statement, ConditionalNode? preWhile)
+		public static ConditionalNode ParseConditional(Statement statement, Statement programe, ConditionalNode? preWhile)
 		{
 			List<ComplexToken> tokens = statement.Tokens;
 
 			if (tokens[0].Type != ComplexTokenType.ELSE)
-				if (tokens.Count < 4 || tokens[1].Tokens[0].Value != "(" || tokens[^1].Tokens[0].Value != ")")
+				if (tokens.Count < 4 || tokens[1].Type != ComplexTokenType.LeftParen || tokens[^1].Type != ComplexTokenType.RightParen)
 					throw new Exception("错误的条件语法");
 
 			//* 条件
@@ -214,8 +239,12 @@ public partial class MoeInterpreter
 
 			if (tokens[0].Type != ComplexTokenType.ELSE)
 				conditional.Conditional.Expressions = MathExpression(tokens[2..^1]);
+
 			if (tokens[0].Type == ComplexTokenType.WHILE)
-				conditional.Program = PraseProgram(statement, conditional);
+				conditional.Program = PraseProgram(programe, conditional);
+			else
+				conditional.Program = PraseProgram(programe, preWhile);
+
 
 			return conditional;
 		}
@@ -255,7 +284,7 @@ public partial class MoeInterpreter
 			List<ComplexToken> tokens = statement.Tokens;
 			FunctionCallNode functionCall = new();
 
-			if (tokens[0].Type != ComplexTokenType.Function)
+			if (tokens[0].Type != ComplexTokenType.FuncName)
 				throw new Exception("函数调用必须以函数名开始");
 			functionCall.FunctionName = tokens[0].Tokens[0].Value;
 
@@ -408,7 +437,7 @@ public partial class MoeInterpreter
 			for (int i = 0; i < tokens.Count; i++)
 			{
 
-				if ((tokens[i].Type == ComplexTokenType.IntNumber || tokens[i].Type == ComplexTokenType.FloatNumber || tokens[i].Type == ComplexTokenType.VarName) && opCount != 0)
+				if ((tokens[i].Type == ComplexTokenType.IntNumber || tokens[i].Type == ComplexTokenType.FloatNumber) && opCount != 0)
 				{
 					math.Add(new()
 					{
@@ -421,10 +450,28 @@ public partial class MoeInterpreter
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == ComplexTokenType.Operator && tokens[i].Type == ComplexTokenType.LeftParen && opCount != 0)
+				else if (tokens[i].Type == ComplexTokenType.VarName && opCount != 0)
+				{
+					math.Add(new()
+					{
+						Type = OperatorType.VAR,
+						Token = new()
+						{
+							Type = tokens[i].Type,
+							Value = tokens[i].Tokens[0].Value,
+						}
+					});
+					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
+					{
+						i++;
+						Console.WriteLine("MathExpression() : VarRange !! Todo !!");
+					}
+					opCount = 0;
+				}
+				else if (tokens[i].Type == ComplexTokenType.LeftParen && opCount != 0)
 				{
 					for (int j = tokens.Count - 1; j >= 0; j--)
-						if (tokens[j].Type == ComplexTokenType.Operator && tokens[j].Type == ComplexTokenType.RightParen)
+						if (tokens[j].Type == ComplexTokenType.RightParen)
 						{
 							math.Add(new()
 							{

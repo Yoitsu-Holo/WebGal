@@ -120,30 +120,6 @@ public enum OperatorType
 	Error,
 }
 
-// public enum MathType
-// {
-// 	Void,
-// 	POW,
-// 	MUL, DIV, MOD,
-// 	ADD, SUB,
-// 	AND, OR, XOR, NOT,
-// 	SHL, SHR,
-
-// 	VAR, EXP,
-// 	Error,
-// }
-
-// public enum LogicType
-// {
-// 	Void,
-// 	EQ, NEQ,
-// 	GT, LT, EGT, ELT,
-// 	AND, OR, NOT,
-
-// 	VAR, EXP,
-// 	Error,
-// }
-
 public enum ASTNodeType
 {
 	Void,                   // 空
@@ -166,11 +142,11 @@ public class FunctionHeader
 
 	public override string ToString()
 	{
-		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}\n";
+		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}";
 		foreach (var call in CallType)
-			ret += $"\tParam: {call}\n";
+			ret += $"\n\tParam: {call}";
 		if (CallType.Count == 0)
-			ret += "\tParam: Null\n";
+			ret += "\n\tParam: Null";
 		return ret;
 	}
 }
@@ -295,6 +271,14 @@ public class FuncntionNode
 {
 	public FunctionHeader FuncHeader = new();
 	public ProgramNode FuncBody = new();
+
+	public override string ToString()
+	{
+		string ret = "";
+		ret += FuncHeader.ToString() + "\n";
+		ret += FuncBody.ToString() + "\n";
+		return ret;
+	}
 }
 
 public class ProgramNode // 程序段（由多个并列的可解释单元组成）
@@ -305,6 +289,8 @@ public class ProgramNode // 程序段（由多个并列的可解释单元组成�
 		string ret = "";
 		foreach (var ast in Statements)
 			ret += ast.ToString();
+		if (Statements.Count == 0)
+			ret += "Without Program";
 		return ret;
 	}
 }

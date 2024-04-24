@@ -1,5 +1,6 @@
 using System.Security.Principal;
 using System.Text.Json;
+using Topten.RichTextKit;
 using WebGal.API;
 using WebGal.API.Data;
 using FileInfo = WebGal.API.Data.FileInfo;
@@ -148,22 +149,16 @@ public partial class MoeInterpreter
 			Lexer lexer = new(response.Message);
 			lexer.Parse();
 
-			//!
-			// foreach (var token in lexer.ComplexTokens)
-			// 	Console.WriteLine(token);
+			List<FuncntionNode> funcntions = Syntax.ParseFile(lexer.CodeStatement);
 
-			Syntax syntax = new();
-			// var ASTs = syntax.PraseProgram(lexer.CodeStatement, null);
+			foreach (var function in funcntions)
+			{
+				FunctionHeader header = function.FuncHeader;
+				if (_elfHeader.Function.ContainsKey(header.FuncName))
+					throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{header.FuncName}");
 
-			// foreach (var functionAST in ASTs.Statements)
-			// {
-			// 	if (functionAST.ASTType != ASTNodeType.FunctionDeclaration || functionAST.FuncDefine is null)
-			// 		throw new Exception($"不能在全局代码区定义函数: File{file.Name}");
-			// 	if (_elfHeader.Function.ContainsKey(functionAST.FuncDefine.FuncName))
-			// 		throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{functionAST.FuncDefine.FuncName}");
-
-			// 	_elfHeader.Function[functionAST.FuncDefine.FuncName] = functionAST;
-			// }
+				_elfHeader.Function[header.FuncName] = function;
+			}
 		}
 
 		_runtime.Entry = _elfHeader.Start;
