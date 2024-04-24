@@ -6,19 +6,24 @@ window.getDimensions = function () {
 	};
 };
 
-// window.getMousePosition = function () {
-// 	return new Promise((resolve) => {
-// 		window.onmousemove = function (e) {
-// 			var myDiv = document.getElementById('gamecanvas');
-// 			resolve({ x: myDiv.clientX, y: myDiv.clientY });
-// 			window.onmousemove = null;
-// 		};
-// 	});
-// }
-
 window.globalVar = {};
 
 window.getMousePosition = function (event) {
 	window.globalVar.X = event.offsetX;
 	window.globalVar.Y = event.offsetY;
+};
+
+window.consoleLogger = {
+	logInfo: function (message) {
+		console.info('%c' + message, 'color: blue;');
+	},
+	logTodo: function (message) {
+		console.info('%c' + message, 'color: brown;');
+	},
+	logWarning: function (message) {
+		console.warn('%c' + message, 'color: orange;');
+	},
+	logError: function (message) {
+		console.error('%c' + message, 'color: red;');
+	}
 };

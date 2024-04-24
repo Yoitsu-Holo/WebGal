@@ -2,6 +2,7 @@ using SkiaSharp;
 using Microsoft.JSInterop;
 using WebGal.Services.Include;
 using WebGal.API;
+using WebGal.Global;
 
 namespace WebGal.Services;
 public class GameManager
@@ -22,6 +23,7 @@ public class GameManager
 		_layoutManeger = layoutManager;
 		_audioManager = audioManager;
 		_resourceManager = new(httpClient);
+		Log.JsRuntime = js;
 		Driver.Init(_layoutManeger, _resourceManager, _audioManager);
 	}
 

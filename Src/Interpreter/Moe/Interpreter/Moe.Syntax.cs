@@ -1,3 +1,5 @@
+using WebGal.Global;
+
 namespace WebGal.MeoInterpreter;
 
 public partial class MoeInterpreter
@@ -17,7 +19,7 @@ public partial class MoeInterpreter
 					if (temp.CodeBlock.Count == 0)
 						temp.CodeBlock.Add(statement);
 					else
-						throw new Exception("");
+						throw new Exception(Log.LogMessage(""));
 				}
 				else if (statement.IsCodeblock == true)
 				{
@@ -28,10 +30,10 @@ public partial class MoeInterpreter
 						temp = new();
 					}
 					else
-						throw new Exception("");
+						throw new Exception(Log.LogMessage(""));
 				}
 				else
-					throw new Exception("");
+					throw new Exception(Log.LogMessage(""));
 			}
 
 			return functions;
@@ -67,19 +69,19 @@ public partial class MoeInterpreter
 			FunctionHeader header = new();
 
 			if (tokens[0].Type != ComplexTokenType.Function)
-				throw new Exception("错误的函数定义语法");
+				throw new Exception(Log.LogMessage("错误的函数定义语法"));
 
 			if (tokens.Count < 5)
-				throw new Exception("不完整的函数定义");
+				throw new Exception(Log.LogMessage("不完整的函数定义"));
 
 			if (tokens[1].Type != ComplexTokenType.VarType)
-				throw new Exception("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Tokens[0].Value);
+				throw new Exception(Log.LogMessage("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Tokens[0].Value));
 
 			if (tokens[2].Type != ComplexTokenType.FuncName)
-				throw new Exception("错误的函数名称");
+				throw new Exception(Log.LogMessage("错误的函数名称"));
 
 			if (tokens[3].Type != ComplexTokenType.LeftParen || tokens[^1].Type != ComplexTokenType.RightParen)
-				throw new Exception("错误的函数参数列表");
+				throw new Exception(Log.LogMessage("错误的函数参数列表"));
 
 			header = new()
 			{
@@ -131,7 +133,7 @@ public partial class MoeInterpreter
 				{
 					//* if条件
 					if (i + 1 >= FuncStatement.CodeBlock.Count)
-						throw new Exception("没有 if 语句");
+						throw new Exception(Log.LogMessage("没有 if 语句"));
 					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
 					i++;
 
@@ -145,9 +147,9 @@ public partial class MoeInterpreter
 
 					//* else if条件
 					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
-						throw new Exception("没有前置 if 条件");
+						throw new Exception(Log.LogMessage("没有前置 if 条件"));
 					if (i + 1 >= FuncStatement.CodeBlock.Count)
-						throw new Exception("没有 if 语句");
+						throw new Exception(Log.LogMessage("没有 if 语句"));
 
 					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
 					i++;
@@ -161,9 +163,9 @@ public partial class MoeInterpreter
 					node = programNode.Statements[^1];
 
 					if (node.ASTType != ASTNodeType.Conditional || node.IfCase is null)
-						throw new Exception("没有前置 if 结构");
+						throw new Exception(Log.LogMessage("没有前置 if 结构"));
 					if (i + 1 >= FuncStatement.CodeBlock.Count)
-						throw new Exception("没有 if 语句");
+						throw new Exception(Log.LogMessage("没有 if 语句"));
 					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
 					i++;
 
@@ -183,7 +185,7 @@ public partial class MoeInterpreter
 				else if (tokens[0].Type == ComplexTokenType.CONTINUE || tokens[0].Type == ComplexTokenType.BREAK)
 				{
 					if (preWhile is null)
-						throw new Exception("无前置 while 循环");
+						throw new Exception(Log.LogMessage("无前置 while 循环"));
 
 					node.ASTType = ASTNodeType.LoopControl;
 					node.LoopControl = new() { Loop = preWhile, };
@@ -209,17 +211,13 @@ public partial class MoeInterpreter
 					node.FunctionCall = ParseFunctionCall(statement, preWhile);
 					programNode.Statements.Add(node);
 				}
-				else if (tokens.Count == 1 && tokens[0].Tokens[0].Value == "Null")
-				{
-					Console.WriteLine("Null");
-				}
 				else
 				{
 					string error = "";
 					foreach (var ComplexToken in tokens)
 						foreach (var token in ComplexToken.Tokens)
 							error += token.Value + " ";
-					throw new Exception($"??? WTF \nLine: {tokens[0].Line} : {error}");
+					throw new Exception(Log.LogMessage($"??? WTF \nLine: {tokens[0].Line} : {error}"));
 				}
 			}
 
@@ -232,7 +230,7 @@ public partial class MoeInterpreter
 
 			if (tokens[0].Type != ComplexTokenType.ELSE)
 				if (tokens.Count < 4 || tokens[1].Type != ComplexTokenType.LeftParen || tokens[^1].Type != ComplexTokenType.RightParen)
-					throw new Exception("错误的条件语法");
+					throw new Exception(Log.LogMessage("错误的条件语法"));
 
 			//* 条件
 			ConditionalNode conditional = new();
@@ -268,7 +266,7 @@ public partial class MoeInterpreter
 
 			if (expTokens.Count >= 2 && expTokens[0].Type == ComplexTokenType.FuncName)
 			{
-				Console.WriteLine("Function call is todo");
+				Log.LogInfo("Function call is todo", Global.LogLevel.Todo);
 				assignment.FuncCall = new();
 			}
 			else if (preTokens[0].Type == ComplexTokenType.VarName)
@@ -285,7 +283,7 @@ public partial class MoeInterpreter
 			FunctionCallNode functionCall = new();
 
 			if (tokens[0].Type != ComplexTokenType.FuncName)
-				throw new Exception("函数调用必须以函数名开始");
+				throw new Exception(Log.LogMessage("函数调用必须以函数名开始"));
 			functionCall.FunctionName = tokens[0].Tokens[0].Value;
 
 			List<ComplexToken> lestToken = tokens[2..^1];
@@ -294,16 +292,18 @@ public partial class MoeInterpreter
 			{
 				if (token.Type == ComplexTokenType.VarDelimiter)
 					var = false;
+				else if (token.Type == ComplexTokenType.VarRange && var)
+					Log.LogInfo("Todo: 函数数组传参待实现", Global.LogLevel.Todo);
 				else if (var == false)
 				{
 					var = true;
 					if (token.Type == ComplexTokenType.VarName)
 						functionCall.ParamName.Add(token.Tokens[0].Value);
 					else
-						throw new Exception("错误的变量名称");
+						throw new Exception(Log.LogMessage("错误的变量名称"));
 				}
 				else
-					throw new Exception("错误的函数入参列表");
+					throw new Exception(Log.LogMessage($"错误的函数入参列表 : {token}"));
 			}
 			return functionCall;
 		}
@@ -319,7 +319,7 @@ public partial class MoeInterpreter
 		{
 			VariableDefineNode varNode = ParseMultiVar(tokens);
 			if (varNode.Variables.Count > 1)
-				throw new Exception("错误的定义多个变量");
+				throw new Exception(Log.LogMessage("错误的定义多个变量"));
 			return varNode;
 		}
 
@@ -333,7 +333,7 @@ public partial class MoeInterpreter
 			}
 
 			if (tokens.Count < 3)
-				throw new Exception("变量定义参数数量过少");
+				throw new Exception(Log.LogMessage("变量定义参数数量过少"));
 
 			VarTypeNode info = VarType(tokens[0..2]);
 
@@ -369,7 +369,7 @@ public partial class MoeInterpreter
 		public static VarTypeNode VarType(List<ComplexToken> tokens)
 		{
 			if (tokens[0].Type != ComplexTokenType.VarAccess || tokens[1].Type != ComplexTokenType.VarType)
-				throw new Exception("");
+				throw new Exception(Log.LogMessage(""));
 
 			VarTypeNode varInfo = new()
 			{
@@ -402,13 +402,13 @@ public partial class MoeInterpreter
 				s += token.Tokens[0].Value + " ";
 
 			if (tokens[0].Type != ComplexTokenType.VarName)
-				throw new Exception("错误的变量名称: " + tokens[0].Tokens[0].Value);
+				throw new Exception(Log.LogMessage("错误的变量名称: " + tokens[0].Tokens[0].Value));
 
 			// if (tokens.Count > 1 && (tokens[1].Tokens[0].Value != "[" || tokens[^1].Tokens[0].Value != "]"))
-			// 	throw new Exception("错误的多维数组申明： 错误的语法格式: " + s);
+			// 	throw new Exception(Log.LogMessage("错误的多维数组申明： 错误的语法格式: " + s);
 
 			if (tokens.Count == 2 && tokens[1].Tokens.Count == 0)
-				throw new Exception("错误的多维数组申明： 未声明数组大小: " + s);
+				throw new Exception(Log.LogMessage("错误的多维数组申明： 未声明数组大小: " + s));
 
 			if (tokens.Count == 2)
 			{
@@ -421,7 +421,7 @@ public partial class MoeInterpreter
 						varDimension.Add(size);
 					}
 					else
-						throw new Exception("错误的多维数组申明");
+						throw new Exception(Log.LogMessage("错误的多维数组申明"));
 				}
 			}
 			else
@@ -464,7 +464,7 @@ public partial class MoeInterpreter
 					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
 					{
 						i++;
-						Console.WriteLine("MathExpression() : VarRange !! Todo !!");
+						Log.LogInfo("Todo: 数学表达式 变量范围", Global.LogLevel.Todo);
 					}
 					opCount = 0;
 				}
@@ -483,13 +483,13 @@ public partial class MoeInterpreter
 							break;
 						}
 					if (opCount != 0)
-						throw new Exception("非配对的括号组");
+						throw new Exception(Log.LogMessage("非配对的括号组"));
 					opCount = 0;
 				}
 				else if (tokens[i].Type == ComplexTokenType.Operator)
 				{
 					if (opCount == 1 && (tokens[i].Tokens[0].Value != "-" || tokens[i].Tokens[0].Value != "~"))
-						throw new Exception("前置运算符过多");
+						throw new Exception(Log.LogMessage("前置运算符过多"));
 
 					string value = tokens[i].Tokens[0].Value;
 
@@ -522,7 +522,7 @@ public partial class MoeInterpreter
 							"~" => OperatorType.bNOT,
 
 							"^" => OperatorType.XOR,
-							_ => throw new Exception("错误的运算符"),
+							_ => throw new Exception(Log.LogMessage("错误的运算符")),
 						},
 						Token = new()
 						{
@@ -533,7 +533,7 @@ public partial class MoeInterpreter
 					opCount++;
 				}
 				else
-					throw new Exception("错误的算数表达式书写: " + tokens[i]);
+					throw new Exception(Log.LogMessage("错误的算数表达式书写: " + tokens[i]));
 			}
 			return math;
 		}
