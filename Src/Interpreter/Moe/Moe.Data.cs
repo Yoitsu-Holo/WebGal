@@ -50,14 +50,14 @@ public enum MoeVariableType
 {
 	Void,
 	Int, Double, String,
-	Error,
+	Any, Error,
 }
 
 public enum MoeVariableAccess
 {
 	Void,
 	Const, Static, Variable,
-	Error,
+	Any, Error,
 }
 
 public class MoeFile()

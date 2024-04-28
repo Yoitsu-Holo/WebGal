@@ -260,8 +260,11 @@ public partial class MoeInterpreter
 			List<ComplexToken> preTokens = tokens[0..demerger];
 			List<ComplexToken> expTokens = tokens[(demerger + 1)..];
 
-			assignment.LeftVarName = preTokens[0].Tokens[0].Value;
-			assignment.Index = VarSize(preTokens);
+			assignment.LeftVar = new()
+			{
+				Name = preTokens[0].Tokens[0].Value,
+				Index = (preTokens[^1].Type == ComplexTokenType.VarRange) ? VarSize(preTokens[^1]) : [1],
+			};
 
 
 			if (expTokens.Count >= 2 && expTokens[0].Type == ComplexTokenType.FuncName)
@@ -350,15 +353,17 @@ public partial class MoeInterpreter
 					MoeVariable variable = new()
 					{
 						Name = tempToken[0].Tokens[0].Value,
-						Dimension = VarSize(tempToken),
+						Dimension = (tempToken[^1].Type == ComplexTokenType.VarRange) ? VarSize(tempToken[^1]) : [1],
 						Access = info.Access,
 						Type = info.Type,
 					};
+
 					int size = 1;
 					foreach (var item in variable.Dimension)
 						size *= item;
 					variable.Dimension.Add(size);
 					ret.Variables.Add(variable);
+
 					tempToken = [];
 				}
 				pos++;
@@ -392,40 +397,25 @@ public partial class MoeInterpreter
 			return varInfo;
 		}
 
-		public static List<int> VarSize(List<ComplexToken> tokens)
+		public static List<int> VarSize(ComplexToken token)
 		{
 			List<int> varDimension = [];
 			int varSize = 1;
 
-			string s = "";
-			foreach (var token in tokens)
-				s += token.Tokens[0].Value + " ";
+			if (token.Type != ComplexTokenType.VarRange)
+				throw new Exception(Log.LogMessage("错误的多维数组申明： 未声明数组大小： " + token));
 
-			if (tokens[0].Type != ComplexTokenType.VarName)
-				throw new Exception(Log.LogMessage("错误的变量名称: " + tokens[0].Tokens[0].Value));
-
-			// if (tokens.Count > 1 && (tokens[1].Tokens[0].Value != "[" || tokens[^1].Tokens[0].Value != "]"))
-			// 	throw new Exception(Log.LogMessage("错误的多维数组申明： 错误的语法格式: " + s);
-
-			if (tokens.Count == 2 && tokens[1].Tokens.Count == 0)
-				throw new Exception(Log.LogMessage("错误的多维数组申明： 未声明数组大小: " + s));
-
-			if (tokens.Count == 2)
+			foreach (var ssize in token.Tokens)
 			{
-				foreach (var token in tokens[1].Tokens)
+				if (ssize.Type == SimpleTokenType.Number)
 				{
-					if (token.Type == SimpleTokenType.Number)
-					{
-						int size = Convert.ToInt32(token.Value);
-						varSize *= size;
-						varDimension.Add(size);
-					}
-					else
-						throw new Exception(Log.LogMessage("错误的多维数组申明"));
+					int size = Convert.ToInt32(ssize.Value);
+					varSize *= size;
+					varDimension.Add(size);
 				}
+				else
+					throw new Exception(Log.LogMessage("错误的多维数组申明： 维度大小必须为整数： " + ssize));
 			}
-			else
-				varDimension.Add(1);
 			return varDimension;
 		}
 
@@ -456,15 +446,10 @@ public partial class MoeInterpreter
 				}
 				else if (tokens[i].Type == ComplexTokenType.VarName && opCount != 0)
 				{
-					MoeVariable variable = new()
-					{
-						Name = tokens[i].Tokens[0].Value,
-						Access = MoeVariableAccess.Void,
-						Type = MoeVariableType.Void,
-					};
+					VariableInfo variable = new() { Name = tokens[i].Tokens[0].Value, };
 					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
 					{
-						variable.Dimension = VarSize([tokens[i], tokens[i + 1]]);
+						variable.Index = VarSize(tokens[i + 1]);
 						i++;
 					}
 					math.Add(new()

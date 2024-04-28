@@ -101,6 +101,21 @@ public class Statement
 	}
 }
 
+public class VariableInfo
+{
+	public string Name = "";
+	public List<int> Index = [0];
+
+	public override string ToString()
+	{
+		string ret = Name + "[ ";
+		foreach (var sz in Index)
+			ret += sz + " ";
+		ret += "]";
+		return ret;
+	}
+}
+
 //^ -----------------------------------------------------------------------------------
 
 public enum OperatorType
@@ -167,14 +182,14 @@ public class VariableDefineNode
 public class ExpressionNode
 {
 	public OperatorType Type = OperatorType.Void;
+
 	public List<ExpressionNode> Expressions = [];
-	// public ProgramToken Token = new();
-	public MoeVariable Var = new();
+	public VariableInfo Var = new();
 	public object Number = 0;
 
 	public override string ToString()
 	{
-		string ret = "(\n";
+		string ret = "( ";
 		foreach (var exp in Expressions)
 		{
 			if (exp.Type == OperatorType.EXP)
@@ -185,7 +200,7 @@ public class ExpressionNode
 				ret += $"{exp.Var}";
 			else
 				ret += $"{exp.Type} ";
-			ret += "\n";
+			ret += " ";
 		}
 		ret += ")";
 		return ret;
@@ -208,8 +223,9 @@ public class FunctionCallNode
 
 public class AssignmentNode
 {
-	public string LeftVarName = "";
-	public List<int> Index = [];
+	public VariableInfo LeftVar = new();
+	// public string LeftVarName = "";
+	// public List<int> Index = [];
 
 	public ExpressionNode? MathExp;
 	// public LogicExpressionNode? LogicExp;
@@ -218,7 +234,7 @@ public class AssignmentNode
 	public override string ToString()
 	{
 		string ret = "";
-		ret += LeftVarName + " = ";
+		ret += LeftVar + " = ";
 		if (MathExp is not null)
 			ret += MathExp;
 		else
