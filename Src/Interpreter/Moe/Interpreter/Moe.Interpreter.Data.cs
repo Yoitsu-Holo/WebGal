@@ -116,7 +116,7 @@ public enum OperatorType
 	GT, LT, EGT, ELT,
 	AND, OR, NOT,
 
-	VAR, EXP,
+	VAR, EXP, NUM,
 	Error,
 }
 
@@ -168,17 +168,24 @@ public class ExpressionNode
 {
 	public OperatorType Type = OperatorType.Void;
 	public List<ExpressionNode> Expressions = [];
-	public ProgramToken Token = new();
+	// public ProgramToken Token = new();
+	public MoeVariable Var = new();
+	public object Number = 0;
 
 	public override string ToString()
 	{
-		string ret = "( ";
+		string ret = "(\n";
 		foreach (var exp in Expressions)
 		{
 			if (exp.Type == OperatorType.EXP)
-				ret += exp.ToString();
+				ret += $"{exp}";
+			else if (exp.Type == OperatorType.NUM)
+				ret += $"{((exp.Number is int v) ? v : ((double)exp.Number))}";
+			else if (exp.Type == OperatorType.VAR)
+				ret += $"{exp.Var}";
 			else
-				ret += $"{exp.Token} ";
+				ret += $"{exp.Type} ";
+			ret += "\n";
 		}
 		ret += ")";
 		return ret;

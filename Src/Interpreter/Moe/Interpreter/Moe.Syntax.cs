@@ -436,36 +436,42 @@ public partial class MoeInterpreter
 			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
 			for (int i = 0; i < tokens.Count; i++)
 			{
-
-				if ((tokens[i].Type == ComplexTokenType.IntNumber || tokens[i].Type == ComplexTokenType.FloatNumber) && opCount != 0)
+				if (tokens[i].Type == ComplexTokenType.IntNumber && opCount != 0)
 				{
 					math.Add(new()
 					{
-						Type = OperatorType.VAR,
-						Token = new()
-						{
-							Type = tokens[i].Type,
-							Value = tokens[i].Tokens[0].Value,
-						}
+						Type = OperatorType.NUM,
+						Number = int.Parse(tokens[i].Tokens[0].Value),
+					});
+					opCount = 0;
+				}
+				else if (tokens[i].Type == ComplexTokenType.FloatNumber && opCount != 0)
+				{
+					math.Add(new()
+					{
+						Type = OperatorType.NUM,
+						Number = double.Parse(tokens[i].Tokens[0].Value),
 					});
 					opCount = 0;
 				}
 				else if (tokens[i].Type == ComplexTokenType.VarName && opCount != 0)
 				{
+					MoeVariable variable = new()
+					{
+						Name = tokens[i].Tokens[0].Value,
+						Access = MoeVariableAccess.Void,
+						Type = MoeVariableType.Void,
+					};
+					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
+					{
+						variable.Dimension = VarSize([tokens[i], tokens[i + 1]]);
+						i++;
+					}
 					math.Add(new()
 					{
 						Type = OperatorType.VAR,
-						Token = new()
-						{
-							Type = tokens[i].Type,
-							Value = tokens[i].Tokens[0].Value,
-						}
+						Var = variable,
 					});
-					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
-					{
-						i++;
-						Log.LogInfo("Todo: 数学表达式 变量范围", Global.LogLevel.Todo);
-					}
 					opCount = 0;
 				}
 				else if (tokens[i].Type == ComplexTokenType.LeftParen && opCount != 0)
@@ -524,11 +530,6 @@ public partial class MoeInterpreter
 							"^" => OperatorType.XOR,
 							_ => throw new Exception(Log.LogMessage("错误的运算符")),
 						},
-						Token = new()
-						{
-							Type = tokens[i].Type,
-							Value = value,
-						}
 					});
 					opCount++;
 				}
