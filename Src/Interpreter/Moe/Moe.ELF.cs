@@ -1,8 +1,7 @@
-using System.Security.Principal;
 using System.Text.Json;
-using Topten.RichTextKit;
 using WebGal.API;
 using WebGal.API.Data;
+using WebGal.Global;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
@@ -62,7 +61,7 @@ public partial class MoeInterpreter
 				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
 
-				_elfHeader.File[lines[0]] = new()
+				_elfHeader.Files[lines[0]] = new()
 				{
 					Name = lines[0],
 					Type = lines[1] switch
@@ -96,7 +95,7 @@ public partial class MoeInterpreter
 				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.ComplexTokens);
 
 				foreach (var variable in multiVar.Variables)
-					_elfHeader.Data[variable.Name] = variable;
+					_elfHeader.Datas[variable.Name] = variable;
 
 				continue;
 			}
@@ -112,7 +111,7 @@ public partial class MoeInterpreter
 
 		// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
 		List<Task> tasks = [];
-		foreach (var (_, file) in _elfHeader.File)
+		foreach (var (_, file) in _elfHeader.Files)
 		{
 			FileInfo fileInfo;
 			if (file.Type == MoeFileType.Text_script || file.Type == MoeFileType.Text_form)
@@ -127,11 +126,11 @@ public partial class MoeInterpreter
 
 
 		// 加载完毕，将elf header中变量数据加入到全局运行空间
-		foreach (var item in _elfHeader.Data)
+		foreach (var item in _elfHeader.Datas)
 			_runtime.Variables[item.Key] = item.Value;
 
 		// 扫描所有脚本
-		foreach (var (_, file) in _elfHeader.File)
+		foreach (var (_, file) in _elfHeader.Files)
 		{
 			if ((file.Type & MoeFileType.Text) == 0) continue;
 
@@ -142,7 +141,7 @@ public partial class MoeInterpreter
 			if (file.Type == MoeFileType.Text_form)
 			{
 				var layout = JsonSerializer.Deserialize<FromLayoutInfo>(response.Message, Global.JsonConfig.Options);
-				_elfHeader.Form[layout.LayoutID] = layout;
+				_elfHeader.Forms[layout.LayoutID] = layout;
 				continue;
 			}
 
@@ -154,19 +153,17 @@ public partial class MoeInterpreter
 			foreach (var function in funcntions)
 			{
 				FunctionHeader header = function.FuncHeader;
-				if (_elfHeader.Function.ContainsKey(header.FuncName))
+				if (_elfHeader.Functions.ContainsKey(header.FuncName))
 					throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{header.FuncName}");
 
-				_elfHeader.Function[header.FuncName] = function;
+				_elfHeader.Functions[header.FuncName] = function;
 			}
 		}
-
-		_runtime.Entry = _elfHeader.Start;
 	}
 
 	public static void FormRegister()
 	{
-		foreach (var (_, layout) in _elfHeader.Form)
+		foreach (var (_, layout) in _elfHeader.Forms)
 		{
 			var layers = layout.Layers;
 			int layoutID = layout.LayoutID;

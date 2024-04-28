@@ -236,7 +236,7 @@ public partial class MoeInterpreter
 			ConditionalNode conditional = new();
 
 			if (tokens[0].Type != ComplexTokenType.ELSE)
-				conditional.Conditional.Expressions = MathExpression(tokens[2..^1]);
+				conditional.Conditional.Tokens = MathExpression(tokens[2..^1]);
 
 			if (tokens[0].Type == ComplexTokenType.WHILE)
 				conditional.Program = PraseProgram(programe, conditional);
@@ -274,7 +274,7 @@ public partial class MoeInterpreter
 			}
 			else if (preTokens[0].Type == ComplexTokenType.VarName)
 			{
-				assignment.MathExp = new() { Expressions = MathExpression(expTokens), };
+				assignment.MathExp = new() { Tokens = MathExpression(expTokens), };
 			}
 
 			return assignment;
@@ -419,9 +419,9 @@ public partial class MoeInterpreter
 			return varDimension;
 		}
 
-		public static List<ExpressionNode> MathExpression(List<ComplexToken> tokens)
+		public static List<ExpressionToken> MathExpression(List<ComplexToken> tokens)
 		{
-			List<ExpressionNode> math = [];
+			List<ExpressionToken> math = [];
 
 			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
 			for (int i = 0; i < tokens.Count; i++)
@@ -437,10 +437,13 @@ public partial class MoeInterpreter
 				}
 				else if (tokens[i].Type == ComplexTokenType.FloatNumber && opCount != 0)
 				{
+					string number = "";
+					foreach (var token in tokens[i].Tokens)
+						number += token.Value;
 					math.Add(new()
 					{
 						Type = OperatorType.NUM,
-						Number = double.Parse(tokens[i].Tokens[0].Value),
+						Number = double.Parse(number),
 					});
 					opCount = 0;
 				}
@@ -461,21 +464,13 @@ public partial class MoeInterpreter
 				}
 				else if (tokens[i].Type == ComplexTokenType.LeftParen && opCount != 0)
 				{
-					for (int j = tokens.Count - 1; j >= 0; j--)
-						if (tokens[j].Type == ComplexTokenType.RightParen)
-						{
-							math.Add(new()
-							{
-								Type = OperatorType.EXP,
-								Expressions = MathExpression(tokens[(i + 1)..j]),
-							});
-							i = j;
-							opCount = 0;
-							break;
-						}
-					if (opCount != 0)
-						throw new Exception(Log.LogMessage("非配对的括号组"));
-					opCount = 0;
+					math.Add(new() { Type = OperatorType.LeftParen, });
+					opCount = 1; // 左括号后面必须接前置运算符或者变量
+				}
+				else if (tokens[i].Type == ComplexTokenType.RightParen && opCount == 0)
+				{
+					math.Add(new() { Type = OperatorType.RightParen, });
+					opCount = 0; // 右括号后面必须接运算符
 				}
 				else if (tokens[i].Type == ComplexTokenType.Operator)
 				{

@@ -373,8 +373,10 @@ public partial class MoeInterpreter
 				{
 					if (SimpleTokens[_simpleTokenPos + 1].Type == SimpleTokenType.Point && SimpleTokens[_simpleTokenPos + 2].Type == SimpleTokenType.Number)
 					{
+						token.Type = ComplexTokenType.FloatNumber;
 						token.Tokens.Add(SimpleTokens[_simpleTokenPos + 1]);
 						token.Tokens.Add(SimpleTokens[_simpleTokenPos + 2]);
+						_simpleTokenPos += 2;
 					}
 				}
 			}

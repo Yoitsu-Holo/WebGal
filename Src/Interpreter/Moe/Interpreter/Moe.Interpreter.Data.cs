@@ -101,6 +101,13 @@ public class Statement
 	}
 }
 
+// 内部规则结构
+public class VarTypeNode
+{
+	public MoeVariableType Type;       // 类型
+	public MoeVariableAccess Access;   // 访问属性
+}
+
 public class VariableInfo
 {
 	public string Name = "";
@@ -131,7 +138,8 @@ public enum OperatorType
 	GT, LT, EGT, ELT,
 	AND, OR, NOT,
 
-	VAR, EXP, NUM,
+	LeftParen, RightParen,
+	VAR, NUM,
 	Error,
 }
 
@@ -179,33 +187,43 @@ public class VariableDefineNode
 	}
 }
 
-public class ExpressionNode
+public class ExpressionToken
 {
 	public OperatorType Type = OperatorType.Void;
-
-	public List<ExpressionNode> Expressions = [];
 	public VariableInfo Var = new();
 	public object Number = 0;
 
 	public override string ToString()
 	{
-		string ret = "( ";
-		foreach (var exp in Expressions)
-		{
-			if (exp.Type == OperatorType.EXP)
-				ret += $"{exp}";
-			else if (exp.Type == OperatorType.NUM)
-				ret += $"{((exp.Number is int v) ? v : ((double)exp.Number))}";
-			else if (exp.Type == OperatorType.VAR)
-				ret += $"{exp.Var}";
-			else
-				ret += $"{exp.Type} ";
-			ret += " ";
-		}
-		ret += ")";
+		string ret = "";
+		if (Type == OperatorType.LeftParen)
+			ret += "( ";
+		else if (Type == OperatorType.RightParen)
+			ret += " )";
+		else if (Type == OperatorType.NUM)
+			ret += $"{((Number is int v) ? v : ((double)Number))}";
+		else if (Type == OperatorType.VAR)
+			ret += $"{Var}";
+		else
+			ret += $"{Type} ";
+		ret += " ";
 		return ret;
 	}
 }
+
+public class ExpressionNode
+{
+	public List<ExpressionToken> Tokens = [];
+
+	public override string ToString()
+	{
+		string ret = "";
+		foreach (var exp in Tokens)
+			ret += exp + " ";
+		return ret;
+	}
+}
+
 
 public class FunctionCallNode
 {
@@ -290,20 +308,6 @@ public class LoopControlNode
 	}
 }
 
-public class FuncntionNode
-{
-	public FunctionHeader FuncHeader = new();
-	public ProgramNode FuncBody = new();
-
-	public override string ToString()
-	{
-		string ret = "";
-		ret += FuncHeader.ToString() + "\n";
-		ret += FuncBody.ToString() + "\n";
-		return ret;
-	}
-}
-
 public class ProgramNode // 程序段（由多个并列的可解释单元组成）
 {
 	public List<ASTNode> Statements = [];
@@ -355,10 +359,16 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 	}
 }
 
-// 内部规则结构
-public class VarTypeNode
+public class FuncntionNode
 {
-	public MoeVariableType Type;       // 类型
-	public MoeVariableAccess Access;   // 访问属性
-}
+	public FunctionHeader FuncHeader = new();
+	public ProgramNode FuncBody = new();
 
+	public override string ToString()
+	{
+		string ret = "";
+		ret += FuncHeader.ToString() + "\n";
+		ret += FuncBody.ToString() + "\n";
+		return ret;
+	}
+}

@@ -12,5 +12,8 @@ public partial class MoeInterpreter
 
 	public static Dictionary<string, MoeVariable> Variables => _runtime.Variables;
 	public static Dictionary<int, Stack<MoeStackFrame>> Tasks => _runtime.Tasks;
-	public static Stack<MoeStackFrame> ActiveTasks => _runtime.Tasks[_activeTask];
+	public static Stack<MoeStackFrame> ActiveTasks => Tasks[_activeTask];
+
+	public static Dictionary<string, FuncntionNode> Functions => _elfHeader.Functions;
+	public static FuncntionNode Start => Functions[_elfHeader.Start];
 }

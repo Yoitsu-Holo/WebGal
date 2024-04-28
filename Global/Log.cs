@@ -19,23 +19,23 @@ public class Log
 	public static IJSRuntime? JsRuntime;
 #pragma warning restore CA2211 // 非常量字段应当不可见
 
-	public static string LogMessage(string message,
+	public static string LogMessage(object obj,
 		[CallerFilePath] string filePath = "",
 		[CallerMemberName] string memberName = "",
 		[CallerLineNumber] int lineNumber = 0)
 	{
 		string ret = $"In File: {filePath.Split('\\')[^1]}\tName: {memberName}\tLine: {lineNumber}\n";
-		ret += $"\t{message}";
+		ret += $"\t{obj.ToString()}";
 		return ret;
 	}
 
-	public static async void LogInfo(string message, LogLevel logLevel = LogLevel.Info,
+	public static async void LogInfo(object obj, LogLevel logLevel = LogLevel.Info,
 		[CallerFilePath] string filePath = "",
 		[CallerMemberName] string memberName = "",
 		[CallerLineNumber] int lineNumber = 0)
 	{
 		string msg = $"In File: {filePath.Split('\\')[^1]}\tName: {memberName}\tLine: {lineNumber}\n";
-		msg += $"\t{message}";
+		msg += $"\t{obj.ToString()}";
 
 		if (JsRuntime == null)
 			throw new Exception("JS Runtime 未被设置");

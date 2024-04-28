@@ -8,22 +8,22 @@ namespace WebGal.MeoInterpreter;
 public class ElfHeader
 {
 	// .file 
-	public Dictionary<string, MoeFile> File = [];
+	public Dictionary<string, MoeFile> Files = [];
 	// .data
-	public Dictionary<string, MoeVariable> Data = [];
+	public Dictionary<string, MoeVariable> Datas = [];
 	// .form [Audo Gen]
-	public Dictionary<int, FromLayoutInfo> Form = [];
+	public Dictionary<int, FromLayoutInfo> Forms = [];
 	// .func [Auto Gen]
-	public Dictionary<string, FuncntionNode> Function = [];
+	public Dictionary<string, FuncntionNode> Functions = [];
 	// .start
 	public string Start = "main";
 
 	public void CLear()
 	{
-		File.Clear();
-		Data.Clear();
-		Form.Clear();
-		Function.Clear();
+		Files.Clear();
+		Datas.Clear();
+		Forms.Clear();
+		Functions.Clear();
 	}
 }
 
@@ -182,14 +182,12 @@ public class MoeStackFrame
 // 全局运行时空间
 public class MoeRuntime
 {
-	public string Entry = "main";   // 入口函数
 	public Dictionary<string, MoeVariable> Variables = []; // 全局变量字典
 
 	public Dictionary<int, Stack<MoeStackFrame>> Tasks = []; // 任务函数栈，可能有多个并行的函数栈
 
 	public void Clear()
 	{
-		Entry = "main";
 		Variables.Clear();
 		Tasks.Clear();
 	}

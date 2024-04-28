@@ -50,23 +50,23 @@ public partial class MoeInterpreter
 	public static void Dump()
 	{
 		Console.WriteLine(">>> Dump File: ");
-		foreach (var item in _elfHeader.File)
+		foreach (var item in _elfHeader.Files)
 			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Function: ");
-		foreach (var item in _elfHeader.Function)
+		foreach (var item in _elfHeader.Functions)
 			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Vaiable: ");
-		foreach (var item in _elfHeader.Data)
+		foreach (var item in _elfHeader.Datas)
 			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Form: ");
-		foreach (var item in _elfHeader.Form)
+		foreach (var item in _elfHeader.Forms)
 			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine("\t" + _elfHeader.Start);
-		Console.WriteLine(_elfHeader.Function[_elfHeader.Start].FuncHeader);
+		Console.WriteLine(_elfHeader.Functions[_elfHeader.Start].FuncHeader);
 	}
 }
