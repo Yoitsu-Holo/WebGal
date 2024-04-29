@@ -138,6 +138,9 @@ public enum OperatorType
 	GT, LT, EGT, ELT,
 	AND, OR, NOT,
 
+	// 负号
+	Minus,
+
 	LeftParen, RightParen,
 	VAR, NUM,
 	Error,

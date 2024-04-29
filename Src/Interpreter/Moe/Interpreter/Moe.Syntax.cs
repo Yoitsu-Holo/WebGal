@@ -474,17 +474,17 @@ public partial class MoeInterpreter
 				}
 				else if (tokens[i].Type == ComplexTokenType.Operator)
 				{
-					if (opCount == 1 && (tokens[i].Tokens[0].Value != "-" || tokens[i].Tokens[0].Value != "~"))
-						throw new Exception(Log.LogMessage("前置运算符过多"));
-
 					string value = tokens[i].Tokens[0].Value;
+
+					if (opCount == 1 && (value != "-" || value != "~" || value != "!"))
+						throw new Exception(Log.LogMessage("前置运算符过多"));
 
 					math.Add(new()
 					{
 						Type = value switch
 						{
 							"+" => OperatorType.ADD,
-							"-" => OperatorType.SUB,
+							"-" => opCount == 1 ? OperatorType.Minus : OperatorType.SUB,
 							"*" => OperatorType.MUL,
 							"/" => OperatorType.DIV,
 							"%" => OperatorType.MOD,

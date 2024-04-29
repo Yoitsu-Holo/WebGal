@@ -38,8 +38,8 @@ public partial class Test// : IDisposable
 
 	protected override void OnInitialized()
 	{
-		AnimationRegister.Dump();
-		LayerBoxRegister.Dump();
+		// AnimationRegister.Dump();
+		// LayerBoxRegister.Dump();
 		// _timer = new Timer(_ =>
 		// {
 		// 	// 注意：因为定时器的回调在另一个线程中运行，所以我们需要调用InvokeAsync来确保在正确的线程上更新UI
