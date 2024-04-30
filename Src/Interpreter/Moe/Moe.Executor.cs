@@ -38,12 +38,12 @@ public partial class MoeInterpreter
 		// 	}
 		// }
 		MoeStackFrame frame = new();
-		frame.PC.Push(0);
-		frame.CodeBlock.Push(body);
-		frame.BlockVarName.Push([]);
+		// frame.PC.Push(0);
+		// frame.CodeBlock.Push(body);
+		// frame.BlockVarName.Push([]);
 		ActiveTasks.Push(frame);
 
-		Run(frame);
+		Run(frame, body);
 
 		return new();
 	}
@@ -55,8 +55,12 @@ public partial class MoeInterpreter
 		return Call(Functions[funcntion.FunctionName], funcntion.ParamName);
 	}
 
-	public static void Run(MoeStackFrame frame) //运行代码块
+	public static void Run(MoeStackFrame frame, ProgramNode program) //运行代码块
 	{
+		frame.PC.Push(0);
+		frame.CodeBlock.Push(program);
+		frame.BlockVarName.Push([]);
+
 		while (frame.PC.Count > 0)
 		{
 			int index = frame.PC.Peek();
@@ -64,12 +68,7 @@ public partial class MoeInterpreter
 
 			if (index >= now.Statements.Count) // 到达代码块结尾，跳出代码块
 			{
-				foreach (var varName in frame.BlockVarName.Peek())
-					frame.LVariable.Remove(varName);
-				frame.PC.Pop();
-				frame.CodeBlock.Pop();
-				frame.BlockVarName.Pop();
-				continue;
+				break;
 			}
 
 			ASTNode ast = now.Statements[index];
@@ -80,6 +79,12 @@ public partial class MoeInterpreter
 			if (ast.ASTType != ASTNodeType.Void)
 				Execute(ast, frame); // 执行当前语句
 		}
+
+		foreach (var varName in frame.BlockVarName.Peek())
+			frame.LVariable.Remove(varName);
+		frame.PC.Pop();
+		frame.CodeBlock.Pop();
+		frame.BlockVarName.Pop();
 	}
 
 	public static void Execute(ASTNode ast, MoeStackFrame frame)
@@ -95,9 +100,7 @@ public partial class MoeInterpreter
 
 		if (ast.ASTType == ASTNodeType.Program && ast.Program is not null)
 		{
-			frame.PC.Push(0);
-			frame.CodeBlock.Push(ast.Program);
-			frame.BlockVarName.Push([]);
+			Run(frame, ast.Program);
 		}
 		else if (ast.ASTType == ASTNodeType.VariableDeclaration && ast.VarDefine is not null)
 		{
@@ -154,7 +157,27 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
-			Log.LogInfo("条件解析", Global.LogLevel.Todo);
+			IfCaseNode ifCase = ast.IfCase;
+			for (int i = 0; i < ifCase.If.Count; i++)
+			{
+				ConditionalNode conditional = ifCase.If[i];
+				ExpressionsExecutor expressionsExecutor = new();
+				object result = expressionsExecutor.Parse(conditional.Conditional);
+
+				if (result is not int && result is not double)
+				{
+					Log.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
+					continue;
+				}
+
+				if (result is int resultInt && resultInt == 0)
+					continue;
+				if (result is double resultDouble && resultDouble == 0)
+					continue;
+
+				Run(frame, conditional.Program);
+				break;
+			}
 		}
 		else if (ast.ASTType == ASTNodeType.Loop && ast.Loop is not null)
 		{
@@ -194,7 +217,7 @@ public partial class MoeInterpreter
 			index = 0;
 			object result = Level15();
 			if (index != exp.Tokens.Count)
-				throw new Exception(Log.LogMessage("Unexpected token"));
+				throw new Exception(Log.LogMessage($"Unexpected token {tokens}"));
 			return result;
 		}
 
@@ -202,7 +225,7 @@ public partial class MoeInterpreter
 		{
 			if (CurrentToken.Type != type)
 			{
-				throw new Exception($"Unexpected token: {CurrentToken.Type}");
+				throw new Exception($"Unexpected token: {CurrentToken.Type} != {type}");
 			}
 			index++;
 			return exp.Tokens[index - 1];
@@ -213,7 +236,8 @@ public partial class MoeInterpreter
 		/// </summary>
 		private object Level15()
 		{
-			return Level14();
+			// return Level14();
+			return Level12();
 		}
 
 		/// <summary>
@@ -249,6 +273,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level11();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -265,6 +290,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level10();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -281,6 +307,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level9();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -297,6 +324,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level8();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -313,6 +341,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level7();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -329,6 +358,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level6();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -346,6 +376,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level5();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -362,6 +393,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level4();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -378,6 +410,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level3();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -395,6 +428,7 @@ public partial class MoeInterpreter
 				ConsumeToken(opType);
 				object value = Level2();
 				result = Calc(result, value, opType);
+				opType = CurrentToken.Type;
 			}
 			return result;
 		}
@@ -409,6 +443,7 @@ public partial class MoeInterpreter
 		/// </summary>
 		private object Level2()
 		{
+			object result = Level1();
 			OperatorType opType = CurrentToken.Type;
 			if ((opType == OperatorType.Minus || opType == OperatorType.bNOT || opType == OperatorType.NOT) && index < exp.Tokens.Count)
 			{
@@ -416,7 +451,7 @@ public partial class MoeInterpreter
 				object ret = Level1();
 				return Calc(ret, 0, opType);
 			}
-			return Level1();
+			return result;
 		}
 
 		/// <summary>
@@ -429,6 +464,20 @@ public partial class MoeInterpreter
 			{
 				return ConsumeToken(OperatorType.NUM).Number;
 			}
+			else if (opType == OperatorType.VAR)
+			{
+				VariableInfo variableInfo = CurrentToken.Var;
+				ConsumeToken(OperatorType.VAR);
+
+				GVariables.TryGetValue(variableInfo.Name, out MoeVariable? variable);
+				if (variable is null)
+					LVariables.TryGetValue(variableInfo.Name, out variable);
+
+				if (variable is null)
+					throw new Exception(Log.LogMessage($"未找到变量定义 {CurrentToken}"));
+
+				return variable[variableInfo.Index];
+			}
 			else if (opType == OperatorType.LeftParen)
 			{
 				ConsumeToken(OperatorType.LeftParen);
@@ -437,7 +486,7 @@ public partial class MoeInterpreter
 				return result;
 			}
 			else
-				throw new Exception($"Unexpected token: {opType}");
+				throw new Exception($"Unexpected token: {CurrentToken}");
 		}
 
 

@@ -237,6 +237,8 @@ public partial class MoeInterpreter
 
 			if (tokens[0].Type != ComplexTokenType.ELSE)
 				conditional.Conditional.Tokens = MathExpression(tokens[2..^1]);
+			else
+				conditional.Conditional.Tokens = [new() { Type = OperatorType.NUM, Number = 1, }];
 
 			if (tokens[0].Type == ComplexTokenType.WHILE)
 				conditional.Program = PraseProgram(programe, conditional);

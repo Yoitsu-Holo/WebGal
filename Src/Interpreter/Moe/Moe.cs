@@ -11,6 +11,7 @@ public partial class MoeInterpreter
 #pragma warning restore CA2211
 
 	public static Dictionary<string, MoeVariable> GVariables => _runtime.Variables;
+	public static Dictionary<string, MoeVariable> LVariables => ActiveTasks.Count == 0 ? [] : ActiveTasks.Peek().LVariable;
 	public static Dictionary<int, Stack<MoeStackFrame>> Tasks => _runtime.Tasks;
 	public static Stack<MoeStackFrame> ActiveTasks => Tasks[_activeTask];
 
