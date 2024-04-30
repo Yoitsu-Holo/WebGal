@@ -152,7 +152,7 @@ public partial class MoeInterpreter
 
 			foreach (var function in funcntions)
 			{
-				FunctionHeader header = function.FuncHeader;
+				FunctionHeader header = function.Header;
 				if (_elfHeader.Functions.ContainsKey(header.FuncName))
 					throw new Exception($"重复的函数定义: File:{file.Name} \tFunc{header.FuncName}");
 

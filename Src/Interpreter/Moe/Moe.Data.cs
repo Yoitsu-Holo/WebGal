@@ -69,7 +69,7 @@ public class MoeFile()
 	override public string ToString() => $"FileName: {Name}, \tFileType: {Type}, \tFileURL: {URL}";
 }
 
-public class MoeVariable
+public class MoeVariable : ICloneable
 {
 	// 默认全为连续内存数组，不同维度的访问放置在 dimension 中
 	public string Name = "";
@@ -80,11 +80,36 @@ public class MoeVariable
 	public int Size { get { return (Dimension.Count == 0) ? 0 : Dimension[^1]; } set { if (Dimension.Count != 0) Dimension[^1] = value; } }
 	public List<int> Dimension = [];
 
+	public void Init()
+	{
+		Obj = Type switch
+		{
+			MoeVariableType.Int => new int[Size],
+			MoeVariableType.Double => new double[Size],
+			MoeVariableType.String => new string[Size],
+			_ => throw new Exception(""),
+		};
+	}
+
 	public override string ToString()
 	{
 		string ret = $"Name: {Name}, \tType: {Type}, \tAccess: {Access}, \tObject: {Obj}, \tSize:";
 		ret += (Dimension.Count <= 0) ? "Error" : $"{Dimension[^1]} , \tDimension: [{string.Join(", ", Dimension)}]";
 		return ret;
+	}
+
+	public object Clone()
+	{
+		MoeVariable copy = new()
+		{
+			Access = Access,
+			Type = Type,
+			Name = (string)Name.Clone(),
+			Size = Size,
+		};
+		foreach (var item in Dimension)
+			copy.Dimension.Add(item);
+		return copy;
 	}
 
 	// 通常情况下使用
@@ -96,7 +121,7 @@ public class MoeVariable
 			if (index.Count != Dimension.Count - 1) throw new IndexOutOfRangeException();
 
 			int pos = 0;
-			for (int i = 0; i < Dimension.Count; i++)
+			for (int i = 0; i < Dimension.Count - 1; i++)
 			{
 				if (index[i] >= Dimension[i] || index[i] < 0) throw new IndexOutOfRangeException();
 				pos = pos * Dimension[i] + index[i];
@@ -117,7 +142,7 @@ public class MoeVariable
 			if (index.Count != Dimension.Count - 1) throw new IndexOutOfRangeException();
 
 			int pos = 0;
-			for (int i = 0; i < Dimension.Count; i++)
+			for (int i = 0; i < Dimension.Count - 1; i++)
 			{
 				if (index[i] >= Dimension[i] || index[i] < 0) throw new IndexOutOfRangeException();
 				pos = pos * Dimension[i] + index[i];
@@ -172,10 +197,13 @@ public class MoeVariable
 public class MoeStackFrame
 {
 	// 程序运行环境
-	public Dictionary<string, MoeVariable> VariableData = []; // 局部变量字典
+	public Dictionary<string, MoeVariable> LVariable = []; // 局部变量字典
+	public Stack<int> PC = []; // 程序栈内指针
+	public Stack<ProgramNode> CodeBlock = []; // 当前正在运行的代码块
+	public Stack<HashSet<string>> BlockVarName = []; // 代码块变量名称
 
 	// 函数参数
-	public List<MoeVariable> ParamList = []; // 函数调用传入的参数列表
+	// public List<MoeVariable> ParamList = []; // 函数调用传入的参数列表，可以优化到局部变量字典中
 	public MoeVariable ReturnData = new(); // 函数返回值
 }
 

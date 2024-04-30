@@ -36,6 +36,8 @@ public partial class MoeInterpreter
 	{
 		await GameStartAsync();
 		FormRegister();
+		Tasks[_activeTask] = new();
+		Call(Functions["test"], []);
 	}
 
 	[JSInvokable]
@@ -67,6 +69,6 @@ public partial class MoeInterpreter
 
 		Console.WriteLine(">>> Dump Start: ");
 		Console.WriteLine("\t" + _elfHeader.Start);
-		Console.WriteLine(_elfHeader.Functions[_elfHeader.Start].FuncHeader);
+		Console.WriteLine(_elfHeader.Functions[_elfHeader.Start].Header);
 	}
 }

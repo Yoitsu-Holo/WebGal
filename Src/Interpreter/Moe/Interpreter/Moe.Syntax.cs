@@ -46,8 +46,8 @@ public partial class MoeInterpreter
 			// code block[0]: func body
 			FuncntionNode funcntionNode = new()
 			{
-				FuncHeader = ParseFunctionHeader(funncStatement.CodeBlock[0].Tokens),
-				FuncBody = ParseProgram(funncStatement.CodeBlock[1])
+				Header = ParseFunctionHeader(funncStatement.CodeBlock[0].Tokens),
+				Body = ParseProgram(funncStatement.CodeBlock[1])
 			};
 
 			return funcntionNode;
@@ -94,7 +94,7 @@ public partial class MoeInterpreter
 					_ => MoeVariableType.Error,
 				},
 				FuncName = tokens[2].Tokens[0].Value,
-				CallType = [],
+				CallParam = [],
 			};
 
 			int start = 4;
@@ -105,7 +105,7 @@ public partial class MoeInterpreter
 
 				MoeVariable variable = ParseSingleVar(tokens[start..end]).Variables[0];
 				if (variable.Type != MoeVariableType.Void)
-					header.CallType.Add(variable);
+					header.CallParam.Add(variable);
 
 				start = end + 1;
 			}
@@ -263,7 +263,7 @@ public partial class MoeInterpreter
 			assignment.LeftVar = new()
 			{
 				Name = preTokens[0].Tokens[0].Value,
-				Index = (preTokens[^1].Type == ComplexTokenType.VarRange) ? VarSize(preTokens[^1]) : [1],
+				Index = (preTokens[^1].Type == ComplexTokenType.VarRange) ? VarSize(preTokens[^1]) : [0],
 			};
 
 
@@ -400,7 +400,7 @@ public partial class MoeInterpreter
 		public static List<int> VarSize(ComplexToken token)
 		{
 			List<int> varDimension = [];
-			int varSize = 1;
+			int varSize = 0;
 
 			if (token.Type != ComplexTokenType.VarRange)
 				throw new Exception(Log.LogMessage("错误的多维数组申明： 未声明数组大小： " + token));

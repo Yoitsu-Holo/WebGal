@@ -4,6 +4,175 @@ namespace WebGal.MeoInterpreter;
 
 public partial class MoeInterpreter
 {
+
+	public static object Call(FuncntionNode function, List<string> paramList) // 调用函数
+	{
+		FunctionHeader header = function.Header;
+		ProgramNode body = function.Body;
+		//!
+
+		Log.LogInfo("参数传递未实现", Global.LogLevel.Todo);
+
+		// List<MoeVariable> param = [];
+		// if (header.CallParam.Count != paramList.Count)
+		// {
+		// 	Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+		// 	return new();
+		// }
+		// for (int i = 0; i < header.CallParam.Count; i++)
+		// {
+		// 	MoeVariable? p = header.CallParam[i];
+		// 	param.Add((MoeVariable)p.Clone());
+		// 	param[^1].Init();
+
+		// 	MoeVariable? value = null;
+
+		// 	if (value is null)
+		// 		GVariables.TryGetValue(paramList[i], out value);
+		// 	if (value is null)
+		// 		ActiveTasks.Peek().LVariable.TryGetValue(paramList[i], out value);
+		// 	if (value is null)
+		// 	{
+		// 		Log.LogInfo("找不到变量定义", Global.LogLevel.Error);
+		// 		return new();
+		// 	}
+		// }
+		MoeStackFrame frame = new();
+		frame.PC.Push(0);
+		frame.CodeBlock.Push(body);
+		frame.BlockVarName.Push([]);
+		ActiveTasks.Push(frame);
+
+		Run(frame);
+
+		return new();
+	}
+
+	public static object Call(FunctionCallNode funcntion) // 调用函数
+	{
+		if (ActiveTasks.Count == 0)
+			throw new Exception(Log.LogMessage("任务栈未初始化"));
+		return Call(Functions[funcntion.FunctionName], funcntion.ParamName);
+	}
+
+	public static void Run(MoeStackFrame frame) //运行代码块
+	{
+		while (frame.PC.Count > 0)
+		{
+			int index = frame.PC.Peek();
+			ProgramNode now = frame.CodeBlock.Peek();
+
+			if (index >= now.Statements.Count) // 到达代码块结尾，跳出代码块
+			{
+				foreach (var varName in frame.BlockVarName.Peek())
+					frame.LVariable.Remove(varName);
+				frame.PC.Pop();
+				frame.CodeBlock.Pop();
+				frame.BlockVarName.Pop();
+				continue;
+			}
+
+			ASTNode ast = now.Statements[index];
+
+			frame.PC.Pop();
+			frame.PC.Push(index + 1);  // 放入下一条语句
+
+			if (ast.ASTType != ASTNodeType.Void)
+				Execute(ast, frame); // 执行当前语句
+		}
+	}
+
+	public static void Execute(ASTNode ast, MoeStackFrame frame)
+	{
+		if (ast.ASTType == ASTNodeType.Void)
+			return;
+		if (ast.ASTType == ASTNodeType.Error)
+		{
+			Log.LogInfo($"语法解析树中存在错误节点", Global.LogLevel.Error);
+			return;
+		}
+
+
+		if (ast.ASTType == ASTNodeType.Program && ast.Program is not null)
+		{
+			frame.PC.Push(0);
+			frame.CodeBlock.Push(ast.Program);
+			frame.BlockVarName.Push([]);
+		}
+		else if (ast.ASTType == ASTNodeType.VariableDeclaration && ast.VarDefine is not null)
+		{
+			foreach (var variable in ast.VarDefine.Variables)
+			{
+				if (frame.BlockVarName.Peek().Contains(variable.Name) || GVariables.ContainsKey(variable.Name))
+				{
+					Log.LogInfo($"变量名称重复定义 {variable}", Global.LogLevel.Error);
+					continue;
+				}
+
+				frame.BlockVarName.Peek().Add(variable.Name);
+				frame.LVariable.Add(variable.Name, (MoeVariable)variable.Clone());
+				frame.LVariable[variable.Name].Init();
+			}
+		}
+		else if (ast.ASTType == ASTNodeType.Assignment && ast.Assignment is not null)
+		{
+			var LeftInfo = ast.Assignment.LeftVar;
+			MoeVariable? Left = null;
+			object Right = new();
+
+			if (Left is null)
+				GVariables.TryGetValue(LeftInfo.Name, out Left);
+			if (Left is null)
+				frame.LVariable.TryGetValue(LeftInfo.Name, out Left);
+
+			if (Left is null)
+			{
+				Log.LogInfo($"未找到变量定义 {Left}", Global.LogLevel.Warning);
+				return;
+			}
+
+			if (Left.Access == MoeVariableAccess.Const)
+			{
+				Log.LogInfo($"不能对于常量修改 {Left}", Global.LogLevel.Warning);
+				return;
+			}
+
+			if (ast.Assignment.MathExp is not null)
+			{
+				ExpressionsExecutor expressionsExecutor = new();
+				Right = expressionsExecutor.Parse(ast.Assignment.MathExp);
+			}
+			else if (ast.Assignment.FuncCall is not null)
+				Right = Call(ast.Assignment.FuncCall);
+
+			if (Right is int && Left.Type == MoeVariableType.Int)
+				Left[LeftInfo.Index] = Right;
+			else if (Right is double && Left.Type == MoeVariableType.Double)
+				Left[LeftInfo.Index] = Right;
+			else if (Right is string && Left.Type == MoeVariableType.String)
+				Log.LogInfo("字符串赋值解析", Global.LogLevel.Todo);
+		}
+		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
+		{
+			Log.LogInfo("条件解析", Global.LogLevel.Todo);
+		}
+		else if (ast.ASTType == ASTNodeType.Loop && ast.Loop is not null)
+		{
+			Log.LogInfo("循环解析", Global.LogLevel.Todo);
+		}
+		else if (ast.ASTType == ASTNodeType.LoopControl && ast.LoopControl is not null)
+		{
+			Log.LogInfo("循环控制解析", Global.LogLevel.Todo);
+		}
+		else if (ast.ASTType == ASTNodeType.FunctionCall && ast.FunctionCall is not null)
+		{
+			Call(ast.FunctionCall);
+		}
+		else
+			Log.LogInfo("这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
+	}
+
+
 	public class ExpressionsExecutor
 	{
 		// ^ ================================================================
@@ -11,7 +180,7 @@ public partial class MoeInterpreter
 		private int index;
 		// private ExpressionToken CurrentToken => exp.Tokens[index];
 
-		private ExpressionToken CurrentToken => exp.Tokens[index];
+		private ExpressionToken CurrentToken => index < exp.Tokens.Count ? exp.Tokens[index] : new();
 
 		/// <summary>
 		/// 返回类型为 int 或者 double 的结果

@@ -150,7 +150,6 @@ public enum ASTNodeType
 {
 	Void,                   // 空
 	VariableDeclaration,
-	MathExpression, LogicExpression,
 	Conditional, Loop, LoopControl,
 	Assignment,
 	FunctionCall,
@@ -164,14 +163,14 @@ public class FunctionHeader
 	public string FuncName = "main";
 
 	public MoeVariableType ReturnType;
-	public List<MoeVariable> CallType = [];
+	public List<MoeVariable> CallParam = [];
 
 	public override string ToString()
 	{
 		string ret = $"FileName: {FileName}\t FuncName: {FuncName}\t ReturnType: {ReturnType}";
-		foreach (var call in CallType)
+		foreach (var call in CallParam)
 			ret += $"\n\tParam: {call}";
-		if (CallType.Count == 0)
+		if (CallParam.Count == 0)
 			ret += "\n\tParam: Null";
 		return ret;
 	}
@@ -335,7 +334,7 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 	public LoopNode? Loop;                  // 循环
 	public LoopControlNode? LoopControl;    // 循环
 	public FunctionCallNode? FunctionCall;  // 函数调用
-	public ProgramNode? CodeBlock;          // 代码块
+	public ProgramNode? Program;           // 代码块
 
 	public override string ToString()
 	{
@@ -354,8 +353,8 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 			ret += Loop;
 		else if (ASTType == ASTNodeType.LoopControl && LoopControl is not null)
 			ret += LoopControl;
-		else if (ASTType == ASTNodeType.Program && CodeBlock is not null)
-			ret += CodeBlock;
+		else if (ASTType == ASTNodeType.Program && Program is not null)
+			ret += Program;
 		else
 			ret += ">>> error line\n";
 		return ret;
@@ -364,14 +363,14 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 
 public class FuncntionNode
 {
-	public FunctionHeader FuncHeader = new();
-	public ProgramNode FuncBody = new();
+	public FunctionHeader Header = new();
+	public ProgramNode Body = new();
 
 	public override string ToString()
 	{
 		string ret = "";
-		ret += FuncHeader.ToString() + "\n";
-		ret += FuncBody.ToString() + "\n";
+		ret += Header.ToString() + "\n";
+		ret += Body.ToString() + "\n";
 		return ret;
 	}
 }
