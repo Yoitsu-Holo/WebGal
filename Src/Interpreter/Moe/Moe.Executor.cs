@@ -43,7 +43,11 @@ public partial class MoeInterpreter
 		// frame.BlockVarName.Push([]);
 		ActiveTasks.Push(frame);
 
-		Run(frame, body);
+		frame.PC.Push(0);
+		frame.CodeBlock.Push(body);
+		frame.BlockVarName.Push([]);
+
+		Run();
 
 		return new();
 	}
@@ -55,19 +59,22 @@ public partial class MoeInterpreter
 		return Call(Functions[funcntion.FunctionName], funcntion.ParamName);
 	}
 
-	public static void Run(MoeStackFrame frame, ProgramNode program) //运行代码块
+	public static void Run() //运行代码块
 	{
-		frame.PC.Push(0);
-		frame.CodeBlock.Push(program);
-		frame.BlockVarName.Push([]);
-
-		while (frame.PC.Count > 0)
+		while (ActiveTasks.Count > 0)
 		{
+			MoeStackFrame frame = ActiveTasks.Peek();
+
 			int index = frame.PC.Peek();
 			ProgramNode now = frame.CodeBlock.Peek();
 
 			if (index >= now.Statements.Count) // 到达代码块结尾，跳出代码块
 			{
+				foreach (var varName in frame.BlockVarName.Peek())
+					frame.LVariable.Remove(varName);
+				frame.PC.Pop();
+				frame.CodeBlock.Pop();
+				frame.BlockVarName.Pop();
 				break;
 			}
 
@@ -79,12 +86,6 @@ public partial class MoeInterpreter
 			if (ast.ASTType != ASTNodeType.Void)
 				Execute(ast, frame); // 执行当前语句
 		}
-
-		foreach (var varName in frame.BlockVarName.Peek())
-			frame.LVariable.Remove(varName);
-		frame.PC.Pop();
-		frame.CodeBlock.Pop();
-		frame.BlockVarName.Pop();
 	}
 
 	public static void Execute(ASTNode ast, MoeStackFrame frame)
@@ -100,7 +101,9 @@ public partial class MoeInterpreter
 
 		if (ast.ASTType == ASTNodeType.Program && ast.Program is not null)
 		{
-			Run(frame, ast.Program);
+			frame.PC.Push(0);
+			frame.CodeBlock.Push(ast.Program);
+			frame.BlockVarName.Push([]);
 		}
 		else if (ast.ASTType == ASTNodeType.VariableDeclaration && ast.VarDefine is not null)
 		{
@@ -175,7 +178,10 @@ public partial class MoeInterpreter
 				if (result is double resultDouble && resultDouble == 0)
 					continue;
 
-				Run(frame, conditional.Program);
+				// Run(frame, conditional.Program);
+				frame.PC.Push(0);
+				frame.CodeBlock.Push(conditional.Program);
+				frame.BlockVarName.Push([]);
 				break;
 			}
 		}
