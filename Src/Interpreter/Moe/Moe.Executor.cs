@@ -75,7 +75,7 @@ public partial class MoeInterpreter
 				frame.PC.Pop();
 				frame.CodeBlock.Pop();
 				frame.BlockVarName.Pop();
-				break;
+				continue;
 			}
 
 			ASTNode ast = now.Statements[index];
@@ -187,7 +187,30 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.Loop && ast.Loop is not null)
 		{
-			Log.LogInfo("循环解析", Global.LogLevel.Todo);
+			ConditionalNode loop = ast.Loop.Loop;
+
+			ExpressionsExecutor expressionsExecutor = new();
+			object result = expressionsExecutor.Parse(loop.Conditional);
+
+			if (result is not int && result is not double)
+			{
+				Log.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
+				return;
+			}
+
+			if (result is int resultInt && resultInt == 0)
+				return;
+			if (result is double resultDouble && resultDouble == 0)
+				return;
+
+			int index = frame.PC.Pop();
+			frame.PC.Push(index - 1);
+
+			frame.PC.Push(0);
+			frame.CodeBlock.Push(loop.Program);
+			frame.BlockVarName.Push([]);
+
+			// Log.LogInfo("循环解析", Global.LogLevel.Todo);
 		}
 		else if (ast.ASTType == ASTNodeType.LoopControl && ast.LoopControl is not null)
 		{
