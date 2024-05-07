@@ -5,43 +5,34 @@ namespace WebGal.MeoInterpreter;
 public partial class MoeInterpreter
 {
 
-	public static object Call(FuncntionNode function, List<string> paramList) // 调用函数
+	public static object Call(FuncntionNode function, List<MoeVariable> paramList) // 调用函数
 	{
 		FunctionHeader header = function.Header;
 		ProgramNode body = function.Body;
 		//!
 
 		Log.LogInfo("参数传递未实现", Global.LogLevel.Todo);
-
-		// List<MoeVariable> param = [];
-		// if (header.CallParam.Count != paramList.Count)
-		// {
-		// 	Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
-		// 	return new();
-		// }
-		// for (int i = 0; i < header.CallParam.Count; i++)
-		// {
-		// 	MoeVariable? p = header.CallParam[i];
-		// 	param.Add((MoeVariable)p.Clone());
-		// 	param[^1].Init();
-
-		// 	MoeVariable? value = null;
-
-		// 	if (value is null)
-		// 		GVariables.TryGetValue(paramList[i], out value);
-		// 	if (value is null)
-		// 		ActiveTasks.Peek().LVariable.TryGetValue(paramList[i], out value);
-		// 	if (value is null)
-		// 	{
-		// 		Log.LogInfo("找不到变量定义", Global.LogLevel.Error);
-		// 		return new();
-		// 	}
-		// }
 		MoeStackFrame frame = new();
-		// frame.PC.Push(0);
-		// frame.CodeBlock.Push(body);
-		// frame.BlockVarName.Push([]);
 		ActiveTasks.Push(frame);
+
+		if (header.CallParam.Count != paramList.Count)
+		{
+			Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+			return new();
+		}
+		for (int i = 0; i < header.CallParam.Count; i++)
+		{
+			if (header.CallParam[i].Type == paramList[i].Type)
+			{
+				MoeVariable v = (MoeVariable)paramList[i].Clone();
+				frame.LVariable[v.Name] = v;
+			}
+			else
+			{
+				Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+				return new();
+			}
+		}
 
 		frame.PC.Push(0);
 		frame.CodeBlock.Push(body);
@@ -54,9 +45,32 @@ public partial class MoeInterpreter
 
 	public static object Call(FunctionCallNode funcntion) // 调用函数
 	{
+		Log.LogInfo($"参数传递未完全实现", Global.LogLevel.Todo);
+
 		if (ActiveTasks.Count == 0)
 			throw new Exception(Log.LogMessage("任务栈未初始化"));
-		return Call(Functions[funcntion.FunctionName], funcntion.ParamName);
+		List<MoeVariable> paramList = [];
+		foreach (string varName in funcntion.ParamName)
+		{
+			if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
+				paramList.Add(gvalue);
+			else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
+				paramList.Add(lvalue);
+			else
+				Log.LogInfo($"局部/静态参数传递未完全实现", Global.LogLevel.Todo);
+		}
+
+		Log.LogInfo($"Function Name: {funcntion.FunctionName}");
+		// 系统保留
+		if (funcntion.FunctionName[0] == '_')
+		{
+			Console.WriteLine("123123");
+			foreach (var p in paramList)
+				Log.LogInfo(p, Global.LogLevel.Info);
+			return new();
+		}
+
+		return Call(Functions[funcntion.FunctionName], paramList);
 	}
 
 	public static void Run() //运行代码块
@@ -64,6 +78,8 @@ public partial class MoeInterpreter
 		while (ActiveTasks.Count > 0)
 		{
 			MoeStackFrame frame = ActiveTasks.Peek();
+			if (frame.PC.Count == 0)
+				break;
 
 			int index = frame.PC.Peek();
 			ProgramNode now = frame.CodeBlock.Peek();
@@ -540,7 +556,7 @@ public partial class MoeInterpreter
 				else throw new Exception(Log.LogMessage("非 int 或者 double 类型"));
 			}
 
-			Console.WriteLine($"{v1 is int} {v1} {v2 is int} {v2}");
+			Log.LogInfo($"{v1 is int} {v1} {v2 is int} {v2}", Global.LogLevel.Info);
 			if (flag)
 				return type switch
 				{

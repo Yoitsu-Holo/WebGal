@@ -365,6 +365,7 @@ public class FuncntionNode
 {
 	public FunctionHeader Header = new();
 	public ProgramNode Body = new();
+	public Dictionary<string, MoeVariable> SVariable = [];
 
 	public override string ToString()
 	{

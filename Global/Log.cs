@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using WebGal.MeoInterpreter;
 
 namespace WebGal.Global;
 
@@ -25,7 +26,7 @@ public class Log
 		[CallerLineNumber] int lineNumber = 0)
 	{
 		string ret = $"In File: {filePath.Split('\\')[^1]}\tName: {memberName}\tLine: {lineNumber}\n";
-		ret += $"\t{obj.ToString()}";
+		ret += $"{MsgGen(obj)}";
 		return ret;
 	}
 
@@ -35,7 +36,7 @@ public class Log
 		[CallerLineNumber] int lineNumber = 0)
 	{
 		string msg = $"In File: {filePath.Split('\\')[^1]}\tName: {memberName}\tLine: {lineNumber}\n";
-		msg += $"\t{obj.ToString()}";
+		msg += $"{MsgGen(obj)}";
 
 		if (JsRuntime == null)
 			throw new Exception("JS Runtime 未被设置");
@@ -50,5 +51,19 @@ public class Log
 			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", msg);
 		else
 			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", msg);
+	}
+
+	private static string MsgGen(object obj)
+	{
+		string s = "";
+		s += $"\t{obj}";
+		if (obj is MoeVariable v)
+		{
+			s += "\n";
+			if (v.Type == MoeVariableType.Int || v.Type == MoeVariableType.Double)
+				for (int i = 0; i < v.Size; i++)
+					s += $"\t\tobj[{i}]: {v[i]}{(i % 5 == 4 ? "\n" : "")}";
+		}
+		return s;
 	}
 }
