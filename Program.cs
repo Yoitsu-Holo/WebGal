@@ -24,7 +24,7 @@ builder.Services.AddScoped<ResourceManager>();  // GameManeger 依赖
 builder.Services.AddScoped<LayoutManager>();    // GameManeger 依赖
 builder.Services.AddScoped<AudioManager>();     // GameManeger 依赖
 
-builder.Services.AddScoped<Log>();
+builder.Services.AddScoped<Logger>();
 builder.Services.AddScoped<MoeInterpreter>();
 
 var driverRef = DotNetObjectReference.Create(new Driver());

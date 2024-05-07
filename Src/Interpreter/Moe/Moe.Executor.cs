@@ -1,3 +1,4 @@
+using System.Reflection;
 using WebGal.Global;
 
 namespace WebGal.MeoInterpreter;
@@ -11,13 +12,13 @@ public partial class MoeInterpreter
 		ProgramNode body = function.Body;
 		//!
 
-		Log.LogInfo("参数传递未实现", Global.LogLevel.Todo);
+		Logger.LogInfo("参数传递未实现", Global.LogLevel.Todo);
 		MoeStackFrame frame = new();
 		ActiveTasks.Push(frame);
 
 		if (header.CallParam.Count != paramList.Count)
 		{
-			Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+			Logger.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
 			return new();
 		}
 		for (int i = 0; i < header.CallParam.Count; i++)
@@ -29,7 +30,7 @@ public partial class MoeInterpreter
 			}
 			else
 			{
-				Log.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+				Logger.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
 				return new();
 			}
 		}
@@ -45,10 +46,10 @@ public partial class MoeInterpreter
 
 	public static object Call(FunctionCallNode funcntion) // 调用函数
 	{
-		Log.LogInfo($"参数传递未完全实现", Global.LogLevel.Todo);
+		Logger.LogInfo($"参数传递未完全实现", Global.LogLevel.Todo);
 
 		if (ActiveTasks.Count == 0)
-			throw new Exception(Log.LogMessage("任务栈未初始化"));
+			throw new Exception(Logger.LogMessage("任务栈未初始化"));
 		List<MoeVariable> paramList = [];
 		foreach (string varName in funcntion.ParamName)
 		{
@@ -57,20 +58,54 @@ public partial class MoeInterpreter
 			else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
 				paramList.Add(lvalue);
 			else
-				Log.LogInfo($"局部/静态参数传递未完全实现", Global.LogLevel.Todo);
+				Logger.LogInfo($"局部/静态参数传递未完全实现", Global.LogLevel.Todo);
 		}
 
-		Log.LogInfo($"Function Name: {funcntion.FunctionName}");
 		// 系统保留
 		if (funcntion.FunctionName[0] == '_')
 		{
-			Console.WriteLine("123123");
-			foreach (var p in paramList)
-				Log.LogInfo(p, Global.LogLevel.Info);
+			UserCall(funcntion.FunctionName[1..], paramList);
 			return new();
 		}
 
 		return Call(Functions[funcntion.FunctionName], paramList);
+	}
+
+	public static void UserCall(string syscall, List<MoeVariable> paramList)
+	{
+		if (syscall.Length == 0)
+		{
+			Logger.LogInfo($"错误的用户函数名称{syscall}", Global.LogLevel.Warning);
+			return;
+		}
+		if (syscall[0] == '_')
+		{
+			SysCall(syscall[1..], paramList);
+			return;
+		}
+		InnerCall(syscall, paramList);
+	}
+
+	public static void SysCall(string syscall, List<MoeVariable> paramList)
+	{
+		if (syscall.Length == 0)
+		{
+			Logger.LogInfo($"错误的系统内建函数名称{syscall}", Global.LogLevel.Warning);
+			return;
+		}
+		InnerCall(syscall, paramList);
+	}
+
+	public static void InnerCall(string syscall, List<MoeVariable> paramList)
+	{
+		Type type = typeof(Syscall);
+		MethodInfo? method = type.GetMethod(syscall, BindingFlags.Public | BindingFlags.Static, [typeof(List<MoeVariable>)]);
+		if (method is null)
+		{
+			Logger.LogInfo($"未知的系统内建函数名称{syscall}", Global.LogLevel.Warning);
+			return;
+		}
+		method.Invoke(null, [paramList]);
 	}
 
 	public static void Run() //运行代码块
@@ -110,7 +145,7 @@ public partial class MoeInterpreter
 			return;
 		if (ast.ASTType == ASTNodeType.Error)
 		{
-			Log.LogInfo($"语法解析树中存在错误节点", Global.LogLevel.Error);
+			Logger.LogInfo($"语法解析树中存在错误节点", Global.LogLevel.Error);
 			return;
 		}
 
@@ -127,7 +162,7 @@ public partial class MoeInterpreter
 			{
 				if (frame.BlockVarName.Peek().Contains(variable.Name) || GVariables.ContainsKey(variable.Name))
 				{
-					Log.LogInfo($"变量名称重复定义 {variable}", Global.LogLevel.Error);
+					Logger.LogInfo($"变量名称重复定义 {variable}", Global.LogLevel.Error);
 					continue;
 				}
 
@@ -149,13 +184,13 @@ public partial class MoeInterpreter
 
 			if (Left is null)
 			{
-				Log.LogInfo($"未找到变量定义 {Left}", Global.LogLevel.Warning);
+				Logger.LogInfo($"未找到变量定义 {Left}", Global.LogLevel.Warning);
 				return;
 			}
 
 			if (Left.Access == MoeVariableAccess.Const)
 			{
-				Log.LogInfo($"不能对于常量修改 {Left}", Global.LogLevel.Warning);
+				Logger.LogInfo($"不能对于常量修改 {Left}", Global.LogLevel.Warning);
 				return;
 			}
 
@@ -172,7 +207,7 @@ public partial class MoeInterpreter
 			else if (Right is double && Left.Type == MoeVariableType.Double)
 				Left[LeftInfo.Index] = Right;
 			else if (Right is string && Left.Type == MoeVariableType.String)
-				Log.LogInfo("字符串赋值解析", Global.LogLevel.Todo);
+				Logger.LogInfo("字符串赋值解析", Global.LogLevel.Todo);
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
@@ -185,7 +220,7 @@ public partial class MoeInterpreter
 
 				if (result is not int && result is not double)
 				{
-					Log.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
+					Logger.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
 					continue;
 				}
 
@@ -210,7 +245,7 @@ public partial class MoeInterpreter
 
 			if (result is not int && result is not double)
 			{
-				Log.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
+				Logger.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
 				return;
 			}
 
@@ -230,14 +265,14 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.LoopControl && ast.LoopControl is not null)
 		{
-			Log.LogInfo("循环控制解析", Global.LogLevel.Todo);
+			Logger.LogInfo("循环控制解析", Global.LogLevel.Todo);
 		}
 		else if (ast.ASTType == ASTNodeType.FunctionCall && ast.FunctionCall is not null)
 		{
 			Call(ast.FunctionCall);
 		}
 		else
-			Log.LogInfo("这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
+			Logger.LogInfo("这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
 	}
 
 
@@ -262,7 +297,7 @@ public partial class MoeInterpreter
 			index = 0;
 			object result = Level15();
 			if (index != exp.Tokens.Count)
-				throw new Exception(Log.LogMessage($"Unexpected token {tokens}"));
+				throw new Exception(Logger.LogMessage($"Unexpected token {tokens}"));
 			return result;
 		}
 
@@ -519,7 +554,7 @@ public partial class MoeInterpreter
 					LVariables.TryGetValue(variableInfo.Name, out variable);
 
 				if (variable is null)
-					throw new Exception(Log.LogMessage($"未找到变量定义 {CurrentToken}"));
+					throw new Exception(Logger.LogMessage($"未找到变量定义 {CurrentToken}"));
 
 				return variable[variableInfo.Index];
 			}
@@ -546,17 +581,16 @@ public partial class MoeInterpreter
 					(v1i, v1f) = (vv1, vv1);
 				else if (v1 is double vv2)
 					(v1i, v1f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Log.LogMessage("非 int 或者 double 类型"));
+				else throw new Exception(Logger.LogMessage("非 int 或者 double 类型"));
 			}
 			{
 				if (v2 is int vv1)
 					(v2i, v2f) = (vv1, vv1);
 				else if (v2 is double vv2)
 					(v2i, v2f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Log.LogMessage("非 int 或者 double 类型"));
+				else throw new Exception(Logger.LogMessage("非 int 或者 double 类型"));
 			}
 
-			Log.LogInfo($"{v1 is int} {v1} {v2 is int} {v2}", Global.LogLevel.Info);
 			if (flag)
 				return type switch
 				{
@@ -587,7 +621,7 @@ public partial class MoeInterpreter
 					OperatorType.Minus => -v1i,
 					OperatorType.bNOT => ~v1i,
 					OperatorType.NOT => (v1i == 0) ? 1 : 0,
-					_ => throw new Exception(Log.LogMessage($"运算符 {type} 未在整数实现")),
+					_ => throw new Exception(Logger.LogMessage($"运算符 {type} 未在整数实现")),
 				};
 			else
 				return type switch
@@ -612,7 +646,7 @@ public partial class MoeInterpreter
 					OperatorType.Minus => -v1f,
 					OperatorType.NOT => (v1f == 0) ? 1 : 0,
 					// _ => Log.LogInfo($"运算符 {type} 未实现", Global.LogLevel.Todo),
-					_ => throw new Exception(Log.LogMessage($"运算符 {type} 未在浮点数实现")),
+					_ => throw new Exception(Logger.LogMessage($"运算符 {type} 未在浮点数实现")),
 				};
 		}
 	}
