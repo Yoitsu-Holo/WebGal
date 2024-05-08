@@ -40,12 +40,10 @@ public partial class MoeInterpreter
 
 		private int _line = 0;
 		private int _inputPos = 0;
-		private int _simpleTokenPos = 0;
 		private int _complexTokenPos = 0;
 
 		private List<string> _input = [];
-		public List<SimpleToken> SimpleTokens = [];
-		public List<ComplexToken> ComplexTokens = [];
+		public List<Token> Tokens = [];
 		public Statement CodeStatement = new();
 
 		public Lexer(string input) => SetInput(input);
@@ -61,11 +59,11 @@ public partial class MoeInterpreter
 
 		public void Clear()
 		{
-			_line = _inputPos = _simpleTokenPos = _complexTokenPos = 0;
+			_line = _inputPos = _complexTokenPos = 0;
 
 			_input = [];
-			SimpleTokens = [];
-			ComplexTokens = [];
+			Tokens = [];
+			// ComplexTokens = [];
 			CodeStatement = new();
 		}
 
@@ -77,37 +75,30 @@ public partial class MoeInterpreter
 
 		public void Parse()
 		{
-			ParseSimpleTokens();
-			ParseComplexTokens();
+			ParseTokens();
 			CodeStatement = ParseStatement();
 		}
 
-		public void ParseSimpleTokens()
+		public void ParseTokens()
 		{
 			while (true)
 			{
-				SimpleToken token = NextSimpleToken();
-				if (token.Type == SimpleTokenType.Error)
+				Token token = NextToken();
+				if (token.Type == TokenType.Error)
 					throw new Exception("Error Toke: " + token);
 
-				SimpleTokens.Add(token);
-
-				if (token.Type == SimpleTokenType.EOF)
+				if (token.Type == TokenType.EOF)
 					break;
+
+				Tokens.Add(token);
 			}
-		}
 
-		public void ParseComplexTokens()
-		{
-			while (true)
+			for (int i = 0; i < Tokens.Count; i++)
 			{
-				ComplexToken token = NextComplexToken();
-				if (token.Type == ComplexTokenType.Error)
-					throw new Exception("Error Toke: " + token);
-				if (token.Type == ComplexTokenType.EOF)
-					break;
-
-				ComplexTokens.Add(token);
+				if (Tokens[i].Type == TokenType.Function && Tokens[i + 2].Type == TokenType.VarName)
+					Tokens[i + 2].Type = TokenType.FuncName;
+				else if (Tokens.Count > i + 1 && Tokens[i].Type == TokenType.VarName && Tokens[i + 1].Type == TokenType.LeftParen)
+					Tokens[i].Type = TokenType.FuncName;
 			}
 		}
 
@@ -120,14 +111,14 @@ public partial class MoeInterpreter
 		private Statement ParseStatement()
 		{
 			Statement statement = new() { IsCodeblock = true, CodeBlock = [new()], };
-			while (_complexTokenPos < ComplexTokens.Count)
+			while (_complexTokenPos < Tokens.Count)
 			{
-				ComplexToken token = ComplexTokens[_complexTokenPos++];
+				Token token = Tokens[_complexTokenPos++];
 
-				if (token.Type == ComplexTokenType.RightCodeBlock) // 代码块结束
+				if (token.Type == TokenType.RightCodeBlock) // 代码块结束
 					break;
 
-				if (token.Type == ComplexTokenType.LeftCodeBlock) // 代码块开始
+				if (token.Type == TokenType.LeftCodeBlock) // 代码块开始
 				{
 					if (statement.CodeBlock[^1].CodeBlock.Count != 0 || statement.CodeBlock[^1].Tokens.Count != 0)
 						statement.CodeBlock.Add(new());
@@ -137,7 +128,7 @@ public partial class MoeInterpreter
 					continue;
 				}
 
-				if (token.Type == ComplexTokenType.LineEnd) // 不加入当前，并且新开一个代码块
+				if (token.Type == TokenType.LineEnd) // 不加入当前，并且新开一个代码块
 				{
 					if (statement.CodeBlock[^1].CodeBlock.Count != 0 || statement.CodeBlock[^1].Tokens.Count != 0)
 						statement.CodeBlock.Add(new());
@@ -151,9 +142,7 @@ public partial class MoeInterpreter
 			return statement;
 		}
 
-
-
-		public SimpleToken NextSimpleToken()
+		public Token NextToken()
 		{
 			// 判断溢出
 			if (_inputPos >= _input[_line].Length)
@@ -161,17 +150,17 @@ public partial class MoeInterpreter
 				if (_line >= _input.Count)
 				{
 
-					return new() { Type = SimpleTokenType.Error, };
+					return new() { Type = TokenType.Error, };
 				}
 				_line++;
 				_inputPos = 0;
 			}
 
 			// 判断文件结束
-			SimpleToken ret = new() { Line = _line, Type = SimpleTokenType.Void };
+			Token ret = new() { Line = _line, Type = TokenType.Void };
 			if (_line >= _input.Count)
 			{
-				ret.Type = SimpleTokenType.EOF;
+				ret.Type = TokenType.EOF;
 				return ret;
 			}
 
@@ -182,7 +171,7 @@ public partial class MoeInterpreter
 			{
 				//^ 空白占位符
 				_inputPos++;
-				return NextSimpleToken();
+				return NextToken();
 			}
 			else if (char.IsLetter(_input[_line][_inputPos]) || _input[_line][_inputPos] == '_')
 			{
@@ -196,32 +185,39 @@ public partial class MoeInterpreter
 				{
 					ret.Type = value switch
 					{
-						"func" => SimpleTokenType.Function,
-						"retuen" => SimpleTokenType.Retuen,
-						"while" => SimpleTokenType.WHILE,
-						"continue" => SimpleTokenType.CONTINUE,
-						"break" => SimpleTokenType.BREAK,
-						"if" => SimpleTokenType.IF,
-						"elif" => SimpleTokenType.ELIF,
-						"else" => SimpleTokenType.ELSE,
-						_ => SimpleTokenType.Error,
+						"func" => TokenType.Function,
+						"retuen" => TokenType.Return,
+						"while" => TokenType.WHILE,
+						"continue" => TokenType.CONTINUE,
+						"break" => TokenType.BREAK,
+						"if" => TokenType.IF,
+						"elif" => TokenType.ELIF,
+						"else" => TokenType.ELSE,
+						_ => TokenType.Error,
 					};
 				}
 
 				else if (AccessSet.Contains(value))
-					ret.Type = SimpleTokenType.VarAccess;
+					ret.Type = TokenType.VarAccess;
 				else if (TypeSet.Contains(value))
-					ret.Type = SimpleTokenType.VarType;
+					ret.Type = TokenType.VarType;
 				else
-					ret.Type = SimpleTokenType.Name;
+					ret.Type = TokenType.VarName;
 			}
 			else if (char.IsDigit(_input[_line][_inputPos]))
 			{
 				//^ 处理数字
 				while (_inputPos < _input[_line].Length && char.IsDigit(_input[_line][_inputPos]))
 					_inputPos++;
-				// 默认为整数
-				ret.Type = SimpleTokenType.Number;
+				ret.Type = TokenType.IntNumber;
+
+				if (_input[_line][_inputPos] == '.')
+				{
+					_inputPos++;
+					while (_inputPos < _input[_line].Length && char.IsDigit(_input[_line][_inputPos]))
+						_inputPos++;
+					ret.Type = TokenType.FloatNumber;
+				}
 			}
 			else if (OperatorSet.Contains(_input[_line][start..(_inputPos + 1)]))
 			{
@@ -231,26 +227,20 @@ public partial class MoeInterpreter
 
 				string opString = _input[_line][start.._inputPos];
 				if (opString == "=")
-					ret.Type = SimpleTokenType.AssignmentOperator;
+					ret.Type = TokenType.AssignmentOperator;
 				else
-					ret.Type = SimpleTokenType.Operator;
+					ret.Type = TokenType.Operator;
 			}
 			else if (_input[_line][_inputPos] == ';')
 			{
 				//^ 处理分隔符
-				ret.Type = SimpleTokenType.LineEnd;
-				_inputPos++;
-			}
-			else if (_input[_line][_inputPos] == '.')
-			{
-				//^ 处理小数点 (伦理，应该不会出现单独的点)
-				ret.Type = SimpleTokenType.Point;
+				ret.Type = TokenType.LineEnd;
 				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == ',')
 			{
 				//^ 处理小数点
-				ret.Type = SimpleTokenType.VarDelimiter;
+				ret.Type = TokenType.VarDelimiter;
 				_inputPos++;
 			}
 			else if (_input[_line][_inputPos] == '(' || _input[_line][_inputPos] == ')')
@@ -258,9 +248,9 @@ public partial class MoeInterpreter
 				//^ 处理括号
 				ret.Type = _input[_line][_inputPos] switch
 				{
-					'(' => SimpleTokenType.LeftParen,
-					')' => SimpleTokenType.RightParen,
-					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
+					'(' => TokenType.LeftParen,
+					')' => TokenType.RightParen,
+					_ => throw new NotImplementedException(),
 				};
 				_inputPos++;
 			}
@@ -269,21 +259,20 @@ public partial class MoeInterpreter
 				//^ 处理代码块
 				ret.Type = _input[_line][_inputPos] switch
 				{
-					'{' => SimpleTokenType.LeftCodeBlock,
-					'}' => SimpleTokenType.RightCodeBlock,
-					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
+					'{' => TokenType.LeftCodeBlock,
+					'}' => TokenType.RightCodeBlock,
+					_ => throw new NotImplementedException(),
 				};
 				_inputPos++;
 			}
-			else if (_input[_line][_inputPos] == '[' || _input[_line][_inputPos] == ':' || _input[_line][_inputPos] == ']')
+			else if (_input[_line][_inputPos] == '[' || _input[_line][_inputPos] == ']')
 			{
 				//^ 处理范围
 				ret.Type = _input[_line][_inputPos] switch
 				{
-					'[' => SimpleTokenType.LeftRange,
-					':' => SimpleTokenType.RangeDelimiter,
-					']' => SimpleTokenType.RightRange,
-					_ => throw new Exception(_input[_line] + " : " + _input[_line][_inputPos]),
+					'[' => TokenType.LeftRange,
+					']' => TokenType.RightRange,
+					_ => throw new NotImplementedException(),
 				};
 				_inputPos++;
 			}
@@ -296,141 +285,18 @@ public partial class MoeInterpreter
 					_inputPos++;
 				}
 
-				ret.Type = SimpleTokenType.String;
+				ret.Type = TokenType.String;
 				_inputPos++;
 			}
 			else
 			{
 				//^ 处理其他 Token，默认为错误
-				ret.Type = SimpleTokenType.Error;
+				ret.Type = TokenType.Error;
 				_inputPos++;
 			}
 
 			ret.Value = _input[_line][start.._inputPos];
 			return ret;
-		}
-
-		public ComplexToken NextComplexToken()
-		{
-			if (_simpleTokenPos >= SimpleTokens.Count)
-				return new() { Type = ComplexTokenType.Error };
-
-			ComplexToken token = new() { Line = SimpleTokens[_simpleTokenPos].Line, Type = ComplexTokenType.Void, };
-
-			//^ 变量定义
-			if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.VarAccess)
-			{
-				token.Type = ComplexTokenType.VarAccess;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-			}
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.VarType)
-			{
-				token.Type = ComplexTokenType.VarType;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-			}
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.VarDelimiter)
-				token.Type = ComplexTokenType.VarDelimiter;
-
-			//^ 变量大小
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.LeftRange)
-			{
-				token.Type = ComplexTokenType.VarRange;
-
-				_simpleTokenPos++; // 跳过左边界
-				bool numberFlag = true;
-				while (SimpleTokens[_simpleTokenPos].Type != SimpleTokenType.RightRange)
-				{
-					if (!numberFlag && SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.RangeDelimiter)
-						numberFlag = true;
-					else if (numberFlag && SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Number)
-					{
-						token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-						numberFlag = false;
-					}
-					else
-						throw new Exception($"Error token: {token}");
-					_simpleTokenPos++;
-				}
-			}
-
-			//^ 名称处理
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Name)
-			{
-				token.Type = ComplexTokenType.VarName;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-
-				if (_simpleTokenPos + 1 < SimpleTokens.Count && SimpleTokens[_simpleTokenPos + 1].Type == SimpleTokenType.LeftParen)
-					token.Type = ComplexTokenType.FuncName;
-			}
-
-			//^ 数字
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Number)
-			{
-				token.Type = ComplexTokenType.IntNumber;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-
-				if (_simpleTokenPos + 2 < SimpleTokens.Count)
-				{
-					if (SimpleTokens[_simpleTokenPos + 1].Type == SimpleTokenType.Point && SimpleTokens[_simpleTokenPos + 2].Type == SimpleTokenType.Number)
-					{
-						token.Type = ComplexTokenType.FloatNumber;
-						token.Tokens.Add(SimpleTokens[_simpleTokenPos + 1]);
-						token.Tokens.Add(SimpleTokens[_simpleTokenPos + 2]);
-						_simpleTokenPos += 2;
-					}
-				}
-			}
-
-			//^ 运算符
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Operator)
-			{
-				token.Type = ComplexTokenType.Operator;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-			}
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.AssignmentOperator)
-			{
-				token.Type = ComplexTokenType.AssignmentOperator;
-				token.Tokens.Add(SimpleTokens[_simpleTokenPos]);
-			}
-
-			//^ 关键字
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Function)
-				token.Type = ComplexTokenType.Function;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.Retuen)
-				token.Type = ComplexTokenType.Return;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.IF)
-				token.Type = ComplexTokenType.IF;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.ELIF)
-				token.Type = ComplexTokenType.ELIF;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.ELSE)
-				token.Type = ComplexTokenType.ELSE;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.WHILE)
-				token.Type = ComplexTokenType.WHILE;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.CONTINUE)
-				token.Type = ComplexTokenType.CONTINUE;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.BREAK)
-				token.Type = ComplexTokenType.BREAK;
-
-			//^ 结构
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.LeftParen)
-				token.Type = ComplexTokenType.LeftParen;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.RightParen)
-				token.Type = ComplexTokenType.RightParen;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.LeftCodeBlock)
-				token.Type = ComplexTokenType.LeftCodeBlock;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.RightCodeBlock)
-				token.Type = ComplexTokenType.RightCodeBlock;
-
-			//^ 终结符处理
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.LineEnd)
-				token.Type = ComplexTokenType.LineEnd;
-			else if (SimpleTokens[_simpleTokenPos].Type == SimpleTokenType.EOF)
-				token.Type = ComplexTokenType.EOF;
-			else
-				throw new Exception(" ??? " + SimpleTokens[_simpleTokenPos]);
-
-			_simpleTokenPos++;
-			return token;
 		}
 	}
 }

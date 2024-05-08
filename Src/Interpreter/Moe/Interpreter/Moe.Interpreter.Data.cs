@@ -1,42 +1,20 @@
 namespace WebGal.MeoInterpreter;
 
-public enum SimpleTokenType
-{
-	Void,
-
-	VarAccess, VarType,
-	Function, Retuen,
-	Name, VarDelimiter,
-	Number, Point, String,
-	IF, ELIF, ELSE,
-	WHILE, CONTINUE, BREAK,
-	Operator, AssignmentOperator,
-
-	LeftParen, RightParen,
-	LeftRange, RangeDelimiter, RightRange,
-	LeftCodeBlock, RightCodeBlock,
-
-	LineEnd, EOF,
-
-	Error,
-}
-
-public enum ComplexTokenType
+public enum TokenType
 {
 	Void,
 
 	VarAccess, VarType,
 	Function, Return,
-	VarName, VarRange, VarDelimiter,
-	FuncName,
-
+	FuncName, VarName, VarDelimiter,
 	IntNumber, FloatNumber, String,
+
 	IF, ELIF, ELSE,
 	WHILE, CONTINUE, BREAK,
-
 	Operator, AssignmentOperator,
 
 	LeftParen, RightParen,
+	LeftRange, RightRange,
 	LeftCodeBlock, RightCodeBlock,
 
 	LineEnd, EOF,
@@ -44,9 +22,9 @@ public enum ComplexTokenType
 	Error,
 }
 
-public class SimpleToken
+public class Token
 {
-	public SimpleTokenType Type = SimpleTokenType.Void;
+	public TokenType Type = TokenType.Void;
 	public string Value = "";
 	public int Line = 0;
 
@@ -56,27 +34,9 @@ public class SimpleToken
 	}
 }
 
-public class ComplexToken
-{
-	public ComplexTokenType Type = ComplexTokenType.Void;
-	public List<SimpleToken> Tokens = [];
-	public int Line = 0;
-
-	public override string ToString()
-	{
-		string ret = $"{Line}:{Type}\t";
-		foreach (var token in Tokens)
-		{
-			ret += token.Value;
-			ret += " ";
-		}
-		return ret;
-	}
-}
-
 public class ProgramToken
 {
-	public ComplexTokenType Type = ComplexTokenType.Void;
+	public TokenType Type = TokenType.Void;
 	public string Value = "";
 
 	public override string ToString()
@@ -88,15 +48,15 @@ public class ProgramToken
 public class Statement
 {
 	public bool IsCodeblock = false;
-	public List<ComplexToken> Tokens = [];
+	// public List<ComplexToken> Tokens = [];
+	public List<Token> Tokens = [];
 	public List<Statement> CodeBlock = [];
 
 	public override string ToString()
 	{
 		string ret = "";
 		foreach (var token in Tokens)
-			foreach (var rawToken in token.Tokens)
-				ret += rawToken.Type + ":" + rawToken.Value + " ";
+			ret += token.Type + ":" + token.Value + " ";
 		return ret;
 	}
 }
@@ -111,14 +71,13 @@ public class VarTypeNode
 public class VariableInfo
 {
 	public string Name = "";
-	public List<int> Index = [0];
+	public List<ExpressionNode> Index = [];
 
 	public override string ToString()
 	{
-		string ret = Name + "[ ";
+		string ret = Name;
 		foreach (var sz in Index)
-			ret += sz + " ";
-		ret += "]";
+			ret += "[" + sz + "]";
 		return ret;
 	}
 }

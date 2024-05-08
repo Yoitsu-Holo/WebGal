@@ -37,7 +37,7 @@ public partial class MoeInterpreter
 		await GameStartAsync();
 		FormRegister();
 		Tasks[_activeTask] = new();
-		Call(Functions["test"], []);
+		// Call(Functions["test"], []);
 	}
 
 	[JSInvokable]

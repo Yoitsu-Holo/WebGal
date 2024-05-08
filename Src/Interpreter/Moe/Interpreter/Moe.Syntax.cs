@@ -1,3 +1,4 @@
+using WebGal.Extend.Collections;
 using WebGal.Global;
 
 namespace WebGal.MeoInterpreter;
@@ -9,12 +10,13 @@ public partial class MoeInterpreter
 	{
 		public static List<FuncntionNode> ParseFile(Statement fileStatement)
 		{
+
 			Statement temp = new();
 			List<FuncntionNode> functions = [];
 
 			foreach (var statement in fileStatement.CodeBlock)
 			{
-				if (statement.IsCodeblock == false && statement.Tokens[0].Type == ComplexTokenType.Function)
+				if (statement.IsCodeblock == false && statement.Tokens[0].Type == TokenType.Function)
 				{
 					if (temp.CodeBlock.Count == 0)
 						temp.CodeBlock.Add(statement);
@@ -41,12 +43,13 @@ public partial class MoeInterpreter
 
 		public static FuncntionNode ParseFunction(Statement funncStatement)
 		{
+
 			// function:
 			// code block[0]: func header
 			// code block[0]: func body
 			FuncntionNode funcntionNode = new()
 			{
-				Header = ParseFunctionHeader(funncStatement.CodeBlock[0].Tokens),
+				Header = ParseFunctionHeader(funncStatement.CodeBlock[0].Tokens.GetEnumerator()),
 				Body = ParseProgram(funncStatement.CodeBlock[1])
 			};
 
@@ -55,6 +58,7 @@ public partial class MoeInterpreter
 
 		public static ProgramNode ParseProgram(Statement programeStatement)
 		{
+
 			ProgramNode programNode = new();
 
 			// foreach (var statement in programeStatement.CodeBlock)
@@ -64,28 +68,32 @@ public partial class MoeInterpreter
 		}
 
 
-		public static FunctionHeader ParseFunctionHeader(List<ComplexToken> tokens)
+		public static FunctionHeader ParseFunctionHeader(IEnumerator<Token> tokens)
 		{
-			FunctionHeader header = new();
 
-			if (tokens[0].Type != ComplexTokenType.Function)
+			Token func, varType, FuncName;
+
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage("无函数定义语法"));
+			func = tokens.Current;
+			if (func.Type != TokenType.Function)
 				throw new Exception(Logger.LogMessage("错误的函数定义语法"));
 
-			if (tokens.Count < 5)
-				throw new Exception(Logger.LogMessage("不完整的函数定义"));
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage($"无函数返回值类型"));
+			varType = tokens.Current;
+			if (varType.Type != TokenType.VarType)
+				throw new Exception(Logger.LogMessage($"错误的函数返回值类型: {varType}"));
 
-			if (tokens[1].Type != ComplexTokenType.VarType)
-				throw new Exception(Logger.LogMessage("错误的函数返回值类型: " + tokens[1].Type + " " + tokens[1].Tokens[0].Value));
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage($"无函数名称"));
+			FuncName = tokens.Current;
+			if (FuncName.Type != TokenType.FuncName)
+				throw new Exception(Logger.LogMessage($"错误的函数名称: {FuncName}"));
 
-			if (tokens[2].Type != ComplexTokenType.FuncName)
-				throw new Exception(Logger.LogMessage("错误的函数名称"));
-
-			if (tokens[3].Type != ComplexTokenType.LeftParen || tokens[^1].Type != ComplexTokenType.RightParen)
-				throw new Exception(Logger.LogMessage("错误的函数参数列表"));
-
-			header = new()
+			FunctionHeader header = new()
 			{
-				ReturnType = tokens[1].Tokens[0].Value switch
+				ReturnType = varType.Value switch
 				{
 					"void" => MoeVariableType.Void,
 					"int" => MoeVariableType.Int,
@@ -93,21 +101,43 @@ public partial class MoeInterpreter
 					"string" => MoeVariableType.String,
 					_ => MoeVariableType.Error,
 				},
-				FuncName = tokens[2].Tokens[0].Value,
+				FuncName = FuncName.Value,
 				CallParam = [],
 			};
 
-			int start = 4;
-			for (int end = 4; end < tokens.Count; end++)
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage($"无函数参数列表"));
+			if (tokens.Current.Type != TokenType.LeftParen)
+				throw new Exception(Logger.LogMessage($"错误的函数参数列表 {tokens.Current}"));
+
+			List<Token> param = [];
+			bool close = false;
+			while (tokens.MoveNext())
 			{
-				if (tokens[end].Type != ComplexTokenType.VarDelimiter && tokens[end].Type != ComplexTokenType.RightParen)
-					continue;
+				Token token = tokens.Current;
 
-				MoeVariable variable = ParseSingleVar(tokens[start..end]).Variables[0];
-				if (variable.Type != MoeVariableType.Void)
-					header.CallParam.Add(variable);
+				if (token.Type != TokenType.VarDelimiter && token.Type != TokenType.RightParen)
+					param.Add(token);
+				else
+				{
+					if (param.Count != 0)
+					{
+						MoeVariable variable = ParseSingleVar(param.GetEnumerator()).Variables[0];
+						header.CallParam.Add(variable);
+					}
+					param.Clear();
+				}
 
-				start = end + 1;
+				if (token.Type == TokenType.RightParen)
+				{
+					close = true;
+					break;
+				}
+			}
+
+			if (close == false)
+			{
+				throw new Exception(Logger.LogMessage($"未封闭的函数参数列表 {tokens.Current}"));
 			}
 
 			return header;
@@ -121,15 +151,15 @@ public partial class MoeInterpreter
 			{
 				Statement statement = FuncStatement.CodeBlock[i];
 				ASTNode node = new();
-				List<ComplexToken> tokens = statement.Tokens;
+				List<Token> tokens = statement.Tokens;
 
-				if (tokens[0].Type == ComplexTokenType.VarAccess)
+				if (tokens[0].Type == TokenType.VarAccess)
 				{
 					node.ASTType = ASTNodeType.VariableDeclaration;
 					node.VarDefine = ParseVariableDefine(statement, preWhile);
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.IF)
+				else if (tokens[0].Type == TokenType.IF)
 				{
 					//* if条件
 					if (i + 1 >= FuncStatement.CodeBlock.Count)
@@ -141,7 +171,7 @@ public partial class MoeInterpreter
 					node.IfCase = new() { If = [conditional] };
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.ELIF)
+				else if (tokens[0].Type == TokenType.ELIF)
 				{
 					node = programNode.Statements[^1];
 
@@ -157,7 +187,7 @@ public partial class MoeInterpreter
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
-				else if (tokens[0].Type == ComplexTokenType.ELSE)
+				else if (tokens[0].Type == TokenType.ELSE)
 				{
 					//* else 条件
 					node = programNode.Statements[^1];
@@ -172,7 +202,7 @@ public partial class MoeInterpreter
 					node.IfCase.If.Add(conditional);
 					programNode.Statements[^1] = node;
 				}
-				else if (tokens[0].Type == ComplexTokenType.WHILE)
+				else if (tokens[0].Type == TokenType.WHILE)
 				{
 					//* while 循环
 					ConditionalNode conditional = ParseConditional(statement, FuncStatement.CodeBlock[i + 1], preWhile);
@@ -182,7 +212,7 @@ public partial class MoeInterpreter
 					node.Loop = new() { Loop = conditional };
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.CONTINUE || tokens[0].Type == ComplexTokenType.BREAK)
+				else if (tokens[0].Type == TokenType.CONTINUE || tokens[0].Type == TokenType.BREAK)
 				{
 					if (preWhile is null)
 						throw new Exception(Logger.LogMessage("无前置 while 循环"));
@@ -190,21 +220,21 @@ public partial class MoeInterpreter
 					node.ASTType = ASTNodeType.LoopControl;
 					node.LoopControl = new() { Loop = preWhile, };
 
-					if (tokens[0].Type == ComplexTokenType.CONTINUE)
+					if (tokens[0].Type == TokenType.CONTINUE)
 						node.LoopControl.ContinueFlag = true;
-					if (tokens[0].Type == ComplexTokenType.BREAK)
+					if (tokens[0].Type == TokenType.BREAK)
 						node.LoopControl.ContinueFlag = false;
 
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.VarName)
+				else if (tokens[0].Type == TokenType.VarName)
 				{
 					//* 赋值语句
 					node.ASTType = ASTNodeType.Assignment;
 					node.Assignment = ParseAssignment(statement, preWhile);
 					programNode.Statements.Add(node);
 				}
-				else if (tokens[0].Type == ComplexTokenType.FuncName)
+				else if (tokens[0].Type == TokenType.FuncName)
 				{
 					//* 函数调用
 					node.ASTType = ASTNodeType.FunctionCall;
@@ -214,9 +244,8 @@ public partial class MoeInterpreter
 				else
 				{
 					string error = "";
-					foreach (var ComplexToken in tokens)
-						foreach (var token in ComplexToken.Tokens)
-							error += token.Value + " ";
+					foreach (var token in tokens)
+						error += token.Value + " ";
 					throw new Exception(Logger.LogMessage($"??? WTF \nLine: {tokens[0].Line} : {error}"));
 				}
 			}
@@ -226,57 +255,69 @@ public partial class MoeInterpreter
 
 		public static ConditionalNode ParseConditional(Statement statement, Statement programe, ConditionalNode? preWhile)
 		{
-			List<ComplexToken> tokens = statement.Tokens;
+			List<Token> tokens = statement.Tokens;
 
-			if (tokens[0].Type != ComplexTokenType.ELSE)
-				if (tokens.Count < 4 || tokens[1].Type != ComplexTokenType.LeftParen || tokens[^1].Type != ComplexTokenType.RightParen)
+			if (tokens[0].Type != TokenType.ELSE)
+				if (tokens.Count < 4 || tokens[1].Type != TokenType.LeftParen || tokens[^1].Type != TokenType.RightParen)
 					throw new Exception(Logger.LogMessage("错误的条件语法"));
 
 			//* 条件
 			ConditionalNode conditional = new();
 
-			if (tokens[0].Type != ComplexTokenType.ELSE)
-				conditional.Conditional.Tokens = MathExpression(tokens[2..^1]);
+			if (tokens[0].Type != TokenType.ELSE)
+				conditional.Conditional = MathExpression(new DoubleEnumerator<Token>(tokens[2..^1]));
 			else
 				conditional.Conditional.Tokens = [new() { Type = OperatorType.NUM, Number = 1, }];
 
-			if (tokens[0].Type == ComplexTokenType.WHILE)
+			if (tokens[0].Type == TokenType.WHILE)
 				conditional.Program = PraseProgram(programe, conditional);
 			else
 				conditional.Program = PraseProgram(programe, preWhile);
-
 
 			return conditional;
 		}
 
 		public static AssignmentNode ParseAssignment(Statement statement, ConditionalNode? preWhile)
 		{
-			List<ComplexToken> tokens = statement.Tokens;
+			List<Token> tokens = statement.Tokens;
 
 			//* 赋值
 			AssignmentNode assignment = new();
+			Console.WriteLine(statement);
 
 			int demerger;
-			for (demerger = 0; tokens[demerger].Type != ComplexTokenType.AssignmentOperator; demerger++) ;
+			for (demerger = 0; tokens[demerger].Type != TokenType.AssignmentOperator; demerger++) ;
 
-			List<ComplexToken> preTokens = tokens[0..demerger];
-			List<ComplexToken> expTokens = tokens[(demerger + 1)..];
+			List<Token> preTokens = tokens[0..demerger];
+			List<Token> expTokens = tokens[(demerger + 1)..];
 
 			assignment.LeftVar = new()
 			{
-				Name = preTokens[0].Tokens[0].Value,
-				Index = (preTokens[^1].Type == ComplexTokenType.VarRange) ? VarSize(preTokens[^1]) : [0],
+				Name = preTokens[0].Value,
 			};
 
+			//!
+			List<Token> list = preTokens[1..];
+			for (int i = 0; i < list.Count; i++)
+			{
+				DoubleEnumerator<Token> range = new(preTokens[1..]);
+				while (range.TryGetNext(out Token? t))
+				{
+					if (t!.Type == TokenType.LeftRange)
+						assignment.LeftVar.Index.Add(RangeExpression(range));
+					else
+						break;
+				}
+			}
 
-			if (expTokens.Count >= 2 && expTokens[0].Type == ComplexTokenType.FuncName)
+			if (expTokens.Count >= 2 && expTokens[0].Type == TokenType.FuncName)
 			{
 				Logger.LogInfo("Function call is todo", Global.LogLevel.Todo);
 				assignment.FuncCall = new();
 			}
-			else if (preTokens[0].Type == ComplexTokenType.VarName)
+			else if (preTokens[0].Type == TokenType.VarName)
 			{
-				assignment.MathExp = new() { Tokens = MathExpression(expTokens), };
+				assignment.MathExp = MathExpression(new DoubleEnumerator<Token>(expTokens));
 			}
 
 			return assignment;
@@ -284,26 +325,31 @@ public partial class MoeInterpreter
 
 		public static FunctionCallNode ParseFunctionCall(Statement statement, ConditionalNode? preWhile)
 		{
-			List<ComplexToken> tokens = statement.Tokens;
+			List<Token> tokens = statement.Tokens;
 			FunctionCallNode functionCall = new();
 
-			if (tokens[0].Type != ComplexTokenType.FuncName)
+			if (tokens[0].Type != TokenType.FuncName)
 				throw new Exception(Logger.LogMessage("函数调用必须以函数名开始"));
-			functionCall.FunctionName = tokens[0].Tokens[0].Value;
+			functionCall.FunctionName = tokens[0].Value;
 
-			List<ComplexToken> lestToken = tokens[2..^1];
+			List<Token> lestToken = tokens[2..^1];
 			bool var = false;
-			foreach (var token in lestToken)
+			for (int i = 0; i < lestToken.Count; i++)
 			{
-				if (token.Type == ComplexTokenType.VarDelimiter)
+				Token token = lestToken[i];
+				if (token.Type == TokenType.VarDelimiter)
 					var = false;
-				else if (token.Type == ComplexTokenType.VarRange && var)
+				else if (token.Type == TokenType.LeftRange && var)
+				{
 					Logger.LogInfo("Todo: 函数数组传参待实现", Global.LogLevel.Todo);
+					while (lestToken[i].Type != TokenType.RightRange)
+						i++;
+				}
 				else if (var == false)
 				{
 					var = true;
-					if (token.Type == ComplexTokenType.VarName)
-						functionCall.ParamName.Add(token.Tokens[0].Value);
+					if (token.Type == TokenType.VarName)
+						functionCall.ParamName.Add(token.Value);
 					else
 						throw new Exception(Logger.LogMessage("错误的变量名称"));
 				}
@@ -316,78 +362,114 @@ public partial class MoeInterpreter
 		public static VariableDefineNode ParseVariableDefine(Statement statement, ConditionalNode? preWhile)
 		{
 			//* 变量定义
-			List<ComplexToken> tokens = statement.Tokens;
-			return ParseMultiVar(tokens);
+			// List<Token> tokens = statement.Tokens;
+			return ParseMultiVar(statement.Tokens.GetEnumerator());
 		}
 
-		public static VariableDefineNode ParseSingleVar(List<ComplexToken> tokens)
+		public static VariableDefineNode ParseSingleVar(IEnumerator<Token> tokens)
 		{
-			VariableDefineNode varNode = ParseMultiVar(tokens);
-			if (varNode.Variables.Count > 1)
-				throw new Exception(Logger.LogMessage("错误的定义多个变量"));
-			return varNode;
-		}
+			// VariableDefineNode varNode = ParseMultiVar(tokens);
+			// if (varNode.Variables.Count != 1)
+			// {
+			// 	tokens.Reset();
+			// 	tokens.MoveNext();
+			// 	throw new Exception(Logger.LogMessage($"错误的定义多个变量 {tokens.Current}"));
+			// }
+			// return varNode;
 
-		public static VariableDefineNode ParseMultiVar(List<ComplexToken> tokens)
-		{
 			VariableDefineNode ret = new();
-			if (tokens.Count == 0)
+			VarTypeNode info = VarType(tokens);
+
+			Console.WriteLine($">>> ==========");
+
+			List<Token> tempToken = [];
+			while (tokens.MoveNext())
 			{
-				ret.Variables.Add(new());
-				return ret;
+				Token token = tokens.Current;
+				Console.WriteLine($">>> {token}");
+				if (token.Type != TokenType.VarDelimiter)
+					tempToken.Add(token);
+
+				if (token.Type == TokenType.VarDelimiter)
+					break;
 			}
 
-			if (tokens.Count < 3)
-				throw new Exception(Logger.LogMessage("变量定义参数数量过少"));
-
-			VarTypeNode info = VarType(tokens[0..2]);
-
-			var lestTokens = tokens[2..];
-			int pos = 0;
-			List<ComplexToken> tempToken = [];
-			while (pos < lestTokens.Count)
+			MoeVariable variable = new()
 			{
-				if (lestTokens[pos].Type != ComplexTokenType.VarDelimiter)
-					tempToken.Add(lestTokens[pos]);
+				Name = tempToken[0].Value,
+				Access = info.Access,
+				Type = info.Type,
+				Dimension = VarDimension(tempToken[1..].GetEnumerator()),
+			};
+			ret.Variables.Add(variable);
+			tempToken.Clear();
+			return ret;
+		}
 
-				if (pos + 1 == lestTokens.Count || lestTokens[pos].Type == ComplexTokenType.VarDelimiter)
+		public static VariableDefineNode ParseMultiVar(IEnumerator<Token> tokens)
+		{
+			VariableDefineNode ret = new();
+			VarTypeNode info = VarType(tokens);
+
+			List<Token> tempToken = [];
+			while (tokens.MoveNext())
+			{
+				Token token = tokens.Current;
+				if (token.Type != TokenType.VarDelimiter)
+					tempToken.Add(token);
+
+				if (token.Type == TokenType.VarDelimiter)
 				{
 					MoeVariable variable = new()
 					{
-						Name = tempToken[0].Tokens[0].Value,
-						Dimension = (tempToken[^1].Type == ComplexTokenType.VarRange) ? VarSize(tempToken[^1]) : [1],
+						Name = tempToken[0].Value,
 						Access = info.Access,
 						Type = info.Type,
+						Dimension = VarDimension(tempToken[1..].GetEnumerator()),
 					};
-
-					int size = 1;
-					foreach (var item in variable.Dimension)
-						size *= item;
-					variable.Dimension.Add(size);
 					ret.Variables.Add(variable);
-
-					tempToken = [];
+					tempToken.Clear();
 				}
-				pos++;
+			}
+			if (tempToken.Count != 0)
+			{
+				MoeVariable variable = new()
+				{
+					Name = tempToken[0].Value,
+					Access = info.Access,
+					Type = info.Type,
+					Dimension = VarDimension(tempToken[1..].GetEnumerator()),
+				};
+				ret.Variables.Add(variable);
+				tempToken.Clear();
 			}
 			return ret;
 		}
 
-		public static VarTypeNode VarType(List<ComplexToken> tokens)
+		public static VarTypeNode VarType(IEnumerator<Token> tokens)
 		{
-			if (tokens[0].Type != ComplexTokenType.VarAccess || tokens[1].Type != ComplexTokenType.VarType)
-				throw new Exception(Logger.LogMessage(""));
+			if (tokens.MoveNext() == false)
+				return new();
+			Token access = tokens.Current;
+			if (access.Type != TokenType.VarAccess)
+				throw new Exception(Logger.LogMessage($"{access}"));
+
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage($""));
+			Token type = tokens.Current;
+			if (type.Type != TokenType.VarType)
+				throw new Exception(Logger.LogMessage($"{type}"));
 
 			VarTypeNode varInfo = new()
 			{
-				Access = tokens[0].Tokens[0].Value switch
+				Access = access.Value switch
 				{
 					"var" => MoeVariableAccess.Variable,
 					"const" => MoeVariableAccess.Const,
 					"static" => MoeVariableAccess.Static,
 					_ => MoeVariableAccess.Error,
 				},
-				Type = tokens[1].Tokens[0].Value switch
+				Type = type.Value switch
 				{
 					"int" => MoeVariableType.Int,
 					"double" => MoeVariableType.Double,
@@ -399,49 +481,75 @@ public partial class MoeInterpreter
 			return varInfo;
 		}
 
-		public static List<int> VarSize(ComplexToken token)
+		// public static VariableInfo VarInfo(IEnumerator<Token> tokens)
+		// {
+		// 	VariableInfo varInfo = new();
+		// 	List<Token> tempToken = [];
+		// 	while (tokens.MoveNext())
+		// 	{
+		// 		Token token = tokens.Current;
+		// 		if (token.Type != TokenType.VarDelimiter)
+		// 			tempToken.Add(token);
+		// 		else
+		// 			break;
+		// 	}
+		// 	varInfo = new()
+		// 	{
+		// 		Name = tempToken[0].Value,
+		// 		Index = VarDimension(tempToken[1..].GetEnumerator()),
+		// 	};
+		// 	return varInfo;
+		// }
+
+		public static List<int> VarDimension(IEnumerator<Token> tokens)
 		{
-			List<int> varDimension = [];
-			int varSize = 0;
+			int state = 0; // 0 -> [
+						   // 1 -> IntNumber
+						   // 2 -> ]
 
-			if (token.Type != ComplexTokenType.VarRange)
-				throw new Exception(Logger.LogMessage("错误的多维数组申明： 未声明数组大小： " + token));
-
-			foreach (var ssize in token.Tokens)
+			List<int> dimension = [];
+			while (tokens.MoveNext())
 			{
-				if (ssize.Type == SimpleTokenType.Number)
+				Token token = tokens.Current;
+				if (state == 0 && token.Type == TokenType.LeftRange)
+					state = 1;
+				else if (state == 1 && token.Type == TokenType.IntNumber)
 				{
-					int size = Convert.ToInt32(ssize.Value);
-					varSize *= size;
-					varDimension.Add(size);
+					int size = Convert.ToInt32(token.Value);
+					dimension.Add(size);
+					state = 2;
 				}
+				else if (state == 2 && token.Type == TokenType.RightRange)
+					state = 0;
 				else
-					throw new Exception(Logger.LogMessage("错误的多维数组申明： 维度大小必须为整数： " + ssize));
+					throw new Exception(Logger.LogMessage("错误的多维数组申明： 维度大小必须为整数： " + token));
 			}
-			return varDimension;
-		}
 
-		public static List<ExpressionToken> MathExpression(List<ComplexToken> tokens)
+			return dimension;
+		}
+		public static ExpressionNode MathExpression(IExtendEnumerator<Token> tokens)
 		{
+
 			List<ExpressionToken> math = [];
 
 			int opCount = 1; // 默认最前面有一个 + ，这样可以解决 opCount = 0 不能进入名称处理的问题
-			for (int i = 0; i < tokens.Count; i++)
+
+			while (tokens.MoveNext())
 			{
-				if (tokens[i].Type == ComplexTokenType.IntNumber && opCount != 0)
+				var token = tokens.Current;
+				if (token.Type == TokenType.IntNumber && opCount != 0)
 				{
 					math.Add(new()
 					{
 						Type = OperatorType.NUM,
-						Number = int.Parse(tokens[i].Tokens[0].Value),
+						Number = int.Parse(token.Value),
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == ComplexTokenType.FloatNumber && opCount != 0)
+				else if (token.Type == TokenType.FloatNumber && opCount != 0)
 				{
 					string number = "";
-					foreach (var token in tokens[i].Tokens)
-						number += token.Value;
+					number += token.Value;
 					math.Add(new()
 					{
 						Type = OperatorType.NUM,
@@ -449,13 +557,15 @@ public partial class MoeInterpreter
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == ComplexTokenType.VarName && opCount != 0)
+				else if (token.Type == TokenType.VarName && opCount != 0)
 				{
-					VariableInfo variable = new() { Name = tokens[i].Tokens[0].Value, };
-					if (i + 1 < tokens.Count && tokens[i + 1].Type == ComplexTokenType.VarRange)
+					VariableInfo variable = new() { Name = token.Value, };
+					while (tokens.TryGetNext(out Token? t))
 					{
-						variable.Index = VarSize(tokens[i + 1]);
-						i++;
+						if (t!.Type == TokenType.LeftRange)
+							variable.Index.Add(RangeExpression(tokens));
+						else
+							break;
 					}
 					math.Add(new()
 					{
@@ -464,19 +574,21 @@ public partial class MoeInterpreter
 					});
 					opCount = 0;
 				}
-				else if (tokens[i].Type == ComplexTokenType.LeftParen && opCount != 0)
+				else if (token.Type == TokenType.LeftRange || token.Type == TokenType.RightRange)
+					break;
+				else if (token.Type == TokenType.LeftParen && opCount != 0)
 				{
 					math.Add(new() { Type = OperatorType.LeftParen, });
 					opCount = 1; // 左括号后面必须接前置运算符或者变量
 				}
-				else if (tokens[i].Type == ComplexTokenType.RightParen && opCount == 0)
+				else if (token.Type == TokenType.RightParen && opCount == 0)
 				{
 					math.Add(new() { Type = OperatorType.RightParen, });
 					opCount = 0; // 右括号后面必须接运算符
 				}
-				else if (tokens[i].Type == ComplexTokenType.Operator)
+				else if (token.Type == TokenType.Operator)
 				{
-					string value = tokens[i].Tokens[0].Value;
+					string value = token.Value;
 
 					if (opCount == 1 && (value != "-" || value != "~" || value != "!"))
 						throw new Exception(Logger.LogMessage("前置运算符过多"));
@@ -516,9 +628,24 @@ public partial class MoeInterpreter
 					opCount++;
 				}
 				else
-					throw new Exception(Logger.LogMessage("错误的算数表达式书写: " + tokens[i]));
+					throw new Exception(Logger.LogMessage("错误的算数表达式书写: " + token));
 			}
-			return math;
+			return new() { Tokens = math };
+		}
+
+		public static ExpressionNode RangeExpression(IExtendEnumerator<Token> tokens)
+		{
+			if (tokens.MoveNext() == false)
+				throw new Exception(Logger.LogMessage($"没有更多token"));
+			if (tokens.Current.Type != TokenType.LeftRange)
+				throw new Exception(Logger.LogMessage($"{tokens.Current}"));
+
+			ExpressionNode expNode = MathExpression(tokens);
+
+			if (tokens.Current.Type != TokenType.RightRange)
+				throw new Exception(Logger.LogMessage($"{tokens.Current}"));
+
+			return expNode;
 		}
 	}
 }

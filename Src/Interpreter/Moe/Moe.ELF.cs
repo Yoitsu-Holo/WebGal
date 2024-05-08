@@ -92,7 +92,7 @@ public partial class MoeInterpreter
 			{
 				Lexer lexer = new(line);
 				lexer.Parse();
-				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.ComplexTokens);
+				VariableDefineNode multiVar = Syntax.ParseMultiVar(lexer.Tokens.GetEnumerator());
 
 				foreach (var variable in multiVar.Variables)
 					_elfHeader.Datas[variable.Name] = variable;

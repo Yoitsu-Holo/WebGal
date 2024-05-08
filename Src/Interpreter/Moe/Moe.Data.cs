@@ -77,8 +77,24 @@ public class MoeVariable : ICloneable
 	public MoeVariableType Type;
 	public object? Obj;
 
-	public int Size { get { return (Dimension.Count == 0) ? 0 : Dimension[^1]; } set { if (Dimension.Count != 0) Dimension[^1] = value; } }
-	public List<int> Dimension = [];
+	private List<int> dimension = [];
+
+	public int Size { get; private set; } = 0;
+	public List<int> Dimension
+	{
+		private get { return dimension; }
+		set
+		{
+			int totalSize = 1;
+			if (value.Count == 0)
+				value.Add(1);
+			dimension = value;
+			foreach (var size in value)
+				totalSize *= size;
+			// Size = Size;
+			Size = totalSize;
+		}
+	}
 
 	public void Init()
 	{
@@ -94,7 +110,7 @@ public class MoeVariable : ICloneable
 	public override string ToString()
 	{
 		string ret = $"Name: {Name}, \tType: {Type}, \tAccess: {Access}, \tObject: {Obj}, \tSize:";
-		ret += (Dimension.Count <= 0) ? "Error" : $"{Dimension[^1]} , \tDimension: [{string.Join(", ", Dimension)}]";
+		ret += (Dimension.Count < 0) ? "Error" : $"{Size} , \tDimension: [{string.Join(", ", Dimension)}]";
 		return ret;
 	}
 
@@ -118,10 +134,10 @@ public class MoeVariable : ICloneable
 		get
 		{
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count != Dimension.Count - 1) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count - 1}");
+			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count - 1}");
 
 			int pos = 0;
-			for (int i = 0; i < Dimension.Count - 1; i++)
+			for (int i = 0; i < Dimension.Count; i++)
 			{
 				if (index[i] >= Dimension[i] || index[i] < 0) throw new IndexOutOfRangeException();
 				pos = pos * Dimension[i] + index[i];
@@ -139,10 +155,10 @@ public class MoeVariable : ICloneable
 		set
 		{
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count != Dimension.Count - 1) throw new IndexOutOfRangeException();
+			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException();
 
 			int pos = 0;
-			for (int i = 0; i < Dimension.Count - 1; i++)
+			for (int i = 0; i < Dimension.Count; i++)
 			{
 				if (index[i] >= Dimension[i] || index[i] < 0) throw new IndexOutOfRangeException();
 				pos = pos * Dimension[i] + index[i];

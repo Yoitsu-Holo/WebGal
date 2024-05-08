@@ -202,12 +202,21 @@ public partial class MoeInterpreter
 			else if (ast.Assignment.FuncCall is not null)
 				Right = Call(ast.Assignment.FuncCall);
 
+			List<int> index = [];
+			foreach (var exp in LeftInfo.Index)
+			{
+				ExpressionsExecutor expressionsExecutor = new();
+				index.Add((int)expressionsExecutor.Parse(exp));
+			}
 			if (Right is int && Left.Type == MoeVariableType.Int)
-				Left[LeftInfo.Index] = Right;
+				Left[index] = Right;
 			else if (Right is double && Left.Type == MoeVariableType.Double)
-				Left[LeftInfo.Index] = Right;
+				Left[index] = Right;
 			else if (Right is string && Left.Type == MoeVariableType.String)
 				Logger.LogInfo("字符串赋值解析", Global.LogLevel.Todo);
+			else
+				Logger.LogInfo("变量类型不匹配", Global.LogLevel.Error);
+
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
@@ -280,10 +289,11 @@ public partial class MoeInterpreter
 	{
 		// ^ ================================================================
 		private ExpressionNode exp = null!;
+		private List<ExpressionToken> _tokens => exp.Tokens;
 		private int index;
 		// private ExpressionToken CurrentToken => exp.Tokens[index];
 
-		private ExpressionToken CurrentToken => index < exp.Tokens.Count ? exp.Tokens[index] : new();
+		private ExpressionToken CurrentToken => index < _tokens.Count ? _tokens[index] : new();
 
 		/// <summary>
 		/// 返回类型为 int 或者 double 的结果
@@ -299,6 +309,11 @@ public partial class MoeInterpreter
 			if (index != exp.Tokens.Count)
 				throw new Exception(Logger.LogMessage($"Unexpected token {tokens}"));
 			return result;
+		}
+
+		public object Parse(List<ExpressionToken> tokens)
+		{
+			return Parse(new ExpressionNode() { Tokens = tokens });
 		}
 
 		private ExpressionToken ConsumeToken(OperatorType type)
@@ -555,8 +570,8 @@ public partial class MoeInterpreter
 
 				if (variable is null)
 					throw new Exception(Logger.LogMessage($"未找到变量定义 {CurrentToken}"));
-
-				return variable[variableInfo.Index];
+				throw new Exception("Todo");
+				// return variable[variableInfo.Index];
 			}
 			else if (opType == OperatorType.LeftParen)
 			{
