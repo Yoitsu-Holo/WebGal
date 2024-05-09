@@ -28,7 +28,6 @@ public partial class MoeInterpreter
 
 		await LoadELF(response.Message);
 		Dump();
-		// Console.WriteLine(response.Message);
 	}
 
 	[JSInvokable]

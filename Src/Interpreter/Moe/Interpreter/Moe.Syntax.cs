@@ -283,7 +283,6 @@ public partial class MoeInterpreter
 
 			//* 赋值
 			AssignmentNode assignment = new();
-			Console.WriteLine(statement);
 
 			int demerger;
 			for (demerger = 0; tokens[demerger].Type != TokenType.AssignmentOperator; demerger++) ;
@@ -368,25 +367,13 @@ public partial class MoeInterpreter
 
 		public static VariableDefineNode ParseSingleVar(IEnumerator<Token> tokens)
 		{
-			// VariableDefineNode varNode = ParseMultiVar(tokens);
-			// if (varNode.Variables.Count != 1)
-			// {
-			// 	tokens.Reset();
-			// 	tokens.MoveNext();
-			// 	throw new Exception(Logger.LogMessage($"错误的定义多个变量 {tokens.Current}"));
-			// }
-			// return varNode;
-
 			VariableDefineNode ret = new();
 			VarTypeNode info = VarType(tokens);
-
-			Console.WriteLine($">>> ==========");
 
 			List<Token> tempToken = [];
 			while (tokens.MoveNext())
 			{
 				Token token = tokens.Current;
-				Console.WriteLine($">>> {token}");
 				if (token.Type != TokenType.VarDelimiter)
 					tempToken.Add(token);
 
@@ -480,26 +467,6 @@ public partial class MoeInterpreter
 
 			return varInfo;
 		}
-
-		// public static VariableInfo VarInfo(IEnumerator<Token> tokens)
-		// {
-		// 	VariableInfo varInfo = new();
-		// 	List<Token> tempToken = [];
-		// 	while (tokens.MoveNext())
-		// 	{
-		// 		Token token = tokens.Current;
-		// 		if (token.Type != TokenType.VarDelimiter)
-		// 			tempToken.Add(token);
-		// 		else
-		// 			break;
-		// 	}
-		// 	varInfo = new()
-		// 	{
-		// 		Name = tempToken[0].Value,
-		// 		Index = VarDimension(tempToken[1..].GetEnumerator()),
-		// 	};
-		// 	return varInfo;
-		// }
 
 		public static List<int> VarDimension(IEnumerator<Token> tokens)
 		{
