@@ -1,4 +1,5 @@
 using System.Reflection;
+using WebGal.Extend.Collections;
 using WebGal.Global;
 
 namespace WebGal.MeoInterpreter;
@@ -196,8 +197,7 @@ public partial class MoeInterpreter
 
 			if (ast.Assignment.MathExp is not null)
 			{
-				ExpressionsExecutor expressionsExecutor = new();
-				Right = expressionsExecutor.Parse(ast.Assignment.MathExp);
+				Right = ExpressionsExecutor.Parse(ast.Assignment.MathExp);
 			}
 			else if (ast.Assignment.FuncCall is not null)
 				Right = Call(ast.Assignment.FuncCall);
@@ -205,8 +205,7 @@ public partial class MoeInterpreter
 			List<int> index = [];
 			foreach (var exp in LeftInfo.Index)
 			{
-				ExpressionsExecutor expressionsExecutor = new();
-				index.Add((int)expressionsExecutor.Parse(exp));
+				index.Add((int)ExpressionsExecutor.Parse(exp));
 			}
 			if (Right is int && Left.Type == MoeVariableType.Int)
 				Left[index] = Right;
@@ -224,8 +223,7 @@ public partial class MoeInterpreter
 			for (int i = 0; i < ifCase.If.Count; i++)
 			{
 				ConditionalNode conditional = ifCase.If[i];
-				ExpressionsExecutor expressionsExecutor = new();
-				object result = expressionsExecutor.Parse(conditional.Conditional);
+				object result = ExpressionsExecutor.Parse(conditional.Conditional);
 
 				if (result is not int && result is not double)
 				{
@@ -249,8 +247,7 @@ public partial class MoeInterpreter
 		{
 			ConditionalNode loop = ast.Loop.Loop;
 
-			ExpressionsExecutor expressionsExecutor = new();
-			object result = expressionsExecutor.Parse(loop.Conditional);
+			object result = ExpressionsExecutor.Parse(loop.Conditional);
 
 			if (result is not int && result is not double)
 			{
@@ -288,12 +285,12 @@ public partial class MoeInterpreter
 	public class ExpressionsExecutor
 	{
 		// ^ ================================================================
-		private ExpressionNode exp = null!;
-		private List<ExpressionToken> _tokens => exp.Tokens;
-		private int index;
-		// private ExpressionToken CurrentToken => exp.Tokens[index];
+		// private ExpressionNode exp = null!;
+		// private List<ExpressionToken> _tokens => exp.Tokens;
+		// private int index;
+		// // private ExpressionToken CurrentToken => exp.Tokens[index];
 
-		private ExpressionToken CurrentToken => index < _tokens.Count ? _tokens[index] : new();
+		// private ExpressionToken CurrentToken => index < _tokens.Count ? _tokens[index] : new();
 
 		/// <summary>
 		/// 返回类型为 int 或者 double 的结果
@@ -301,38 +298,40 @@ public partial class MoeInterpreter
 		/// <param name="tokens"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		public object Parse(ExpressionNode tokens)
+		public static object Parse(ExpressionNode expression) => Parse(expression.Tokens);
+
+		public static object Parse(List<ExpressionToken> expression)
 		{
-			exp = tokens;
-			index = 0;
-			object result = Level15();
-			if (index != exp.Tokens.Count)
+			foreach (var item in expression)
+			{
+				Console.WriteLine(item);
+			}
+			DoubleEnumerator<ExpressionToken> tokens = new(expression);
+			tokens.MoveNext();
+			object result = Level15(tokens);
+			if (tokens.IsEnd == false)
 				throw new Exception(Logger.LogMessage($"Unexpected token {tokens}"));
 			return result;
 		}
 
-		public object Parse(List<ExpressionToken> tokens)
+		private static ExpressionToken ConsumeToken(OperatorType type, IExtendEnumerator<ExpressionToken> tokens)
 		{
-			return Parse(new ExpressionNode() { Tokens = tokens });
-		}
-
-		private ExpressionToken ConsumeToken(OperatorType type)
-		{
-			if (CurrentToken.Type != type)
-			{
-				throw new Exception($"Unexpected token: {CurrentToken.Type} != {type}");
-			}
-			index++;
-			return exp.Tokens[index - 1];
+			if (tokens.IsEnd)
+				throw new Exception($"已到达表达式结尾");
+			ExpressionToken token = tokens.Current;
+			tokens.MoveNext();
+			if (token.Type != type)
+				throw new Exception($"Unexpected token: {token.Type} != {type}");
+			return token;
 		}
 
 		/// <summary>
 		///;	,		逗号
 		/// </summary>
-		private object Level15()
+		private static object Level15(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			// return Level14();
-			return Level12();
+			return Level12(tokens);
 		}
 
 		/// <summary>
@@ -342,33 +341,33 @@ public partial class MoeInterpreter
 		///;	<<= >>=	以逐位左移及右移赋值
 		///;	&= ^= |=	以逐位与、异或及或赋值
 		/// </summary>
-		private object Level14()
+		private static object Level14(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			return Level13();
+			return Level13(tokens);
 		}
 
 
 		/// <summary>
 		///;	?:		三元条件
 		/// </summary>
-		private object Level13()
+		private static object Level13(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			return Level12();
+			return Level12(tokens);
 		}
 
 		/// <summary>
 		///;	||		逻辑或
 		/// </summary>
-		private object Level12()
+		private static object Level12(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level11();
-			OperatorType opType = CurrentToken.Type;
-			while (opType == OperatorType.OR && index < exp.Tokens.Count)
+			object result = Level11(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while (opType == OperatorType.OR && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level11();
+				ConsumeToken(opType, tokens);
+				object value = Level11(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -376,16 +375,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	&&		逻辑与
 		/// </summary>
-		private object Level11()
+		private static object Level11(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level10();
-			OperatorType opType = CurrentToken.Type;
-			while (opType == OperatorType.AND && index < exp.Tokens.Count)
+			object result = Level10(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while (opType == OperatorType.AND && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level10();
+				ConsumeToken(opType, tokens);
+				object value = Level10(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -393,16 +392,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	|		逐位或（包含或）
 		/// </summary>
-		private object Level10()
+		private static object Level10(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level9();
-			OperatorType opType = CurrentToken.Type;
-			while (opType == OperatorType.bOR && index < exp.Tokens.Count)
+			object result = Level9(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while (opType == OperatorType.bOR && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level9();
+				ConsumeToken(opType, tokens);
+				object value = Level9(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -410,16 +409,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	^		逐位异或（排除或）
 		/// </summary>
-		private object Level9()
+		private static object Level9(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level8();
-			OperatorType opType = CurrentToken.Type;
-			while (opType == OperatorType.XOR && index < exp.Tokens.Count)
+			object result = Level8(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while (opType == OperatorType.XOR && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level8();
+				ConsumeToken(opType, tokens);
+				object value = Level8(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -427,16 +426,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	&		逐位与
 		/// </summary>
-		private object Level8()
+		private static object Level8(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level7();
-			OperatorType opType = CurrentToken.Type;
-			while (opType == OperatorType.bAND && index < exp.Tokens.Count)
+			object result = Level7(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while (opType == OperatorType.bAND && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level7();
+				ConsumeToken(opType, tokens);
+				object value = Level7(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -444,16 +443,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	== !=	分别为 = 与 ≠ 关系
 		/// </summary>
-		private object Level7()
+		private static object Level7(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level6();
-			OperatorType opType = CurrentToken.Type;
-			while ((opType == OperatorType.EQ || opType == OperatorType.NEQ) && index < exp.Tokens.Count)
+			object result = Level6(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while ((opType == OperatorType.EQ || opType == OperatorType.NEQ) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level6();
+				ConsumeToken(opType, tokens);
+				object value = Level6(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -462,16 +461,16 @@ public partial class MoeInterpreter
 		///;	< <=	分别为 < 与 ≤ 的关系运算符
 		///;	> >=	分别为 > 与 ≥ 的关系运算符
 		/// </summary>
-		private object Level6()
+		private static object Level6(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level5();
-			OperatorType opType = CurrentToken.Type;
-			while ((opType == OperatorType.GT || opType == OperatorType.LT || opType == OperatorType.EGT || opType == OperatorType.ELT) && index < exp.Tokens.Count)
+			object result = Level5(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while ((opType == OperatorType.GT || opType == OperatorType.LT || opType == OperatorType.EGT || opType == OperatorType.ELT) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level5();
+				ConsumeToken(opType, tokens);
+				object value = Level5(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -479,16 +478,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///; 	<< >>	逐位左移及右移
 		/// </summary>
-		private object Level5()
+		private static object Level5(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level4();
-			OperatorType opType = CurrentToken.Type;
-			while ((opType == OperatorType.SHL || opType == OperatorType.SHR) && index < exp.Tokens.Count)
+			object result = Level4(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while ((opType == OperatorType.SHL || opType == OperatorType.SHR) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level4();
+				ConsumeToken(opType, tokens);
+				object value = Level4(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -496,16 +495,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	+ -		加法及减法
 		/// </summary>
-		private object Level4()
+		private static object Level4(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level3();
-			OperatorType opType = CurrentToken.Type;
-			while ((opType == OperatorType.ADD || opType == OperatorType.SUB) && index < exp.Tokens.Count)
+			object result = Level3(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while ((opType == OperatorType.ADD || opType == OperatorType.SUB) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level3();
+				ConsumeToken(opType, tokens);
+				object value = Level3(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -514,16 +513,16 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	* / %	乘法、除法及余数
 		/// </summary>
-		private object Level3()
+		private static object Level3(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level2();
-			OperatorType opType = CurrentToken.Type;
-			while ((opType == OperatorType.MUL || opType == OperatorType.DIV || opType == OperatorType.MOD) && index < exp.Tokens.Count)
+			object result = Level2(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			while ((opType == OperatorType.MUL || opType == OperatorType.DIV || opType == OperatorType.MOD) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object value = Level2();
+				ConsumeToken(opType, tokens);
+				object value = Level2(tokens);
 				result = Calc(result, value, opType);
-				opType = CurrentToken.Type;
+				opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			}
 			return result;
 		}
@@ -536,14 +535,14 @@ public partial class MoeInterpreter
 		///;	*		间接（解引用）
 		///;	&		取址
 		/// </summary>
-		private object Level2()
+		private static object Level2(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			object result = Level1();
-			OperatorType opType = CurrentToken.Type;
-			if ((opType == OperatorType.Minus || opType == OperatorType.bNOT || opType == OperatorType.NOT) && index < exp.Tokens.Count)
+			object result = Level1(tokens);
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
+			if ((opType == OperatorType.Minus || opType == OperatorType.bNOT || opType == OperatorType.NOT) && tokens.IsEnd == false)
 			{
-				ConsumeToken(opType);
-				object ret = Level1();
+				ConsumeToken(opType, tokens);
+				object ret = Level1(tokens);
 				return Calc(ret, 0, opType);
 			}
 			return result;
@@ -552,36 +551,36 @@ public partial class MoeInterpreter
 		/// <summary>
 		/// () number variable
 		/// </summary>
-		private object Level1()
+		private static object Level1(IExtendEnumerator<ExpressionToken> tokens)
 		{
-			OperatorType opType = CurrentToken.Type;
+			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
 			if (opType == OperatorType.NUM)
 			{
-				return ConsumeToken(OperatorType.NUM).Number;
+				return ConsumeToken(OperatorType.NUM, tokens).Number;
 			}
 			else if (opType == OperatorType.VAR)
 			{
-				VariableInfo variableInfo = CurrentToken.Var;
-				ConsumeToken(OperatorType.VAR);
+				VariableInfo variableInfo = tokens.Current.Var;
+				ConsumeToken(OperatorType.VAR, tokens);
 
 				GVariables.TryGetValue(variableInfo.Name, out MoeVariable? variable);
 				if (variable is null)
 					LVariables.TryGetValue(variableInfo.Name, out variable);
 
 				if (variable is null)
-					throw new Exception(Logger.LogMessage($"未找到变量定义 {CurrentToken}"));
+					throw new Exception(Logger.LogMessage($"未找到变量定义 {tokens.Current}"));
 				throw new Exception("Todo");
 				// return variable[variableInfo.Index];
 			}
 			else if (opType == OperatorType.LeftParen)
 			{
-				ConsumeToken(OperatorType.LeftParen);
-				object result = Level15();
-				ConsumeToken(OperatorType.RightParen);
+				ConsumeToken(OperatorType.LeftParen, tokens);
+				object result = Level15(tokens);
+				ConsumeToken(OperatorType.RightParen, tokens);
 				return result;
 			}
 			else
-				throw new Exception($"Unexpected token: {CurrentToken}");
+				throw new Exception($"Unexpected token: {tokens.Current}");
 		}
 
 
