@@ -295,18 +295,14 @@ public partial class MoeInterpreter
 				Name = preTokens[0].Value,
 			};
 
-			//!
-			List<Token> list = preTokens[1..];
-			for (int i = 0; i < list.Count; i++)
+
+			DoubleEnumerator<Token> range = new(preTokens[1..]);
+			while (range.TryGetNext(out Token? t))
 			{
-				DoubleEnumerator<Token> range = new(preTokens[1..]);
-				while (range.TryGetNext(out Token? t))
-				{
-					if (t!.Type == TokenType.LeftRange)
-						assignment.LeftVar.Index.Add(RangeExpression(range));
-					else
-						break;
-				}
+				if (t!.Type == TokenType.LeftRange)
+					assignment.LeftVar.Index.Add(RangeExpression(range));
+				else
+					break;
 			}
 
 			if (expTokens.Count >= 2 && expTokens[0].Type == TokenType.FuncName)

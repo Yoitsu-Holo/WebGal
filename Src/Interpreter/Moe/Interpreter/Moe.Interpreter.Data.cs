@@ -77,7 +77,7 @@ public class VariableInfo
 	{
 		string ret = Name;
 		foreach (var sz in Index)
-			ret += "[" + sz + "]";
+			ret += $"[{sz}]";
 		return ret;
 	}
 }
@@ -166,8 +166,7 @@ public class ExpressionToken
 		else if (Type == OperatorType.VAR)
 			ret += $"{Var}";
 		else
-			ret += $"{Type} ";
-		ret += " ";
+			ret += $"{Type}";
 		return ret;
 	}
 }
@@ -178,9 +177,9 @@ public class ExpressionNode
 
 	public override string ToString()
 	{
-		string ret = "";
+		string ret = " ";
 		foreach (var exp in Tokens)
-			ret += exp + " ";
+			ret += $"{exp} ";
 		return ret;
 	}
 }
