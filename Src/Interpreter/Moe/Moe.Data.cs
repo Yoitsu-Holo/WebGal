@@ -122,9 +122,21 @@ public class MoeVariable : ICloneable
 			Type = Type,
 			Name = (string)Name.Clone(),
 			Size = Size,
+			Obj = Type switch
+			{
+				MoeVariableType.Int => new int[Size],
+				MoeVariableType.Double => new double[Size],
+				MoeVariableType.String => new string[Size],
+				_ => throw new Exception($"Could not be a variable type {Type}"),
+			}
 		};
+
 		foreach (var item in Dimension)
 			copy.Dimension.Add(item);
+
+		if (Obj is not null)
+			for (int i = 0; i < Size; i++)
+				copy[i] = this[i];
 		return copy;
 	}
 

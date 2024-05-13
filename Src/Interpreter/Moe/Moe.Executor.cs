@@ -11,9 +11,6 @@ public partial class MoeInterpreter
 	{
 		FunctionHeader header = function.Header;
 		ProgramNode body = function.Body;
-		//!
-
-		Logger.LogInfo("参数传递未实现", Global.LogLevel.Todo);
 		MoeStackFrame frame = new();
 		ActiveTasks.Push(frame);
 
@@ -22,16 +19,16 @@ public partial class MoeInterpreter
 			Logger.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
 			return new();
 		}
+
 		for (int i = 0; i < header.CallParam.Count; i++)
 		{
 			if (header.CallParam[i].Type == paramList[i].Type)
 			{
-				MoeVariable v = (MoeVariable)paramList[i].Clone();
-				frame.LVariable[v.Name] = v;
+				frame.LVariable[header.CallParam[i].Name] = (MoeVariable)paramList[i].Clone();
 			}
 			else
 			{
-				Logger.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+				Logger.LogInfo($"参数列表类型不匹配 {function}", Global.LogLevel.Error);
 				return new();
 			}
 		}
@@ -47,8 +44,6 @@ public partial class MoeInterpreter
 
 	public static object Call(FunctionCallNode funcntion) // 调用函数
 	{
-		Logger.LogInfo($"参数传递未完全实现", Global.LogLevel.Todo);
-
 		if (ActiveTasks.Count == 0)
 			throw new Exception(Logger.LogMessage("任务栈未初始化"));
 		List<MoeVariable> paramList = [];
@@ -59,7 +54,7 @@ public partial class MoeInterpreter
 			else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
 				paramList.Add(lvalue);
 			else
-				Logger.LogInfo($"局部/静态参数传递未完全实现", Global.LogLevel.Todo);
+				Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
 		}
 
 		// 系统保留
