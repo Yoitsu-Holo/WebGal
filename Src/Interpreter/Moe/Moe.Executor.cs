@@ -174,14 +174,15 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.Assignment && ast.Assignment is not null)
 		{
-			var LeftInfo = ast.Assignment.LeftVar;
+			var LeftVar = ast.Assignment.LeftVar;
+			ExpressionNode? RightExp = ast.Assignment.RightExp;
 			MoeVariable? Left = null;
 			object Right = new();
 
 			if (Left is null)
-				GVariables.TryGetValue(LeftInfo.Name, out Left);
+				GVariables.TryGetValue(LeftVar.Name, out Left);
 			if (Left is null)
-				frame.LVariable.TryGetValue(LeftInfo.Name, out Left);
+				frame.LVariable.TryGetValue(LeftVar.Name, out Left);
 
 			if (Left is null)
 			{
@@ -195,24 +196,21 @@ public partial class MoeInterpreter
 				return;
 			}
 
-			if (ast.Assignment.MathExp is not null)
-			{
-				Right = ExpressionsExecutor.Parse(ast.Assignment.MathExp);
-			}
+			if (RightExp is not null)
+				Right = ExpressionsExecutor.Parse(RightExp);
 			else if (ast.Assignment.FuncCall is not null)
 				Right = Call(ast.Assignment.FuncCall);
 
 			List<int> index = [];
-			foreach (var exp in LeftInfo.Index)
-			{
+			foreach (var exp in LeftVar.Index)
 				index.Add((int)ExpressionsExecutor.Parse(exp));
-			}
+
 			if (Right is int && Left.Type == MoeVariableType.Int)
 				Left[index] = Right;
 			else if (Right is double && Left.Type == MoeVariableType.Double)
 				Left[index] = Right;
 			else if (Right is string && Left.Type == MoeVariableType.String)
-				Logger.LogInfo("字符串赋值解析", Global.LogLevel.Todo);
+				Logger.LogInfo("暂未实现字符串赋值解析", Global.LogLevel.Todo);
 			else
 				Logger.LogInfo("变量类型不匹配", Global.LogLevel.Error);
 
@@ -302,11 +300,7 @@ public partial class MoeInterpreter
 
 		public static object Parse(List<ExpressionToken> expression)
 		{
-			foreach (var item in expression)
-			{
-				Console.WriteLine(item);
-			}
-			DoubleEnumerator<ExpressionToken> tokens = new(expression);
+			DoubleEndEnumerator<ExpressionToken> tokens = new(expression);
 			tokens.MoveNext();
 			object result = Level15(tokens);
 			if (tokens.IsEnd == false)
@@ -568,8 +562,19 @@ public partial class MoeInterpreter
 					LVariables.TryGetValue(variableInfo.Name, out variable);
 
 				if (variable is null)
-					throw new Exception(Logger.LogMessage($"未找到变量定义 {tokens.Current}"));
-				throw new Exception("Todo");
+					throw new Exception(Logger.LogMessage($"未找到变量定义 {variableInfo}"));
+				// throw new Exception($"Todo {variableInfo}");
+
+				List<int> indexs = [];
+				foreach (var item in variableInfo.Index)
+				{
+					object ret = Parse(item);
+					if (ret is int index)
+						indexs.Add(index);
+					else
+						throw new Exception(Logger.LogMessage($"数组下标必须为整数 {ret}"));
+				}
+				return variable[indexs];
 				// return variable[variableInfo.Index];
 			}
 			else if (opType == OperatorType.LeftParen)
@@ -579,6 +584,10 @@ public partial class MoeInterpreter
 				ConsumeToken(OperatorType.RightParen, tokens);
 				return result;
 			}
+			// else if (opType == OperatorType.LeftParen)
+			// {
+
+			// }
 			else
 				throw new Exception($"Unexpected token: {tokens.Current}");
 		}

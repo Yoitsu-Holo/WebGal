@@ -101,6 +101,7 @@ public enum OperatorType
 	Minus,
 
 	LeftParen, RightParen,
+	LeftRange, RightRange,
 	VAR, NUM,
 	Error,
 }
@@ -205,7 +206,7 @@ public class AssignmentNode
 	// public string LeftVarName = "";
 	// public List<int> Index = [];
 
-	public ExpressionNode? MathExp;
+	public ExpressionNode? RightExp;
 	// public LogicExpressionNode? LogicExp;
 	public FunctionCallNode? FuncCall;
 
@@ -213,8 +214,8 @@ public class AssignmentNode
 	{
 		string ret = "";
 		ret += LeftVar + " = ";
-		if (MathExp is not null)
-			ret += MathExp;
+		if (RightExp is not null)
+			ret += RightExp;
 		else
 			throw new Exception("未初始化表达式");
 		ret += "\n";

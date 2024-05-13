@@ -13,7 +13,7 @@ public interface IExtendEnumerator<T> : IEnumerator<T>
 	int Position { get; }
 }
 
-public class DoubleEnumerator<T>(List<T> list) : IExtendEnumerator<T>
+public class DoubleEndEnumerator<T>(List<T> list) : IExtendEnumerator<T>
 {
 	private readonly List<T> _list = list;
 	private int _position = -1;

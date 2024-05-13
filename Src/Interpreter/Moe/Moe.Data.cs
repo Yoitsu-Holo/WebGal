@@ -134,7 +134,9 @@ public class MoeVariable : ICloneable
 		get
 		{
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count - 1}");
+			if (index.Count == 0)
+				index.Add(0);
+			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
 			int pos = 0;
 			for (int i = 0; i < Dimension.Count; i++)
@@ -155,7 +157,9 @@ public class MoeVariable : ICloneable
 		set
 		{
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException();
+			if (index.Count == 0)
+				index.Add(0);
+			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
 			int pos = 0;
 			for (int i = 0; i < Dimension.Count; i++)

@@ -265,7 +265,7 @@ public partial class MoeInterpreter
 			ConditionalNode conditional = new();
 
 			if (tokens[0].Type != TokenType.ELSE)
-				conditional.Conditional = MathExpression(new DoubleEnumerator<Token>(tokens[2..^1]));
+				conditional.Conditional = MathExpression(new DoubleEndEnumerator<Token>(tokens[2..^1]));
 			else
 				conditional.Conditional.Tokens = [new() { Type = OperatorType.NUM, Number = 1, }];
 
@@ -296,7 +296,7 @@ public partial class MoeInterpreter
 			};
 
 
-			DoubleEnumerator<Token> range = new(preTokens[1..]);
+			DoubleEndEnumerator<Token> range = new(preTokens[1..]);
 			while (range.TryGetNext(out Token? t))
 			{
 				if (t!.Type == TokenType.LeftRange)
@@ -312,7 +312,7 @@ public partial class MoeInterpreter
 			}
 			else if (preTokens[0].Type == TokenType.VarName)
 			{
-				assignment.MathExp = MathExpression(new DoubleEnumerator<Token>(expTokens));
+				assignment.RightExp = MathExpression(new DoubleEndEnumerator<Token>(expTokens));
 			}
 
 			return assignment;
