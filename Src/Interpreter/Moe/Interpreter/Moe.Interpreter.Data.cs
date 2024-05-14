@@ -213,7 +213,6 @@ public class FunctionCallNode
 			foreach (var param in KeywordParams)
 				ret += $"\t{param}\n";
 		}
-
 		return ret;
 	}
 }
@@ -221,9 +220,6 @@ public class FunctionCallNode
 public class AssignmentNode
 {
 	public VariableInfo LeftVar = new();
-	// public string LeftVarName = "";
-	// public List<int> Index = [];
-
 	public ExpressionNode? RightExp;
 	// public LogicExpressionNode? LogicExp;
 	public FunctionCallNode? FuncCall;

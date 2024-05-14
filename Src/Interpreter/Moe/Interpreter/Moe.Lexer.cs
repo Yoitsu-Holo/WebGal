@@ -16,7 +16,7 @@ public partial class MoeInterpreter
 	public class Lexer
 	{
 		public HashSet<string> AccessSet = [
-			"var","static","const",
+			"var","static","const","ref",
 		];
 
 		public HashSet<string> TypeSet = [

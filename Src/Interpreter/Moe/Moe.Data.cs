@@ -30,15 +30,15 @@ public class ElfHeader
 public enum MoeELFsegment
 {
 	Void,
-	FILE, TABLE, DATA,
-	FORM, START,
+	FILE, TABLE, DATA, FORM, START,
 	Error,
 }
 
 public enum MoeFileType : ulong
 {
 	Void = 0,
-	Image = 0xf, Audio = 0xf0, Text = 0xf00, Bin = 0xf000,
+	Image = 0x000F, Audio = 0x00F0, Text = 0x0F00, Bin = 0xF000,
+
 	Image_png = 0x1, Image_jpg = 0x2, Image_bmp = 0x4,
 	Audio_wav = 0x10, Audio_mp3 = 0x20, Audio_flac = 0x40, Audio_midi = 0x8,
 	Text_script = 0x100, Text_form = 0x200,
@@ -48,16 +48,14 @@ public enum MoeFileType : ulong
 
 public enum MoeVariableType
 {
-	Void,
-	Int, Double, String,
-	Any, Error,
+	Void, Int, Double, String,
+	Error,
 }
 
 public enum MoeVariableAccess
 {
-	Void,
-	Const, Static, Variable,
-	Any, Error,
+	Const, Static, Variable, Reference,
+	Error,
 }
 
 public class MoeFile()
@@ -109,7 +107,7 @@ public class MoeVariable : ICloneable
 
 	public override string ToString()
 	{
-		string ret = $"Name: {Name}, \tType: {Type}, \tAccess: {Access}, \tObject: {Obj}, \tSize:";
+		string ret = $"Name: {Name},\tAccess: {Access}: {Type},\tSize:";
 		ret += (Dimension.Count < 0) ? "Error" : $"{Size} , \tDimension: [{string.Join(", ", Dimension)}]";
 		return ret;
 	}

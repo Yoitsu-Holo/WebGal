@@ -478,6 +478,7 @@ public partial class MoeInterpreter
 					"var" => MoeVariableAccess.Variable,
 					"const" => MoeVariableAccess.Const,
 					"static" => MoeVariableAccess.Static,
+					"ref" => MoeVariableAccess.Reference,
 					_ => MoeVariableAccess.Error,
 				},
 				Type = type.Value switch
