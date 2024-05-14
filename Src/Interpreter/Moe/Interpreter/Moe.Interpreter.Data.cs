@@ -181,6 +181,20 @@ public class ExpressionNode
 {
 	public List<ExpressionToken> Tokens = [];
 
+	public bool IsVarName
+	{
+		get
+		{
+			if (Tokens.Count == 1 && Tokens[0].Type == OperatorType.VAR)
+			{
+				VariableInfo varinfo = Tokens[0].Var;
+				if (varinfo.Index.Count == 0)
+					return true;
+			}
+			return false;
+		}
+	}
+
 	public override string ToString()
 	{
 		string ret = " ";
@@ -196,7 +210,7 @@ public class FunctionCallNode
 	public string FunctionName = "";
 	public FuncCallType CallType = FuncCallType.Positional;
 	public List<ExpressionNode> PositionalParams = [];
-	public List<AssignmentNode> KeywordParams = [];
+	public Dictionary<string, ExpressionNode> KeywordParams = [];
 
 	public override string ToString()
 	{

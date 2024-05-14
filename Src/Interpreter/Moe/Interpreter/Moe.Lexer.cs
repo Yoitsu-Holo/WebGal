@@ -102,12 +102,6 @@ public partial class MoeInterpreter
 			}
 		}
 
-		/// <summary>
-		/// 重建语句，将同一个语句内的多个token合并，并且保留代码块信息
-		/// </summary>
-		/// <param name="baseCodeBlock"></param>
-		/// <param name="deep"></param>
-		/// <returns></returns>
 		private Statement ParseStatement()
 		{
 			Statement statement = new() { IsCodeblock = true, CodeBlock = [new()], };

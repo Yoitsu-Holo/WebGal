@@ -328,9 +328,6 @@ public partial class MoeInterpreter
 			functionCall.FunctionName = tokens[0].Value;
 
 			List<Token> lestToken = tokens[2..^1];
-			Logger.LogInfo($"{lestToken[0]}\n{lestToken[^1]}", Global.LogLevel.Info);
-			// foreach (var item in lestToken)
-			// 	Console.WriteLine(item);
 
 			if (lestToken.Count != 0)
 			{
@@ -365,15 +362,19 @@ public partial class MoeInterpreter
 			return paramList;
 		}
 
-		public static List<AssignmentNode> KeywordCall(List<Token> tokens)
+		public static Dictionary<string, ExpressionNode> KeywordCall(List<Token> tokens)
 		{
-			List<AssignmentNode> paramList = [];
+			Dictionary<string, ExpressionNode> paramList = [];
 			List<Token> expTokens = [];
 			for (int i = 0; i <= tokens.Count; i++)
 			{
 				if (i == tokens.Count || tokens[i].Type == TokenType.VarDelimiter)
 				{
-					paramList.Add(ParseAssignment(expTokens, null));
+					AssignmentNode assignment = ParseAssignment(expTokens, null);
+					if (assignment.RightExp is not null)
+						paramList[assignment.LeftVar.Name] = assignment.RightExp;
+					else
+						throw new Exception(Logger.LogMessage($"关键字参数传递值必须是 '表达式/变量/常量' 而非函数返回值 {assignment}"));
 					expTokens.Clear();
 				}
 				else

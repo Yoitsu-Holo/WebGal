@@ -6,18 +6,15 @@ public partial class MoeInterpreter
 {
 	public partial class Syscall
 	{
-		public static void Log(List<MoeVariable> vars)
+		public static void Log(MoeVariable variable)
 		{
-			foreach (var v in vars)
-			{
-				string s = "";
-				s += $"\t{vars}";
-				if (v.Type == MoeVariableType.Int || v.Type == MoeVariableType.Double)
-					for (int i = 0; i < v.Size; i++)
-						s += $"{(i % 5 == 0 ? "\n" : "")}\t\tobj[{i}]: {v[i]}";
-
-				Logger.LogInfo(s, Global.LogLevel.Info);
-			}
+			Console.WriteLine("Syscall.Log");
+			string s = "";
+			s += $"\t{variable}";
+			if (variable.Type == MoeVariableType.Int || variable.Type == MoeVariableType.Double)
+				for (int i = 0; i < variable.Size; i++)
+					s += $"{(i % 5 == 0 ? "\n" : "")}\t\tobj[{i}]: {variable[i]}";
+			Logger.LogInfo(s, Global.LogLevel.Info);
 		}
 	}
 }

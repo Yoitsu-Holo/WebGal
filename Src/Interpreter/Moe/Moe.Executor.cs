@@ -6,7 +6,6 @@ namespace WebGal.MeoInterpreter;
 
 public partial class MoeInterpreter
 {
-
 	public static object Call(FuncntionNode function, List<MoeVariable> paramList) // 调用函数
 	{
 		FunctionHeader header = function.Header;
@@ -16,7 +15,7 @@ public partial class MoeInterpreter
 
 		if (header.CallParam.Count != paramList.Count)
 		{
-			Logger.LogInfo($"参数列表数量不匹配 {function}", Global.LogLevel.Error);
+			Logger.LogInfo($"参数列表数量不匹配 {function.Header}\n {header.CallParam.Count} : {paramList.Count}", Global.LogLevel.Error);
 			return new();
 		}
 
@@ -28,7 +27,7 @@ public partial class MoeInterpreter
 			}
 			else
 			{
-				Logger.LogInfo($"参数列表类型不匹配 {function}", Global.LogLevel.Error);
+				Logger.LogInfo($"参数列表类型不匹配 {function.Header}", Global.LogLevel.Error);
 				return new();
 			}
 		}
@@ -38,80 +37,133 @@ public partial class MoeInterpreter
 		frame.BlockVarName.Push([]);
 
 		Run();
-
-		return new();
+		MoeVariable returnData = frame.ReturnData;
+		ActiveTasks.Pop();
+		return returnData;
 	}
 
-	public static object Call(FunctionCallNode funcntion) // 调用函数
+	public static object Call(FunctionCallNode function) // 调用函数
 	{
 		if (ActiveTasks.Count == 0)
 			throw new Exception(Logger.LogMessage("任务栈未初始化"));
+
+		static MoeVariable ParseCallValue(ExpressionNode exp)
+		{
+			if (exp.IsVarName)
+			{
+				string varName = exp.Tokens[0].Var.Name;
+				if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
+					return gvalue;
+				else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
+					return lvalue;
+				else
+					Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
+				return new();
+			}
+			else
+			{
+				object value = ExpressionsExecutor.Parse(exp);
+				MoeVariable variable = new()
+				{
+					Name = value.GetHashCode().ToString(),
+					Access = MoeVariableAccess.Variable,
+					Dimension = [1],
+				};
+				if (value is int vint)
+				{
+					variable.Type = MoeVariableType.Int;
+					variable.Obj = new int[1];
+					((int[])variable.Obj)[0] = vint;
+				}
+				else if (value is double vdouble)
+				{
+					variable.Type = MoeVariableType.Double;
+					variable.Obj = new double[1];
+					((double[])variable.Obj)[0] = vdouble;
+				}
+				else
+					Logger.LogInfo("未匹配的参数");
+				return variable;
+			}
+		}
+
+		// 系统调用，只能关键字传参
+		if (function.FunctionName[0] == '_')
+		{
+			Dictionary<string, MoeVariable> paramtersList = [];
+			foreach (var (name, exp) in function.KeywordParams)
+				paramtersList[name] = ParseCallValue(exp);
+			object? obj = UserCall(function.FunctionName[1..], paramtersList);
+			return (obj is null) ? new() : obj;
+		}
+
+		// 如果为非系统调用，尝试本地调用
 		List<MoeVariable> paramList = [];
-
-		if (funcntion.CallType == FuncCallType.Positional)
+		FuncntionNode funcntionNode = Functions[function.FunctionName];
+		if (function.CallType == FuncCallType.Positional)
 		{
-			// foreach (string varName in funcntion.PositionalParams)
-			// {
-			// 	if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
-			// 		paramList.Add(gvalue);
-			// 	else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
-			// 		paramList.Add(lvalue);
-			// 	else
-			// 		Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
-			// }
-			Logger.LogInfo("positional Call Todo", Global.LogLevel.Todo);
+			foreach (ExpressionNode exp in function.PositionalParams)
+				paramList.Add(ParseCallValue(exp));
 		}
-		else
+		else if (function.CallType == FuncCallType.Keyword)
 		{
-			Logger.LogInfo("keyword Call Todo", Global.LogLevel.Todo);
+			List<MoeVariable> CallParam = funcntionNode.Header.CallParam;
+			foreach (var param in CallParam)
+			{
+				string paramName = param.Name;
+				if (function.KeywordParams.TryGetValue(paramName, out ExpressionNode? exp))
+					paramList.Add(ParseCallValue(exp));
+				else
+					paramList.Add(new());
+			}
 		}
-
-
-		// 系统保留
-		if (funcntion.FunctionName[0] == '_')
-		{
-			UserCall(funcntion.FunctionName[1..], paramList);
-			return new();
-		}
-
-		return Call(Functions[funcntion.FunctionName], paramList);
+		return Call(funcntionNode, paramList);
 	}
 
-	public static void UserCall(string syscall, List<MoeVariable> paramList)
+	public static object? UserCall(string usercall, Dictionary<string, MoeVariable> paramList)
 	{
-		if (syscall.Length == 0)
+		if (usercall.Length == 0)
 		{
-			Logger.LogInfo($"错误的用户函数名称{syscall}", Global.LogLevel.Warning);
-			return;
+			Logger.LogInfo($"错误的用户函数名称{usercall}", Global.LogLevel.Warning);
+			return null;
 		}
-		if (syscall[0] == '_')
+		if (usercall[0] == '_')
 		{
-			SysCall(syscall[1..], paramList);
-			return;
+			SysCall(usercall[1..], paramList);
+			return null;
 		}
-		InnerCall(syscall, paramList);
+		Logger.LogInfo("用户函数未实现", Global.LogLevel.Todo);
+		return InnerCall(usercall, typeof(Syscall), paramList);
 	}
 
-	public static void SysCall(string syscall, List<MoeVariable> paramList)
+	public static object? SysCall(string syscall, Dictionary<string, MoeVariable> paramList)
 	{
 		if (syscall.Length == 0)
 		{
 			Logger.LogInfo($"错误的系统内建函数名称{syscall}", Global.LogLevel.Warning);
-			return;
+			return null;
 		}
-		InnerCall(syscall, paramList);
+		return InnerCall(syscall, typeof(Syscall), paramList);
 	}
 
-	public static void InnerCall(string syscall, List<MoeVariable> paramList)
+	public static object? InnerCall(string syscall, Type type, Dictionary<string, MoeVariable> paramList)
 	{
-		Type type = typeof(Syscall);
-		MethodInfo? method = type.GetMethod(syscall, BindingFlags.Public | BindingFlags.Static, [typeof(List<MoeVariable>)]);
+		MethodInfo? method = type.GetMethod(syscall, BindingFlags.Public | BindingFlags.Static);
 		if (method is null)
 		{
 			Logger.LogInfo($"未知的系统内建函数名称{syscall}", Global.LogLevel.Warning);
-			return;
+			return null;
 		}
-		method.Invoke(null, [paramList]);
+		ParameterInfo[] parameters = method.GetParameters();
+		object[] args = [parameters.Length];
+
+		for (int i = 0; i < parameters.Length; i++)
+		{
+			if (paramList.TryGetValue(parameters[i].Name!, out MoeVariable? value))
+				args[i] = value;
+		}
+
+		return method.Invoke(null, args);
 	}
 
 	public static void Run() //运行代码块
@@ -218,7 +270,6 @@ public partial class MoeInterpreter
 				Logger.LogInfo("暂未实现字符串赋值解析", Global.LogLevel.Todo);
 			else
 				Logger.LogInfo("变量类型不匹配", Global.LogLevel.Error);
-
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
