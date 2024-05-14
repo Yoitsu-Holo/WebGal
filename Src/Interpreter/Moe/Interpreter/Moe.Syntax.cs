@@ -265,7 +265,7 @@ public partial class MoeInterpreter
 			ConditionalNode conditional = new();
 
 			if (tokens[0].Type != TokenType.ELSE)
-				conditional.Conditional = MathExpression(new DoubleEndEnumerator<Token>(tokens[2..^1]));
+				conditional.Conditional = ParseExpression(new DoubleEndEnumerator<Token>(tokens[2..^1]));
 			else
 				conditional.Conditional.Tokens = [new() { Type = OperatorType.NUM, Number = 1, }];
 
@@ -277,10 +277,10 @@ public partial class MoeInterpreter
 			return conditional;
 		}
 
-		public static AssignmentNode ParseAssignment(Statement statement, ConditionalNode? preWhile)
-		{
-			List<Token> tokens = statement.Tokens;
+		public static AssignmentNode ParseAssignment(Statement statement, ConditionalNode? preWhile) => ParseAssignment(statement.Tokens, preWhile);
 
+		public static AssignmentNode ParseAssignment(List<Token> tokens, ConditionalNode? preWhile)
+		{
 			//* 赋值
 			AssignmentNode assignment = new();
 
@@ -312,7 +312,7 @@ public partial class MoeInterpreter
 			}
 			else if (preTokens[0].Type == TokenType.VarName)
 			{
-				assignment.RightExp = MathExpression(new DoubleEndEnumerator<Token>(expTokens));
+				assignment.RightExp = ParseExpression(new DoubleEndEnumerator<Token>(expTokens));
 			}
 
 			return assignment;
@@ -328,30 +328,58 @@ public partial class MoeInterpreter
 			functionCall.FunctionName = tokens[0].Value;
 
 			List<Token> lestToken = tokens[2..^1];
-			bool var = false;
-			for (int i = 0; i < lestToken.Count; i++)
+			Logger.LogInfo($"{lestToken[0]}\n{lestToken[^1]}", Global.LogLevel.Info);
+			// foreach (var item in lestToken)
+			// 	Console.WriteLine(item);
+
+			if (lestToken.Count != 0)
 			{
-				Token token = lestToken[i];
-				if (token.Type == TokenType.VarDelimiter)
-					var = false;
-				else if (token.Type == TokenType.LeftRange && var)
+				if (lestToken[0].Type == TokenType.LeftRange && lestToken[^1].Type == TokenType.RightRange)
 				{
-					Logger.LogInfo("Todo: 函数数组传参待实现", Global.LogLevel.Todo);
-					while (lestToken[i].Type != TokenType.RightRange)
-						i++;
-				}
-				else if (var == false)
-				{
-					var = true;
-					if (token.Type == TokenType.VarName)
-						functionCall.ParamName.Add(token.Value);
-					else
-						throw new Exception(Logger.LogMessage("错误的变量名称"));
+					functionCall.CallType = FuncCallType.Keyword;
+					functionCall.KeywordParams = KeywordCall(lestToken[1..^1]);
 				}
 				else
-					throw new Exception(Logger.LogMessage($"错误的函数入参列表 : {token}"));
+				{
+					functionCall.CallType = FuncCallType.Positional;
+					functionCall.PositionalParams = PositionalCall(lestToken);
+				}
 			}
 			return functionCall;
+		}
+
+		public static List<ExpressionNode> PositionalCall(List<Token> tokens)
+		{
+			List<ExpressionNode> paramList = [];
+			List<Token> expTokens = [];
+			for (int i = 0; i <= tokens.Count; i++)
+			{
+				if (i == tokens.Count || tokens[i].Type == TokenType.VarDelimiter)
+				{
+					paramList.Add(ParseExpression(new DoubleEndEnumerator<Token>(expTokens)));
+					expTokens.Clear();
+				}
+				else
+					expTokens.Add(tokens[i]);
+			}
+			return paramList;
+		}
+
+		public static List<AssignmentNode> KeywordCall(List<Token> tokens)
+		{
+			List<AssignmentNode> paramList = [];
+			List<Token> expTokens = [];
+			for (int i = 0; i <= tokens.Count; i++)
+			{
+				if (i == tokens.Count || tokens[i].Type == TokenType.VarDelimiter)
+				{
+					paramList.Add(ParseAssignment(expTokens, null));
+					expTokens.Clear();
+				}
+				else
+					expTokens.Add(tokens[i]);
+			}
+			return paramList;
 		}
 
 		public static VariableDefineNode ParseVariableDefine(Statement statement, ConditionalNode? preWhile)
@@ -490,7 +518,7 @@ public partial class MoeInterpreter
 
 			return dimension;
 		}
-		public static ExpressionNode MathExpression(IExtendEnumerator<Token> tokens)
+		public static ExpressionNode ParseExpression(IExtendEnumerator<Token> tokens)
 		{
 
 			List<ExpressionToken> math = [];
@@ -603,7 +631,7 @@ public partial class MoeInterpreter
 			if (tokens.Current.Type != TokenType.LeftRange)
 				throw new Exception(Logger.LogMessage($"{tokens.Current}"));
 
-			ExpressionNode expNode = MathExpression(tokens);
+			ExpressionNode expNode = ParseExpression(tokens);
 
 			if (tokens.Current.Type != TokenType.RightRange)
 				throw new Exception(Logger.LogMessage($"{tokens.Current}"));

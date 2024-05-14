@@ -117,6 +117,11 @@ public enum ASTNodeType
 	Error,
 }
 
+public enum FuncCallType
+{
+	Positional, Keyword,
+}
+
 public class FunctionHeader
 {
 	public string FileName = "main.moe";
@@ -189,13 +194,26 @@ public class ExpressionNode
 public class FunctionCallNode
 {
 	public string FunctionName = "";
-	public List<string> ParamName = [];
+	public FuncCallType CallType = FuncCallType.Positional;
+	public List<ExpressionNode> PositionalParams = [];
+	public List<AssignmentNode> KeywordParams = [];
 
 	public override string ToString()
 	{
-		string ret = $"CallFunc: {FunctionName}\tParamName: ";
-		foreach (var param in ParamName)
-			ret += $"{param} ";
+		string ret = $"CallFunc: {FunctionName}\t: ";
+		if (CallType == FuncCallType.Positional)
+		{
+			ret += "Positional Call\n";
+			foreach (var param in PositionalParams)
+				ret += $"\t{param}\n";
+		}
+		else
+		{
+			ret += "Keyword Call\n";
+			foreach (var param in KeywordParams)
+				ret += $"\t{param}\n";
+		}
+
 		return ret;
 	}
 }

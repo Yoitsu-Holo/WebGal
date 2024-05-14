@@ -147,7 +147,6 @@ public partial class MoeInterpreter
 
 			Lexer lexer = new(response.Message);
 			lexer.Parse();
-
 			List<FuncntionNode> funcntions = Syntax.ParseFile(lexer.CodeStatement);
 
 			foreach (var function in funcntions)

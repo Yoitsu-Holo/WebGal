@@ -47,15 +47,25 @@ public partial class MoeInterpreter
 		if (ActiveTasks.Count == 0)
 			throw new Exception(Logger.LogMessage("任务栈未初始化"));
 		List<MoeVariable> paramList = [];
-		foreach (string varName in funcntion.ParamName)
+
+		if (funcntion.CallType == FuncCallType.Positional)
 		{
-			if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
-				paramList.Add(gvalue);
-			else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
-				paramList.Add(lvalue);
-			else
-				Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
+			// foreach (string varName in funcntion.PositionalParams)
+			// {
+			// 	if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
+			// 		paramList.Add(gvalue);
+			// 	else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
+			// 		paramList.Add(lvalue);
+			// 	else
+			// 		Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
+			// }
+			Logger.LogInfo("positional Call Todo", Global.LogLevel.Todo);
 		}
+		else
+		{
+			Logger.LogInfo("keyword Call Todo", Global.LogLevel.Todo);
+		}
+
 
 		// 系统保留
 		if (funcntion.FunctionName[0] == '_')
