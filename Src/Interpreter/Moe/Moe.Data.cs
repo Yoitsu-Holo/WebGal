@@ -221,6 +221,13 @@ public class MoeVariable : ICloneable
 			};
 		}
 	}
+
+	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int) ? (int)variable[0] : 0;
+	public static implicit operator double(MoeVariable variable) => (variable.Type == MoeVariableType.Double) ? (double)variable[0] : 0;
+	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String) ? (string)variable[0] : "";
+	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int[])variable.Obj : [];
+	public static implicit operator double[](MoeVariable variable) => (variable.Type == MoeVariableType.Double && variable.Obj is not null) ? (double[])variable.Obj : [];
+	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string[])variable.Obj : [];
 }
 
 // 栈帧

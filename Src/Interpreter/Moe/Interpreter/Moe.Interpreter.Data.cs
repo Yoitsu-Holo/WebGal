@@ -102,7 +102,7 @@ public enum OperatorType
 
 	LeftParen, RightParen,
 	LeftRange, RightRange,
-	VAR, NUM,
+	Variable, Number, String,
 	Error,
 }
 
@@ -159,6 +159,7 @@ public class ExpressionToken
 	public OperatorType Type = OperatorType.Void;
 	public VariableInfo Var = new();
 	public object Number = 0;
+	public string String = "";
 
 	public override string ToString()
 	{
@@ -167,9 +168,9 @@ public class ExpressionToken
 			ret += "( ";
 		else if (Type == OperatorType.RightParen)
 			ret += " )";
-		else if (Type == OperatorType.NUM)
+		else if (Type == OperatorType.Number)
 			ret += $"{((Number is int v) ? v : ((double)Number))}";
-		else if (Type == OperatorType.VAR)
+		else if (Type == OperatorType.Variable)
 			ret += $"{Var}";
 		else
 			ret += $"{Type}";
@@ -185,7 +186,7 @@ public class ExpressionNode
 	{
 		get
 		{
-			if (Tokens.Count == 1 && Tokens[0].Type == OperatorType.VAR)
+			if (Tokens.Count == 1 && Tokens[0].Type == OperatorType.Variable)
 			{
 				VariableInfo varinfo = Tokens[0].Var;
 				if (varinfo.Index.Count == 0)

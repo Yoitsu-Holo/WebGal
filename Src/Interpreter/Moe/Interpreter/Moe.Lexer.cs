@@ -272,6 +272,7 @@ public partial class MoeInterpreter
 			}
 			else if (_input[_line][_inputPos] == '\"')
 			{
+				_inputPos++;
 				while (_inputPos < _input[_line].Length && _input[_line][_inputPos] != '\"')
 				{
 					if (_input[_line][_inputPos] == '\\')
@@ -280,7 +281,9 @@ public partial class MoeInterpreter
 				}
 
 				ret.Type = TokenType.String;
+				ret.Value = _input[_line][(start + 1).._inputPos];
 				_inputPos++;
+				return ret;
 			}
 			else
 			{

@@ -267,7 +267,7 @@ public partial class MoeInterpreter
 			if (tokens[0].Type != TokenType.ELSE)
 				conditional.Conditional = ParseExpression(new DoubleEndEnumerator<Token>(tokens[2..^1]));
 			else
-				conditional.Conditional.Tokens = [new() { Type = OperatorType.NUM, Number = 1, }];
+				conditional.Conditional.Tokens = [new() { Type = OperatorType.Number, Number = 1, }];
 
 			if (tokens[0].Type == TokenType.WHILE)
 				conditional.Program = PraseProgram(programe, conditional);
@@ -534,19 +534,26 @@ public partial class MoeInterpreter
 				{
 					math.Add(new()
 					{
-						Type = OperatorType.NUM,
+						Type = OperatorType.Number,
 						Number = int.Parse(token.Value),
 					});
 					opCount = 0;
 				}
 				else if (token.Type == TokenType.FloatNumber && opCount != 0)
 				{
-					string number = "";
-					number += token.Value;
 					math.Add(new()
 					{
-						Type = OperatorType.NUM,
-						Number = double.Parse(number),
+						Type = OperatorType.Number,
+						Number = double.Parse(token.Value),
+					});
+					opCount = 0;
+				}
+				else if (token.Type == TokenType.String && opCount != 0)
+				{
+					math.Add(new()
+					{
+						Type = OperatorType.String,
+						String = token.Value,
 					});
 					opCount = 0;
 				}
@@ -562,7 +569,7 @@ public partial class MoeInterpreter
 					}
 					math.Add(new()
 					{
-						Type = OperatorType.VAR,
+						Type = OperatorType.Variable,
 						Var = variable,
 					});
 					opCount = 0;

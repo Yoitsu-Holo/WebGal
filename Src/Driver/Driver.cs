@@ -70,4 +70,14 @@ public partial class Driver
 		Response respone = new();
 		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
 	}
+
+	//! test
+	[JSInvokable]
+	public static async Task StackTraceTest()
+	{
+		await Task.Run(() => { });
+		var trace = new System.Diagnostics.StackTrace();
+		Console.WriteLine("Stack Trace: " + trace.ToString());
+		// Log.LogWarning("This is a warning message.");
+	}
 }

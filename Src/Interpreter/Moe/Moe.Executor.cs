@@ -27,7 +27,7 @@ public partial class MoeInterpreter
 			}
 			else
 			{
-				Logger.LogInfo($"参数列表类型不匹配 {function.Header}", Global.LogLevel.Error);
+				Logger.LogInfo($"参数列表类型不匹配 {header.CallParam[i].Type}:{paramList[i].Type}\n{function.Header}", Global.LogLevel.Error);
 				return new();
 			}
 		}
@@ -72,14 +72,19 @@ public partial class MoeInterpreter
 				if (value is int vint)
 				{
 					variable.Type = MoeVariableType.Int;
-					variable.Obj = new int[1];
-					((int[])variable.Obj)[0] = vint;
+					variable.Obj = new int[1] { vint };
+					// ((int[])variable.Obj)[0] = vint;
 				}
 				else if (value is double vdouble)
 				{
 					variable.Type = MoeVariableType.Double;
-					variable.Obj = new double[1];
-					((double[])variable.Obj)[0] = vdouble;
+					variable.Obj = new double[1] { vdouble };
+					// ((double[])variable.Obj)[0] = ;
+				}
+				else if (value is string vstring)
+				{
+					variable.Type = MoeVariableType.String;
+					variable.Obj = new string[] { vstring };
 				}
 				else
 					Logger.LogInfo("未匹配的参数");
@@ -155,7 +160,7 @@ public partial class MoeInterpreter
 			return null;
 		}
 		ParameterInfo[] parameters = method.GetParameters();
-		object[] args = [parameters.Length];
+		object[] args = new object[parameters.Length];
 
 		for (int i = 0; i < parameters.Length; i++)
 		{
@@ -604,14 +609,18 @@ public partial class MoeInterpreter
 		private static object Level1(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
-			if (opType == OperatorType.NUM)
+			if (opType == OperatorType.Number)
 			{
-				return ConsumeToken(OperatorType.NUM, tokens).Number;
+				return ConsumeToken(OperatorType.Number, tokens).Number;
 			}
-			else if (opType == OperatorType.VAR)
+			else if (opType == OperatorType.String)
+			{
+				return ConsumeToken(OperatorType.String, tokens).String;
+			}
+			else if (opType == OperatorType.Variable)
 			{
 				VariableInfo variableInfo = tokens.Current.Var;
-				ConsumeToken(OperatorType.VAR, tokens);
+				ConsumeToken(OperatorType.Variable, tokens);
 
 				GVariables.TryGetValue(variableInfo.Name, out MoeVariable? variable);
 				if (variable is null)
@@ -633,6 +642,10 @@ public partial class MoeInterpreter
 				return variable[indexs];
 				// return variable[variableInfo.Index];
 			}
+			// 			else if (opType == OperatorType.String)
+			// {
+
+			// }
 			else if (opType == OperatorType.LeftParen)
 			{
 				ConsumeToken(OperatorType.LeftParen, tokens);
@@ -640,10 +653,6 @@ public partial class MoeInterpreter
 				ConsumeToken(OperatorType.RightParen, tokens);
 				return result;
 			}
-			// else if (opType == OperatorType.LeftParen)
-			// {
-
-			// }
 			else
 				throw new Exception($"Unexpected token: {tokens.Current}");
 		}
