@@ -117,7 +117,7 @@ public partial class MoeInterpreter
 			Driver.SetImageBoxInfo(imageBox);
 		}
 
-		public static void SetTextBox(
+		public static async void SetTextBox(
 			MoeVariable layout, MoeVariable layer,
 			MoeVariable text, MoeVariable font, MoeVariable size
 		)
@@ -129,6 +129,14 @@ public partial class MoeInterpreter
 				Font = font,
 				FontSize = size,
 			};
+			FileInfo file = new()
+			{
+				Type = FileType.Font,
+				Name = _elfHeader.Files[font].Name,
+				URL = _elfHeader.Files[font].URL,
+			};
+			if (Driver.CheckFile(file).Type == ResponseType.Fail)
+				await Driver.PullFileAsync(file);
 			Driver.SetTextBoxInfo(textBox);
 		}
 

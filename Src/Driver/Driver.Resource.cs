@@ -36,10 +36,10 @@ public partial class Driver
 	}
 
 	[JSInvokable]
-	public static async Task<string> GetScriptAsync(string json)
+	public static string GetScriptAsync(string json)
 	{
 		var info = JsonSerializer.Deserialize<FileInfo>(json, JsonConfig.Options);
-		return JsonSerializer.Serialize(await GetScriptAsync(info), JsonConfig.Options);
+		return JsonSerializer.Serialize(GetScriptAsync(info), JsonConfig.Options);
 	}
 	#endregion
 
@@ -136,7 +136,7 @@ public partial class Driver
 		return response;
 	}
 
-	public static async Task<Response> GetScriptAsync(FileInfo info)
+	public static Response GetScriptAsync(FileInfo info)
 	{
 		Response response = CheckInit();
 
@@ -159,7 +159,6 @@ public partial class Driver
 			response.Message = exception.Message;
 		}
 
-		await Task.Run(() => { });
 		return response;
 	}
 }

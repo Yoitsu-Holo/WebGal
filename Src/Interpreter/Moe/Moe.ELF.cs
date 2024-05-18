@@ -115,7 +115,7 @@ public partial class MoeInterpreter
 		foreach (var (_, file) in _elfHeader.Files)
 		{
 			FileInfo fileInfo;
-			if (file.Type == MoeFileType.Text_script || file.Type == MoeFileType.Text_form)
+			if ((file.Type & MoeFileType.Text) != 0)
 				fileInfo = new() { Type = FileType.Script, Name = file.Name, URL = file.URL, };
 			else if (file.Type == MoeFileType.Bin_font)
 				fileInfo = new() { Type = FileType.Font, Name = file.Name, URL = file.URL, };
@@ -133,16 +133,20 @@ public partial class MoeInterpreter
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.Files)
 		{
-			if ((file.Type & MoeFileType.Text) == 0 || file.Type == MoeFileType.Text_opera) continue;
+			if ((file.Type & MoeFileType.Text) == 0) continue;
 
 			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.Name };
-			Response response = await Driver.GetScriptAsync(fileInfo);
+			Response response = Driver.GetScriptAsync(fileInfo);
 			if (response.Type != ResponseType.Success) throw new Exception(response.Message);
 
 			if (file.Type == MoeFileType.Text_form)
 			{
 				var layout = JsonSerializer.Deserialize<FromLayoutInfo>(response.Message, Global.JsonConfig.Options);
 				_elfHeader.Forms[layout.LayoutID] = layout;
+				continue;
+			}
+			else if (file.Type == MoeFileType.Text_opera)
+			{
 				continue;
 			}
 
@@ -185,4 +189,6 @@ public partial class MoeInterpreter
 			}
 		}
 	}
+
+
 }

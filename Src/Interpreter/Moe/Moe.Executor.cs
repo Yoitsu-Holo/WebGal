@@ -47,51 +47,6 @@ public partial class MoeInterpreter
 		if (ActiveTasks.Count == 0)
 			throw new Exception(Logger.LogMessage("任务栈未初始化"));
 
-		static MoeVariable ParseCallValue(ExpressionNode exp)
-		{
-			if (exp.IsVarName)
-			{
-				string varName = exp.Tokens[0].Var.Name;
-				if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
-					return gvalue;
-				else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
-					return lvalue;
-				else
-					Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
-				return new();
-			}
-			else
-			{
-				object value = ExpressionsExecutor.Parse(exp);
-				MoeVariable variable = new()
-				{
-					Name = value.GetHashCode().ToString(),
-					Access = MoeVariableAccess.Variable,
-					Dimension = [1],
-				};
-				if (value is int vint)
-				{
-					variable.Type = MoeVariableType.Int;
-					variable.Obj = new int[1] { vint };
-					// ((int[])variable.Obj)[0] = vint;
-				}
-				else if (value is double vdouble)
-				{
-					variable.Type = MoeVariableType.Double;
-					variable.Obj = new double[1] { vdouble };
-					// ((double[])variable.Obj)[0] = ;
-				}
-				else if (value is string vstring)
-				{
-					variable.Type = MoeVariableType.String;
-					variable.Obj = new string[] { vstring };
-				}
-				else
-					Logger.LogInfo("未匹配的参数");
-				return variable;
-			}
-		}
-
 		// 系统调用，只能关键字传参
 		if (function.FunctionName[0] == '_')
 		{
@@ -123,6 +78,25 @@ public partial class MoeInterpreter
 			}
 		}
 		return Call(funcntionNode, paramList);
+	}
+
+	public static object? Call(string funcName, Dictionary<string, MoeVariable> paramList)
+	{
+		if (funcName[0] == '_')
+			return UserCall(funcName[1..], paramList);
+
+		List<MoeVariable> parameters = [];
+		FuncntionNode funcntionNode = Functions[funcName];
+		List<MoeVariable> CallParam = funcntionNode.Header.CallParam;
+		foreach (var param in CallParam)
+		{
+			string paramName = param.Name;
+			if (paramList.TryGetValue(paramName, out MoeVariable? variable))
+				parameters.Add(variable);
+			else
+				parameters.Add(new());
+		}
+		return Call(funcntionNode, parameters);
 	}
 
 	public static object? UserCall(string usercall, Dictionary<string, MoeVariable> paramList)
@@ -342,6 +316,51 @@ public partial class MoeInterpreter
 			Logger.LogInfo("这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
 	}
 
+
+	public static MoeVariable ParseCallValue(ExpressionNode exp)
+	{
+		if (exp.IsVarName)
+		{
+			string varName = exp.Tokens[0].Var.Name;
+			if (GVariables.TryGetValue(varName, out MoeVariable? gvalue))
+				return gvalue;
+			else if (ActiveTasks.Peek().LVariable.TryGetValue(varName, out MoeVariable? lvalue))
+				return lvalue;
+			else
+				Logger.LogInfo($"静态参数传递未完全实现", Global.LogLevel.Todo);
+			return new();
+		}
+		else
+		{
+			object value = ExpressionsExecutor.Parse(exp);
+			MoeVariable variable = new()
+			{
+				Name = value.GetHashCode().ToString(),
+				Access = MoeVariableAccess.Variable,
+				Dimension = [1],
+			};
+			if (value is int vint)
+			{
+				variable.Type = MoeVariableType.Int;
+				variable.Obj = new int[1] { vint };
+				// ((int[])variable.Obj)[0] = vint;
+			}
+			else if (value is double vdouble)
+			{
+				variable.Type = MoeVariableType.Double;
+				variable.Obj = new double[1] { vdouble };
+				// ((double[])variable.Obj)[0] = ;
+			}
+			else if (value is string vstring)
+			{
+				variable.Type = MoeVariableType.String;
+				variable.Obj = new string[] { vstring };
+			}
+			else
+				Logger.LogInfo("未匹配的参数");
+			return variable;
+		}
+	}
 
 	public class ExpressionsExecutor
 	{

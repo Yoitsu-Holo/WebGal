@@ -23,7 +23,7 @@ public partial class MoeInterpreter
 		response = await Driver.PullFileAsync(elfFile);
 		if (response.Type != ResponseType.Success) throw new Exception(response.Message);
 
-		response = await Driver.GetScriptAsync(elfFile);
+		response = Driver.GetScriptAsync(elfFile);
 		if (response.Type != ResponseType.Success) throw new Exception(response.Message);
 
 		await LoadELF(response.Message);
@@ -38,7 +38,8 @@ public partial class MoeInterpreter
 		Tasks[_activeTask] = new();
 		Console.WriteLine(Functions["test"]);
 		Call(Functions["test"], []);
-		LoadScene("ch-1");
+		ParseScene("ch-1");
+		LoadScene("ch-1", 0);
 	}
 
 	[JSInvokable]
