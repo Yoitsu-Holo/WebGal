@@ -166,6 +166,8 @@ public partial class MoeInterpreter
 		{
 			if (paramList.TryGetValue(parameters[i].Name!, out MoeVariable? value))
 				args[i] = value;
+			else
+				args[i] = new MoeVariable();
 		}
 
 		return method.Invoke(null, args);

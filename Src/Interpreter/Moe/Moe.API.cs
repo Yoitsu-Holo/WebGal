@@ -38,6 +38,7 @@ public partial class MoeInterpreter
 		Tasks[_activeTask] = new();
 		Console.WriteLine(Functions["test"]);
 		Call(Functions["test"], []);
+		LoadScene("ch-1");
 	}
 
 	[JSInvokable]
@@ -57,7 +58,7 @@ public partial class MoeInterpreter
 
 		Console.WriteLine(">>> Dump Function: ");
 		foreach (var item in _elfHeader.Functions)
-			Console.WriteLine($"{item.Value}");
+			Console.WriteLine($"{item.Value.Header}");
 
 		Console.WriteLine(">>> Dump Vaiable: ");
 		foreach (var item in _elfHeader.Datas)

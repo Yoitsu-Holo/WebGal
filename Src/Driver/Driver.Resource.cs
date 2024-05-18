@@ -89,35 +89,18 @@ public partial class Driver
 		if (response.Type != ResponseType.Success) return response;
 
 		response.Type = ResponseType.Success;
-		try
+		bool has = info.Type switch
 		{
-			switch (info.Type)
-			{
-				case FileType.Script:
-					_resourceManager!.GetScript(info.Name);
-					break;
-				case FileType.Audio:
-					_resourceManager!.GetAudio(info.Name);
-					break;
-				case FileType.Bin:
-					_resourceManager!.GetBlob(info.Name);
-					break;
-				case FileType.Image:
-					_resourceManager!.GetImage(info.Name);
-					break;
-				case FileType.Font:
-					_resourceManager!.GetFont(info.Name);
-					break;
-				default:
-					break;
-			}
-			response.Message = $"File already exists: {info.Name}";
-		}
-		catch (Exception exception)
-		{
+			FileType.Script => _resourceManager!.CheckScript(info.Name),
+			FileType.Audio => _resourceManager!.CheckAudio(info.Name),
+			FileType.Bin => _resourceManager!.CheckBlob(info.Name),
+			FileType.Image => _resourceManager!.CheckImage(info.Name),
+			FileType.Font => _resourceManager!.CheckFont(info.Name),
+			_ => false,
+		};
+
+		if (has == false)
 			response.Type = ResponseType.Fail;
-			response.Message = exception.Message;
-		}
 
 		return response;
 	}

@@ -76,6 +76,7 @@ public partial class MoeInterpreter
 						"midi" => MoeFileType.Audio_midi,
 
 						"script" => MoeFileType.Text_script,
+						"opera" => MoeFileType.Text_opera,
 						"form" => MoeFileType.Text_form,
 
 						"bin" => MoeFileType.Bin_font,
@@ -132,7 +133,7 @@ public partial class MoeInterpreter
 		// 扫描所有脚本
 		foreach (var (_, file) in _elfHeader.Files)
 		{
-			if ((file.Type & MoeFileType.Text) == 0) continue;
+			if ((file.Type & MoeFileType.Text) == 0 || file.Type == MoeFileType.Text_opera) continue;
 
 			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.Name };
 			Response response = await Driver.GetScriptAsync(fileInfo);

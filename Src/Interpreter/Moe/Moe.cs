@@ -17,4 +17,6 @@ public partial class MoeInterpreter
 
 	public static Dictionary<string, FuncntionNode> Functions => _elfHeader.Functions;
 	public static FuncntionNode Start => Functions[_elfHeader.Start];
+
+	public static Dictionary<string, List<Scene>> Scenes = [];
 }

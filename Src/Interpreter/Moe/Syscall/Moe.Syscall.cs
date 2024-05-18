@@ -1,7 +1,7 @@
 using WebGal.API;
 using WebGal.API.Data;
 using WebGal.Global;
-using WebGal.Types;
+using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
 
@@ -39,7 +39,6 @@ public partial class MoeInterpreter
 		/// <param name="sceneID"> int: 场景ID </param>
 		public static void LoadScene(MoeVariable sceneID)
 		{
-
 		}
 
 		/// <summary>
@@ -92,7 +91,7 @@ public partial class MoeInterpreter
 			Driver.RegisterLayer(layerBox);
 		}
 
-		public static void SetImageBox(
+		public static async void SetImageBox(
 			MoeVariable layout, MoeVariable layer,
 			MoeVariable image,
 			MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height
@@ -103,12 +102,19 @@ public partial class MoeInterpreter
 				ID = new() { LayoutID = layout, LayerID = layer, },
 				Image = new()
 				{
-					ImageName = image,
+					ImageName = _elfHeader.Files[image].Name,
 					SubRect = new() { X = subx, Y = suby, W = width, H = height },
 				},
 			};
+			FileInfo file = new()
+			{
+				Type = FileType.Image,
+				Name = _elfHeader.Files[image].Name,
+				URL = _elfHeader.Files[image].URL,
+			};
+			if (Driver.CheckFile(file).Type == ResponseType.Fail)
+				await Driver.PullFileAsync(file);
 			Driver.SetImageBoxInfo(imageBox);
-
 		}
 
 		public static void SetTextBox(
