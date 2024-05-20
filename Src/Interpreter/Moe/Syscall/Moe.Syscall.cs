@@ -1,6 +1,8 @@
 using WebGal.API;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Handler;
+using WebGal.Handler.Event;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
@@ -154,6 +156,20 @@ public partial class MoeInterpreter
 				B = (byte)b,
 			};
 			Driver.SetColorBoxInfo(colorBox);
+		}
+
+		public static void SetHandler()
+		{
+			// HandlerBase handler = new();
+			// handler.SetAction((value) =>
+			// {
+			// 	Console.WriteLine("Trigger!");
+			// 	if (value is MouseEventData mouse)
+			// 	{
+			// 		if (mouse.Status == MouseStatus.Hold)
+			// 			_layoutManager.ActiveLayout = _gameLayout;
+			// 	}
+			// });
 		}
 	}
 }

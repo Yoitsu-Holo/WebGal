@@ -139,10 +139,10 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public override void Action(object? sender, EventArgs eventArgs)
 	{
-		if (eventArgs is not MouseEventData)
-			return;
-		if (Status == LayerStatus.Disable)
-			return;
+		ActionStatus = false;
+
+		if (eventArgs is not MouseEventData) return;
+		if (Status == LayerStatus.Disable) return;
 
 		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
@@ -162,6 +162,7 @@ public abstract class ControllerSliderBase : LayerBase
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - ThumbPosition;
 			ThumbLimitSet(mouseEvent.Position - Position - _mouseDelta);
+			ActionStatus = true;
 		}
 		else
 		{

@@ -1,7 +1,7 @@
+using System.Threading.Tasks.Dataflow;
 using SkiaSharp;
 using WebGal.Animations;
 using WebGal.Handler;
-using WebGal.Handler.Event;
 using WebGal.Types;
 
 namespace WebGal.Layer;
@@ -24,7 +24,7 @@ namespace WebGal.Layer;
 /// 原则上，visiable 控制是否显示。
 /// 而 diasble 会显示，但是不能操作。
 /// </summary>
-public class LayerBase : ILayer
+public class LayerBase : HandlerBase, ILayer
 {
 	protected bool _dirty = true;
 	public LayerStatus Status = LayerStatus.Normal;
@@ -33,17 +33,24 @@ public class LayerBase : ILayer
 
 	#region 外界交互
 	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
-	// 事件订阅
-	public event EventHandler<EventArgs>? Subscribers;
-	public virtual void TriggerEvent(EventArgs args)
-	{
-		if (Subscribers is not null)
-			Subscribers(this, args);
-	}
+	// // 事件订阅
+	// public event EventHandler<EventArgs>? Subscribers;
+	// public virtual void TriggerEvent(EventArgs args)
+	// {
+	// 	if (Subscribers is null) return;
+	// 	Subscribers(this, args);
+	// }
 
-	// 处理事件
-	public virtual void Action(object? sender, EventArgs eventArgs) { }
-	public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
+	// // 处理事件
+	// public Action<EventArgs>? HandlerAction { get; set; }
+	// public bool ActionStatus { get; set; }
+	// public virtual void Action(object? sender, EventArgs eventArgs)
+	// {
+	// 	ActionStatus = true;
+	// 	if (HandlerAction is null) return;
+	// 	HandlerAction.Invoke(eventArgs);
+	// }
+	// public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
 
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();

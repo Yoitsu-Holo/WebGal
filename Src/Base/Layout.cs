@@ -1,5 +1,6 @@
 using SkiaSharp;
 using WebGal.Global;
+using WebGal.Handler;
 using WebGal.Layer;
 
 namespace WebGal.Libs.Base;
@@ -7,7 +8,7 @@ namespace WebGal.Libs.Base;
 /// <summary>
 /// 多个场景的组合，预先定义的场景结构。场景事件也是由此进入处理。
 /// </summary>
-public class Layout
+public class Layout : HandlerBase
 {
 	private long StartTime { get; set; } = 0;
 
@@ -50,7 +51,18 @@ public class Layout
 
 	public void ProcessEvent(EventArgs eventArgs)
 	{
+		ActionStatus = false;
 		foreach (var (_, layer) in Layers)
+		{
+			ActionStatus = false;
 			layer.Action(this, eventArgs);
+			if (layer.ActionStatus)
+			{
+				ActionStatus = true;
+				break;
+			}
+		}
+		if (ActionStatus == false)
+			Action(this, eventArgs);
 	}
 }

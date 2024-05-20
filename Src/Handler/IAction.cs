@@ -6,6 +6,7 @@ namespace WebGal.Handler;
 /// </summary>
 public interface IAction
 {
+	public bool ActionStatus { get; set; }
 	public void RegistEvent(IEvent e);  // 注册事件
 	public void Action(object? sender, EventArgs eventArgs); // 执行动作的方法
 }

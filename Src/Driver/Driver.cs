@@ -1,7 +1,10 @@
+using System.Reflection.Metadata;
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Handler;
+using WebGal.Handler.Event;
 using WebGal.Services.Include;
 
 namespace WebGal.API;
@@ -14,6 +17,7 @@ public partial class Driver
 	private static LayoutManager? _layoutManager;
 	private static ResourceManager? _resourceManager;
 	private static AudioManager? _audioManager;
+	private static HandlerBase _handlerBase = new();
 
 
 	public static void Init(LayoutManager layoutManager, ResourceManager resourceManager, AudioManager audioManager)
@@ -22,6 +26,16 @@ public partial class Driver
 		_resourceManager = resourceManager;
 		_audioManager = audioManager;
 		_jsRuntime = audioManager.JSRuntime;
+
+		_handlerBase.HandlerAction = (value) =>
+		{
+			Console.WriteLine("Trigger!");
+			if (value is MouseEventData mouse)
+			{
+				if (mouse.Status == MouseStatus.Hold)
+					_layoutManager.ActiveLayout = _gameLayout;
+			}
+		};
 	}
 
 	public static Response CheckInit()
@@ -79,5 +93,23 @@ public partial class Driver
 		var trace = new System.Diagnostics.StackTrace();
 		Console.WriteLine("Stack Trace: " + trace.ToString());
 		// Log.LogWarning("This is a warning message.");
+	}
+
+
+	public event EventHandler<EventArgs>? Subscribers;
+
+	public void TriggerEvent(EventArgs args)
+	{
+		throw new NotImplementedException();
+	}
+
+	public void RegistEvent(IEvent e)
+	{
+		throw new NotImplementedException();
+	}
+
+	public void Action(object? sender, EventArgs eventArgs)
+	{
+		throw new NotImplementedException();
 	}
 }

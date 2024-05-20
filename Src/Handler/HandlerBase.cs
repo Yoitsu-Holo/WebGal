@@ -3,18 +3,25 @@ namespace WebGal.Handler;
 
 public class HandlerBase : IHandler
 {
-	private Action<EventArgs>? _myAction;
-	public event EventHandler<EventArgs>? Subscribers;
+	public virtual bool ActionStatus { get; set; }
 
-	public void Action(object? sender, EventArgs eventArgs) => _myAction?.Invoke(eventArgs);
+	public virtual Action<EventArgs>? HandlerAction { get; set; }
 
-	public void RegistEvent(IEvent e) => e.Subscribers += Action;
+	public virtual event EventHandler<EventArgs>? Subscribers;
 
-	public void TriggerEvent(EventArgs args)
+	public virtual void Action(object? sender, EventArgs eventArgs)
 	{
-		if (Subscribers is not null)
-			Subscribers(this, args);
+		ActionStatus = true;
+		if (HandlerAction is null) return;
+		HandlerAction.Invoke(eventArgs);
 	}
 
-	public void SetAction(Action<EventArgs> myAction) => _myAction = myAction;
+
+	public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
+
+	public virtual void TriggerEvent(EventArgs args)
+	{
+		if (Subscribers is null) return;
+		Subscribers(this, args);
+	}
 }

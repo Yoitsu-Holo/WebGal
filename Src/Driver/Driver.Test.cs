@@ -490,16 +490,18 @@ public partial class Driver
 
 		_layoutManager.ActiveLayout = _menuLayout;
 
-		HandlerBase handler = new();
-		handler.SetAction((value) =>
+		HandlerBase handler = new()
 		{
-			Console.WriteLine("Trigger!");
-			if (value is MouseEventData mouse)
+			HandlerAction = (value) =>
 			{
-				if (mouse.Status == MouseStatus.Hold)
-					_layoutManager.ActiveLayout = _gameLayout;
+				Console.WriteLine("Trigger!");
+				if (value is MouseEventData mouse)
+				{
+					if (mouse.Status == MouseStatus.Hold)
+						_layoutManager.ActiveLayout = _gameLayout;
+				}
 			}
-		});
+		};
 
 		handler.RegistEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
 	}

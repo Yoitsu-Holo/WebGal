@@ -52,10 +52,10 @@ public class ControllerButtom : LayerBase
 
 	public override void Action(object? sender, EventArgs eventArgs)
 	{
-		if (eventArgs is not MouseEventData)
-			return;
-		if (Status == LayerStatus.Disable)
-			return;
+		ActionStatus = false;
+
+		if (eventArgs is not MouseEventData) return;
+		if (Status == LayerStatus.Disable) return;
 
 		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
@@ -74,6 +74,7 @@ public class ControllerButtom : LayerBase
 		{
 			Status = nowStatus;
 			TriggerEvent(mouseEvent);
+			ActionStatus = true;
 		}
 	}
 
