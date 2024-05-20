@@ -71,8 +71,8 @@ public partial class Test// : IDisposable
 		var mouseEventCopy = _mouseEvent;
 		var canvas = e.Surface.Canvas;
 
-		MouseStatusUpdate();
 		await Manager.ProcEvent(mouseEventCopy);
+		MouseStatusUpdate();
 		canvas.Clear();
 		Manager.Render(canvas);
 

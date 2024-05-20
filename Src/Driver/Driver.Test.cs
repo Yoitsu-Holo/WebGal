@@ -502,7 +502,19 @@ public partial class Driver
 				}
 			}
 		};
-
 		handler.RegistEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
+
+		HandlerBase layoutHandle = new()
+		{
+			HandlerAction = (value) =>
+			{
+				if (value is MouseEventData mouse)
+				{
+					if (mouse.Status == MouseStatus.Down)
+						Console.WriteLine("Out Trigger!");
+				}
+			}
+		};
+		layoutHandle.RegistEvent(_layoutManager.Layouts[_menuLayout]);
 	}
 }
