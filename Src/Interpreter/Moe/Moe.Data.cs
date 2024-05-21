@@ -40,7 +40,7 @@ public enum MoeFileType : ulong
 	Image = 0x000F, Audio = 0x00F0, Text = 0x0F00, Bin = 0xF000,
 
 	Image_png = 0x1, Image_jpg = 0x2, Image_bmp = 0x4,
-	Audio_wav = 0x10, Audio_mp3 = 0x20, Audio_flac = 0x40, Audio_midi = 0x8,
+	Audio_wav = 0x10, Audio_mp3 = 0x20, Audio_flac = 0x40, Audio_ogg = 0x8,
 	Text_script = 0x100, Text_form = 0x200, Text_opera = 0x400,
 	Bin_font = 0x1000, Bin_block = 0x2000,
 	Error,
@@ -287,10 +287,13 @@ public record struct Scene
 
 public record struct SceneList
 {
-	public SceneList() { SceneName = ""; Scenes = []; }
+	public SceneList() { Scenes = []; }
 
-	public string SceneName { get; set; }
 	public List<Scene> Scenes { get; set; }
+	public int SceneId = 0;
+
+	public readonly int NextSceneID => Scenes[SceneId].SceneNext;
+	public readonly int BackSceneID => Scenes[SceneId].SceneBack;
 }
 
 

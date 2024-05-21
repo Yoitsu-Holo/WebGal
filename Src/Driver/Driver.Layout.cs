@@ -2,6 +2,8 @@ using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Handler;
+using WebGal.Handler.Event;
 using WebGal.Layer;
 using WebGal.Libs.Base;
 
@@ -17,7 +19,7 @@ public partial class Driver
 	[JSInvokable]
 	public static string RegisterLayout(string json)
 	{
-		var info = JsonSerializer.Deserialize<LayoutInfo>(json, JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
 		return JsonSerializer.Serialize(RegisterLayout(info), JsonConfig.Options);
 	}
 
@@ -47,9 +49,16 @@ public partial class Driver
 				Console.WriteLine($"\t Layer : {layerID} : {layer}");
 		}
 	}
+
+	[JSInvokable]
+	public static void RegisterLayoutAction(string json)
+	{
+		// Todo
+		Logger.LogInfo("JS 事件处理", Global.LogLevel.Todo);
+	}
 	#endregion
 
-	public static Response RegisterLayout(LayoutInfo info)
+	public static Response RegisterLayout(LayerIdInfo info)
 	{
 		Response response = CheckInit();
 
@@ -120,6 +129,17 @@ public partial class Driver
 			response.Type = ResponseType.Fail;
 			response.Message = $"Layer:{info.LayerID} not registered";
 		}
+
+		return response;
+	}
+
+	public static Response RegisterLayoutAction(LayerIdInfo info, Action<EventArgs> action)
+	{
+		Response response = CheckLayout(info);
+		if (response.Type != ResponseType.Success) return response;
+
+		HandlerBase layoutHandle = new() { HandlerAction = action };
+		layoutHandle.RegistEvent(_layoutManager!.Layouts[info.LayoutID]);
 
 		return response;
 	}

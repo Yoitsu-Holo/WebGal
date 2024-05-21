@@ -73,7 +73,7 @@ public partial class MoeInterpreter
 						"wav" => MoeFileType.Audio_wav,
 						"mp3" => MoeFileType.Audio_mp3,
 						"flac" => MoeFileType.Audio_flac,
-						"midi" => MoeFileType.Audio_midi,
+						"ogg" => MoeFileType.Audio_ogg,
 
 						"script" => MoeFileType.Text_script,
 						"opera" => MoeFileType.Text_opera,
@@ -172,7 +172,7 @@ public partial class MoeInterpreter
 		{
 			var layers = layout.Layers;
 			int layoutID = layout.LayoutID;
-			LayoutInfo layoutInfo = new() { Request = RequestType.Set, LayoutID = layoutID, };
+			LayerIdInfo layoutInfo = new() { Request = RequestType.Set, LayoutID = layoutID, };
 			Driver.RegisterLayout(layoutInfo);
 			foreach (var layer in layers)
 			{

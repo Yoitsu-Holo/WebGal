@@ -103,7 +103,7 @@ public partial class Driver
 		//! 注册Layout
 		{
 			Console.WriteLine("Register Layout:10 ...");
-			LayoutInfo layoutInfo = new()
+			LayerIdInfo layoutInfo = new()
 			{
 				Request = RequestType.Set,
 				LayoutID = _gameLayout,
@@ -319,9 +319,9 @@ public partial class Driver
 			Console.WriteLine("Register AudioContext:0 ...");
 			AudioIdInfo info = new() { ContextID = 0, };
 
-			string result = await RegisterAudioContextAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
-			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
-				return result;
+			Response result = await RegisterAudioContextAsync(info);
+			if (result.Type != ResponseType.Success)
+				return result.Message;
 		}
 
 		//! 注册处理节点0 源节点
@@ -335,9 +335,9 @@ public partial class Driver
 				Type = AudioNodeType.Source,
 			};
 
-			string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
-			if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
-				return result;
+			Response result = await RegisterAudioNodeAsync(info);
+			if (result.Type != ResponseType.Success)
+				return result.Message;
 		}
 
 		//! 注册处理节点1 增益节点
@@ -503,18 +503,5 @@ public partial class Driver
 			}
 		};
 		handler.RegistEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
-
-		HandlerBase layoutHandle = new()
-		{
-			HandlerAction = (value) =>
-			{
-				if (value is MouseEventData mouse)
-				{
-					if (mouse.Status == MouseStatus.Down)
-						Console.WriteLine("Out Trigger!");
-				}
-			}
-		};
-		layoutHandle.RegistEvent(_layoutManager.Layouts[_menuLayout]);
 	}
 }

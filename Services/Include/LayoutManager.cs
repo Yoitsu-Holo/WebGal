@@ -9,7 +9,7 @@ namespace WebGal.Services.Include;
 /// 所有的界面都应该在LayoutManager中注册，例如主界面，菜单，游戏内ADV场景。
 /// 事件处理流程：LayoutManeger -> Layout -> Scene -> Layer[最终] -> Scene[自身] -> Layout[自身] -> LayoutManeger[自身]
 /// </summary>
-public class LayoutManager : IEvent
+public class LayoutManager
 {
 	public readonly Dictionary<int, Layout> Layouts = [];
 	public int ActiveLayout = 0; // 0: 主界面，-1: 测试界面
@@ -34,12 +34,5 @@ public class LayoutManager : IEvent
 	{
 		if (Layouts.TryGetValue(ActiveLayout, out Layout? value))
 			value.ProcessEvent(eventdata);
-	}
-
-	public event EventHandler<EventArgs>? Subscribers;
-
-	public void TriggerEvent(EventArgs args)
-	{
-		throw new NotImplementedException();
 	}
 }

@@ -49,7 +49,7 @@ public partial class MoeInterpreter
 		/// <param name="LayoutID"> int: </param>
 		public static void RegLayout(MoeVariable layout)
 		{
-			LayoutInfo layoutInfo = new()
+			LayerIdInfo layoutInfo = new()
 			{
 				LayoutID = layout,
 			};
@@ -170,6 +170,27 @@ public partial class MoeInterpreter
 			// 			_layoutManager.ActiveLayout = _gameLayout;
 			// 	}
 			// });
+		}
+
+		public static async void BGM(MoeVariable file)
+		{
+			Console.WriteLine("123");
+			FileInfo fileInfo = new()
+			{
+				Type = FileType.Audio,
+				Name = _elfHeader.Files[file].Name,
+				URL = _elfHeader.Files[file].URL,
+			};
+			if (Driver.CheckFile(fileInfo).Type == ResponseType.Fail)
+				await Driver.PullFileAsync(fileInfo);
+			AudioSimpleInfo audioInfo = new()
+			{
+				AudioName = file,
+				Loop = true,
+				Start = true,
+				Volume = 600,
+			};
+			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
 	}
 }

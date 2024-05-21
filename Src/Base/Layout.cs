@@ -54,7 +54,7 @@ public class Layout : HandlerBase
 		ActionStatus = false;
 		foreach (var (_, layer) in Layers)
 		{
-			ActionStatus = false;
+			layer.ActionStatus = false;
 			layer.Action(this, eventArgs);
 			if (layer.ActionStatus)
 			{

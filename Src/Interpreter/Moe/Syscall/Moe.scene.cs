@@ -21,14 +21,21 @@ public partial class MoeInterpreter
 		if (response.Type != ResponseType.Success) throw new Exception(response.Message);
 
 		SceneList scenes = JsonSerializer.Deserialize<SceneList>(response.Message);
-		Scenes[_elfHeader.Files[sceneName].Name] = scenes.Scenes;
+		_scenes[_elfHeader.Files[sceneName].Name] = scenes;
 	}
 
-	public static void LoadScene(string sceneName, int sceneid = 0)
-	{
-		List<Scene> scenes = Scenes[_elfHeader.Files[sceneName].Name];
+	public static void SetSceneList(string sceneName) => _activeSceneList = _scenes[sceneName];
 
-		Scene scene = scenes[sceneid];
+	public static void OnCLick()
+	{
+		Console.WriteLine("");
+		_activeSceneList.SceneId = _activeSceneList.NextSceneID;
+		LoadScene(_activeSceneList.SceneId);
+	}
+
+	public static void LoadScene(int sceneid = 0)
+	{
+		Scene scene = _activeSceneList.Scenes[sceneid];
 
 		foreach (Behave behave in scene.Behaves)
 		{

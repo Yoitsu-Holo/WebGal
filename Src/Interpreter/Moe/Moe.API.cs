@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using WebGal.API;
 using WebGal.API.Data;
+using WebGal.Handler.Event;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
@@ -34,12 +35,22 @@ public partial class MoeInterpreter
 	public static async Task GameTestAsync()
 	{
 		await GameStartAsync();
+		await Driver.RegisterAudioContextAsync(new AudioIdInfo() { ContextID = 0, });
+		await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 0, }, Type = AudioNodeType.Simple, });
+
 		FormRegister();
 		Tasks[_activeTask] = new();
 		Console.WriteLine(Functions["test"]);
 		Call(Functions["test"], []);
+
 		ParseScene("ch-1");
-		LoadScene("ch-1", 0);
+		SetSceneList("ch-1");
+		LoadScene(0);
+
+		Driver.RegisterLayoutAction(
+			new() { LayoutID = 0, },
+			(value) => { if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) OnCLick(); }
+		);
 	}
 
 	[JSInvokable]

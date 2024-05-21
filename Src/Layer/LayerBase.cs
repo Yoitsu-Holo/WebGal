@@ -44,12 +44,7 @@ public class LayerBase : HandlerBase, ILayer
 	// // 处理事件
 	// public Action<EventArgs>? HandlerAction { get; set; }
 	// public bool ActionStatus { get; set; }
-	// public virtual void Action(object? sender, EventArgs eventArgs)
-	// {
-	// 	ActionStatus = true;
-	// 	if (HandlerAction is null) return;
-	// 	HandlerAction.Invoke(eventArgs);
-	// }
+	public override void Action(object? sender, EventArgs eventArgs) { ActionStatus = false; }
 	// public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
 
 	// 渲染图像
