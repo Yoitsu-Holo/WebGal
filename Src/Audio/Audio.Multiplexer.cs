@@ -1,5 +1,6 @@
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
+using WebGal.Global;
 
 namespace WebGal.Audio;
 
@@ -13,8 +14,7 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public async Task SetInputNumberAsync(ulong inputChannels = 6uL)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
 
 		_inputChannels = inputChannels;
 		_merger = await ChannelMergerNode.CreateAsync(_jsRuntime, _context, new() { NumberOfInputs = _inputChannels });
@@ -24,8 +24,7 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public async Task SetOutputNumberAsync(ulong outputChannels = 6uL)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
 
 		_outputChannels = outputChannels;
 		_splitter = await ChannelSplitterNode.CreateAsync(_jsRuntime, _context, new() { NumberOfInputs = _outputChannels });
@@ -37,8 +36,8 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	public override async Task SetContextAsync(AudioContext context)
 	{
 		await base.SetContextAsync(context);
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 		// 默认设置 6 in 6 out
 		_merger = await _context.CreateChannelMergerAsync(_inputChannels);
 		_splitter = await _context.CreateChannelSplitterAsync(_inputChannels);
@@ -48,31 +47,24 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public override async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
-
-		var inputChannels = target.InputChannels();
-		var outputChannels = OutputChannels();
-
-		if (wire.Dst >= inputChannels)
-			throw new Exception("input out of range");
-		if (wire.Src >= outputChannels)
-			throw new Exception("output out of range");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+		if (wire.Src >= OutputChannels()) { Logger.LogInfo("源接口超过限制", Global.LogLevel.Warning); return; }
+		if (wire.Dst >= target.InputChannels()) { Logger.LogInfo("目标接口超过限制", Global.LogLevel.Warning); return; }
 
 		await _splitter!.ConnectAsync(target.GetSocketAsync(), wire.Src, wire.Dst);
 	}
 
 	public override AudioNode GetSocketAsync()
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) throw new Exception("未设置音频上下文");
+
 		return _merger!;
 	}
 
 	public override ulong InputChannels() => _inputChannels;
 	public override ulong OutputChannels() => _outputChannels;
 
-	public override async Task DisposeAsync()
+	public override async ValueTask DisposeAsync()
 	{
 		if (_merger is not null)
 		{
@@ -85,7 +77,9 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _splitter.DisconnectAsync();
 			await _splitter.DisposeAsync();
 		}
-		_merger = null;
-		_splitter = null;
+		// _merger = null;
+		// _splitter = null;
+
+		GC.SuppressFinalize(this);
 	}
 }

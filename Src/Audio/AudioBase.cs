@@ -1,5 +1,6 @@
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
+using WebGal.Global;
 
 namespace WebGal.Audio;
 
@@ -18,11 +19,10 @@ public class AudioBase(IJSRuntime jsRuntime) : IAudio
 		await Task.Run(() => { });
 		_context = context;
 	}
-	public virtual Task DisposeAsync() => throw new NotImplementedException();
 
-	public virtual void Dispose()
+	public virtual async ValueTask DisposeAsync()
 	{
-		DisposeAsync();
+		await Task.Run(() => { Logger.LogInfo("该音频节点不包含任何内容", Global.LogLevel.Info); });
 		GC.SuppressFinalize(this);
 	}
 }

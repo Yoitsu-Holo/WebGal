@@ -1,5 +1,6 @@
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
+using WebGal.Global;
 
 namespace WebGal.Audio;
 
@@ -18,10 +19,13 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	private GainNode? _gain;
 	private AudioBufferSourceNode? _audioBuffer;
 
+	private bool _started = false;
+
 	public async Task SetAudioBufferAsync(byte[] audioBytes)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
+
 		if (audioBytes is null)
 			throw new Exception("Empty Audio Bytes");
 
@@ -29,7 +33,11 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		AudioBuffer currentAudioBuffer = default!;
 		await _context.DecodeAudioDataAsync(audioBytes, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
 		if (_audioBuffer is not null)
+		{
+			await _audioBuffer.StopAsync();
 			await _audioBuffer.DisconnectAsync();
+			await _audioBuffer.DisposeAsync();
+		}
 		_audioBuffer = await _context.CreateBufferSourceAsync();
 		await _audioBuffer.ConnectAsync(_gain!);
 		await _audioBuffer.SetBufferAsync(currentAudioBuffer);
@@ -37,8 +45,8 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public async Task SetLoopAsync(bool loop)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 
 		// 设置循环属性
 		await _audioBuffer!.SetLoopAsync(loop);
@@ -46,18 +54,22 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public async Task StartAsync(bool start = true)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+		if (_audioBuffer is null) { Logger.LogInfo("无音频缓冲区", Global.LogLevel.Warning); return; }
+
 		if (start)
+		{
 			await _audioBuffer!.StartAsync();
-		else
+			_started = true;
+		}
+		else if (_started)
 			await _audioBuffer!.StopAsync();
 	}
 
 	public async Task SetGain(float Gain)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 		await (await _gain!.GetGainAsync()).SetValueAsync(Gain);
 	}
 
@@ -65,8 +77,8 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	public override async Task SetContextAsync(AudioContext context)
 	{
 		await base.SetContextAsync(context);
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 
 		_gain = await _context.CreateGainAsync();
 		_destination = await context.GetDestinationAsync();
@@ -74,7 +86,7 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		await _gain.ConnectAsync(_destination);
 	}
 
-	public override async Task DisposeAsync()
+	public override async ValueTask DisposeAsync()
 	{
 		if (_destination is not null)
 		{
@@ -93,8 +105,9 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _audioBuffer.DisposeAsync();
 		}
 
-		_destination = null;
-		_gain = null;
-		_audioBuffer = null;
+		// _destination = null;
+		// _gain = null;
+		// _audioBuffer = null;
+		GC.SuppressFinalize(this);
 	}
 }

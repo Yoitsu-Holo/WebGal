@@ -10,8 +10,8 @@ public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 	// Interface
 	public override AudioNode GetSocketAsync()
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) throw new Exception("未设置音频上下文");
+
 		return _destination!;
 	}
 
@@ -24,7 +24,7 @@ public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		_destination = await context.GetDestinationAsync();
 	}
 
-	public override async Task DisposeAsync()
+	public override async ValueTask DisposeAsync()
 	{
 		if (_destination is not null)
 		{
@@ -32,6 +32,8 @@ public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _destination.DisposeAsync();
 		}
 
-		_destination = null;
+		// _destination = null;
+
+		GC.SuppressFinalize(this);
 	}
 }

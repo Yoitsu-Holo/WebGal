@@ -1,5 +1,6 @@
 using KristofferStrube.Blazor.WebAudio;
 using Microsoft.JSInterop;
+using WebGal.Global;
 
 namespace WebGal.Audio;
 
@@ -9,47 +10,40 @@ public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 
 	public async Task SetGainASync(float gain)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 		await (await _gain!.GetGainAsync()).SetValueAsync(gain);
 	}
 
 	// Interface
 	public override async Task ConnectToAsync(IAudio target, AudioWire wire)
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
-
-		var inputChannels = target.InputChannels();
-		var outputChannels = OutputChannels();
-
-		if (wire.Dst >= inputChannels)
-			throw new Exception("input out of range");
-		if (wire.Src >= outputChannels)
-			throw new Exception("output out of range");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+		if (wire.Src >= OutputChannels()) { Logger.LogInfo("源接口超过限制", Global.LogLevel.Warning); return; }
+		if (wire.Dst >= target.InputChannels()) { Logger.LogInfo("目标接口超过限制", Global.LogLevel.Warning); return; }
 
 		await _gain!.ConnectAsync(target.GetSocketAsync(), wire.Src, wire.Dst);
 	}
 
 	public override AudioNode GetSocketAsync()
 	{
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) throw new Exception("未设置音频上下文");
+
 		return _gain!;
 	}
 
 	public override async Task SetContextAsync(AudioContext context)
 	{
 		await base.SetContextAsync(context);
-		if (_context is null)
-			throw new Exception("Without any context");
+		if (_context is null) { Logger.LogInfo("未设置音频上下文", Global.LogLevel.Warning); return; }
+
 		_gain = await _context.CreateGainAsync();
 	}
 
 	public override ulong InputChannels() => 1;
 	public override ulong OutputChannels() => 1;
 
-	public override async Task DisposeAsync()
+	public override async ValueTask DisposeAsync()
 	{
 		if (_gain is not null)
 		{
@@ -57,6 +51,8 @@ public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _gain.DisposeAsync();
 		}
 
-		_gain = null;
+		// _gain = null;
+
+		GC.SuppressFinalize(this);
 	}
 }
