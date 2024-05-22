@@ -23,7 +23,7 @@ window.consoleLogger = {
 	logWarning: function (message) {
 		console.warn('%c' + message, 'color: orange;');
 	},
-	logError: function (message) {
-		console.error('%c' + message, 'color: red;');
+	logError: function (message, info) {
+		console.error('%c' + message + "\n" + '%c' + info, 'color: red;', 'color: blue;');
 	}
 };

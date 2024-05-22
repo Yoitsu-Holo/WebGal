@@ -19,7 +19,6 @@ public partial class Driver
 	private static AudioManager? _audioManager;
 	private static HandlerBase _handlerBase = new();
 
-
 	public static void Init(LayoutManager layoutManager, ResourceManager resourceManager, AudioManager audioManager)
 	{
 		_layoutManager = layoutManager;
@@ -33,7 +32,7 @@ public partial class Driver
 			if (value is MouseEventData mouse)
 			{
 				if (mouse.Status == MouseStatus.Hold)
-					_layoutManager.ActiveLayout = _gameLayout;
+					_layoutManager.ActiveLayout = 10;
 			}
 		};
 	}
@@ -60,41 +59,6 @@ public partial class Driver
 		response.Type = ResponseType.Success;
 		return response;
 	}
-
-	//! test
-	[JSInvokable]
-	public static async Task<string> SayHelloAsync(string name)
-	{
-		await Task.Run(() => { });
-		return SayHello(name);
-	}
-
-	//! test
-	[JSInvokable]
-	public static string SayHello(string name)
-	{
-		Console.WriteLine($"Hello, {name}!");
-		return $"Hello, {name}!";
-	}
-
-	//! test
-	[JSInvokable]
-	public static Task<string> Empty()
-	{
-		Response respone = new();
-		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
-	}
-
-	//! test
-	[JSInvokable]
-	public static async Task StackTraceTest()
-	{
-		await Task.Run(() => { });
-		var trace = new System.Diagnostics.StackTrace();
-		Console.WriteLine("Stack Trace: " + trace.ToString());
-		// Log.LogWarning("This is a warning message.");
-	}
-
 
 	public event EventHandler<EventArgs>? Subscribers;
 

@@ -1,8 +1,5 @@
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using WebGal.MeoInterpreter;
 
 namespace WebGal.Global;
 
@@ -50,7 +47,10 @@ public class Logger
 		else if (logLevel == LogLevel.Warning)
 			await JsRuntime.InvokeVoidAsync("consoleLogger.logWarning", msg);
 		else if (logLevel == LogLevel.Error)
-			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", msg);
+		{
+			var stack = new System.Diagnostics.StackTrace();
+			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", [msg, "Stack Trace:\n" + stack.ToString()]);
+		}
 		else
 			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", msg);
 	}
