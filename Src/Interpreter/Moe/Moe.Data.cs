@@ -228,6 +228,29 @@ public class MoeVariable : ICloneable
 	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int[])variable.Obj : [];
 	public static implicit operator double[](MoeVariable variable) => (variable.Type == MoeVariableType.Double && variable.Obj is not null) ? (double[])variable.Obj : [];
 	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string[])variable.Obj : [];
+
+	public static implicit operator MoeVariable(int value)
+	{
+		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Int, Dimension = [1] };
+		ret.Init();
+		ret[0] = value;
+		return ret;
+	}
+	public static implicit operator MoeVariable(double value)
+	{
+		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Double, Dimension = [1] };
+		ret.Init();
+		ret[0] = value;
+		return ret;
+	}
+	public static implicit operator MoeVariable(string value)
+	{
+		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.String, Dimension = [1] };
+		ret.Init();
+		ret[0] = value;
+		return ret;
+	}
+
 }
 
 // 栈帧

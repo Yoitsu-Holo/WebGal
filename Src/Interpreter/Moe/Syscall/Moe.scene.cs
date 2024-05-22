@@ -21,6 +21,7 @@ public partial class MoeInterpreter
 		if (response.Type != ResponseType.Success) throw new Exception(response.Message);
 
 		SceneList scenes = JsonSerializer.Deserialize<SceneList>(response.Message);
+
 		_scenes[_elfHeader.Files[sceneName].Name] = scenes;
 	}
 
@@ -43,29 +44,12 @@ public partial class MoeInterpreter
 			Dictionary<string, MoeVariable> paramList = [];
 			foreach (var (key, value) in behave.Param)
 			{
-				paramList[key] = new()
-				{
-					Dimension = [1],
-					Access = MoeVariableAccess.Const,
-				};
 				if (value is int ivalue)
-				{
-					paramList[key].Type = MoeVariableType.Int;
-					paramList[key].Init();
-					paramList[key][0] = ivalue;
-				}
+					paramList[key] = ivalue;
 				else if (value is double fvalue)
-				{
-					paramList[key].Type = MoeVariableType.Double;
-					paramList[key].Init();
-					paramList[key][0] = fvalue;
-				}
+					paramList[key] = fvalue;
 				else if (value is string svalue)
-				{
-					paramList[key].Type = MoeVariableType.String;
-					paramList[key].Init();
-					paramList[key][0] = svalue;
-				}
+					paramList[key] = svalue;
 				else
 					throw new Exception("错误的输入类型");
 			}

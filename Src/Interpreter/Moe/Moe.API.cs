@@ -37,19 +37,23 @@ public partial class MoeInterpreter
 		await GameStartAsync();
 		await Driver.RegisterAudioContextAsync(new AudioIdInfo() { ContextID = 0, });
 		await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 0, }, Type = AudioNodeType.Simple, });
+		await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 1, }, Type = AudioNodeType.Simple, });
+		await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 2, }, Type = AudioNodeType.Simple, });
 
 		FormRegister();
 		Tasks[_activeTask] = new();
-		Console.WriteLine(Functions["test"]);
+		// Console.WriteLine(Functions["test"]);
 		Call(Functions["test"], []);
 
+		ParseScene("sss");
 		ParseScene("ch-1");
-		SetSceneList("ch-1");
+		SetSceneList("sss");
+		// SetSceneList("ch-1");
 		LoadScene(0);
 
 		Driver.RegisterLayoutAction(
 			new() { LayoutID = 0, },
-			(value) => { if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) OnCLick(); }
+			(value) => { if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { OnCLick(); } }
 		);
 	}
 

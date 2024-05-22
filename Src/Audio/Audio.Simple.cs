@@ -28,7 +28,11 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		// 创建音频缓冲区
 		AudioBuffer currentAudioBuffer = default!;
 		await _context.DecodeAudioDataAsync(audioBytes, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
-		await _audioBuffer!.SetBufferAsync(currentAudioBuffer);
+		if (_audioBuffer is not null)
+			await _audioBuffer.DisconnectAsync();
+		_audioBuffer = await _context.CreateBufferSourceAsync();
+		await _audioBuffer.ConnectAsync(_gain!);
+		await _audioBuffer.SetBufferAsync(currentAudioBuffer);
 	}
 
 	public async Task SetLoopAsync(bool loop)
@@ -64,11 +68,9 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 		if (_context is null)
 			throw new Exception("Without any context");
 
-		_audioBuffer = await _context.CreateBufferSourceAsync();
 		_gain = await _context.CreateGainAsync();
 		_destination = await context.GetDestinationAsync();
 
-		await _audioBuffer.ConnectAsync(_gain);
 		await _gain.ConnectAsync(_destination);
 	}
 
