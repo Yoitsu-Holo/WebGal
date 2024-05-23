@@ -17,7 +17,7 @@ public partial class Driver
 	}
 	#endregion
 
-
+	#region Driect
 	public static async Task<Response> SetAudioSimpleInfoAsync(AudioSimpleInfo info)
 	{
 		Response response;
@@ -42,4 +42,5 @@ public partial class Driver
 
 		return response;
 	}
+	#endregion
 }

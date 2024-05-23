@@ -43,6 +43,7 @@ public partial class Driver
 	}
 	#endregion
 
+	#region Driect
 	public static async Task<Response> PullFileAsync(FileInfo info)
 	{
 		Response response = CheckInit();
@@ -54,20 +55,15 @@ public partial class Driver
 			switch (info.Type)
 			{
 				case FileType.Script:
-					await _resourceManager!.PullScriptAsync(info.Name, info.URL);
-					break;
+					await _resourceManager!.PullScriptAsync(info.Name, info.URL); break;
 				case FileType.Audio:
-					await _resourceManager!.PullAudioAsync(info.Name, info.URL);
-					break;
+					await _resourceManager!.PullAudioAsync(info.Name, info.URL); break;
 				case FileType.Bin:
-					await _resourceManager!.PullBlobAsync(info.Name, info.URL);
-					break;
+					await _resourceManager!.PullBlobAsync(info.Name, info.URL); break;
 				case FileType.Image:
-					await _resourceManager!.PullImageAsync(info.Name, info.URL);
-					break;
+					await _resourceManager!.PullImageAsync(info.Name, info.URL); break;
 				case FileType.Font:
-					await _resourceManager!.PullFontAsync(info.Name, info.URL);
-					break;
+					await _resourceManager!.PullFontAsync(info.Name, info.URL); break;
 				default:
 					break;
 			}
@@ -115,20 +111,15 @@ public partial class Driver
 		switch (info.Type)
 		{
 			case FileType.Script:
-				_resourceManager!.RemoveScript(info.Name);
-				break;
+				_resourceManager!.RemoveScript(info.Name); break;
 			case FileType.Audio:
-				_resourceManager!.RemoveAudio(info.Name);
-				break;
+				_resourceManager!.RemoveAudio(info.Name); break;
 			case FileType.Bin:
-				_resourceManager!.RemoveBlob(info.Name);
-				break;
+				_resourceManager!.RemoveBlob(info.Name); break;
 			case FileType.Image:
-				_resourceManager!.RemoveImage(info.Name);
-				break;
+				_resourceManager!.RemoveImage(info.Name); break;
 			case FileType.Font:
-				_resourceManager!.RemoveFont(info.Name);
-				break;
+				_resourceManager!.RemoveFont(info.Name); break;
 			default:
 				break;
 		}
@@ -161,4 +152,5 @@ public partial class Driver
 
 		return response;
 	}
+	#endregion
 }

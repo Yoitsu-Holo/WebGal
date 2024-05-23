@@ -5,7 +5,6 @@ using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Layer;
 using WebGal.Layer.Widget;
-using WebGal.Libs.Base;
 
 namespace WebGal.API;
 
@@ -46,6 +45,7 @@ public partial class Driver
 	#endregion
 
 
+	#region Driect
 	public static Response SetTextBoxInfo(TextBoxInfo info)
 	{
 		Response response;
@@ -99,4 +99,5 @@ public partial class Driver
 		Response response = new();
 		return response;
 	}
+	#endregion
 }

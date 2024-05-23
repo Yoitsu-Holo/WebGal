@@ -30,6 +30,7 @@ public partial class Driver
 	#endregion
 
 
+	#region Driect
 	public static Response SetButtomBoxInfo(ButtomBoxInfo info)
 	{
 		Response response;
@@ -74,4 +75,5 @@ public partial class Driver
 		Response response = new();
 		return response;
 	}
+	#endregion
 }

@@ -32,8 +32,6 @@ public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _destination.DisposeAsync();
 		}
 
-		// _destination = null;
-
 		GC.SuppressFinalize(this);
 	}
 }

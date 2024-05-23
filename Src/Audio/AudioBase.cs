@@ -22,7 +22,7 @@ public class AudioBase(IJSRuntime jsRuntime) : IAudio
 
 	public virtual async ValueTask DisposeAsync()
 	{
-		await Task.Run(() => { Logger.LogInfo("该音频节点不包含任何内容", Global.LogLevel.Info); });
+		await Task.Run(() => { });
 		GC.SuppressFinalize(this);
 	}
 }

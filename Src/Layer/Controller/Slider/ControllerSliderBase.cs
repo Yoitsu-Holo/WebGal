@@ -203,9 +203,6 @@ public abstract class ControllerSliderBase : LayerBase
 		canvas.SetMatrix(matrix);
 		canvas.DrawBitmap(_image[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
 		canvas.Restore();
-
-		// canvas.DrawBitmap(_trackImage, Position);
-		// canvas.DrawBitmap(_image[(int)Status], ThumbPosition);
 	}
 
 	// range [0,1]

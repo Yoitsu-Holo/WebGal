@@ -3,13 +3,13 @@ using WebGal.Types;
 
 namespace WebGal.Animations;
 
-class AnimationRotate : IAnimation
+class AnimationRotate : AnimationBase
 {
 	public AnimationRotateData data;
 	private SKMatrix _matrix = SKMatrix.Identity;
 	private double timeStart = -1;
 
-	public AnimationData DoAnimation(long timeOff)
+	public override AnimationData DoAnimation(long timeOff)
 	{
 		double timeObs = Global.NowTime.UtcMinisecond;
 		if (timeStart < 0)
@@ -21,7 +21,7 @@ class AnimationRotate : IAnimation
 		return new() { Transform = _matrix, };
 	}
 
-	public void SetParama(object parama)
+	public override void SetParama(object parama)
 	{
 		if (parama is AnimationRotateData p)
 			data = p;

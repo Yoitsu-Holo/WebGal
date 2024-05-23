@@ -1,9 +1,8 @@
 using SkiaSharp;
 using WebGal.Global;
 using WebGal.Handler;
-using WebGal.Layer;
 
-namespace WebGal.Libs.Base;
+namespace WebGal.Layer;
 
 /// <summary>
 /// 多个场景的组合，预先定义的场景结构。场景事件也是由此进入处理。

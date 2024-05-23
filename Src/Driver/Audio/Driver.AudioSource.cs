@@ -18,6 +18,7 @@ public partial class Driver
 	#endregion
 
 
+	#region Driect
 	public static async Task<Response> SetAudioSourceInfoAsync(AudioSourceInfo info)
 	{
 		Response response;
@@ -42,4 +43,5 @@ public partial class Driver
 
 		return response;
 	}
+	#endregion
 }

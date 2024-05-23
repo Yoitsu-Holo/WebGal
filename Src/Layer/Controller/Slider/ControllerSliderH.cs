@@ -4,7 +4,6 @@ namespace WebGal.Layer.Controller;
 
 public class ControllerSliderHorizontal : ControllerSliderBase
 {
-
 	public ControllerSliderHorizontal()
 	{
 		_attributeChange = true;

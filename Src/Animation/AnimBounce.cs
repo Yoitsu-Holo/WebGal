@@ -2,13 +2,13 @@ using WebGal.Types;
 
 namespace WebGal.Animations;
 
-class AnimationBounce : IAnimation
+class AnimationBounce : AnimationBase
 {
 	private AnimationBounceData data = new();
 	private FVector _pos;
 	private double timepre = -1;
 
-	public AnimationData DoAnimation(long timeOff)
+	public override AnimationData DoAnimation(long timeOff)
 	{
 		double timeObs = Global.NowTime.UtcMinisecond;
 		if (timepre < 0)
@@ -27,7 +27,7 @@ class AnimationBounce : IAnimation
 		return new() { PosOff = _pos };
 	}
 
-	public void SetParama(object parama)
+	public override void SetParama(object parama)
 	{
 		if (parama is AnimationBounceData p)
 			data = p;

@@ -3,9 +3,7 @@ using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Handler;
-using WebGal.Handler.Event;
 using WebGal.Layer;
-using WebGal.Libs.Base;
 
 namespace WebGal.API;
 
@@ -58,6 +56,8 @@ public partial class Driver
 	}
 	#endregion
 
+
+	#region Driect
 	public static Response RegisterLayout(LayerIdInfo info)
 	{
 		Response response = CheckInit();
@@ -143,4 +143,5 @@ public partial class Driver
 
 		return response;
 	}
+	#endregion
 }

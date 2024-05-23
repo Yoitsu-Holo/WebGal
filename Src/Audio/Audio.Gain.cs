@@ -51,8 +51,6 @@ public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _gain.DisposeAsync();
 		}
 
-		// _gain = null;
-
 		GC.SuppressFinalize(this);
 	}
 }

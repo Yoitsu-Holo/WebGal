@@ -31,6 +31,7 @@ public partial class Driver
 	#endregion
 
 
+	#region Driect
 	public static Response SetImageBoxInfo(ImageBoxInfo info)
 	{
 		Response response;
@@ -66,4 +67,5 @@ public partial class Driver
 		Response response = new();
 		return response;
 	}
+	#endregion
 }

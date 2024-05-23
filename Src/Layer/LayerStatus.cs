@@ -1,4 +1,5 @@
 namespace WebGal.Layer;
+
 public enum LayerStatus : int
 {
 	Normal,     // 通常状态

@@ -105,9 +105,6 @@ public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _audioBuffer.DisposeAsync();
 		}
 
-		// _destination = null;
-		// _gain = null;
-		// _audioBuffer = null;
 		GC.SuppressFinalize(this);
 	}
 }

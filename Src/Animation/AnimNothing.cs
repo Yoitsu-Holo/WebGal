@@ -2,11 +2,11 @@ using WebGal.Types;
 
 namespace WebGal.Animations;
 
-class AnimationNothing : IAnimation
+class AnimationNothing : AnimationBase
 {
-	public AnimationData DoAnimation(long timeOff) => new();
+	public override AnimationData DoAnimation(long timeOff) => new();
 
-	public void SetParama(object parama) { }
+	public override void SetParama(object parama) { }
 }
 
 public record struct AnimationNothingData

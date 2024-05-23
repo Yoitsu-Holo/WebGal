@@ -41,7 +41,6 @@ public class WidgetColorBox : LayerBase
 		canvas.Save();
 		canvas.SetMatrix(matrix);
 		canvas.DrawRect(new SKRect(0, 0, Size.Width, Size.Height), new SKPaint() { Color = _color, IsAntialias = true, });
-		// canvas.DrawBitmap(_renderBuffer, new SKPoint(0, 0), RenderConfig.DefaultPaint);
 		canvas.Restore();
 
 	}

@@ -86,6 +86,7 @@ public partial class Driver
 		return response;
 	}
 
+	#region Driect
 	public static async Task<Response> ConnectAudioNode(AudioWireInfo info)
 	{
 		Response response;
@@ -160,4 +161,5 @@ public partial class Driver
 		}
 		return response;
 	}
+	#endregion
 }

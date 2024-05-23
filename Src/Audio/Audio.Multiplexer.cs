@@ -77,8 +77,6 @@ public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _splitter.DisconnectAsync();
 			await _splitter.DisposeAsync();
 		}
-		// _merger = null;
-		// _splitter = null;
 
 		GC.SuppressFinalize(this);
 	}

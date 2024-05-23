@@ -16,7 +16,7 @@ public partial class Driver
 	// }
 	#endregion
 
-
+	#region Driect
 	// 	public static async Task<string> SetAudioSpeekerInfoAsync()
 	// 	{
 	// 		Response respone = new()
@@ -27,4 +27,5 @@ public partial class Driver
 	// 		await Task.Run(() => { });
 	// 		return JsonSerializer.Serialize(respone, JsonConfig.Options);
 	// 	}
+	#endregion
 }

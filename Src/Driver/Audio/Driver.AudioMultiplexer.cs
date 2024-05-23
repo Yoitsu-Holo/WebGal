@@ -17,6 +17,7 @@ public partial class Driver
 	}
 	#endregion
 
+	#region Driect
 	public static async Task<Response> SetAudioMultiplexerInfoAsync(AudioMutiplexerInfo info)
 	{
 		Response response;
@@ -39,4 +40,5 @@ public partial class Driver
 
 		return response;
 	}
+	#endregion
 }

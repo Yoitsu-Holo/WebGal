@@ -37,7 +37,7 @@ public class GameManager
 	public async Task Init(string GameName)
 	{
 		await Clear();
-		_resourceManager.BasePath = "Data/" + GameName;
+		_resourceManager.BasePath = $"/Data/{GameName}/";
 	}
 
 	public bool ShouldRender() => _layoutManeger.ShouldRender();

@@ -65,7 +65,6 @@ public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
 			await _audioBuffer.DisposeAsync();
 		}
 
-		// _audioBuffer = null;
 		GC.SuppressFinalize(this);
 	}
 }

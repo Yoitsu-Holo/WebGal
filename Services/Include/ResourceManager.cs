@@ -4,7 +4,9 @@ namespace WebGal.Services.Include;
 
 public class ResourceManager(HttpClient httpClient)
 {
+	public string BasePath { get; set; } = "/Demo/";
 	private readonly HttpClient _httpClient = httpClient;
+
 	private readonly Dictionary<string, SKBitmap> _imageList = [];
 	private readonly Dictionary<string, byte[]> _audioList = [];
 	private readonly Dictionary<string, byte[]> _blobList = [];
@@ -12,7 +14,12 @@ public class ResourceManager(HttpClient httpClient)
 	private readonly Dictionary<string, string> _scriptList = [];
 
 
-	public string BasePath { get; set; } = "/Demo/";
+	public Dictionary<string, SKBitmap> Image => _imageList;
+	public Dictionary<string, byte[]> Audio => _audioList;
+	public Dictionary<string, byte[]> Blob => _blobList;
+	public Dictionary<string, SKTypeface> Font => _fontList;
+	public Dictionary<string, string> Script => _scriptList;
+
 
 	public async Task PullImageAsync(string name, string path) => _imageList[name] = SKBitmap.Decode(await _httpClient.GetByteArrayAsync(BasePath + path));
 	public async Task PullAudioAsync(string name, string path) => _audioList[name] = await _httpClient.GetByteArrayAsync(BasePath + path);
@@ -26,8 +33,6 @@ public class ResourceManager(HttpClient httpClient)
 	public byte[] GetBlob(string name) => _blobList.TryGetValue(name, out byte[]? value) ? value : throw new Exception($"Blob \"{name}\" not find");
 	public SKTypeface GetFont(string name) => _fontList.TryGetValue(name, out SKTypeface? value) ? value : throw new Exception($"Font \"{name}\" not find");
 	public string GetScript(string name = "main") => _scriptList.TryGetValue(name, out string? value) ? value : throw new Exception($"Script \"{name}\" not find");
-
-
 
 
 	public bool RemoveImage(string name) => _imageList.Remove(name);
