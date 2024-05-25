@@ -45,6 +45,10 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task DirectTestAsync() => await Test.DirectTestAsync();
 
+	[JSInvokable]
+	public static async Task MoeTest() => await Test.MoeTest();
+
+
 
 	[JSInvokable]
 	public static async Task<string> SayHelloAsync(string name)

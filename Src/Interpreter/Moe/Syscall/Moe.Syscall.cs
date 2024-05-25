@@ -1,6 +1,7 @@
 using WebGal.API;
 using WebGal.API.Data;
 using WebGal.Global;
+using WebGal.Layer.Widget;
 using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.MeoInterpreter;
@@ -47,10 +48,7 @@ public partial class MoeInterpreter
 		/// <param name="LayoutID"> int: </param>
 		public static void RegLayout(MoeVariable layout)
 		{
-			LayerIdInfo layoutInfo = new()
-			{
-				LayoutID = layout,
-			};
+			LayerIdInfo layoutInfo = new() { LayoutID = layout, };
 			Driver.RegisterLayout(layoutInfo);
 		}
 
@@ -60,10 +58,7 @@ public partial class MoeInterpreter
 		/// <param name="LayoutID"> int: </param>
 		public static void SetLayout(MoeVariable layout)
 		{
-			LayerIdInfo layoutInfo = new()
-			{
-				LayoutID = layout,
-			};
+			LayerIdInfo layoutInfo = new() { LayoutID = layout, };
 			Driver.SetActiveLayout(layoutInfo);
 		}
 
@@ -236,10 +231,8 @@ public partial class MoeInterpreter
 			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
 
-		public static void BG(MoeVariable file)
-		{
-			SetImageBox(0, 0, file, 0, 0, 0, 0);
-		}
+		public static void BG(MoeVariable file, MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height)
+		{ SetImageBox(0, 0, file, subx, suby, width, height); }
 
 		public static void TEXT(MoeVariable name, MoeVariable text)
 		{

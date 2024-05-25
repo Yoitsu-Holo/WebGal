@@ -27,3 +27,15 @@ window.consoleLogger = {
 		console.error('%c' + message + "\n" + '%c' + info, 'color: red;', 'color: blue;');
 	}
 };
+
+window.run = function (name) {
+	DotNet.invokeMethodAsync('WebGal', name)
+		.then(result => { console.log(result); });
+}
+
+Object.defineProperty(window, 'help', {
+	get: function () {
+		DotNet.invokeMethodAsync('WebGal', 'Help')
+			.then(result => { console.log(result); });
+	}
+});

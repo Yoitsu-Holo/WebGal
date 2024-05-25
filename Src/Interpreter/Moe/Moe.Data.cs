@@ -94,6 +94,17 @@ public class MoeVariable : ICloneable
 		}
 	}
 
+	public MoeVariable() { }
+
+	public MoeVariable(MoeVariableAccess access, MoeVariableType type)
+	{
+		Name = GetHashCode().ToString();
+		Type = type;
+		Access = access;
+		Dimension = [1];
+		Init();
+	}
+
 	public void Init()
 	{
 		Obj = Type switch
@@ -101,6 +112,14 @@ public class MoeVariable : ICloneable
 			MoeVariableType.Int => new int[Size],
 			MoeVariableType.Double => new double[Size],
 			MoeVariableType.String => new string[Size],
+			_ => throw new Exception(""),
+		};
+
+		this[0] = Type switch
+		{
+			MoeVariableType.Int => 0,
+			MoeVariableType.Double => 0,
+			MoeVariableType.String => "",
 			_ => throw new Exception(""),
 		};
 	}

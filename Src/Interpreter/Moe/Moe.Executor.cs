@@ -94,7 +94,7 @@ public partial class MoeInterpreter
 			if (paramList.TryGetValue(paramName, out MoeVariable? variable))
 				parameters.Add(variable);
 			else
-				parameters.Add(new());
+				parameters.Add(new MoeVariable(MoeVariableAccess.Const, param.Type));
 		}
 		return Call(funcntionNode, parameters);
 	}
@@ -119,7 +119,7 @@ public partial class MoeInterpreter
 	{
 		if (syscall.Length == 0)
 		{
-			Logger.LogInfo($"错误的系统内建函数名称{syscall}", Global.LogLevel.Warning);
+			Logger.LogInfo($"错误的系统内建函数名称: {syscall}", Global.LogLevel.Warning);
 			return null;
 		}
 		return InnerCall(syscall, typeof(Syscall), paramList);
@@ -130,7 +130,7 @@ public partial class MoeInterpreter
 		MethodInfo? method = type.GetMethod(syscall, BindingFlags.Public | BindingFlags.Static);
 		if (method is null)
 		{
-			Logger.LogInfo($"未知的系统内建函数名称{syscall}", Global.LogLevel.Warning);
+			Logger.LogInfo($"未知的系统内建函数名称: {syscall}", Global.LogLevel.Warning);
 			return null;
 		}
 		ParameterInfo[] parameters = method.GetParameters();
