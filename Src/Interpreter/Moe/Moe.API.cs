@@ -33,6 +33,14 @@ public partial class MoeInterpreter
 	[JSInvokable]
 	public static async Task GameTestAsync() => await Test.GameTestAsync();
 
+	[JSInvokable]
+	public static async Task Benchmark() => await Test.Benchmark();
+
+	[JSInvokable]
+	public static async Task RenderBench() => await Test.RenderBench();
+
+	[JSInvokable]
+	public static async Task ABTest() => await Test.ABTest();
 
 	[JSInvokable]
 	public static void Clear()

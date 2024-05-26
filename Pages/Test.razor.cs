@@ -74,7 +74,7 @@ public partial class Test// : IDisposable
 		await Manager.ProcEvent(mouseEventCopy);
 		MouseStatusUpdate();
 		canvas.Clear();
-		Manager.Render(canvas);
+		Manager.Render(canvas, RenserConfig.ForceRender);
 
 		int sec = DateTimeOffset.UtcNow.Second;
 		if (sec != _lastSec)

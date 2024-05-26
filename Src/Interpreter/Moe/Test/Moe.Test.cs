@@ -1,5 +1,6 @@
 using WebGal.API;
 using WebGal.API.Data;
+using WebGal.Global;
 using WebGal.Handler.Event;
 
 namespace WebGal.MeoInterpreter;

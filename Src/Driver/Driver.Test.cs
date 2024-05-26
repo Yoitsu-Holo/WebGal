@@ -65,10 +65,17 @@ public partial class Driver
 	}
 
 	[JSInvokable]
-	public static Task<string> Empty()
+	public static Task<string> EmptyAsync()
 	{
 		Response respone = new();
 		return Task.FromResult(JsonSerializer.Serialize(respone, JsonConfig.Options));
+	}
+
+	[JSInvokable]
+	public static Response Empty()
+	{
+		Response respone = new();
+		return respone;
 	}
 
 	[JSInvokable]
