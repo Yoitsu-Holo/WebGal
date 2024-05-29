@@ -68,7 +68,7 @@ public partial class Driver
 			{
 				MarginBottom = 20
 			};
-			textBox.SetColor(SKColors.Red);
+			textBox.SetColor(SKColors.Wheat);
 			textBox.SetFontSize(info.FontSize);
 			textBox.SetFontStyle(_resourceManager!.GetFont(info.Font));
 		}

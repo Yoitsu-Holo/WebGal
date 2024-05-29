@@ -23,7 +23,7 @@ public partial class MoeInterpreter
 
 			// 测试脚本解析
 			Tasks[_activeTask] = new();
-			Call(Functions["test"], []);
+			Call(Functions[_elfHeader.Start], []);
 
 			// 加载场景
 			ParseScene("sss");

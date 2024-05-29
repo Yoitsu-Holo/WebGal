@@ -68,6 +68,7 @@ public partial class Test// : IDisposable
 	{
 		await OnMouseMoveAsync();
 		long startMiniSecond = NowTime.Minisecond;
+
 		var mouseEventCopy = _mouseEvent;
 		var canvas = e.Surface.Canvas;
 
@@ -76,18 +77,22 @@ public partial class Test// : IDisposable
 		canvas.Clear();
 		Manager.Render(canvas, RenserConfig.ForceRender);
 
-		int sec = DateTimeOffset.UtcNow.Second;
-		if (sec != _lastSec)
-		{
-			_lastSec = sec;
-			GameStatus.FPS = _frameCount;
-			_frameCount = 0;
-			await InvokeAsync(StateHasChanged);
-		}
-		_frameCount++;
-		GameStatus.FrameTime = (int)(NowTime.Minisecond - startMiniSecond);
-		GameStatus.MouseX = _mouseEvent.Position.X;
-		GameStatus.MouseY = _mouseEvent.Position.Y;
+		RenderInfo.Record(NowTime.Minisecond - startMiniSecond);
+
+		// int sec = DateTimeOffset.UtcNow.Second;
+		// if (sec != _lastSec)
+		// {
+		// 	_lastSec = sec;
+		// 	GameStatus.FPS = _frameCount;
+		// 	_frameCount = 0;
+		// 	await InvokeAsync(StateHasChanged);
+		// }
+		// _frameCount++;
+
+
+		// GameStatus.FrameTime = (int)(NowTime.Minisecond - startMiniSecond);
+		// GameStatus.MouseX = _mouseEvent.Position.X;
+		// GameStatus.MouseY = _mouseEvent.Position.Y;
 	}
 
 
@@ -146,14 +151,4 @@ public partial class Test// : IDisposable
 		if (_mouseEvent.Status == MouseStatus.Down)
 			_mouseEvent.Status = MouseStatus.Hold;
 	}
-
-	// public async void Dispose()
-	// {
-	// 	// if (_context is not null)
-	// 	// 	await _context.DisposeAsync();
-	// }
-
-	#region Debug
-	private int _frameCount = 0, _lastSec;
-	#endregion
 };

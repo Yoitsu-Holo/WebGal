@@ -48,6 +48,8 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task MoeTest() => await Test.MoeTest();
 
+	[JSInvokable]
+	public static async Task RenderBench() => await Test.RenderBench();
 
 
 	[JSInvokable]
