@@ -48,3 +48,9 @@ public record struct GameInfo
 	public string Name { get; set; }
 	public IVector Resolution { get; set; }
 }
+
+public record struct ImageInfo
+{
+	public string ImageName { get; set; }
+	public IRect SubRect { get; set; }
+}

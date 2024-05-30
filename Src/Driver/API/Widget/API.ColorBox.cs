@@ -21,4 +21,3 @@ public record struct ColorBoxColor
 	public byte B { get; set; }
 	public byte A { get; set; }
 }
-
