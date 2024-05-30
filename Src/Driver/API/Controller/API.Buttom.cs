@@ -1,3 +1,5 @@
+using WebGal.Types;
+
 namespace WebGal.API.Data;
 
 /// <summary>
@@ -10,6 +12,7 @@ public record struct ButtomBoxInfo
 	public ImageInfo HoverImage { get; set; }
 	public ImageInfo PressedImage { get; set; }
 	public ImageInfo FocusedImage { get; set; }
+	public IVector ButtomSize { get; set; }
 }
 
 public record struct ButtomBoxImage

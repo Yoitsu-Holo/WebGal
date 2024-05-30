@@ -1,5 +1,6 @@
 using SkiaSharp;
 using WebGal.Animations;
+using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Handler;
 using WebGal.Handler.Event;
@@ -19,6 +20,8 @@ public partial class Driver
 			if (!_layoutManager!.Layouts.ContainsKey(_gameLayout))
 				_layoutManager.Layouts[_gameLayout] = new();
 			await _resourceManager!.PullImageAsync("title", "/Image/title01_chip.png");
+			await _resourceManager!.PullImageAsync("thumb", "/Image/Thumb.png");
+			await _resourceManager!.PullImageAsync("track", "/Image/Track.png");
 
 			//!
 			WidgetImageBox imageLayer1 = new()
@@ -61,6 +64,33 @@ public partial class Driver
 			buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(321, 723, 316, 45), 1);
 			buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(641, 723, 316, 45), 2);
 			_layoutManager.Layouts[_menuLayout].Layers[1] = buttom;
+
+
+			//!
+			RegisteLayer(new LayerBox()
+			{
+				Attribute = new()
+				{
+					ID = new() { LayoutID = _menuLayout, LayerID = 2 },
+					Position = new(100, 100),
+					Size = new(300, 22),
+					Type = "ControllerSliderHorizontal",
+				},
+			});
+
+			SetSliderBoxInfo(new SliderBoxInfo()
+			{
+				ID = new() { LayoutID = _menuLayout, LayerID = 2 },
+				TrackImage = new() { ImageName = "track", },
+
+				FocusedImage = new() { ImageName = "thumb", },
+				HoverImage = new() { ImageName = "thumb", },
+				NormalImage = new() { ImageName = "thumb", },
+				PressedImage = new() { ImageName = "thumb", },
+
+				ThumbSize = new(12, 22),
+				TrackSize = new(300, 22),
+			});
 
 			_layoutManager.ActiveLayout = _menuLayout;
 

@@ -15,17 +15,17 @@ public partial class Driver
 {
 	#region API
 	[JSInvokable]
-	public static string RegisterLayout(string json)
+	public static string RegisteLayout(string json)
 	{
 		var info = JsonSerializer.Deserialize<LayerIdInfo>(json, JsonConfig.Options);
-		return JsonSerializer.Serialize(RegisterLayout(info), JsonConfig.Options);
+		return JsonSerializer.Serialize(RegisteLayout(info), JsonConfig.Options);
 	}
 
 	[JSInvokable]
-	public static string RegisterLayer(string json)
+	public static string RegisteLayer(string json)
 	{
 		var info = JsonSerializer.Deserialize<LayerBox>(json, JsonConfig.Options);
-		return JsonSerializer.Serialize(RegisterLayer(info), JsonConfig.Options);
+		return JsonSerializer.Serialize(RegisteLayer(info), JsonConfig.Options);
 	}
 
 	[JSInvokable]
@@ -49,7 +49,7 @@ public partial class Driver
 	}
 
 	[JSInvokable]
-	public static void RegisterLayoutAction(string json)
+	public static void RegisteLayoutAction(string json)
 	{
 		// Todo
 		Logger.LogInfo("JS 事件处理", Global.LogLevel.Todo);
@@ -58,7 +58,7 @@ public partial class Driver
 
 
 	#region Driect
-	public static Response RegisterLayout(LayerIdInfo info)
+	public static Response RegisteLayout(LayerIdInfo info)
 	{
 		Response response = CheckInit();
 
@@ -72,7 +72,7 @@ public partial class Driver
 		return response;
 	}
 
-	public static Response RegisterLayer(LayerBox info)
+	public static Response RegisteLayer(LayerBox info)
 	{
 		Response response = CheckInit();
 
@@ -133,7 +133,7 @@ public partial class Driver
 		return response;
 	}
 
-	public static Response RegisterLayoutAction(LayerIdInfo info, Action<EventArgs> action)
+	public static Response RegisteLayoutAction(LayerIdInfo info, Action<EventArgs> action)
 	{
 		Response response = CheckLayout(info);
 		if (response.Type != ResponseType.Success) return response;

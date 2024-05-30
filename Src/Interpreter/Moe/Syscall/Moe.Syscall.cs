@@ -48,7 +48,7 @@ public partial class MoeInterpreter
 		public static void RegLayout(MoeVariable layout)
 		{
 			LayerIdInfo layoutInfo = new() { LayoutID = layout, };
-			Driver.RegisterLayout(layoutInfo);
+			Driver.RegisteLayout(layoutInfo);
 		}
 
 		/// <summary>
@@ -82,7 +82,7 @@ public partial class MoeInterpreter
 					Size = new() { X = width, Y = height },
 				}
 			};
-			Driver.RegisterLayer(layerBox);
+			Driver.RegisteLayer(layerBox);
 		}
 
 		public static async void SetImageBox(

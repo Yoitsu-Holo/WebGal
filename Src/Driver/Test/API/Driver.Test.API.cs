@@ -67,7 +67,7 @@ public partial class Driver
 					LayoutID = _gameLayout,
 				};
 
-				string result = RegisterLayout(JsonSerializer.Serialize(layoutInfo, JsonConfig.Options));
+				string result = RegisteLayout(JsonSerializer.Serialize(layoutInfo, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 			}
@@ -87,7 +87,7 @@ public partial class Driver
 					},
 				};
 
-				string result = RegisterLayer(JsonSerializer.Serialize(imageBox, JsonConfig.Options));
+				string result = RegisteLayer(JsonSerializer.Serialize(imageBox, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 			}
@@ -108,7 +108,7 @@ public partial class Driver
 					}
 				};
 
-				string result = RegisterLayer(JsonSerializer.Serialize(colorBox, JsonConfig.Options));
+				string result = RegisteLayer(JsonSerializer.Serialize(colorBox, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 			}
@@ -129,7 +129,7 @@ public partial class Driver
 					}
 				};
 
-				string result = RegisterLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
+				string result = RegisteLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 			}
@@ -150,7 +150,7 @@ public partial class Driver
 					}
 				};
 
-				string result = RegisterLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
+				string result = RegisteLayer(JsonSerializer.Serialize(textBox, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 			}

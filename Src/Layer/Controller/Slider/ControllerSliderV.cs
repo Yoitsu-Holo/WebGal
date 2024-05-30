@@ -7,10 +7,10 @@ public class ControllerSliderVertical : ControllerSliderBase
 	public ControllerSliderVertical()
 	{
 		_attributeChange = true;
+		Position = new IVector(100, 400);
 
 		InitBase();
-		InitAttribute(new(new IVector(100, 400), new IVector(20, 200)), new IVector(20, 10));
-		InitImage();
+		InitAttribute(new IVector(20, 200), new IVector(20, 10));
 	}
 
 	protected override void ThumbLimitSet(IVector thumbDelta)

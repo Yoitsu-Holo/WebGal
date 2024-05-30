@@ -11,7 +11,7 @@ public abstract class ControllerSliderBase : LayerBase
 	protected SortedDictionary<int, SKBitmap> _thumbImage = [];
 
 
-	protected SKBitmap _trackImage = new();
+	// protected SKBitmap _trackImage => _thumbImage.TryGetValue(-1, out SKBitmap? value) ? value : new();
 	protected IVector _mouseDelta = new(0, 0);
 	protected new float _value = 0;
 	protected IVector _thumbSize = new();
@@ -37,68 +37,19 @@ public abstract class ControllerSliderBase : LayerBase
 		Text = "new slider";
 	}
 
-	public void InitAttribute(IRect position, IVector thumbSize)
+	public void InitAttribute(IVector trackSize, IVector thumbSize)
 	{
-		Position = new(position.X, position.Y);
-		Size = new(position.W, position.H);
-
+		Size = trackSize;
 		_thumbSize = thumbSize;
 
 		_attributeChange = true;
 	}
 
-	public void InitImage()
-	{
-		_trackImage = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 导轨
-
-		_thumbImage.Clear();
-		_thumbImage[0] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块未触发
-		_thumbImage[1] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标悬浮
-		_thumbImage[2] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标点击
-		_thumbImage[3] = new(_thumbSize.X, _thumbSize.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType); // 滑块鼠标点击
-
-		using SKCanvas trackCanvas = new(_trackImage);
-		using SKCanvas thumbNormalCanvas = new(_thumbImage[(int)LayerStatus.Normal]);
-		using SKCanvas thumbHoverCanvas = new(_thumbImage[(int)LayerStatus.Hover]);
-		using SKCanvas thumbPressedCanvas = new(_thumbImage[(int)LayerStatus.Pressed]);
-		using SKCanvas thumbFocusedCanvas = new(_thumbImage[(int)LayerStatus.Focused]);
-
-		trackCanvas.DrawRect(
-			new(0, 0, Size.X, Size.Y),
-			new SKPaint { Color = new SKColor(200, 200, 200, 255) }
-		);
-
-		thumbNormalCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
-			new SKPaint { Color = new SKColor(89, 166, 97, 255) }
-		);
-
-		thumbHoverCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
-			new SKPaint { Color = new SKColor(166, 206, 170, 255) }
-		);
-
-		thumbPressedCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
-			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
-		);
-
-		thumbFocusedCanvas.DrawRect(
-			new SKRect(0, 0, _thumbSize.X, _thumbSize.Y),
-			new SKPaint { Color = new SKColor(217, 234, 219, 255) }
-		);
-
-		trackCanvas.Flush();
-		thumbNormalCanvas.Flush();
-		thumbHoverCanvas.Flush();
-		thumbPressedCanvas.Flush();
-		thumbFocusedCanvas.Flush();
-	}
-
 	public void InitImage(SKBitmap trackImage, SKBitmap sliderNormal, SKBitmap sliderHover, SKBitmap sliderPressed)
 	{
-		_trackImage = trackImage;
+		// _trackImage = trackImage;
 
+		_thumbImage[-1] = trackImage;
 		_thumbImage[(int)LayerStatus.Normal] = sliderNormal;
 		_thumbImage[(int)LayerStatus.Hover] = sliderHover;
 		_thumbImage[(int)LayerStatus.Pressed] = sliderPressed;
@@ -110,9 +61,14 @@ public abstract class ControllerSliderBase : LayerBase
 		_thumbImage[imageId] = image;
 		_dirty = true;
 	}
+
 	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0)
 	{
-		_thumbImage[imageId] = image.SubBitmap(imageWindow);
+		if (imageWindow == default)
+			_thumbImage[imageId] = image;
+		else
+			_thumbImage[imageId] = image.SubBitmap(imageWindow);
+
 		_dirty = true;
 	}
 
@@ -130,11 +86,10 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public ControllerSliderBase()
 	{
-		_attributeChange = true;
+		Position = new IVector(100, 300);
 
 		InitBase();
-		InitAttribute(new(new IVector(100, 300), new IVector(200, 20)), new IVector(10, 20));
-		InitImage();
+		InitAttribute(new IVector(200, 20), new IVector(10, 20));
 	}
 
 	public override void Action(object? sender, EventArgs eventArgs)
@@ -172,12 +127,8 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable || _thumbImage[(int)Status].IsNull || _trackImage.IsNull)
+		if (Status == LayerStatus.Unvisable || _thumbImage[(int)Status].IsNull || _thumbImage[-1].IsNull)
 			return;
-
-		// 优先更改图层属性
-		if (_attributeChange)
-			InitImage();
 
 		// 重新渲染
 		SKMatrix matrix = SKMatrix.Identity;
@@ -189,7 +140,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_trackImage, new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_thumbImage[-1], new SKPoint(0, 0), RenderConfig.DefaultPaint);
 		canvas.Restore();
 
 		matrix = SKMatrix.Identity;

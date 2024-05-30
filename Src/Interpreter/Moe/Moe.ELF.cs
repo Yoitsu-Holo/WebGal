@@ -173,7 +173,7 @@ public partial class MoeInterpreter
 			var layers = layout.Layers;
 			int layoutID = layout.LayoutID;
 			LayerIdInfo layoutInfo = new() { Request = RequestType.Set, LayoutID = layoutID, };
-			Driver.RegisterLayout(layoutInfo);
+			Driver.RegisteLayout(layoutInfo);
 			foreach (var layer in layers)
 			{
 				LayerInfo layerInfo = new()
@@ -185,7 +185,7 @@ public partial class MoeInterpreter
 					Type = layer.Type,
 				};
 
-				Driver.RegisterLayer(new LayerBox() { Request = RequestType.Set, Attribute = layerInfo });
+				Driver.RegisteLayer(new LayerBox() { Request = RequestType.Set, Attribute = layerInfo });
 			}
 		}
 	}

@@ -333,12 +333,12 @@ public partial class Driver
 			{
 				Logger.LogInfo("ImageBox Render Test 640 (1):", Global.LogLevel.Todo);
 
-				RegisterLayout(new LayerIdInfo() { LayoutID = 0, });
+				RegisteLayout(new LayerIdInfo() { LayoutID = 0, });
 				SetActiveLayout(new LayerIdInfo() { LayoutID = 0, });
 
 				for (int cnt = 0; cnt < 1; cnt++)
 				{
-					RegisterLayer(new LayerBox()
+					RegisteLayer(new LayerBox()
 					{
 						Attribute = new()
 						{
@@ -372,12 +372,12 @@ public partial class Driver
 			{
 				Logger.LogInfo("ImageBox Render Test 640 (5):", Global.LogLevel.Todo);
 
-				RegisterLayout(new LayerIdInfo() { LayoutID = 0, });
+				RegisteLayout(new LayerIdInfo() { LayoutID = 0, });
 				SetActiveLayout(new LayerIdInfo() { LayoutID = 0, });
 
 				for (int cnt = 0; cnt < 5; cnt++)
 				{
-					RegisterLayer(new LayerBox()
+					RegisteLayer(new LayerBox()
 					{
 						Attribute = new()
 						{
@@ -411,12 +411,12 @@ public partial class Driver
 			{
 				Logger.LogInfo("ImageBox Render Test 640 (10):", Global.LogLevel.Todo);
 
-				RegisterLayout(new LayerIdInfo() { LayoutID = 0, });
+				RegisteLayout(new LayerIdInfo() { LayoutID = 0, });
 				SetActiveLayout(new LayerIdInfo() { LayoutID = 0, });
 
 				for (int cnt = 0; cnt < 10; cnt++)
 				{
-					RegisterLayer(new LayerBox()
+					RegisteLayer(new LayerBox()
 					{
 						Attribute = new()
 						{
@@ -450,12 +450,12 @@ public partial class Driver
 			{
 				Logger.LogInfo("ImageBox Render Test 640 (20):", Global.LogLevel.Todo);
 
-				RegisterLayout(new LayerIdInfo() { LayoutID = 0, });
+				RegisteLayout(new LayerIdInfo() { LayoutID = 0, });
 				SetActiveLayout(new LayerIdInfo() { LayoutID = 0, });
 
 				for (int cnt = 0; cnt < 20; cnt++)
 				{
-					RegisterLayer(new LayerBox()
+					RegisteLayer(new LayerBox()
 					{
 						Attribute = new()
 						{

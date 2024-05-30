@@ -1,3 +1,5 @@
+using WebGal.Types;
+
 namespace WebGal.API.Data;
 
 /// <summary>
@@ -11,6 +13,8 @@ public record struct SliderBoxInfo
 	public ImageInfo HoverImage { get; set; }
 	public ImageInfo PressedImage { get; set; }
 	public ImageInfo FocusedImage { get; set; }
+	public IVector ThumbSize { get; set; }
+	public IVector TrackSize { get; set; }
 }
 
 public record struct SliderBoxImage
