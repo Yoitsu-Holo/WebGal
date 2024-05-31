@@ -94,12 +94,10 @@ public abstract class ControllerSliderBase : LayerBase
 			_image[i] = new();
 	}
 
-	public override void DoAction(object? sender, EventArgs eventArgs)
+	public override bool DoAction(EventArgs eventArgs)
 	{
-		ActionStatus = false;
-
-		if (eventArgs is not MouseEventData) return;
-		if (Status == LayerStatus.Disable) return;
+		if (eventArgs is not MouseEventData) return false;
+		if (Status == LayerStatus.Disable) return false;
 
 		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
@@ -119,12 +117,13 @@ public abstract class ControllerSliderBase : LayerBase
 			if (_mouseDelta.X == 0 && _mouseDelta.Y == 0)
 				_mouseDelta = mouseEvent.Position - ThumbPosition;
 			ThumbLimitSet(mouseEvent.Position - Position - _mouseDelta);
-			ActionStatus = true;
+			return true;
 		}
 		else
 		{
 			_mouseDelta = new(0, 0);
 		}
+		return false;
 	}
 
 	public override void Render(SKCanvas canvas, bool force)

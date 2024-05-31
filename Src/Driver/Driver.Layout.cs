@@ -133,14 +133,12 @@ public partial class Driver
 		return response;
 	}
 
-	public static Response RegisteLayoutAction(LayerIdInfo info, Action<EventArgs> action)
+	public static Response RegisteLayoutAction(LayerIdInfo info, Func<EventArgs, bool> action)
 	{
 		Response response = CheckLayout(info);
 		if (response.Type != ResponseType.Success) return response;
 
-		HandlerBase layoutHandle = new();
-		layoutHandle.RegisterAction(action);
-		layoutHandle.RegisterEvent(_layoutManager!.Layouts[info.LayoutID]);
+		_layoutManager!.Layouts[info.LayoutID].RegisterAction(new ActionBase() { Action = action });
 
 		return response;
 	}

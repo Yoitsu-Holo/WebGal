@@ -221,8 +221,7 @@ public partial class Driver
 
 				if (_layoutManager!.Layouts[_gameLayout].Layers.TryGetValue(4, out Layer.ILayer? value))
 				{
-					LogEventHandler logEventHandler = new();
-					logEventHandler.RegisterEvent(value);
+					value.RegisterAction(new LogEventHandler());
 				}
 			}
 

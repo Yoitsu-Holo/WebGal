@@ -1,21 +1,29 @@
 namespace WebGal.Handler;
 
-/// <summary>
-/// 对于一个可以发出发出事件的类，必须继承此接口
-/// </summary>
 public interface IEvent
 {
-	public event EventHandler<EventArgs>? Subscribers; // 订阅者
-	public void TriggerEvent(EventArgs args); // 触发事件的方法
+	public bool TriggerEvent(EventArgs args); // 触发事件的方法
+	public void ClearSubscribers(); //清除订阅
+	public void RegisterAction(IAction action);
 }
 
 public class EventBase : IEvent
 {
-	public event EventHandler<EventArgs>? Subscribers;
+	protected List<Func<EventArgs, bool>> _subscribers = []; // 订阅者
 
-	public void TriggerEvent(EventArgs args)
+	public void ClearSubscribers() => _subscribers.Clear();
+
+	public bool TriggerEvent(EventArgs args)
 	{
-		if (Subscribers is null) return;
-		Subscribers(this, args);
+		if (_subscribers is null) return false;
+
+		bool result = false;
+
+		foreach (var subscriber in _subscribers)
+			result |= subscriber.Invoke(args);
+
+		return result;
 	}
+
+	public void RegisterAction(IAction action) => _subscribers.Add(action.DoAction);
 }

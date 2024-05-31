@@ -34,7 +34,12 @@ public partial class MoeInterpreter
 			// 注册事件
 			Driver.RegisteLayoutAction(
 				new() { LayoutID = 0, },
-				(value) => { if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { OnCLick(); } }
+				(value) =>
+				{
+					Console.WriteLine("123");
+					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { OnCLick(); return true; }
+					return false;
+				}
 			);
 		}
 	}

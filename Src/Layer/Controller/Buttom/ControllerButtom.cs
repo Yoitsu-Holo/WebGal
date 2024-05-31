@@ -53,12 +53,10 @@ public class ControllerButtom : LayerBase
 		_imageBuffer[imageId] = bitmap;
 	}
 
-	public override void DoAction(object? sender, EventArgs eventArgs)
+	public override bool DoAction(EventArgs eventArgs)
 	{
-		ActionStatus = false;
-
-		if (eventArgs is not MouseEventData) return;
-		if (Status == LayerStatus.Disable) return;
+		if (eventArgs is not MouseEventData) return false;
+		if (Status == LayerStatus.Disable) return false;
 
 		MouseEventData mouseEvent = (MouseEventData)eventArgs;
 
@@ -77,8 +75,10 @@ public class ControllerButtom : LayerBase
 		{
 			Status = nowStatus;
 			TriggerEvent(mouseEvent);
-			ActionStatus = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	public override void Render(SKCanvas canvas, bool force)

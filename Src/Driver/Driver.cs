@@ -25,13 +25,17 @@ public partial class Driver
 		_audioManager = audioManager;
 		_jsRuntime = audioManager.JSRuntime;
 
-		_handlerBase.RegisterAction((value) =>
+		_handlerBase.RegisterAction(new ActionBase()
 		{
-			Console.WriteLine("Trigger!");
-			if (value is MouseEventData mouse)
+			Action = (value) =>
 			{
-				if (mouse.Status == MouseStatus.Hold)
-					_layoutManager.ActiveLayout = 10;
+				Console.WriteLine("Trigger!");
+				if (value is MouseEventData mouse)
+				{
+					if (mouse.Status == MouseStatus.Hold)
+						_layoutManager.ActiveLayout = 10;
+				}
+				return true;
 			}
 		});
 	}
@@ -58,8 +62,6 @@ public partial class Driver
 		response.Type = ResponseType.Success;
 		return response;
 	}
-
-	public event EventHandler<EventArgs>? Subscribers;
 
 	public void TriggerEvent(EventArgs args)
 	{

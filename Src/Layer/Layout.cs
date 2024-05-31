@@ -50,18 +50,11 @@ public class Layout : HandlerBase
 
 	public void ProcessEvent(EventArgs eventArgs)
 	{
-		ActionStatus = false;
 		foreach (var (_, layer) in Layers)
 		{
-			layer.ActionStatus = false;
-			layer.DoAction(this, eventArgs);
-			if (layer.ActionStatus)
-			{
-				ActionStatus = true;
+			if (layer.DoAction(eventArgs))
 				break;
-			}
 		}
-		if (ActionStatus == false)
-			DoAction(this, eventArgs);
+		TriggerEvent(eventArgs);
 	}
 }

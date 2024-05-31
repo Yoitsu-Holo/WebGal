@@ -6,27 +6,16 @@ namespace WebGal.Handler;
 /// </summary>
 public interface IAction
 {
-	public bool ActionStatus { get; set; }
-	public void RegisterEvent(IEvent e);  // 注册事件
-	public void RegisterAction(Action<EventArgs> action);
-	public void DoAction(object? sender, EventArgs eventArgs); // 执行动作的方法
+	public bool DoAction(EventArgs eventArgs); // 执行动作的方法
 }
 
 public class ActionBase : IAction
 {
-	public bool ActionStatus { get; set; }
-	private HashSet<Action<EventArgs>> _actions = [];
-
-	public virtual void DoAction(object? sender, EventArgs eventArgs)
+	public Func<EventArgs, bool>? Action;
+	public virtual bool DoAction(EventArgs eventArgs)
 	{
-		ActionStatus = false;
-		if (_actions.Count == 0)
-			return;
-		foreach (var action in _actions)
-			action.Invoke(eventArgs);
-		ActionStatus = true;
+		if (Action == null)
+			return false;
+		return Action(eventArgs);
 	}
-
-	public virtual void RegisterEvent(IEvent eventSender) => eventSender.Subscribers += DoAction;
-	public virtual void RegisterAction(Action<EventArgs> action) => _actions.Add(action);
 }

@@ -18,17 +18,7 @@ public class WidgetColorBox : LayerBase
 	{
 		if (Status == LayerStatus.Unvisable)
 			return;
-		// if (_dirty || force || _renderBuffer is null)
-		// {
-		// 	_renderBuffer = new(Size.X, Size.Y, RenderConfig.DefaultColorType, RenderConfig.DefaultAlphaType);
-		// 	using SKCanvas tempCanvas = new(_renderBuffer);
-		// 	tempCanvas.DrawRect(
-		// 		new SKRect(0, 0, _renderBuffer.Width, _renderBuffer.Height),
-		// 		new SKPaint { Color = _color }
-		// 	);
-		// 	tempCanvas.Flush();
-		// 	_dirty = false;
-		// }
+
 		_dirty = false;
 
 		SKMatrix matrix = SKMatrix.Identity;
