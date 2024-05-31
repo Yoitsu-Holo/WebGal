@@ -164,7 +164,7 @@ public abstract class ControllerSliderBase : LayerBase
 		get => base.Value;
 		set
 		{
-			if (value is double v)
+			if (value is float v)
 			{
 				base.Value = value;
 				ThumbLimitSet((IVector)((FVector)(Size - ThumbSize) * v));

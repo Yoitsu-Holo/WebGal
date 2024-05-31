@@ -245,7 +245,7 @@ public partial class MoeInterpreter
 
 			if (Right is int && Left.Type == MoeVariableType.Int)
 				Left[index] = Right;
-			else if (Right is double && Left.Type == MoeVariableType.Double)
+			else if (Right is float && Left.Type == MoeVariableType.Float)
 				Left[index] = Right;
 			else if (Right is string && Left.Type == MoeVariableType.String)
 				Logger.LogInfo("暂未实现字符串赋值解析", Global.LogLevel.Todo);
@@ -260,7 +260,7 @@ public partial class MoeInterpreter
 				ConditionalNode conditional = ifCase.If[i];
 				object result = ExpressionsExecutor.Parse(conditional.Conditional);
 
-				if (result is not int && result is not double)
+				if (result is not int && result is not float)
 				{
 					Logger.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
 					continue;
@@ -268,7 +268,7 @@ public partial class MoeInterpreter
 
 				if (result is int resultInt && resultInt == 0)
 					continue;
-				if (result is double resultDouble && resultDouble == 0)
+				if (result is float resultDouble && resultDouble == 0)
 					continue;
 
 				// Run(frame, conditional.Program);
@@ -284,7 +284,7 @@ public partial class MoeInterpreter
 
 			object result = ExpressionsExecutor.Parse(loop.Conditional);
 
-			if (result is not int && result is not double)
+			if (result is not int && result is not float)
 			{
 				Logger.LogInfo($"条件表达式值只接受数学表达式", Global.LogLevel.Error);
 				return;
@@ -292,7 +292,7 @@ public partial class MoeInterpreter
 
 			if (result is int resultInt && resultInt == 0)
 				return;
-			if (result is double resultDouble && resultDouble == 0)
+			if (result is float resultDouble && resultDouble == 0)
 				return;
 
 			int index = frame.PC.Pop();
@@ -343,13 +343,11 @@ public partial class MoeInterpreter
 			{
 				variable.Type = MoeVariableType.Int;
 				variable.Obj = new int[1] { vint };
-				// ((int[])variable.Obj)[0] = vint;
 			}
-			else if (value is double vdouble)
+			else if (value is float vfloat)
 			{
-				variable.Type = MoeVariableType.Double;
-				variable.Obj = new double[1] { vdouble };
-				// ((double[])variable.Obj)[0] = ;
+				variable.Type = MoeVariableType.Float;
+				variable.Obj = new float[1] { vfloat };
 			}
 			else if (value is string vstring)
 			{
@@ -373,7 +371,7 @@ public partial class MoeInterpreter
 		// private ExpressionToken CurrentToken => index < _tokens.Count ? _tokens[index] : new();
 
 		/// <summary>
-		/// 返回类型为 int 或者 double 的结果
+		/// 返回类型为 int 或者 float 的结果
 		/// </summary>
 		/// <param name="tokens"></param>
 		/// <returns></returns>
@@ -682,22 +680,22 @@ public partial class MoeInterpreter
 		private static object Calc(object v1, object v2, OperatorType type)
 		{
 			int v1i, v2i;
-			double v1f, v2f;
+			float v1f, v2f;
 			bool flag = true;
 
 			{
 				if (v1 is int vv1)
 					(v1i, v1f) = (vv1, vv1);
-				else if (v1 is double vv2)
+				else if (v1 is float vv2)
 					(v1i, v1f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Logger.LogMessage("非 int 或者 double 类型"));
+				else throw new Exception(Logger.LogMessage("非 int 或者 float 类型"));
 			}
 			{
 				if (v2 is int vv1)
 					(v2i, v2f) = (vv1, vv1);
-				else if (v2 is double vv2)
+				else if (v2 is float vv2)
 					(v2i, v2f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Logger.LogMessage("非 int 或者 double 类型"));
+				else throw new Exception(Logger.LogMessage("非 int 或者 float 类型"));
 			}
 
 			if (flag)

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using SkiaSharp.Views.Blazor;
-using WebGal.API.Data;
 using WebGal.Global;
 using WebGal.Handler.Event;
 using WebGal.Services;
@@ -17,22 +16,22 @@ public partial class Test// : IDisposable
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 	public class DOMRect
 	{
-		public double Top { get; set; }
-		public double Left { get; set; }
-		public double Width { get; set; }
-		public double Height { get; set; }
+		public float Top { get; set; }
+		public float Left { get; set; }
+		public float Width { get; set; }
+		public float Height { get; set; }
 	}
 	public class MousePosition
 	{
-		public double X { get; set; }
-		public double Y { get; set; }
+		public float X { get; set; }
+		public float Y { get; set; }
 	}
 
 	private SKGLView? _skiaView;
 
 	private MouseEventData _mouseEvent = new();
 
-	public double Scale = 1.0;
+	public float Scale = 1.0f;
 
 	public bool RednerFlag = false;
 

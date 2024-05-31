@@ -48,7 +48,7 @@ public enum MoeFileType : ulong
 
 public enum MoeVariableType
 {
-	Void, Int, Double, String,
+	Void, Int, Float, String,
 	Error,
 }
 
@@ -110,7 +110,7 @@ public class MoeVariable : ICloneable
 		Obj = Type switch
 		{
 			MoeVariableType.Int => new int[Size],
-			MoeVariableType.Double => new double[Size],
+			MoeVariableType.Float => new float[Size],
 			MoeVariableType.String => new string[Size],
 			_ => throw new Exception(""),
 		};
@@ -118,7 +118,7 @@ public class MoeVariable : ICloneable
 		this[0] = Type switch
 		{
 			MoeVariableType.Int => 0,
-			MoeVariableType.Double => 0,
+			MoeVariableType.Float => 0,
 			MoeVariableType.String => "",
 			_ => throw new Exception(""),
 		};
@@ -142,7 +142,7 @@ public class MoeVariable : ICloneable
 			Obj = Type switch
 			{
 				MoeVariableType.Int => new int[Size],
-				MoeVariableType.Double => new double[Size],
+				MoeVariableType.Float => new float[Size],
 				MoeVariableType.String => new string[Size],
 				_ => throw new Exception($"Could not be a variable type {Type}"),
 			}
@@ -178,7 +178,7 @@ public class MoeVariable : ICloneable
 			{
 				MoeVariableType.Void => throw new Exception("Unknow Error"),
 				MoeVariableType.Int => ((int[])Obj)[pos],
-				MoeVariableType.Double => ((double[])Obj)[pos],
+				MoeVariableType.Float => ((float[])Obj)[pos],
 				MoeVariableType.String => ((string[])Obj)[pos],
 				_ => throw new Exception("Unknow Error"),
 			};
@@ -201,7 +201,7 @@ public class MoeVariable : ICloneable
 			{
 				case MoeVariableType.Void: throw new Exception("Unknow Error");
 				case MoeVariableType.Int: ((int[])Obj)[pos] = (int)value; break;
-				case MoeVariableType.Double: ((double[])Obj)[pos] = (double)value; break;
+				case MoeVariableType.Float: ((float[])Obj)[pos] = (float)value; break;
 				case MoeVariableType.String: ((string[])Obj)[pos] = (string)value; break;
 				default: throw new Exception("Unknow Error");
 			};
@@ -220,7 +220,7 @@ public class MoeVariable : ICloneable
 			{
 				MoeVariableType.Void => throw new Exception("Unknow Error"),
 				MoeVariableType.Int => ((int[])Obj)[index],
-				MoeVariableType.Double => ((double[])Obj)[index],
+				MoeVariableType.Float => ((float[])Obj)[index],
 				MoeVariableType.String => ((string[])Obj)[index],
 				_ => throw new Exception("Unknow Error"),
 			};
@@ -234,7 +234,7 @@ public class MoeVariable : ICloneable
 			{
 				case MoeVariableType.Void: throw new Exception("Unknow Error");
 				case MoeVariableType.Int: ((int[])Obj)[index] = (int)value; break;
-				case MoeVariableType.Double: ((double[])Obj)[index] = (double)value; break;
+				case MoeVariableType.Float: ((float[])Obj)[index] = (float)value; break;
 				case MoeVariableType.String: ((string[])Obj)[index] = (string)value; break;
 				default: throw new Exception("Unknow Error");
 			};
@@ -242,10 +242,10 @@ public class MoeVariable : ICloneable
 	}
 
 	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int) ? (int)variable[0] : 0;
-	public static implicit operator double(MoeVariable variable) => (variable.Type == MoeVariableType.Double) ? (double)variable[0] : 0.0;
+	public static implicit operator float(MoeVariable variable) => (variable.Type == MoeVariableType.Float) ? (float)variable[0] : 0.0f;
 	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String) ? (string)variable[0] : "";
 	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int[])variable.Obj : [];
-	public static implicit operator double[](MoeVariable variable) => (variable.Type == MoeVariableType.Double && variable.Obj is not null) ? (double[])variable.Obj : [];
+	public static implicit operator float[](MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable.Obj is not null) ? (float[])variable.Obj : [];
 	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string[])variable.Obj : [];
 
 	public static implicit operator MoeVariable(int value)
@@ -255,9 +255,9 @@ public class MoeVariable : ICloneable
 		ret[0] = value;
 		return ret;
 	}
-	public static implicit operator MoeVariable(double value)
+	public static implicit operator MoeVariable(float value)
 	{
-		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Double, Dimension = [1] };
+		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Float, Dimension = [1] };
 		ret.Init();
 		ret[0] = value;
 		return ret;

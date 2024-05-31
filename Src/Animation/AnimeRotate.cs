@@ -7,16 +7,16 @@ class AnimationRotate : AnimationBase
 {
 	public AnimationRotateData data;
 	private SKMatrix _matrix = SKMatrix.Identity;
-	private double timeStart = -1;
+	private float timeStart = -1;
 
 	public override AnimationData DoAnimation(long timeOff)
 	{
-		double timeObs = Global.NowTime.UtcMinisecond;
+		float timeObs = Global.NowTime.UtcMinisecond;
 		if (timeStart < 0)
 			timeStart = timeObs;
-		double dt = (timeObs - timeStart) / 1000;
+		float dt = (timeObs - timeStart) / 1000;
 
-		_matrix = SKMatrix.CreateRotation((float)(dt * data.Z));
+		_matrix = SKMatrix.CreateRotation(dt * data.Z);
 
 		return new() { Transform = _matrix, };
 	}
@@ -30,5 +30,5 @@ class AnimationRotate : AnimationBase
 
 public record struct AnimationRotateData
 {
-	public double Z;
+	public float Z;
 }

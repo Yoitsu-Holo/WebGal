@@ -46,7 +46,7 @@ public partial class MoeInterpreter
 			{
 				if (value is int ivalue)
 					paramList[key] = ivalue;
-				else if (value is double fvalue)
+				else if (value is float fvalue)
 					paramList[key] = fvalue;
 				else if (value is string svalue)
 					paramList[key] = svalue;

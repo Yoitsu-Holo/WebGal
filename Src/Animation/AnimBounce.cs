@@ -6,14 +6,14 @@ class AnimationBounce : AnimationBase
 {
 	private AnimationBounceData data = new();
 	private FVector _pos;
-	private double timepre = -1;
+	private float timepre = -1;
 
 	public override AnimationData DoAnimation(long timeOff)
 	{
-		double timeObs = Global.NowTime.UtcMinisecond;
+		float timeObs = Global.NowTime.UtcMinisecond;
 		if (timepre < 0)
 			timepre = timeObs;
-		double dt = timeObs - timepre;
+		float dt = timeObs - timepre;
 		FVector npos = new(_pos.X + data.Delta.X * dt, _pos.Y + data.Delta.Y * dt);
 
 		if (npos.X < 0) { npos.X = 0; data.Delta.X = -data.Delta.X; }

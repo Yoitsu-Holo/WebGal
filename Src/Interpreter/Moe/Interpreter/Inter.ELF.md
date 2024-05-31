@@ -51,11 +51,11 @@ main script TestMoe1/main.moe
 基本格式：
 
 ```text
-[const|static|var|ref] [int|string|double] name[size:...]
+[const|static|var|ref] [int|string|float] name[size:...]
 
 .data
 const int A:10
-const double Double:20
+const float Float:20
 const string str
 static int B,C,D
 ```
@@ -65,7 +65,7 @@ static int B,C,D
 ```
 static int A
 const string S
-var double F
+var float F
 ```
 
 同时，一行可以定义多个变量，每个变量之间使用逗号隔开，数组名称后面紧跟方括号，其中使用冒号分隔的数字表示变维度和大小（数组大小）
@@ -84,7 +84,7 @@ var int A[1], B[1], C[1]
 |-|-|
 | int | 32位带符号整数 |
 | string | 字符串，不限制长度，UTF-8编码 |
-| double | 64位浮点数 |
+| float | 32位浮点数 |
 
 需要注意的是，这些基本类型都是定长数组，在定义时必须指定长度！
 

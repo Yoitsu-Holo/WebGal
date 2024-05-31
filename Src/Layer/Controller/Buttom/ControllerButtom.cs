@@ -101,7 +101,7 @@ public class ControllerButtom : LayerBase
 		SKMatrix matrix = SKMatrix.Identity;
 		FVector pos = (FVector)Position + _animationData.PosOff;
 
-		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(pos.X, pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));
 

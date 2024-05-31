@@ -24,7 +24,7 @@ public class DictionaryStringObjectConverter : JsonConverter<Dictionary<string, 
 					else if (reader.TryGetInt64(out long ll))
 						value = ll;
 					else
-						value = reader.GetDouble();
+						value = (float)reader.GetDouble();
 					break;
 				case JsonTokenType.String:
 					value = reader.GetString() ?? string.Empty;

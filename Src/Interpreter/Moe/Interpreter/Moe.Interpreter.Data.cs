@@ -169,7 +169,7 @@ public class ExpressionToken
 		else if (Type == OperatorType.RightParen)
 			ret += " )";
 		else if (Type == OperatorType.Number)
-			ret += $"{((Number is int v) ? v : ((double)Number))}";
+			ret += $"{((Number is int v) ? v : ((float)Number))}";
 		else if (Type == OperatorType.Variable)
 			ret += $"{Var}";
 		else

@@ -8,8 +8,8 @@ class AnimationBrownian : AnimationBase
 	private readonly Random rand = new();
 	public override AnimationData DoAnimation(long timeOff)
 	{
-		var (x, y) = (rand.NextDouble(), rand.NextDouble());
-		return new() { PosOff = new((double)x, (double)y) };
+		var (x, y) = ((float)rand.NextDouble(), (float)rand.NextDouble());
+		return new() { PosOff = new(x, y) };
 	}
 
 	public override void SetParama(object parama)

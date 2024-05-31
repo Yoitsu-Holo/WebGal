@@ -97,7 +97,7 @@ public partial class MoeInterpreter
 				{
 					"void" => MoeVariableType.Void,
 					"int" => MoeVariableType.Int,
-					"double" => MoeVariableType.Double,
+					"float" => MoeVariableType.Float,
 					"string" => MoeVariableType.String,
 					_ => MoeVariableType.Error,
 				},
@@ -485,7 +485,7 @@ public partial class MoeInterpreter
 				Type = type.Value switch
 				{
 					"int" => MoeVariableType.Int,
-					"double" => MoeVariableType.Double,
+					"float" => MoeVariableType.Float,
 					"string" => MoeVariableType.String,
 					_ => MoeVariableType.Error,
 				},
