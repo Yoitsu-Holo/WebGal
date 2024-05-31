@@ -11,6 +11,9 @@ public class ControllerSliderVertical : ControllerSliderBase
 
 		InitBase();
 		InitAttribute(new IVector(20, 200), new IVector(20, 10));
+
+		for (int i = -1; i <= 4; i++)
+			_image[i] = new();
 	}
 
 	protected override void ThumbLimitSet(IVector thumbDelta)

@@ -1,4 +1,5 @@
 using SkiaSharp;
+using FileInfo = WebGal.API.Data.FileInfo;
 
 namespace WebGal.Services.Include;
 
@@ -41,11 +42,50 @@ public class ResourceManager(HttpClient httpClient)
 	public bool RemoveFont(string name) => _fontList.Remove(name);
 	public bool RemoveScript(string name) => _scriptList.Remove(name);
 
+
 	public bool CheckImage(string name) => name is not null && _imageList.ContainsKey(name);
 	public bool CheckAudio(string name) => name is not null && _audioList.ContainsKey(name);
 	public bool CheckBlob(string name) => name is not null && _blobList.ContainsKey(name);
 	public bool CheckFont(string name) => name is not null && _fontList.ContainsKey(name);
 	public bool CheckScript(string name) => name is not null && _scriptList.ContainsKey(name);
+
+
+
+
+	public bool CheckFile(FileInfo info)
+	{
+		return info.Type switch
+		{
+			API.Data.FileType.Image => CheckImage(info.Name),
+			API.Data.FileType.Audio => CheckAudio(info.Name),
+			API.Data.FileType.Bin => CheckBlob(info.Name),
+			API.Data.FileType.Font => CheckFont(info.Name),
+			API.Data.FileType.Script => CheckScript(info.Name),
+			_ => false,
+		};
+	}
+
+	public async Task PullFileAsnc(FileInfo info)
+	{
+		if (info.Type == API.Data.FileType.Image) await PullImageAsync(info.Name, info.URL);
+		else if (info.Type == API.Data.FileType.Audio) await PullAudioAsync(info.Name, info.URL);
+		else if (info.Type == API.Data.FileType.Bin) await PullBlobAsync(info.Name, info.URL);
+		else if (info.Type == API.Data.FileType.Font) await PullFontAsync(info.Name, info.URL);
+		else if (info.Type == API.Data.FileType.Script) await PullScriptAsync(info.Name, info.URL);
+	}
+
+	public bool RemoveFile(FileInfo info)
+	{
+		return info.Type switch
+		{
+			API.Data.FileType.Image => RemoveImage(info.Name),
+			API.Data.FileType.Audio => RemoveAudio(info.Name),
+			API.Data.FileType.Bin => RemoveBlob(info.Name),
+			API.Data.FileType.Font => RemoveFont(info.Name),
+			API.Data.FileType.Script => RemoveScript(info.Name),
+			_ => false,
+		};
+	}
 
 	public void Clear()
 	{

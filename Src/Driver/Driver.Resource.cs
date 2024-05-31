@@ -1,3 +1,4 @@
+using System.Resources;
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
@@ -49,24 +50,11 @@ public partial class Driver
 		Response response = CheckInit();
 
 		if (response.Type != ResponseType.Success) return response;
+		if (_resourceManager!.CheckFile(info)) return response;
 
 		try
 		{
-			switch (info.Type)
-			{
-				case FileType.Script:
-					await _resourceManager!.PullScriptAsync(info.Name, info.URL); break;
-				case FileType.Audio:
-					await _resourceManager!.PullAudioAsync(info.Name, info.URL); break;
-				case FileType.Bin:
-					await _resourceManager!.PullBlobAsync(info.Name, info.URL); break;
-				case FileType.Image:
-					await _resourceManager!.PullImageAsync(info.Name, info.URL); break;
-				case FileType.Font:
-					await _resourceManager!.PullFontAsync(info.Name, info.URL); break;
-				default:
-					break;
-			}
+			await _resourceManager.PullFileAsnc(info);
 		}
 		catch (Exception exception)
 		{
@@ -85,17 +73,8 @@ public partial class Driver
 		if (response.Type != ResponseType.Success) return response;
 
 		response.Type = ResponseType.Success;
-		bool has = info.Type switch
-		{
-			FileType.Script => _resourceManager!.CheckScript(info.Name),
-			FileType.Audio => _resourceManager!.CheckAudio(info.Name),
-			FileType.Bin => _resourceManager!.CheckBlob(info.Name),
-			FileType.Image => _resourceManager!.CheckImage(info.Name),
-			FileType.Font => _resourceManager!.CheckFont(info.Name),
-			_ => false,
-		};
 
-		if (has == false)
+		if (_resourceManager!.CheckFile(info) == false)
 			response.Type = ResponseType.Fail;
 
 		return response;
@@ -107,23 +86,7 @@ public partial class Driver
 		Response response = CheckInit();
 		if (response.Type != ResponseType.Success) return response;
 
-
-		switch (info.Type)
-		{
-			case FileType.Script:
-				_resourceManager!.RemoveScript(info.Name); break;
-			case FileType.Audio:
-				_resourceManager!.RemoveAudio(info.Name); break;
-			case FileType.Bin:
-				_resourceManager!.RemoveBlob(info.Name); break;
-			case FileType.Image:
-				_resourceManager!.RemoveImage(info.Name); break;
-			case FileType.Font:
-				_resourceManager!.RemoveFont(info.Name); break;
-			default:
-				break;
-		}
-
+		_resourceManager!.RemoveFile(info);
 		return response;
 	}
 

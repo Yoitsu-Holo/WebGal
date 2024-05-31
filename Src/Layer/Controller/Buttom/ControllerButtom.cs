@@ -32,7 +32,10 @@ public class ControllerButtom : LayerBase
 	{
 		if (imageId >= _imageBuffer.Count)
 			return;
-		_imageBuffer[imageId] = image.SubBitmap(imageWindow);
+		if (imageWindow == default)
+			SetImage(image, imageId);
+		else
+			_imageBuffer[imageId] = image.SubBitmap(imageWindow);
 		_dirty = true;
 	}
 

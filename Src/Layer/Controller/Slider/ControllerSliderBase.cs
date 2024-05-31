@@ -8,10 +8,9 @@ namespace WebGal.Layer.Controller;
 
 public abstract class ControllerSliderBase : LayerBase
 {
-	protected SortedDictionary<int, SKBitmap> _thumbImage = [];
+	protected SortedDictionary<int, SKBitmap> _image = [];
 
 
-	// protected SKBitmap _trackImage => _thumbImage.TryGetValue(-1, out SKBitmap? value) ? value : new();
 	protected IVector _mouseDelta = new(0, 0);
 	protected new float _value = 0;
 	protected IVector _thumbSize = new();
@@ -49,25 +48,25 @@ public abstract class ControllerSliderBase : LayerBase
 	{
 		// _trackImage = trackImage;
 
-		_thumbImage[-1] = trackImage;
-		_thumbImage[(int)LayerStatus.Normal] = sliderNormal;
-		_thumbImage[(int)LayerStatus.Hover] = sliderHover;
-		_thumbImage[(int)LayerStatus.Pressed] = sliderPressed;
-		_thumbImage[(int)LayerStatus.Focused] = sliderPressed;
+		_image[-1] = trackImage;
+		_image[(int)LayerStatus.Normal] = sliderNormal;
+		_image[(int)LayerStatus.Hover] = sliderHover;
+		_image[(int)LayerStatus.Pressed] = sliderPressed;
+		_image[(int)LayerStatus.Focused] = sliderPressed;
 	}
 
 	public override void SetImage(SKBitmap image, int imageId = 0)
 	{
-		_thumbImage[imageId] = image;
+		_image[imageId] = image;
 		_dirty = true;
 	}
 
 	public override void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0)
 	{
 		if (imageWindow == default)
-			_thumbImage[imageId] = image;
+			SetImage(image, imageId);
 		else
-			_thumbImage[imageId] = image.SubBitmap(imageWindow);
+			_image[imageId] = image.SubBitmap(imageWindow);
 
 		_dirty = true;
 	}
@@ -81,7 +80,7 @@ public abstract class ControllerSliderBase : LayerBase
 			new SKPaint { Color = color }
 		);
 		canvas.Flush();
-		_thumbImage[imageId] = bitmap;
+		_image[imageId] = bitmap;
 	}
 
 	public ControllerSliderBase()
@@ -90,6 +89,9 @@ public abstract class ControllerSliderBase : LayerBase
 
 		InitBase();
 		InitAttribute(new IVector(200, 20), new IVector(10, 20));
+
+		for (int i = -1; i <= 4; i++)
+			_image[i] = new();
 	}
 
 	public override void Action(object? sender, EventArgs eventArgs)
@@ -127,7 +129,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 	public override void Render(SKCanvas canvas, bool force)
 	{
-		if (Status == LayerStatus.Unvisable || _thumbImage[(int)Status].IsNull || _thumbImage[-1].IsNull)
+		if (Status == LayerStatus.Unvisable || _image[(int)Status].IsNull || _image[-1].IsNull)
 			return;
 
 		// 重新渲染
@@ -140,7 +142,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_thumbImage[-1], new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_image[-1], new SKPoint(0, 0), RenderConfig.DefaultPaint);
 		canvas.Restore();
 
 		matrix = SKMatrix.Identity;
@@ -152,7 +154,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_thumbImage[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_image[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
 		canvas.Restore();
 	}
 
