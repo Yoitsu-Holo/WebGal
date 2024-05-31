@@ -22,9 +22,9 @@ public partial class MoeInterpreter
 		for (int i = 0; i < header.CallParam.Count; i++)
 		{
 			if (header.CallParam[i].Type == paramList[i].Type)
-			{
 				frame.LVariable[header.CallParam[i].Name] = (MoeVariable)paramList[i].Clone();
-			}
+			else if (paramList[i].Type == MoeVariableType.Void)
+				continue;
 			else
 			{
 				Logger.LogInfo($"参数列表类型不匹配 {header.CallParam[i].Type}:{paramList[i].Type}\n{function.Header}", Global.LogLevel.Error);
@@ -229,9 +229,9 @@ public partial class MoeInterpreter
 			else if (Right is float && Left.Type == MoeVariableType.Float)
 				Left[index] = Right;
 			else if (Right is string && Left.Type == MoeVariableType.String)
-				Logger.LogInfo("暂未实现字符串赋值解析", Global.LogLevel.Todo);
+				Left[index] = Right;
 			else
-				Logger.LogInfo("变量类型不匹配", Global.LogLevel.Error);
+				Logger.LogInfo($"变量类型不匹配 {Right.GetType()}{Right}:{Left.Type}", Global.LogLevel.Error);
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
@@ -660,24 +660,29 @@ public partial class MoeInterpreter
 		{
 			int v1i, v2i;
 			float v1f, v2f;
-			bool flag = true;
+			string v1s, v2s;
+			int flag = 0;
 
 			{
 				if (v1 is int vv1)
-					(v1i, v1f) = (vv1, vv1);
+					(v1i, v1f, v1s) = (vv1, vv1, vv1.ToString());
 				else if (v1 is float vv2)
-					(v1i, v1f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Logger.LogMessage("非 int 或者 float 类型"));
+					(v1i, v1f, v1s, flag) = ((int)vv2, vv2, vv2.ToString(), 1);
+				else if (v1 is string vv3)
+					(v1i, v1f, v1s, flag) = (0, 0, vv3, 2);
+				else throw new Exception(Logger.LogMessage($"非 int/float/string 类型 {v1.GetType()}"));
 			}
 			{
-				if (v2 is int vv1)
-					(v2i, v2f) = (vv1, vv1);
-				else if (v2 is float vv2)
-					(v2i, v2f, flag) = ((int)vv2, vv2, false);
-				else throw new Exception(Logger.LogMessage("非 int 或者 float 类型"));
+				if (v2 is int vv1 && flag != 2)
+					(v2i, v2f, v2s) = (vv1, vv1, vv1.ToString());
+				else if (v2 is float vv2 && flag != 2)
+					(v2i, v2f, v2s, flag) = ((int)vv2, vv2, vv2.ToString(), 1);
+				else if (v2 is string vv3)
+					(v2i, v2f, v2s, flag) = (0, 0, vv3, 2);
+				else throw new Exception(Logger.LogMessage($"非 int/float/string 类型 {v2.GetType()}"));
 			}
 
-			if (flag)
+			if (flag == 0)
 				return type switch
 				{
 					OperatorType.ADD => v1i + v2i,
@@ -709,7 +714,7 @@ public partial class MoeInterpreter
 					OperatorType.NOT => (v1i == 0) ? 1 : 0,
 					_ => throw new Exception(Logger.LogMessage($"运算符 {type} 未在整数实现")),
 				};
-			else
+			else if (flag == 1)
 				return type switch
 				{
 					OperatorType.ADD => v1f + v2f,
@@ -734,6 +739,18 @@ public partial class MoeInterpreter
 					// _ => Log.LogInfo($"运算符 {type} 未实现", Global.LogLevel.Todo),
 					_ => throw new Exception(Logger.LogMessage($"运算符 {type} 未在浮点数实现")),
 				};
+			else if (flag == 2)
+			{
+				return type switch
+				{
+					OperatorType.ADD => v1s + v2s,
+					OperatorType.EQ => v1s == v2s ? 1 : 0,
+					OperatorType.NEQ => v1s != v2s ? 1 : 0,
+					_ => throw new Exception(Logger.LogMessage($"运算符 {type} 未在浮点数实现")),
+				};
+			}
+			else
+				throw new Exception("");
 		}
 	}
 }

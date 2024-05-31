@@ -122,6 +122,8 @@ public abstract class ControllerSliderBase : LayerBase
 		else
 		{
 			_mouseDelta = new(0, 0);
+			if (RangeComp.InRange(Window, mouseEvent.Position))
+				return true;
 		}
 		return false;
 	}
