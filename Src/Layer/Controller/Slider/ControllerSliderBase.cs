@@ -94,7 +94,7 @@ public abstract class ControllerSliderBase : LayerBase
 			_image[i] = new();
 	}
 
-	public override void Action(object? sender, EventArgs eventArgs)
+	public override void DoAction(object? sender, EventArgs eventArgs)
 	{
 		ActionStatus = false;
 

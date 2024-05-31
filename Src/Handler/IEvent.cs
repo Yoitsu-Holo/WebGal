@@ -8,3 +8,14 @@ public interface IEvent
 	public event EventHandler<EventArgs>? Subscribers; // 订阅者
 	public void TriggerEvent(EventArgs args); // 触发事件的方法
 }
+
+public class EventBase : IEvent
+{
+	public event EventHandler<EventArgs>? Subscribers;
+
+	public void TriggerEvent(EventArgs args)
+	{
+		if (Subscribers is null) return;
+		Subscribers(this, args);
+	}
+}

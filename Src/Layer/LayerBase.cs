@@ -32,21 +32,6 @@ public class LayerBase : HandlerBase, ILayer
 	protected AnimationData _animationData = new();
 
 	#region 外界交互
-	//! 基类不能实现任何渲染和交互功能，只能对值进行设置
-	// // 事件订阅
-	// public event EventHandler<EventArgs>? Subscribers;
-	// public virtual void TriggerEvent(EventArgs args)
-	// {
-	// 	if (Subscribers is null) return;
-	// 	Subscribers(this, args);
-	// }
-
-	// // 处理事件
-	// public Action<EventArgs>? HandlerAction { get; set; }
-	// public bool ActionStatus { get; set; }
-	public override void Action(object? sender, EventArgs eventArgs) { ActionStatus = false; }
-	// public virtual void RegistEvent(IEvent e) => e.Subscribers += Action;
-
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
 	public bool HasAnimation(long timeOff) => true;

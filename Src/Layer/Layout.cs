@@ -54,7 +54,7 @@ public class Layout : HandlerBase
 		foreach (var (_, layer) in Layers)
 		{
 			layer.ActionStatus = false;
-			layer.Action(this, eventArgs);
+			layer.DoAction(this, eventArgs);
 			if (layer.ActionStatus)
 			{
 				ActionStatus = true;
@@ -62,6 +62,6 @@ public class Layout : HandlerBase
 			}
 		}
 		if (ActionStatus == false)
-			Action(this, eventArgs);
+			DoAction(this, eventArgs);
 	}
 }

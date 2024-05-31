@@ -53,7 +53,7 @@ public class ControllerButtom : LayerBase
 		_imageBuffer[imageId] = bitmap;
 	}
 
-	public override void Action(object? sender, EventArgs eventArgs)
+	public override void DoAction(object? sender, EventArgs eventArgs)
 	{
 		ActionStatus = false;
 

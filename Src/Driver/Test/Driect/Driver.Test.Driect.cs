@@ -94,9 +94,9 @@ public partial class Driver
 
 			_layoutManager.ActiveLayout = _menuLayout;
 
-			HandlerBase handler = new()
-			{
-				HandlerAction = (value) =>
+			HandlerBase handler = new();
+
+			handler.RegisterAction((value) =>
 				{
 					Console.WriteLine("Trigger!");
 					if (value is MouseEventData mouse)
@@ -104,9 +104,9 @@ public partial class Driver
 						if (mouse.Status == MouseStatus.Hold)
 							_layoutManager.ActiveLayout = _gameLayout;
 					}
-				}
-			};
-			handler.RegistEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
+				});
+
+			handler.RegisterEvent(_layoutManager.Layouts[_menuLayout].Layers[1]);
 		}
 	}
 }

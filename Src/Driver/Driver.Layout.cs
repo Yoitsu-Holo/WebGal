@@ -138,8 +138,9 @@ public partial class Driver
 		Response response = CheckLayout(info);
 		if (response.Type != ResponseType.Success) return response;
 
-		HandlerBase layoutHandle = new() { HandlerAction = action };
-		layoutHandle.RegistEvent(_layoutManager!.Layouts[info.LayoutID]);
+		HandlerBase layoutHandle = new();
+		layoutHandle.RegisterAction(action);
+		layoutHandle.RegisterEvent(_layoutManager!.Layouts[info.LayoutID]);
 
 		return response;
 	}

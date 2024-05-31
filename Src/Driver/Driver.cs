@@ -2,7 +2,6 @@ using System.Reflection.Metadata;
 using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
-using WebGal.Global;
 using WebGal.Handler;
 using WebGal.Handler.Event;
 using WebGal.Services.Include;
@@ -26,7 +25,7 @@ public partial class Driver
 		_audioManager = audioManager;
 		_jsRuntime = audioManager.JSRuntime;
 
-		_handlerBase.HandlerAction = (value) =>
+		_handlerBase.RegisterAction((value) =>
 		{
 			Console.WriteLine("Trigger!");
 			if (value is MouseEventData mouse)
@@ -34,7 +33,7 @@ public partial class Driver
 				if (mouse.Status == MouseStatus.Hold)
 					_layoutManager.ActiveLayout = 10;
 			}
-		};
+		});
 	}
 
 	public static Response CheckInit()
