@@ -37,7 +37,7 @@ public partial class MoeInterpreter
 	public static async Task Benchmark() => await Test.Benchmark();
 
 	[JSInvokable]
-	public static async Task ScriptBanech() => await Test.ScriptBanech();
+	public static async Task ScriptBanech() => await Test.ScriptBench();
 
 	[JSInvokable]
 	public static void Clear()

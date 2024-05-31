@@ -103,7 +103,7 @@ public partial class MoeInterpreter
 			Driver.SetColorBoxInfo(colorBox);
 		}
 
-		public static async void SetButtomeBox(
+		public static async void SetButtonBox(
 			MoeVariable layout, MoeVariable layer,
 			MoeVariable normal, MoeVariable hover, MoeVariable pressed, MoeVariable focused
 		)
@@ -133,7 +133,7 @@ public partial class MoeInterpreter
 				URL = _elfHeader.Files[focused].URL,
 			});
 
-			ButtomBoxInfo buttom = new()
+			ButtonBoxInfo buttom = new()
 			{
 				ID = new() { LayoutID = layout, LayerID = layer, },
 				NormalImage = new() { ImageName = normal },
@@ -141,7 +141,7 @@ public partial class MoeInterpreter
 				PressedImage = new() { ImageName = pressed },
 				FocusedImage = new() { ImageName = focused },
 			};
-			Driver.SetButtomBoxInfo(buttom);
+			Driver.SetButtonBoxInfo(buttom);
 		}
 
 		public static async void SetSliderBox(

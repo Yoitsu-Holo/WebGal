@@ -65,7 +65,7 @@ public partial class MoeInterpreter
 			}
 		}
 
-		public static async Task ScriptBanech()
+		public static async Task ScriptBench()
 		{
 			GVariables["a"] = 1;
 			GVariables["b"] = 2;

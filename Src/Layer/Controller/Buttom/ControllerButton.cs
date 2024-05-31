@@ -6,12 +6,12 @@ using WebGal.Extend;
 
 namespace WebGal.Layer.Controller;
 
-public class ControllerButtom : LayerBase
+public class ControllerButton : LayerBase
 {
 	protected List<SKBitmap> _imageBuffer = [];
 	protected List<SKBitmap> _renderBuffer = [];
 
-	public ControllerButtom()
+	public ControllerButton()
 	{
 		for (int i = 1; i <= 4; i++)
 		{

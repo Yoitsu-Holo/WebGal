@@ -207,7 +207,7 @@ public partial class Driver
 			{
 				Console.WriteLine("Set Buttom Layer:4 ...");
 
-				ButtomBoxInfo buttom = new()
+				ButtonBoxInfo buttom = new()
 				{
 					ID = new() { LayoutID = _gameLayout, LayerID = 4, },
 					NormalImage = new() { ImageName = "title", SubRect = new(1, 723, 316, 45), },
@@ -215,7 +215,7 @@ public partial class Driver
 					PressedImage = new() { ImageName = "title", SubRect = new(641, 723, 316, 45), },
 				};
 
-				string result = SetButtomBoxInfo(JsonSerializer.Serialize(buttom, JsonConfig.Options));
+				string result = SetButtonBoxInfo(JsonSerializer.Serialize(buttom, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 

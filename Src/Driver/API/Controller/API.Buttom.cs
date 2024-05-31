@@ -5,7 +5,7 @@ namespace WebGal.API.Data;
 /// <summary>
 /// 图片图层设置
 /// </summary>
-public record struct ButtomBoxInfo
+public record struct ButtonBoxInfo
 {
 	public LayerIdInfo ID { get; set; }
 	public ImageInfo NormalImage { get; set; }
@@ -15,7 +15,7 @@ public record struct ButtomBoxInfo
 	public IVector ButtomSize { get; set; }
 }
 
-public record struct ButtomBoxImage
+public record struct ButtonBoxImage
 {
 	public LayerIdInfo ID { get; set; }
 	public ControllerStatus Status { get; set; }

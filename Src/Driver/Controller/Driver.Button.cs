@@ -15,23 +15,23 @@ public partial class Driver
 {
 	#region API
 	[JSInvokable]
-	public static string SetButtomBoxInfo(string json)
+	public static string SetButtonBoxInfo(string json)
 	{
-		var info = JsonSerializer.Deserialize<ButtomBoxInfo>(json, JsonConfig.Options);
-		return JsonSerializer.Serialize(SetButtomBoxInfo(info), JsonConfig.Options);
+		var info = JsonSerializer.Deserialize<ButtonBoxInfo>(json, JsonConfig.Options);
+		return JsonSerializer.Serialize(SetButtonBoxInfo(info), JsonConfig.Options);
 	}
 
 	[JSInvokable]
-	public static string SetButtomBoxImage(string json)
+	public static string SetButtonBoxImage(string json)
 	{
 		var info = JsonSerializer.Deserialize<ImageBoxImage>(json, JsonConfig.Options);
-		return JsonSerializer.Serialize(SetButtomBoxImage(info), JsonConfig.Options);
+		return JsonSerializer.Serialize(SetButtonBoxImage(info), JsonConfig.Options);
 	}
 	#endregion
 
 
 	#region Driect
-	public static Response SetButtomBoxInfo(ButtomBoxInfo info)
+	public static Response SetButtonBoxInfo(ButtonBoxInfo info)
 	{
 		Response response;
 		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
@@ -46,7 +46,7 @@ public partial class Driver
 		}
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
-		if (layer is ControllerButtom buttomBox)
+		if (layer is ControllerButton buttomBox)
 		{
 			if (_resourceManager.CheckImage(info.NormalImage.ImageName))
 				buttomBox.SetImage(_resourceManager.GetImage(info.NormalImage.ImageName), info.NormalImage.SubRect, 0);
@@ -70,7 +70,7 @@ public partial class Driver
 		return response;
 	}
 
-	public static Response SetButtomBoxImage(ImageBoxImage info)
+	public static Response SetButtonBoxImage(ImageBoxImage info)
 	{
 		Response response = new();
 		return response;
