@@ -42,9 +42,9 @@ public partial class Driver
 			return;
 		foreach (var (layoutID, layout) in _layoutManager.Layouts)
 		{
-			Console.WriteLine("Layout : " + layoutID + " : ");
+			Logger.LogInfo("Layout : " + layoutID + " : ");
 			foreach (var (layerID, layer) in layout.Layers)
-				Console.WriteLine($"\t Layer : {layerID} : {layer}");
+				Logger.LogInfo($"\t Layer : {layerID} : {layer}");
 		}
 	}
 

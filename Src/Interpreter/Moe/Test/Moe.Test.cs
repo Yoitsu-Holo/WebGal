@@ -1,6 +1,5 @@
 using WebGal.API;
 using WebGal.API.Data;
-using WebGal.Global;
 using WebGal.Handler.Event;
 
 namespace WebGal.MeoInterpreter;
@@ -36,7 +35,6 @@ public partial class MoeInterpreter
 				new() { LayoutID = 0, },
 				(value) =>
 				{
-					Console.WriteLine("123");
 					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { OnCLick(); return true; }
 					return false;
 				}

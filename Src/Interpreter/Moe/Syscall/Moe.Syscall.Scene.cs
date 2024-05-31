@@ -29,7 +29,6 @@ public partial class MoeInterpreter
 
 	public static void OnCLick()
 	{
-		Console.WriteLine("");
 		_activeSceneList.SceneId = _activeSceneList.NextSceneID;
 		LoadScene(_activeSceneList.SceneId);
 	}
@@ -40,20 +39,27 @@ public partial class MoeInterpreter
 
 		foreach (Behave behave in scene.Behaves)
 		{
-			string funcName = behave.Func;
-			Dictionary<string, MoeVariable> paramList = [];
+			FunctionCallNode funcCall = new()
+			{
+				CallType = FuncCallType.Keyword,
+				FunctionName = behave.Func,
+			};
+
 			foreach (var (key, value) in behave.Param)
 			{
+				ExpressionNode exp = new();
 				if (value is int ivalue)
-					paramList[key] = ivalue;
+					exp.Tokens.Add(new() { Type = OperatorType.Number, Number = ivalue });
 				else if (value is float fvalue)
-					paramList[key] = fvalue;
+					exp.Tokens.Add(new() { Type = OperatorType.Number, Number = fvalue });
 				else if (value is string svalue)
-					paramList[key] = svalue;
+					exp.Tokens.Add(new() { Type = OperatorType.String, String = svalue });
 				else
 					throw new Exception("错误的输入类型");
+				funcCall.KeywordParams[key] = exp;
 			}
-			Call(funcName, paramList);
+
+			Call(funcCall);
 		}
 	}
 }

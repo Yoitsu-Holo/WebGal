@@ -44,8 +44,8 @@ public partial class MoeInterpreter
 
 	public static object Call(FunctionCallNode function) // 调用函数
 	{
-		if (ActiveTasks.Count == 0)
-			throw new Exception(Logger.LogMessage("任务栈未初始化"));
+		//! if (ActiveTasks.Count == 0)
+		//! 	throw new Exception(Logger.LogMessage("任务栈未初始化"));
 
 		// 系统调用，只能关键字传参
 		if (function.FunctionName[0] == '_')
@@ -78,25 +78,6 @@ public partial class MoeInterpreter
 			}
 		}
 		return Call(funcntionNode, paramList);
-	}
-
-	public static object? Call(string funcName, Dictionary<string, MoeVariable> paramList)
-	{
-		if (funcName[0] == '_')
-			return UserCall(funcName[1..], paramList);
-
-		List<MoeVariable> parameters = [];
-		FuncntionNode funcntionNode = Functions[funcName];
-		List<MoeVariable> CallParam = funcntionNode.Header.CallParam;
-		foreach (var param in CallParam)
-		{
-			string paramName = param.Name;
-			if (paramList.TryGetValue(paramName, out MoeVariable? variable))
-				parameters.Add(variable);
-			else
-				parameters.Add(new MoeVariable(MoeVariableAccess.Const, param.Type));
-		}
-		return Call(funcntionNode, parameters);
 	}
 
 	public static object? UserCall(string usercall, Dictionary<string, MoeVariable> paramList)
@@ -301,8 +282,6 @@ public partial class MoeInterpreter
 			frame.PC.Push(0);
 			frame.CodeBlock.Push(loop.Program);
 			frame.BlockVarName.Push([]);
-
-			// Log.LogInfo("循环解析", Global.LogLevel.Todo);
 		}
 		else if (ast.ASTType == ASTNodeType.LoopControl && ast.LoopControl is not null)
 		{

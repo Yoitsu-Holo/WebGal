@@ -170,6 +170,8 @@ public class ExpressionToken
 			ret += " )";
 		else if (Type == OperatorType.Number)
 			ret += $"{((Number is int v) ? v : ((float)Number))}";
+		else if (Type == OperatorType.String)
+			ret += $"{String}";
 		else if (Type == OperatorType.Variable)
 			ret += $"{Var}";
 		else

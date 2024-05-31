@@ -51,10 +51,8 @@ public class Layout : HandlerBase
 	public void ProcessEvent(EventArgs eventArgs)
 	{
 		foreach (var (_, layer) in Layers)
-		{
 			if (layer.DoAction(eventArgs))
-				break;
-		}
+				return;
 		TriggerEvent(eventArgs);
 	}
 }

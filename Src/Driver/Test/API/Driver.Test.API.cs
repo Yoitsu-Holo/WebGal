@@ -143,7 +143,7 @@ public partial class Driver
 					Request = RequestType.Set,
 					Attribute = new()
 					{
-						Type = "ControllerButtom",
+						Type = "ControllerButton",
 						Position = new(870, 400),
 						Size = new(316, 45),
 						ID = new() { LayoutID = _gameLayout, LayerID = 4, },
@@ -205,9 +205,9 @@ public partial class Driver
 
 			//! 设置按钮
 			{
-				Console.WriteLine("Set Buttom Layer:4 ...");
+				Console.WriteLine("Set Button Layer:4 ...");
 
-				ButtonBoxInfo buttom = new()
+				ButtonBoxInfo button = new()
 				{
 					ID = new() { LayoutID = _gameLayout, LayerID = 4, },
 					NormalImage = new() { ImageName = "title", SubRect = new(1, 723, 316, 45), },
@@ -215,7 +215,7 @@ public partial class Driver
 					PressedImage = new() { ImageName = "title", SubRect = new(641, 723, 316, 45), },
 				};
 
-				string result = SetButtonBoxInfo(JsonSerializer.Serialize(buttom, JsonConfig.Options));
+				string result = SetButtonBoxInfo(JsonSerializer.Serialize(button, JsonConfig.Options));
 				if (JsonSerializer.Deserialize<Response>(result, JsonConfig.Options).Type != ResponseType.Success)
 					return result;
 

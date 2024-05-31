@@ -84,6 +84,6 @@ public partial class Driver
 	public static void StackTraceTest()
 	{
 		var trace = new System.Diagnostics.StackTrace();
-		Console.WriteLine("Stack Trace: \n" + trace.ToString());
+		Logger.LogInfo("Stack Trace: \n" + trace.ToString());
 	}
 }

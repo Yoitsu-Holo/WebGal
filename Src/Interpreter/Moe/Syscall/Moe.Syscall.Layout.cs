@@ -133,7 +133,7 @@ public partial class MoeInterpreter
 				URL = _elfHeader.Files[focused].URL,
 			});
 
-			ButtonBoxInfo buttom = new()
+			ButtonBoxInfo button = new()
 			{
 				ID = new() { LayoutID = layout, LayerID = layer, },
 				NormalImage = new() { ImageName = normal },
@@ -141,7 +141,7 @@ public partial class MoeInterpreter
 				PressedImage = new() { ImageName = pressed },
 				FocusedImage = new() { ImageName = focused },
 			};
-			Driver.SetButtonBoxInfo(buttom);
+			Driver.SetButtonBoxInfo(button);
 		}
 
 		public static async void SetSliderBox(
@@ -180,7 +180,7 @@ public partial class MoeInterpreter
 				URL = _elfHeader.Files[focused].URL,
 			});
 
-			SliderBoxInfo buttom = new()
+			SliderBoxInfo button = new()
 			{
 				ID = new() { LayoutID = layout, LayerID = layer, },
 				TrackImage = new() { ImageName = track },
@@ -189,7 +189,7 @@ public partial class MoeInterpreter
 				PressedImage = new() { ImageName = pressed },
 				FocusedImage = new() { ImageName = focused },
 			};
-			Driver.SetSliderBoxInfo(buttom);
+			Driver.SetSliderBoxInfo(button);
 		}
 	}
 }

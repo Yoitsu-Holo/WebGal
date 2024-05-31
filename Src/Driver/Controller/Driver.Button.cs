@@ -46,19 +46,19 @@ public partial class Driver
 		}
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
-		if (layer is ControllerButton buttomBox)
+		if (layer is ControllerButton buttonBox)
 		{
 			if (_resourceManager.CheckImage(info.NormalImage.ImageName))
-				buttomBox.SetImage(_resourceManager.GetImage(info.NormalImage.ImageName), info.NormalImage.SubRect, 0);
+				buttonBox.SetImage(_resourceManager.GetImage(info.NormalImage.ImageName), info.NormalImage.SubRect, 0);
 
 			if (_resourceManager.CheckImage(info.HoverImage.ImageName))
-				buttomBox.SetImage(_resourceManager.GetImage(info.HoverImage.ImageName), info.HoverImage.SubRect, 1);
+				buttonBox.SetImage(_resourceManager.GetImage(info.HoverImage.ImageName), info.HoverImage.SubRect, 1);
 
 			if (_resourceManager.CheckImage(info.PressedImage.ImageName))
-				buttomBox.SetImage(_resourceManager.GetImage(info.PressedImage.ImageName), info.PressedImage.SubRect, 2);
+				buttonBox.SetImage(_resourceManager.GetImage(info.PressedImage.ImageName), info.PressedImage.SubRect, 2);
 
 			if (_resourceManager.CheckImage(info.FocusedImage.ImageName))
-				buttomBox.SetImage(_resourceManager.GetImage(info.FocusedImage.ImageName), info.FocusedImage.SubRect, 3);
+				buttonBox.SetImage(_resourceManager.GetImage(info.FocusedImage.ImageName), info.FocusedImage.SubRect, 3);
 		}
 		else
 		{

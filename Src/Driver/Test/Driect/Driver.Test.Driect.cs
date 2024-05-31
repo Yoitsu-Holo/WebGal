@@ -54,16 +54,16 @@ public partial class Driver
 				_layoutManager.Layouts[_menuLayout] = new();
 
 			//! 
-			ControllerButton buttom = new()
+			ControllerButton button = new()
 			{
 				Size = new(316, 45),
 				Position = new(1280 / 2, 720 / 2),
 				Offset = new(-316 / 2, -45 / 2),
 			};
-			buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(1, 723, 316, 45), 0);
-			buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(321, 723, 316, 45), 1);
-			buttom.SetImage(_resourceManager!.GetImage("title"), new IRect(641, 723, 316, 45), 2);
-			_layoutManager.Layouts[_menuLayout].Layers[1] = buttom;
+			button.SetImage(_resourceManager!.GetImage("title"), new IRect(1, 723, 316, 45), 0);
+			button.SetImage(_resourceManager!.GetImage("title"), new IRect(321, 723, 316, 45), 1);
+			button.SetImage(_resourceManager!.GetImage("title"), new IRect(641, 723, 316, 45), 2);
+			_layoutManager.Layouts[_menuLayout].Layers[1] = button;
 
 
 			//!
