@@ -25,17 +25,17 @@ public partial class MoeInterpreter
 			Call(Functions[_elfHeader.Start], []);
 
 			// 加载场景
-			ParseScene("sss");
-			ParseScene("ch-1");
-			SetSceneList("sss");
-			LoadScene(0);
+			Syscall.ParseScene("sss");
+			Syscall.ParseScene("ch-1");
+			Syscall.SetSceneList("sss");
+			Syscall.LoadScene(0);
 
 			// 注册事件
 			Driver.RegisteLayoutAction(
 				new() { LayoutID = 0, },
 				(value) =>
 				{
-					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { OnCLick(); return true; }
+					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { Syscall.OnCLick(); return true; }
 					return false;
 				}
 			);

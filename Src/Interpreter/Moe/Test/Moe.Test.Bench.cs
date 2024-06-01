@@ -67,12 +67,9 @@ public partial class MoeInterpreter
 
 		public static async Task ScriptBench()
 		{
-			GVariables["a"] = 1;
-			GVariables["b"] = 2;
-			GVariables["c"] = 0;
-			GVariables["a"].Access = MoeVariableAccess.Variable;
-			GVariables["b"].Access = MoeVariableAccess.Variable;
-			GVariables["c"].Access = MoeVariableAccess.Variable;
+			GVariables["a"][0] = 1;
+			GVariables["b"][0] = 2;
+			GVariables["c"][0] = 0;
 
 			await Task.Run(() => { });
 			#region Func Call Test

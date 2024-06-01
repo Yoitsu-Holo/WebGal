@@ -73,14 +73,5 @@ public partial class MoeInterpreter
 			};
 			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
-
-		public static void BG(MoeVariable file, MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height)
-		{ SetImageBox(0, 0, file, subx, suby, width, height); }
-
-		public static void TEXT(MoeVariable name, MoeVariable text)
-		{
-			SetTextBox(0, 3, text, "simhei", 30);
-			SetTextBox(0, 4, name, "simhei", 30);
-		}
 	}
 }

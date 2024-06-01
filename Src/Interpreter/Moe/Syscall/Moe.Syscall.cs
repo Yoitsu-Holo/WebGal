@@ -37,8 +37,5 @@ public partial class MoeInterpreter
 		public static void LoadScene(MoeVariable sceneID)
 		{
 		}
-
-
-
 	}
 }

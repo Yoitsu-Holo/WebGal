@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebGal.Extend.Json;
@@ -69,43 +70,63 @@ public class MoeFile()
 
 public class MoeVariable : ICloneable
 {
-	// 默认全为连续内存数组，不同维度的访问放置在 dimension 中
 	public string Name = "";
-	public MoeVariableAccess Access;
-	public MoeVariableType Type;
+	public MoeVariableAccess Access { get; private set; } = MoeVariableAccess.Const;
+	public MoeVariableType Type { get; private set; } = MoeVariableType.Void;
 	public object? Obj;
 
 	private List<int> dimension = [];
-
 	public int Size { get; private set; } = 0;
+	private bool _dirty = true;
+
 	public List<int> Dimension
 	{
 		private get { return dimension; }
 		set
 		{
 			int totalSize = 1;
-			if (value.Count == 0)
-				value.Add(1);
+			if (value.Count == 0) value.Add(1);
 			dimension = value;
-			foreach (var size in value)
-				totalSize *= size;
-			// Size = Size;
+			foreach (var size in value) totalSize *= size;
 			Size = totalSize;
 		}
 	}
 
-	public MoeVariable() { }
+	public MoeVariable() { _dirty = true; }
+
+	public MoeVariable(object obj)
+	{
+		Access = MoeVariableAccess.Const;
+		Dimension = [1];
+		if (obj is int ivalue)
+		{
+			Type = MoeVariableType.Int;
+			Init();
+			this[0] = ivalue;
+		}
+		else if (obj is float fvalue)
+		{
+			Type = MoeVariableType.Int;
+			Init();
+			this[0] = fvalue;
+		}
+		else if (obj is string svalue)
+		{
+			Type = MoeVariableType.Int;
+			Init();
+			this[0] = svalue;
+		}
+		_dirty = true;
+	}
 
 	public MoeVariable(MoeVariableAccess access, MoeVariableType type)
 	{
-		Name = GetHashCode().ToString();
 		Type = type;
 		Access = access;
-		Dimension = [1];
-		Init();
+		_dirty = true;
 	}
 
-	public void Init()
+	private void Init()
 	{
 		Obj = Type switch
 		{
@@ -114,14 +135,7 @@ public class MoeVariable : ICloneable
 			MoeVariableType.String => new string[Size],
 			_ => throw new Exception(""),
 		};
-
-		this[0] = Type switch
-		{
-			MoeVariableType.Int => 0,
-			MoeVariableType.Float => 0,
-			MoeVariableType.String => "",
-			_ => throw new Exception(""),
-		};
+		_dirty = false;
 	}
 
 	public override string ToString()
@@ -133,6 +147,8 @@ public class MoeVariable : ICloneable
 
 	public object Clone()
 	{
+		if (_dirty) Init();
+
 		MoeVariable copy = new()
 		{
 			Access = Access,
@@ -162,9 +178,9 @@ public class MoeVariable : ICloneable
 	{
 		get
 		{
+			if (_dirty) Init();
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count == 0)
-				index.Add(0);
+			if (index.Count == 0) index.Add(0);
 			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
 			int pos = 0;
@@ -185,9 +201,9 @@ public class MoeVariable : ICloneable
 		}
 		set
 		{
+			if (_dirty) Init();
 			if (Obj is null) throw new Exception("Enpty Object");
-			if (index.Count == 0)
-				index.Add(0);
+			if (index.Count == 0) index.Add(0);
 			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
 			int pos = 0;
@@ -213,6 +229,7 @@ public class MoeVariable : ICloneable
 	{
 		get
 		{
+			if (_dirty) Init();
 			if (Obj is null) throw new Exception("Enpty Object");
 			if (index < 0 || index >= Dimension[^1]) throw new IndexOutOfRangeException();
 
@@ -227,6 +244,7 @@ public class MoeVariable : ICloneable
 		}
 		set
 		{
+			if (_dirty) Init();
 			if (Obj is null) throw new Exception("Enpty Object");
 			if (index < 0 || index >= Dimension[^1]) throw new IndexOutOfRangeException();
 
@@ -241,35 +259,31 @@ public class MoeVariable : ICloneable
 		}
 	}
 
-	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int) ? (int)variable[0] : 0;
-	public static implicit operator float(MoeVariable variable) => (variable.Type == MoeVariableType.Float) ? (float)variable[0] : 0.0f;
-	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String) ? (string)variable[0] : "";
+	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int)variable[0] : 0;
+	public static implicit operator float(MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable.Obj is not null) ? (float)variable[0] : 0.0f;
+	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string)variable[0] : "";
 	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int[])variable.Obj : [];
 	public static implicit operator float[](MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable.Obj is not null) ? (float[])variable.Obj : [];
 	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string[])variable.Obj : [];
 
 	public static implicit operator MoeVariable(int value)
 	{
-		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Int, Dimension = [1] };
-		ret.Init();
+		MoeVariable ret = new(MoeVariableAccess.Const, MoeVariableType.Int) { Dimension = [1] };
 		ret[0] = value;
 		return ret;
 	}
 	public static implicit operator MoeVariable(float value)
 	{
-		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.Float, Dimension = [1] };
-		ret.Init();
+		MoeVariable ret = new(MoeVariableAccess.Const, MoeVariableType.Float) { Dimension = [1] };
 		ret[0] = value;
 		return ret;
 	}
 	public static implicit operator MoeVariable(string value)
 	{
-		MoeVariable ret = new() { Access = MoeVariableAccess.Const, Type = MoeVariableType.String, Dimension = [1] };
-		ret.Init();
+		MoeVariable ret = new(MoeVariableAccess.Const, MoeVariableType.String) { Dimension = [1] };
 		ret[0] = value;
 		return ret;
 	}
-
 }
 
 // 栈帧

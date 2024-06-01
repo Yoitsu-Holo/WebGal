@@ -417,11 +417,9 @@ public partial class MoeInterpreter
 					break;
 			}
 
-			MoeVariable variable = new()
+			MoeVariable variable = new(info.Access, info.Type)
 			{
 				Name = tempToken[0].Value,
-				Access = info.Access,
-				Type = info.Type,
 				Dimension = VarDimension(tempToken[1..].GetEnumerator()),
 			};
 			ret.Variables.Add(variable);
@@ -443,11 +441,9 @@ public partial class MoeInterpreter
 
 				if (token.Type == TokenType.VarDelimiter)
 				{
-					MoeVariable variable = new()
+					MoeVariable variable = new(info.Access, info.Type)
 					{
 						Name = tempToken[0].Value,
-						Access = info.Access,
-						Type = info.Type,
 						Dimension = VarDimension(tempToken[1..].GetEnumerator()),
 					};
 					ret.Variables.Add(variable);
@@ -456,11 +452,9 @@ public partial class MoeInterpreter
 			}
 			if (tempToken.Count != 0)
 			{
-				MoeVariable variable = new()
+				MoeVariable variable = new(info.Access, info.Type)
 				{
 					Name = tempToken[0].Value,
-					Access = info.Access,
-					Type = info.Type,
 					Dimension = VarDimension(tempToken[1..].GetEnumerator()),
 				};
 				ret.Variables.Add(variable);
