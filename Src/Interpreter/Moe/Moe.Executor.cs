@@ -18,10 +18,14 @@ public partial class MoeInterpreter
 			return new();
 		}
 
+		Console.WriteLine(function.Header);
 		for (int i = 0; i < header.CallParam.Count; i++)
 		{
 			if (header.CallParam[i].Type == paramList[i].Type)
-				frame.LVariable[header.CallParam[i].Name] = (MoeVariable)paramList[i].Clone();
+			{
+				frame.LVariable[header.CallParam[i].Name] = new();
+				frame.LVariable[header.CallParam[i].Name].CloneFrom(paramList[i]);
+			}
 			else if (paramList[i].Type == MoeVariableType.Void)
 				continue;
 			else
@@ -181,7 +185,9 @@ public partial class MoeInterpreter
 				}
 
 				frame.BlockVarName.Peek().Add(variable.Name);
-				frame.LVariable.Add(variable.Name, (MoeVariable)variable.Clone());
+				MoeVariable lvar = new();
+				lvar.CloneFrom(variable);
+				frame.LVariable.Add(variable.Name, lvar);
 			}
 		}
 		else if (ast.ASTType == ASTNodeType.Assignment && ast.Assignment is not null)
@@ -286,12 +292,9 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.Return && ast.Return is not null)
 		{
-			// Logger.LogInfo("Return exe todo", Global.LogLevel.Todo);
 			object obj = ExpressionsExecutor.Parse(ast.Return.ReturnExp);
-			if (obj is int iobj) frame.ReturnData = new(iobj);
-			else if (obj is int fobj) frame.ReturnData = new(fobj);
-			else if (obj is int sobj) frame.ReturnData = new(sobj);
-			Console.WriteLine($"{obj}");
+			frame.ReturnData = new(obj);
+			// Console.WriteLine($"{obj} : {frame.ReturnData[0]}");
 		}
 		else
 			Logger.LogInfo($"这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);

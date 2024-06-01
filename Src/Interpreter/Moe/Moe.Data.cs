@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebGal.Extend.Json;
+using WebGal.Global;
 using WebGal.Types;
 
 namespace WebGal.MeoInterpreter;
@@ -68,27 +69,29 @@ public class MoeFile()
 	override public string ToString() => $"FileName: {Name}, \tFileType: {Type}, \tFileURL: {URL}";
 }
 
-public class MoeVariable : ICloneable
+public class MoeVariable
 {
 	public string Name = "";
+
+	private List<int> _dimension = [];
+	private bool _dirty = true;
+	private object? _obj;
+
 	public MoeVariableAccess Access { get; private set; } = MoeVariableAccess.Const;
 	public MoeVariableType Type { get; private set; } = MoeVariableType.Void;
-	public object? Obj;
-
-	private List<int> dimension = [];
 	public int Size { get; private set; } = 0;
-	private bool _dirty = true;
 
 	public List<int> Dimension
 	{
-		private get { return dimension; }
+		private get => _dimension;
 		set
 		{
 			int totalSize = 1;
 			if (value.Count == 0) value.Add(1);
-			dimension = value;
+			_dimension = value;
 			foreach (var size in value) totalSize *= size;
 			Size = totalSize;
+			_dirty = true;
 		}
 	}
 
@@ -97,26 +100,24 @@ public class MoeVariable : ICloneable
 	public MoeVariable(object obj)
 	{
 		Access = MoeVariableAccess.Const;
-		Dimension = [1];
 		if (obj is int ivalue)
 		{
 			Type = MoeVariableType.Int;
-			Init();
+			Dimension = [1];
 			this[0] = ivalue;
 		}
 		else if (obj is float fvalue)
 		{
-			Type = MoeVariableType.Int;
-			Init();
+			Type = MoeVariableType.Float;
+			Dimension = [1];
 			this[0] = fvalue;
 		}
 		else if (obj is string svalue)
 		{
-			Type = MoeVariableType.Int;
-			Init();
+			Type = MoeVariableType.String;
+			Dimension = [1];
 			this[0] = svalue;
 		}
-		_dirty = true;
 	}
 
 	public MoeVariable(MoeVariableAccess access, MoeVariableType type)
@@ -128,12 +129,12 @@ public class MoeVariable : ICloneable
 
 	private void Init()
 	{
-		Obj = Type switch
+		_obj = Type switch
 		{
 			MoeVariableType.Int => new int[Size],
 			MoeVariableType.Float => new float[Size],
 			MoeVariableType.String => new string[Size],
-			_ => throw new Exception(""),
+			_ => new object[Size],
 		};
 		_dirty = false;
 	}
@@ -145,32 +146,46 @@ public class MoeVariable : ICloneable
 		return ret;
 	}
 
-	public object Clone()
+	public void CloneFrom(MoeVariable varibale)
 	{
-		if (_dirty) Init();
+		Access = varibale.Access;
+		Type = varibale.Type;
+		List<int> dimen = [];
+		foreach (var item in varibale.Dimension)
+			dimen.Add(item);
+		Dimension = dimen;
+		Init();
+		for (int i = 0; i < Size; i++)
+			this[i] = varibale[i];
+	}
 
-		MoeVariable copy = new()
+	public void CopyFrom(MoeVariable varibale)
+	{
+		Type = varibale.Type;
+		_dimension.Clear();
+		foreach (var item in varibale.Dimension)
+			_dimension.Add(item);
+		Init();
+		for (int i = 0; i < Size; i++)
+			this[i] = varibale[i];
+	}
+
+	public void RefFrom(MoeVariable varibale)
+	{
+		if (varibale.Access == MoeVariableAccess.Const && Access != MoeVariableAccess.Const)
 		{
-			Access = Access,
-			Type = Type,
-			Name = (string)Name.Clone(),
-			Size = Size,
-			Obj = Type switch
-			{
-				MoeVariableType.Int => new int[Size],
-				MoeVariableType.Float => new float[Size],
-				MoeVariableType.String => new string[Size],
-				_ => throw new Exception($"Could not be a variable type {Type}"),
-			}
-		};
+			Logger.LogInfo("不能将常量类型引用到非常量", Global.LogLevel.Warning);
+			return;
+		}
+		if (varibale.Type != Type)
+		{
+			Logger.LogInfo("不能将非相同类型变量引用", Global.LogLevel.Warning);
+			return;
+		}
 
-		foreach (var item in Dimension)
-			copy.Dimension.Add(item);
-
-		if (Obj is not null)
-			for (int i = 0; i < Size; i++)
-				copy[i] = this[i];
-		return copy;
+		Dimension = varibale.Dimension;
+		Init();
+		_obj = varibale._obj;
 	}
 
 	// 通常情况下使用
@@ -179,7 +194,7 @@ public class MoeVariable : ICloneable
 		get
 		{
 			if (_dirty) Init();
-			if (Obj is null) throw new Exception("Enpty Object");
+			if (_obj is null) throw new Exception("Enpty Object");
 			if (index.Count == 0) index.Add(0);
 			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
@@ -193,16 +208,16 @@ public class MoeVariable : ICloneable
 			return Type switch
 			{
 				MoeVariableType.Void => throw new Exception("Unknow Error"),
-				MoeVariableType.Int => ((int[])Obj)[pos],
-				MoeVariableType.Float => ((float[])Obj)[pos],
-				MoeVariableType.String => ((string[])Obj)[pos],
+				MoeVariableType.Int => ((int[])_obj)[pos],
+				MoeVariableType.Float => ((float[])_obj)[pos],
+				MoeVariableType.String => ((string[])_obj)[pos],
 				_ => throw new Exception("Unknow Error"),
 			};
 		}
 		set
 		{
 			if (_dirty) Init();
-			if (Obj is null) throw new Exception("Enpty Object");
+			if (_obj is null) throw new Exception("Enpty Object");
 			if (index.Count == 0) index.Add(0);
 			if (index.Count != Dimension.Count) throw new IndexOutOfRangeException($"{ToString()} {index.Count}:{Dimension.Count}");
 
@@ -216,9 +231,9 @@ public class MoeVariable : ICloneable
 			switch (Type)
 			{
 				case MoeVariableType.Void: throw new Exception("Unknow Error");
-				case MoeVariableType.Int: ((int[])Obj)[pos] = (int)value; break;
-				case MoeVariableType.Float: ((float[])Obj)[pos] = (float)value; break;
-				case MoeVariableType.String: ((string[])Obj)[pos] = (string)value; break;
+				case MoeVariableType.Int: ((int[])_obj)[pos] = (int)value; break;
+				case MoeVariableType.Float: ((float[])_obj)[pos] = (float)value; break;
+				case MoeVariableType.String: ((string[])_obj)[pos] = (string)value; break;
 				default: throw new Exception("Unknow Error");
 			};
 		}
@@ -230,41 +245,41 @@ public class MoeVariable : ICloneable
 		get
 		{
 			if (_dirty) Init();
-			if (Obj is null) throw new Exception("Enpty Object");
+			if (_obj is null) throw new Exception("Enpty Object");
 			if (index < 0 || index >= Dimension[^1]) throw new IndexOutOfRangeException();
 
 			return Type switch
 			{
 				MoeVariableType.Void => throw new Exception("Unknow Error"),
-				MoeVariableType.Int => ((int[])Obj)[index],
-				MoeVariableType.Float => ((float[])Obj)[index],
-				MoeVariableType.String => ((string[])Obj)[index],
+				MoeVariableType.Int => ((int[])_obj)[index],
+				MoeVariableType.Float => ((float[])_obj)[index],
+				MoeVariableType.String => ((string[])_obj)[index],
 				_ => throw new Exception("Unknow Error"),
 			};
 		}
 		set
 		{
 			if (_dirty) Init();
-			if (Obj is null) throw new Exception("Enpty Object");
+			if (_obj is null) throw new Exception("Enpty Object");
 			if (index < 0 || index >= Dimension[^1]) throw new IndexOutOfRangeException();
 
 			switch (Type)
 			{
 				case MoeVariableType.Void: throw new Exception("Unknow Error");
-				case MoeVariableType.Int: ((int[])Obj)[index] = (int)value; break;
-				case MoeVariableType.Float: ((float[])Obj)[index] = (float)value; break;
-				case MoeVariableType.String: ((string[])Obj)[index] = (string)value; break;
+				case MoeVariableType.Int: ((int[])_obj)[index] = (int)value; break;
+				case MoeVariableType.Float: ((float[])_obj)[index] = (float)value; break;
+				case MoeVariableType.String: ((string[])_obj)[index] = (string)value; break;
 				default: throw new Exception("Unknow Error");
 			};
 		}
 	}
 
-	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int)variable[0] : 0;
-	public static implicit operator float(MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable.Obj is not null) ? (float)variable[0] : 0.0f;
-	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string)variable[0] : "";
-	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable.Obj is not null) ? (int[])variable.Obj : [];
-	public static implicit operator float[](MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable.Obj is not null) ? (float[])variable.Obj : [];
-	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable.Obj is not null) ? (string[])variable.Obj : [];
+	public static implicit operator int(MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable._obj is not null) ? (int)variable[0] : 0;
+	public static implicit operator float(MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable._obj is not null) ? (float)variable[0] : 0.0f;
+	public static implicit operator string(MoeVariable variable) => (variable.Type == MoeVariableType.String && variable._obj is not null) ? (string)variable[0] : "";
+	public static implicit operator int[](MoeVariable variable) => (variable.Type == MoeVariableType.Int && variable._obj is not null) ? (int[])variable._obj : [];
+	public static implicit operator float[](MoeVariable variable) => (variable.Type == MoeVariableType.Float && variable._obj is not null) ? (float[])variable._obj : [];
+	public static implicit operator string[](MoeVariable variable) => (variable.Type == MoeVariableType.String && variable._obj is not null) ? (string[])variable._obj : [];
 
 	public static implicit operator MoeVariable(int value)
 	{
