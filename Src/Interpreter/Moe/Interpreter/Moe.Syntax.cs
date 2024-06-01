@@ -241,6 +241,16 @@ public partial class MoeInterpreter
 					node.FunctionCall = ParseFunctionCall(statement, preWhile);
 					programNode.Statements.Add(node);
 				}
+				else if (tokens[0].Type == TokenType.Return)
+				{
+					//* 函数返回
+					node.ASTType = ASTNodeType.Return;
+					node.Return = new()
+					{
+						ReturnExp = ParseExpression(new DoubleEndEnumerator<Token>(tokens[1..])),
+					};
+					programNode.Statements.Add(node);
+				}
 				else
 				{
 					string error = "";
@@ -308,7 +318,8 @@ public partial class MoeInterpreter
 			if (expTokens.Count >= 2 && expTokens[0].Type == TokenType.FuncName)
 			{
 				Logger.LogInfo("Function call is todo", Global.LogLevel.Todo);
-				assignment.FuncCall = new();
+				Statement statement = new() { Tokens = expTokens };
+				assignment.FuncCall = ParseFunctionCall(statement, preWhile);
 			}
 			else if (preTokens[0].Type == TokenType.VarName)
 			{

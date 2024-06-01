@@ -180,7 +180,7 @@ public partial class MoeInterpreter
 					ret.Type = value switch
 					{
 						"func" => TokenType.Function,
-						"retuen" => TokenType.Return,
+						"return" => TokenType.Return,
 						"while" => TokenType.WHILE,
 						"continue" => TokenType.CONTINUE,
 						"break" => TokenType.BREAK,

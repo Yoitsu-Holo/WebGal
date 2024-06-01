@@ -114,6 +114,7 @@ public enum ASTNodeType
 	Assignment,
 	FunctionCall,
 	Program,
+	Return,
 	Error,
 }
 
@@ -247,6 +248,8 @@ public class AssignmentNode
 		ret += LeftVar + " = ";
 		if (RightExp is not null)
 			ret += RightExp;
+		else if (FuncCall is not null)
+			ret += FuncCall;
 		else
 			throw new Exception("未初始化表达式");
 		ret += "\n";
@@ -314,6 +317,16 @@ public class ProgramNode // 程序段（由多个并列的可解释单元组成�
 	}
 }
 
+public class ReturnNode
+{
+	public ExpressionNode ReturnExp = new();
+
+	public override string ToString()
+	{
+		return "Return: " + ReturnExp.ToString();
+	}
+}
+
 public class ASTNode // 可解释单元，执行器唯一可接受的结构
 {
 	public ASTNodeType ASTType = ASTNodeType.Void;
@@ -325,6 +338,7 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 	public LoopControlNode? LoopControl;    // 循环
 	public FunctionCallNode? FunctionCall;  // 函数调用
 	public ProgramNode? Program;           // 代码块
+	public ReturnNode? Return;
 
 	public override string ToString()
 	{
@@ -345,6 +359,8 @@ public class ASTNode // 可解释单元，执行器唯一可接受的结构
 			ret += LoopControl;
 		else if (ASTType == ASTNodeType.Program && Program is not null)
 			ret += Program;
+		else if (ASTType == ASTNodeType.Return && Return is not null)
+			ret += Return;
 		else
 			ret += ">>> error line\n";
 		return ret;

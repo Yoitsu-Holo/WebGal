@@ -36,9 +36,11 @@ public partial class MoeInterpreter
 		frame.CodeBlock.Push(body);
 		frame.BlockVarName.Push([]);
 
-		Run();
+		Run(ActiveTasks.Peek());
 		MoeVariable returnData = frame.ReturnData;
 		ActiveTasks.Pop();
+		if (returnData.Size != 0)
+			return returnData[0];
 		return returnData;
 	}
 
@@ -128,14 +130,10 @@ public partial class MoeInterpreter
 		return method.Invoke(null, args);
 	}
 
-	public static void Run() //运行代码块
+	public static void Run(MoeStackFrame frame) //运行代码块
 	{
-		while (ActiveTasks.Count > 0)
+		while (frame.PC.Count != 0)
 		{
-			MoeStackFrame frame = ActiveTasks.Peek();
-			if (frame.PC.Count == 0)
-				break;
-
 			int index = frame.PC.Peek();
 			ProgramNode now = frame.CodeBlock.Peek();
 
@@ -231,7 +229,7 @@ public partial class MoeInterpreter
 			else if (Right is string && Left.Type == MoeVariableType.String)
 				Left[index] = Right;
 			else
-				Logger.LogInfo($"变量类型不匹配 {Right.GetType()}{Right}:{Left.Type}", Global.LogLevel.Error);
+				Logger.LogInfo($"变量类型不匹配\nRight Type: {Right.GetType()}\n{Left} <:: {Right}", Global.LogLevel.Error);
 		}
 		else if (ast.ASTType == ASTNodeType.Conditional && ast.IfCase is not null)
 		{
@@ -291,8 +289,17 @@ public partial class MoeInterpreter
 		{
 			Call(ast.FunctionCall);
 		}
+		else if (ast.ASTType == ASTNodeType.Return && ast.Return is not null)
+		{
+			// Logger.LogInfo("Return exe todo", Global.LogLevel.Todo);
+			object obj = ExpressionsExecutor.Parse(ast.Return.ReturnExp);
+			if (obj is int iobj) frame.ReturnData = iobj;
+			else if (obj is int fobj) frame.ReturnData = fobj;
+			else if (obj is int sobj) frame.ReturnData = sobj;
+			Console.WriteLine($"{obj}");
+		}
 		else
-			Logger.LogInfo("这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
+			Logger.LogInfo($"这个 ast 节点总得有点错 {ast}", Global.LogLevel.Error);
 	}
 
 
