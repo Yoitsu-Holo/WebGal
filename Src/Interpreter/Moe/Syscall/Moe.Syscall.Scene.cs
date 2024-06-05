@@ -9,7 +9,7 @@ public partial class MoeInterpreter
 {
 	public partial class Syscall
 	{
-		public static void ParseScene(string sceneName)
+		public static void ParseSceneList(string sceneName)
 		{
 			Response response;
 			FileInfo elfFile = new()

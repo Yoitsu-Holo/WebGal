@@ -25,8 +25,7 @@ public partial class MoeInterpreter
 			Call(Functions[_elfHeader.Start], []);
 
 			// 加载场景
-			Syscall.ParseScene("sss");
-			Syscall.ParseScene("ch-1");
+			Syscall.ParseSceneList("sss");
 			Syscall.SetSceneList("sss");
 			Syscall.LoadScene(0);
 
