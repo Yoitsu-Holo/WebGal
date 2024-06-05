@@ -74,7 +74,7 @@ public partial class Test// : IDisposable
 		await Manager.ProcEvent(mouseEventCopy);
 		MouseStatusUpdate();
 		canvas.Clear();
-		Manager.Render(canvas, RenserConfig.ForceRender);
+		Manager.Render(canvas, RenderConfig.ForceRender);
 
 		RenderInfo.Record(NowTime.Minisecond - startMiniSecond);
 

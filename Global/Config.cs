@@ -19,13 +19,6 @@ public static class DriverCallMode
 	public const CallMode Mode = CallMode.Direct;
 }
 
-public static class RenserConfig
-{
-#pragma warning disable CA2211 // 非常量字段应当不可见
-	public static bool ForceRender = false;
-#pragma warning restore CA2211 // 非常量字段应当不可见
-}
-
 public static class SceneConfig
 {
 	#region Default Settings
@@ -38,6 +31,9 @@ public static class SceneConfig
 
 public static class RenderConfig
 {
+#pragma warning disable CA2211 // 非常量字段应当不可见
+	public static bool ForceRender = false;
+#pragma warning restore CA2211 // 非常量字段应当不可见
 	#region Default Settings
 	public static SKPaint DefaultTextPaint => new()
 	{
