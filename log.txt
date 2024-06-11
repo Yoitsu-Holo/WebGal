@@ -1,0 +1,29 @@
+
+Date:   Thu Jun 6 00:10:22 2024 +0800
+
+    ✨ feat: 修改ParseScene命名为ParseSceneList
+
+Date:   Thu Jun 6 00:09:22 2024 +0800
+
+    🦄 refactor: 升级.Net 8.0.6
+
+Date:   Sat Jun 1 17:02:04 2024 +0800
+
+    🦄 refactor: 重构MoeVariable结构 #2
+
+Date:   Sat Jun 1 16:04:14 2024 +0800
+
+    🦄 refactor: 重构MoeVariable结构
+
+Date:   Sat Jun 1 14:53:28 2024 +0800
+
+    ✨ feat: 添加脚本的函数返回值功能
+
+Date:   Sat Jun 1 00:46:12 2024 +0800
+
+    ✨ feat: 脚本添加字符串运算
+
+Date:   Sat Jun 1 00:10:32 2024 +0800
+
+    🦄 refactor: 修改脚本函数调用
+

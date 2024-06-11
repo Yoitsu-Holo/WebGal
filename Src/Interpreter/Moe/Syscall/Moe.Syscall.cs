@@ -13,12 +13,17 @@ public partial class MoeInterpreter
 		{
 			string s = "";
 			s += $"\t{variable}";
-			if (variable.Type == MoeVariableType.Int || variable.Type == MoeVariableType.Float)
-				for (int i = 0; i < variable.Size; i++)
-					s += $"{(i % 5 == 0 ? "\n" : "")}\t\tobj[{i}]: {variable[i]}";
-			else if (variable.Type == MoeVariableType.String)
-				for (int i = 0; i < variable.Size; i++)
-					s += $"{(i % 5 == 0 ? "\n" : "")}\t\tobj[{i}]: {variable[i]}";
+			for (int i = 0; i < variable.Size; i++)
+				s += $"{(i % 5 == 0 ? "\n" : "")}\t\tobj[{i}]: {variable[i]}";
+			Logger.LogInfo(s, Global.LogLevel.Info);
+		}
+
+		public static void LogLine(MoeVariable variable)
+		{
+			string s = "";
+			s += $"\t{variable} :: ";
+			for (int i = 0; i < variable.Size; i++)
+				s += $"{variable[i]} ";
 			Logger.LogInfo(s, Global.LogLevel.Info);
 		}
 

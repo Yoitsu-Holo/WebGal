@@ -54,4 +54,11 @@ public class Logger
 		else
 			await JsRuntime.InvokeVoidAsync("consoleLogger.logError", msg);
 	}
+
+	public static async void Alert(string msg)
+	{
+		if (JsRuntime == null)
+			throw new Exception("JS Runtime 未被设置");
+		await JsRuntime.InvokeVoidAsync("alert", msg);
+	}
 }

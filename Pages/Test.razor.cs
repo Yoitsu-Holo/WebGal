@@ -4,6 +4,7 @@ using Microsoft.JSInterop;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
+using WebGal.MeoInterpreter;
 using WebGal.Services;
 using WebGal.Types;
 
@@ -55,6 +56,7 @@ public partial class Test// : IDisposable
 		{
 			// await JSRuntime.InvokeVoidAsync("updateCanvasSize", "yourCanvasId", 0.5);
 			await Task.Run(() => { });
+			await MoeInterpreter.GameTestAsync();
 		}
 	}
 

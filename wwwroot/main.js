@@ -1,5 +1,5 @@
 window.getDimensions = function () {
-	var myDiv = document.getElementById('screnn');
+	let myDiv = document.getElementById('screnn');
 	return {
 		width: myDiv.clientWidth,
 		height: myDiv.clientHeight
