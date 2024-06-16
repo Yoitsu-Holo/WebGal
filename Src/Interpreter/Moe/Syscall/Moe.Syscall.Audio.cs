@@ -8,7 +8,14 @@ public partial class MoeInterpreter
 {
 	public partial class Syscall
 	{
-		public static async void BGM(MoeVariable file)
+		#region Syscall
+		public static void BGM(MoeVariable file) => RawBGM(file);
+		public static void VO(MoeVariable file) => RawVO(file);
+		public static void SE(MoeVariable file) => RawSE(file);
+		#endregion
+
+		#region RawSyscall
+		private static async void RawBGM(MoeVariable file)
 		{
 			FileInfo fileInfo = new()
 			{
@@ -30,7 +37,7 @@ public partial class MoeInterpreter
 			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
 
-		public static async void VO(MoeVariable file)
+		private static async void RawVO(MoeVariable file)
 		{
 			FileInfo fileInfo = new()
 			{
@@ -52,7 +59,7 @@ public partial class MoeInterpreter
 			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
 
-		public static async void SE(MoeVariable file)
+		private static async void RawSE(MoeVariable file)
 		{
 			FileInfo fileInfo = new()
 			{
@@ -73,5 +80,6 @@ public partial class MoeInterpreter
 			};
 			await Driver.SetAudioSimpleInfoAsync(audioInfo);
 		}
+		#endregion
 	}
 }

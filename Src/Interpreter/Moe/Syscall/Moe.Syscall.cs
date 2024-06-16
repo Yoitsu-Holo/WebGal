@@ -34,13 +34,5 @@ public partial class MoeInterpreter
 		public static void LoadOpera(MoeVariable operaID)
 		{
 		}
-
-		/// <summary>
-		/// 加载当前剧本的场景
-		/// </summary>
-		/// <param name="sceneID"> int: 场景ID </param>
-		public static void LoadScene(MoeVariable sceneID)
-		{
-		}
 	}
 }

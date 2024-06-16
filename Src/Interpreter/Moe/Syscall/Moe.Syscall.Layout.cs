@@ -8,22 +8,40 @@ public partial class MoeInterpreter
 {
 	public partial class Syscall
 	{
+		#region Syscall
 		public static void RegLayout(MoeVariable layout)
+			=> RawRegLayout(layout);
+		public static void SetLayout(MoeVariable layout)
+			=> RawSetLayout(layout);
+		public static void RegLayer(MoeVariable layout, MoeVariable layer, MoeVariable type, MoeVariable posx, MoeVariable posy, MoeVariable width, MoeVariable height)
+			=> RawRegLayer(layout, layer, type, posx, posy, width, height);
+		public static void SetImageBox(MoeVariable layout, MoeVariable layer, MoeVariable image, MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height)
+			=> RawSetImageBox(layout, layer, image, subx, suby, width, height);
+		public static void SetTextBox(MoeVariable layout, MoeVariable layer, MoeVariable text, MoeVariable font, MoeVariable size)
+			=> RawSetTextBox(layout, layer, text, font, size);
+		public static void SetColorBox(MoeVariable layout, MoeVariable layer, MoeVariable a, MoeVariable r, MoeVariable g, MoeVariable b)
+			=> RawSetColorBox(layout, layer, a, r, g, b);
+		public static void SetButtonBox(MoeVariable layout, MoeVariable layer, MoeVariable normal, MoeVariable hover, MoeVariable pressed, MoeVariable focused)
+			=> RawSetButtonBox(layout, layer, normal, hover, pressed, focused);
+		public static void SetSliderBox(MoeVariable layout, MoeVariable layer, MoeVariable track, MoeVariable normal, MoeVariable hover, MoeVariable pressed, MoeVariable focused)
+			=> RawSetSliderBox(layout, layer, track, normal, hover, pressed, focused);
+		#endregion
+
+
+		#region RawSyscall
+		private static void RawRegLayout(int layout)
 		{
 			LayerIdInfo layoutInfo = new() { LayoutID = layout, };
 			Driver.RegisteLayout(layoutInfo);
 		}
 
-		public static void SetLayout(MoeVariable layout)
+		private static void RawSetLayout(int layout)
 		{
 			LayerIdInfo layoutInfo = new() { LayoutID = layout, };
 			Driver.SetActiveLayout(layoutInfo);
 		}
 
-		public static void RegLayer(
-			MoeVariable layout, MoeVariable layer, MoeVariable type,
-			MoeVariable posx, MoeVariable posy, MoeVariable width, MoeVariable height
-		)
+		private static void RawRegLayer(int layout, int layer, string type, int posx, int posy, int width, int height)
 		{
 			LayerBox layerBox = new()
 			{
@@ -38,11 +56,7 @@ public partial class MoeInterpreter
 			Driver.RegisteLayer(layerBox);
 		}
 
-		public static async void SetImageBox(
-			MoeVariable layout, MoeVariable layer,
-			MoeVariable image,
-			MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height
-		)
+		private static async void RawSetImageBox(int layout, int layer, string image, int subx, int suby, int width, int height)
 		{
 			ImageBoxInfo imageBox = new()
 			{
@@ -64,10 +78,7 @@ public partial class MoeInterpreter
 			Driver.SetImageBoxInfo(imageBox);
 		}
 
-		public static async void SetTextBox(
-			MoeVariable layout, MoeVariable layer,
-			MoeVariable text, MoeVariable font, MoeVariable size
-		)
+		private static async void RawSetTextBox(int layout, int layer, string text, string font, int size)
 		{
 			TextBoxInfo textBox = new()
 			{
@@ -87,10 +98,7 @@ public partial class MoeInterpreter
 			Driver.SetTextBoxInfo(textBox);
 		}
 
-		public static void SetColorBox(
-			MoeVariable layout, MoeVariable layer,
-			MoeVariable a, MoeVariable r, MoeVariable g, MoeVariable b
-		)
+		private static void RawSetColorBox(int layout, int layer, int a, int r, int g, int b)
 		{
 			ColorBoxInfo colorBox = new()
 			{
@@ -103,10 +111,7 @@ public partial class MoeInterpreter
 			Driver.SetColorBoxInfo(colorBox);
 		}
 
-		public static async void SetButtonBox(
-			MoeVariable layout, MoeVariable layer,
-			MoeVariable normal, MoeVariable hover, MoeVariable pressed, MoeVariable focused
-		)
+		private static async void RawSetButtonBox(int layout, int layer, string normal, string hover, string pressed, string focused)
 		{
 			await Driver.PullFileAsync(new FileInfo()
 			{
@@ -144,10 +149,8 @@ public partial class MoeInterpreter
 			Driver.SetButtonBoxInfo(button);
 		}
 
-		public static async void SetSliderBox(
-			MoeVariable layout, MoeVariable layer,
-			MoeVariable track, MoeVariable normal, MoeVariable hover, MoeVariable pressed, MoeVariable focused
-		)
+
+		private static async void RawSetSliderBox(int layout, int layer, string track, string normal, string hover, string pressed, string focused)
 		{
 			await Driver.PullFileAsync(new FileInfo()
 			{
@@ -191,5 +194,6 @@ public partial class MoeInterpreter
 			};
 			Driver.SetSliderBoxInfo(button);
 		}
+		#endregion
 	}
 }

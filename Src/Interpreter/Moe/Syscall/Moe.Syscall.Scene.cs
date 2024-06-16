@@ -9,7 +9,18 @@ public partial class MoeInterpreter
 {
 	public partial class Syscall
 	{
-		public static void ParseSceneList(string sceneName)
+		#region Syscall
+		public static void ParseSceneList(MoeVariable sceneName) => RawParseSceneList(sceneName);
+		public static void SetSceneList(MoeVariable sceneName) => RawSetSceneList(sceneName);
+		public static void OnCLick() => RawOnCLick();
+		public static void LoadScene(MoeVariable sceneid) => RawLoadScene(sceneid);
+		public static void BG(MoeVariable file, MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height) => RawBG(file, subx, suby, width, height);
+		public static void TEXT(MoeVariable name, MoeVariable text) => RawTEXT(name, text);
+		#endregion
+
+		#region RawSyscall
+
+		private static void RawParseSceneList(string sceneName)
 		{
 			Response response;
 			FileInfo elfFile = new()
@@ -27,15 +38,15 @@ public partial class MoeInterpreter
 			_scenes[_elfHeader.Files[sceneName].Name] = scenes;
 		}
 
-		public static void SetSceneList(string sceneName) => _activeSceneList = _scenes[sceneName];
+		private static void RawSetSceneList(string sceneName) => _activeSceneList = _scenes[sceneName];
 
-		public static void OnCLick()
+		private static void RawOnCLick()
 		{
 			_activeSceneList.SceneId = _activeSceneList.NextSceneID;
 			LoadScene(_activeSceneList.SceneId);
 		}
 
-		public static void LoadScene(int sceneid = 0)
+		private static void RawLoadScene(int sceneid = 0)
 		{
 			Scene scene = _activeSceneList.Scenes[sceneid];
 
@@ -65,13 +76,14 @@ public partial class MoeInterpreter
 			}
 		}
 
-		public static void BG(MoeVariable file, MoeVariable subx, MoeVariable suby, MoeVariable width, MoeVariable height)
+		private static void RawBG(string file, int subx, int suby, int width, int height)
 		{ SetImageBox(0, 0, file, subx, suby, width, height); }
 
-		public static void TEXT(MoeVariable name, MoeVariable text)
+		private static void RawTEXT(string name, string text)
 		{
 			SetTextBox(0, 3, text, "simhei", 30);
 			SetTextBox(0, 4, name, "simhei", 30);
 		}
+		#endregion
 	}
 }
