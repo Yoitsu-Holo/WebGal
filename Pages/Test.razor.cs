@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using SkiaSharp;
 using SkiaSharp.Views.Blazor;
 using WebGal.Global;
 using WebGal.Handler.Event;
@@ -65,37 +66,32 @@ public partial class Test// : IDisposable
 		await Manager.Init(Game);
 	}
 
-	private async void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
+	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
-		await OnMouseMoveAsync();
+		// await JSRuntime.InvokeVoidAsync("console.log", 1);
+
+		_ = OnMouseMoveAsync();
 		long startMiniSecond = NowTime.Minisecond;
 
 		var mouseEventCopy = _mouseEvent;
 		var canvas = e.Surface.Canvas;
 
-		await Manager.ProcEvent(mouseEventCopy);
+		_ = Manager.ProcEvent(mouseEventCopy);
 		MouseStatusUpdate();
 		canvas.Clear();
 		Manager.Render(canvas, RenderConfig.ForceRender);
+		using SKPaint ballPaint = new()
+		{
+			Color = SKColors.Blue,
+			IsAntialias = true
+		};
+		canvas.DrawCircle(1300, 740, 10, ballPaint);
 
 		RenderInfo.Record(NowTime.Minisecond - startMiniSecond);
-
-		// int sec = DateTimeOffset.UtcNow.Second;
-		// if (sec != _lastSec)
-		// {
-		// 	_lastSec = sec;
-		// 	GameStatus.FPS = _frameCount;
-		// 	_frameCount = 0;
-		// 	await InvokeAsync(StateHasChanged);
-		// }
-		// _frameCount++;
-
-
-		// GameStatus.FrameTime = (int)(NowTime.Minisecond - startMiniSecond);
-		// GameStatus.MouseX = _mouseEvent.Position.X;
-		// GameStatus.MouseY = _mouseEvent.Position.Y;
 	}
 
+	private const int Width = SceneConfig.DefaultWidth;
+	private const int Height = SceneConfig.DefaultHeight;
 
 	// 下方为处理鼠标事件的函数，任何界面事件都应该在界面预处理后传给游戏引擎处理
 	private void OnMouseMove(MouseEventArgs e)

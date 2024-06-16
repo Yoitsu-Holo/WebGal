@@ -3,19 +3,15 @@
 @using WebGal.Global
 
 @* <div id ="screen" style="display: flex; height: 100vh; flex-direction: column; margin: 0;"> *@
-<div id ="screen">
-	<SKGLView id="gamecanvas" @ref=(this._skiaView) 
-		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; box-sizing: content-box; transform-origin: top left; transform: scale({Scale}); margin: 0; padding: 0;border: 2px solid;")
-		@onmouseup="OnMouseUp" 
-		@onmousedown="OnMouseDown"
-		onmousemove="getMousePosition(event)" 
-		IgnorePixelScaling="true"
-		OnPaintSurface="OnPaintSurface" 
-		EnableRenderLoop="true"
-		Width = "@SceneConfig.DefaultWidth"
-		Height = "@SceneConfig.DefaultHeight"
-		/>
+<div id="screen" @oncontextmenu:preventDefault="true"
+	style="margin: 0 auto; width: min-content; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+	<SKGLView @ref=(this._skiaView) @onmouseup="OnMouseUp" @onmousedown="OnMouseDown" OnPaintSurface="OnPaintSurface"
+		onmousemove="getMousePosition(event)" IgnorePixelScaling="true" EnableRenderLoop="true"
+		style="@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; transform: scale({Scale});border: 2px solid;")" />
 </div>
 
-		@* @onmousemove="OnMouseMove"  *@
+@* Width = "@SceneConfig.DefaultWidth" *@
+@* Height = "@SceneConfig.DefaultHeight" *@
+@* @onmousemove="OnMouseMove" *@
 @* <button @onclick="OnButtClick">click here</button> *@
+@* margin: 0 auto; width: min-content; height: 100%; display: flex; flex-direction: column; justify-content: center; *@
