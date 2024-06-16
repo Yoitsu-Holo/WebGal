@@ -68,8 +68,6 @@ public partial class Test// : IDisposable
 
 	private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
 	{
-		// await JSRuntime.InvokeVoidAsync("console.log", 1);
-
 		_ = OnMouseMoveAsync();
 		long startMiniSecond = NowTime.Minisecond;
 

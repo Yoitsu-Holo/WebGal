@@ -137,6 +137,7 @@ public abstract class ControllerSliderBase : LayerBase
 		SKMatrix matrix = SKMatrix.Identity;
 		FVector pos = (FVector)Position + _animationData.PosOff;
 
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateScale(canvas.TotalMatrix.ScaleX, canvas.TotalMatrix.ScaleY));
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));
@@ -149,6 +150,7 @@ public abstract class ControllerSliderBase : LayerBase
 		matrix = SKMatrix.Identity;
 		pos = (FVector)ThumbPosition + _animationData.PosOff;
 
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateScale(canvas.TotalMatrix.ScaleX, canvas.TotalMatrix.ScaleY));
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation((float)pos.X, (float)pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));

@@ -101,6 +101,7 @@ public class ControllerButton : LayerBase
 		SKMatrix matrix = SKMatrix.Identity;
 		FVector pos = (FVector)Position + _animationData.PosOff;
 
+		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateScale(canvas.TotalMatrix.ScaleX, canvas.TotalMatrix.ScaleY));
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(pos.X, pos.Y));
 		matrix = SKMatrix.Concat(matrix, _animationData.Transform); // 应用变化
 		matrix = SKMatrix.Concat(matrix, SKMatrix.CreateTranslation(_offset.X, _offset.Y));
