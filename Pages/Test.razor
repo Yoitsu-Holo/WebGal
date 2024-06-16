@@ -2,15 +2,18 @@
 @using SkiaSharp.Views.Blazor
 @using WebGal.Global
 
-<div id ="screen" style="display: flex; height: 100vh; flex-direction: column; margin: 0;">
+@* <div id ="screen" style="display: flex; height: 100vh; flex-direction: column; margin: 0;"> *@
+<div id ="screen">
 	<SKGLView id="gamecanvas" @ref=(this._skiaView) 
-		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; border: 2px solid; box-sizing: content-box; transform-origin: top left; transform: scale({Scale}); margin: 0; padding: 0;")
+		style=@($"width: {SceneConfig.DefaultWidth}px; height: {SceneConfig.DefaultHeight}px; box-sizing: content-box; transform-origin: top left; transform: scale({Scale}); margin: 0; padding: 0;border: 2px solid;")
 		@onmouseup="OnMouseUp" 
 		@onmousedown="OnMouseDown"
 		onmousemove="getMousePosition(event)" 
 		IgnorePixelScaling="true"
 		OnPaintSurface="OnPaintSurface" 
 		EnableRenderLoop="true"
+		Width = "@SceneConfig.DefaultWidth"
+		Height = "@SceneConfig.DefaultHeight"
 		/>
 </div>
 

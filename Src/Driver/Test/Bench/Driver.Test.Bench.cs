@@ -484,7 +484,18 @@ public partial class Driver
 				RenderInfo.Clear();
 			}
 			#endregion
+		}
 
+		public static async Task RenderDump()
+		{
+			if (_layoutManager is null || _resourceManager is null)
+				return;
+
+			RenderInfo.SatrtRecord();
+			await new PeriodicTimer(TimeSpan.FromMilliseconds(10000)).WaitForNextTickAsync();
+			RenderInfo.SatrtRecord(false);
+
+			Logger.LogInfo($"{string.Join(",", RenderInfo.GetRecord())}");
 		}
 	}
 }

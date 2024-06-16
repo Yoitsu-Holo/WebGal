@@ -51,6 +51,9 @@ public partial class Driver
 	[JSInvokable]
 	public static async Task RenderBench() => await Test.RenderBench();
 
+	[JSInvokable]
+	public static async Task RenderDump() => await Test.RenderDump();
+
 
 	[JSInvokable]
 	public static async Task<string> SayHelloAsync(string name)
