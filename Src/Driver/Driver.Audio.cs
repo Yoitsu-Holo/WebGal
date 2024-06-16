@@ -62,16 +62,7 @@ public partial class Driver
 				await node.DisposeAsync();
 			}
 
-			_audioManager.AudioNodes[info.ID.NodeID] = info.Type switch
-			{
-				AudioNodeType.Simple => new AudioSimple(_audioManager.JSRuntime),
-				AudioNodeType.Source => new AudioSource(_audioManager.JSRuntime),
-				AudioNodeType.Speeker => new AudioSpeeker(_audioManager.JSRuntime),
-				AudioNodeType.Gain => new AudioGain(_audioManager.JSRuntime),
-				AudioNodeType.Multiplexer => new AudioMutiplexer(_audioManager.JSRuntime),
-				AudioNodeType.Pan => throw new Exception("控制组件未完善: todo"),
-				_ => throw new Exception("未标识的控件类型: todo"),
-			};
+			_audioManager.AudioNodes[info.ID.NodeID] = AudioNodeRegister.GetAudioNode(info.Type);
 			await _audioManager.AudioNodes[info.ID.NodeID].SetContextAsync(context);
 		}
 		else

@@ -1,11 +1,11 @@
 namespace WebGal.API.Data;
 
-public enum AudioNodeType
-{
-	Simple, Source, Speeker, Gain, Multiplexer, Pan,
+// public enum AudioNodeType
+// {
+// 	Simple, Source, Speeker, Gain, Multiplexer, Pan,
 
-	Void, Any, Auto, Error,
-}
+// 	Void, Any, Auto, Error,
+// }
 
 public record struct AudioIdInfo
 {
@@ -19,7 +19,7 @@ public record struct AudioNodeInfo
 	public RequestType Request { get; set; }
 	public AudioIdInfo ID { get; set; }
 
-	public AudioNodeType Type { get; set; }
+	public string Type { get; set; }
 }
 
 public record struct AudioWireInfo

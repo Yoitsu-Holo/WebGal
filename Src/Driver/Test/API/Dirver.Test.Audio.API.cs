@@ -53,7 +53,7 @@ public partial class Driver
 					Request = RequestType.Set,
 					ID = new() { ContextID = 0, NodeID = 0, },
 
-					Type = AudioNodeType.Source,
+					Type = "AudioSource",
 				};
 
 				Response result = await RegisterAudioNodeAsync(info);
@@ -69,7 +69,7 @@ public partial class Driver
 					Request = RequestType.Set,
 					ID = new() { ContextID = 0, NodeID = 1, },
 
-					Type = AudioNodeType.Gain,
+					Type = "AudioGain",
 				};
 
 				string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info, JsonConfig.Options));
@@ -85,7 +85,7 @@ public partial class Driver
 					Request = RequestType.Set,
 					ID = new() { ContextID = 0, NodeID = 2, },
 
-					Type = AudioNodeType.Speeker,
+					Type = "AudioSpeeker",
 				};
 
 				string result = await RegisterAudioNodeAsync(JsonSerializer.Serialize(info, JsonConfig.Options));

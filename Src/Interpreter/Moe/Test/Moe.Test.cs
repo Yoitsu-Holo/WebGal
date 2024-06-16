@@ -14,9 +14,9 @@ public partial class MoeInterpreter
 			// 初始化游戏资源
 			await GameStartAsync();
 			await Driver.RegisterAudioContextAsync(new AudioIdInfo() { ContextID = 0, });
-			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 0, }, Type = AudioNodeType.Simple, });
-			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 1, }, Type = AudioNodeType.Simple, });
-			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 2, }, Type = AudioNodeType.Simple, });
+			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 0, }, Type = "AudioSimple", });
+			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 1, }, Type = "AudioSimple", });
+			await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { Request = RequestType.Set, ID = new() { ContextID = 0, NodeID = 2, }, Type = "AudioSimple", });
 
 			// 注册界面
 			FormRegister();

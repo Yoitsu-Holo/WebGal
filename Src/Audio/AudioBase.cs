@@ -4,9 +4,9 @@ using WebGal.Global;
 
 namespace WebGal.Audio;
 
-public class AudioBase(IJSRuntime jsRuntime) : IAudio
+public class AudioBase : IAudio
 {
-	protected readonly IJSRuntime _jsRuntime = jsRuntime;
+	protected readonly IJSRuntime _jsRuntime = WebGalRuntime.JsRuntime!;
 	protected AudioContext? _context;
 
 	// Interface

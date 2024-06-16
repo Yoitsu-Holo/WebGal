@@ -23,7 +23,7 @@ public class GameManager
 		_layoutManeger = layoutManager;
 		_audioManager = audioManager;
 		_resourceManager = new(httpClient);
-		Logger.JsRuntime = js;
+		WebGalRuntime.JsRuntime = js;
 		Driver.Init(_layoutManeger, _resourceManager, _audioManager);
 	}
 

@@ -13,9 +13,7 @@ public enum LogLevel
 
 public class Logger
 {
-#pragma warning disable CA2211 // 非常量字段应当不可见
-	public static IJSRuntime? JsRuntime;
-#pragma warning restore CA2211 // 非常量字段应当不可见
+	private static IJSRuntime? JsRuntime => WebGalRuntime.JsRuntime;
 
 	public static string LogMessage(string log,
 		[CallerFilePath] string filePath = "",

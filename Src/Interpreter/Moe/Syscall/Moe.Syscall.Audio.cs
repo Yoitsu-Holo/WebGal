@@ -9,12 +9,29 @@ public partial class MoeInterpreter
 	public partial class Syscall
 	{
 		#region Syscall
-		public static void BGM(MoeVariable file) => RawBGM(file);
-		public static void VO(MoeVariable file) => RawVO(file);
-		public static void SE(MoeVariable file) => RawSE(file);
+		public static void RegAudioContext(MoeVariable contextID)
+			=> RawRegAudioContext(contextID);
+		public static void RegAudioNode(MoeVariable contextID, MoeVariable nodeID, MoeVariable type)
+			=> RawRegAudioNode(contextID, nodeID, type);
+		public static void BGM(MoeVariable file)
+			=> RawBGM(file);
+		public static void VO(MoeVariable file)
+			=> RawVO(file);
+		public static void SE(MoeVariable file)
+			=> RawSE(file);
 		#endregion
 
 		#region RawSyscall
+		private static async void RawRegAudioContext(int contextID)
+		{
+			await Driver.RegisterAudioContextAsync(new AudioIdInfo() { ContextID = contextID, });
+		}
+
+		private static async void RawRegAudioNode(int contextID, int nodeID, string type)
+		{
+			// await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { ID = new() { ContextID = contextID, NodeID = nodeID }, Type = type });
+		}
+
 		private static async void RawBGM(MoeVariable file)
 		{
 			FileInfo fileInfo = new()

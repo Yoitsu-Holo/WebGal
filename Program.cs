@@ -29,6 +29,10 @@ builder.Services.AddScoped<MoeInterpreter>();
 
 var driverRef = DotNetObjectReference.Create(new Driver());
 
+// var sp = builder.Services.BuildServiceProvider();
+// WebGalRuntime.JsRuntime = sp.GetRequiredService<IJSRuntime>();
+
+
 await builder.Build().RunAsync();
 
 

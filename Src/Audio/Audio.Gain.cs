@@ -1,10 +1,9 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.JSInterop;
 using WebGal.Global;
 
 namespace WebGal.Audio;
 
-public class AudioGain(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
+public class AudioGain : AudioBase
 {
 	private GainNode? _gain;
 

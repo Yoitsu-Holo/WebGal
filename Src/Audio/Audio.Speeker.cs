@@ -1,9 +1,8 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.JSInterop;
 
 namespace WebGal.Audio;
 
-public class AudioSpeeker(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
+public class AudioSpeeker : AudioBase
 {
 	private AudioDestinationNode? _destination;
 

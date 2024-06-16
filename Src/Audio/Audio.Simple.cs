@@ -1,5 +1,4 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.JSInterop;
 using WebGal.Global;
 
 namespace WebGal.Audio;
@@ -13,7 +12,7 @@ todo:	vioce:	语音播放通道	配置	用于播放人物语音	单次
 todo:	effect:	音效播放通道	数量1	用于播放场景音效	单次
 */
 
-public class AudioSimple(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
+public class AudioSimple : AudioBase
 {
 	private AudioDestinationNode? _destination;
 	private GainNode? _gain;

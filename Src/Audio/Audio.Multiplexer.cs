@@ -1,10 +1,9 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.JSInterop;
 using WebGal.Global;
 
 namespace WebGal.Audio;
 
-public class AudioMutiplexer(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
+public class AudioMutiplexer : AudioBase
 {
 	private ChannelMergerNode? _merger;
 	private ChannelSplitterNode? _splitter;

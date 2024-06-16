@@ -1,10 +1,9 @@
 using KristofferStrube.Blazor.WebAudio;
-using Microsoft.JSInterop;
 using WebGal.Global;
 
 namespace WebGal.Audio;
 
-public class AudioSource(IJSRuntime jsRuntime) : AudioBase(jsRuntime)
+public class AudioSource : AudioBase
 {
 	private AudioBufferSourceNode? _audioBuffer;
 	private bool _started = false;
