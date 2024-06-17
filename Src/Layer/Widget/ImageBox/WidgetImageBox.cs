@@ -1,6 +1,5 @@
 using SkiaSharp;
 using WebGal.Extend;
-using WebGal.Global;
 using WebGal.Types;
 
 namespace WebGal.Layer.Widget;
@@ -41,9 +40,7 @@ public class WidgetImageBox : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_renderBuffer, new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_renderBuffer, new SKPoint(0, 0), _animationData.Paint);
 		canvas.Restore();
 	}
-
-	public override void DoAnimation(long timeOff) => _animationData = Animation.DoAnimation(timeOff);
 }

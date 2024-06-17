@@ -108,7 +108,7 @@ public class ControllerButton : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_renderBuffer[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_renderBuffer[(int)Status], new SKPoint(0, 0), _animationData.Paint);
 		canvas.Restore();
 	}
 }

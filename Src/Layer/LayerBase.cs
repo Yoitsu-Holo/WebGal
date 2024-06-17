@@ -29,11 +29,13 @@ public class LayerBase : HandlerBase, ILayer
 	public LayerStatus Status = LayerStatus.Normal;
 	protected bool _attributeChange = true;
 	protected AnimationData _animationData = new();
+	private readonly List<IAnimation> _animation = [];
+
 
 	#region 外界交互
 	// 渲染图像
 	public virtual void Render(SKCanvas canvas, bool force) => throw new NotImplementedException();
-	public bool HasAnimation(long timeOff) => true;
+	public virtual bool HasAnimation(long timeOff) => true;
 	#endregion
 
 
@@ -43,8 +45,14 @@ public class LayerBase : HandlerBase, ILayer
 	public virtual void SetImage(SKBitmap image, IRect imageWindow, int imageId = 0) => throw new NotImplementedException();
 	public virtual void SetColor(SKColor color, int imageId = 0) => throw new NotImplementedException();
 
-	public IAnimation Animation { get; set; } = new AnimationNothing();
-	public virtual void DoAnimation(long timeOff) { }
+	public virtual void ResetAnimationData() { _animationData = new(); }
+	public virtual void AddAnimation(IAnimation animation) => _animation.Add(animation);
+	public virtual void ClearAnimation() => _animation.Clear();
+	public virtual void DoAnimation(long timeOff)
+	{
+		ResetAnimationData();
+		foreach (var animation in _animation) animation.DoAnimation(ref _animationData, timeOff);
+	}
 
 
 	// 设置位置属性

@@ -157,7 +157,7 @@ public abstract class ControllerSliderBase : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawBitmap(_image[(int)Status], new SKPoint(0, 0), RenderConfig.DefaultPaint);
+		canvas.DrawBitmap(_image[(int)Status], new SKPoint(0, 0), _animationData.Paint);
 		canvas.Restore();
 	}
 

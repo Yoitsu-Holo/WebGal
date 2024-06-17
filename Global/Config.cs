@@ -45,9 +45,6 @@ public static class RenderConfig
 
 	public static SKPaint DefaultPaint => new()
 	{
-		Color = SKColors.Black,
-		TextSize = 30,
-		FakeBoldText = true,
 		IsAntialias = true
 	};
 	public const SKColorType DefaultColorType = SKColorType.Rgba8888;

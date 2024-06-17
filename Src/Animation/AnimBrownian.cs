@@ -4,18 +4,16 @@ namespace WebGal.Animations;
 
 class AnimationBrownian : AnimationBase
 {
-	private AnimationBrownianData data = new();
+	private AnimationBrownianData _data = new();
 	private readonly Random rand = new();
-	public override AnimationData DoAnimation(long timeOff)
+	public override void DoAnimation(ref AnimationData data, long timeOff)
 	{
-		var (x, y) = ((float)rand.NextDouble(), (float)rand.NextDouble());
-		return new() { PosOff = new(x, y) };
+		data.PosOff = new((float)rand.NextDouble(), (float)rand.NextDouble());
 	}
 
 	public override void SetParama(object parama)
 	{
-		if (parama is AnimationBrownianData p)
-			data = p;
+		if (parama is AnimationBrownianData p) _data = p;
 	}
 }
 

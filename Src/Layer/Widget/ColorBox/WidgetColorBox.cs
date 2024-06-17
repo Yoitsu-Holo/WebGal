@@ -31,8 +31,15 @@ public class WidgetColorBox : LayerBase
 
 		canvas.Save();
 		canvas.SetMatrix(matrix);
-		canvas.DrawRect(new SKRect(0, 0, Size.Width, Size.Height), new SKPaint() { Color = _color, IsAntialias = true, });
+		canvas.DrawRect(new SKRect(0, 0, Size.Width, Size.Height), _animationData.Paint);
 		canvas.Restore();
+	}
 
+	public override void ResetAnimationData()
+	{
+		_animationData = new()
+		{
+			Paint = new() { Color = _color, IsAntialias = true, }
+		};
 	}
 }

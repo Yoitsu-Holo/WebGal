@@ -5,26 +5,23 @@ namespace WebGal.Animations;
 
 class AnimationRotate : AnimationBase
 {
-	public AnimationRotateData data;
+	public AnimationRotateData _data;
 	private SKMatrix _matrix = SKMatrix.Identity;
 	private float timeStart = -1;
 
-	public override AnimationData DoAnimation(long timeOff)
+	public override void DoAnimation(ref AnimationData aniData, long timeOff)
 	{
 		float timeObs = Global.NowTime.UtcMinisecond;
 		if (timeStart < 0)
 			timeStart = timeObs;
 		float dt = (timeObs - timeStart) / 1000;
 
-		_matrix = SKMatrix.CreateRotation(dt * data.Z);
-
-		return new() { Transform = _matrix, };
+		aniData.Transform = SKMatrix.Concat(aniData.Transform, SKMatrix.CreateRotation(dt * _data.Z));
 	}
 
 	public override void SetParama(object parama)
 	{
-		if (parama is AnimationRotateData p)
-			data = p;
+		if (parama is AnimationRotateData p) _data = p;
 	}
 }
 

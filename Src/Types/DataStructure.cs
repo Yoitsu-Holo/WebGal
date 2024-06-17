@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SkiaSharp;
+using WebGal.Global;
 
 namespace WebGal.Types;
 
@@ -138,4 +139,5 @@ public record class AnimationData
 	//^ [y] x [SkewY,  ScaleY, TransY] = [y']
 	//^ [1]   [Persp0, Persp1, Persp2]   [z']
 	public SKMatrix Transform = SKMatrix.Identity; // Transform Matrix
+	public SKPaint Paint = RenderConfig.DefaultPaint;
 }

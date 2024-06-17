@@ -4,8 +4,7 @@ namespace WebGal.Animations;
 
 class AnimationNothing : AnimationBase
 {
-	public override AnimationData DoAnimation(long timeOff) => new();
-
+	public override void DoAnimation(ref AnimationData data, long timeOff) { }
 	public override void SetParama(object parama) { }
 }
 

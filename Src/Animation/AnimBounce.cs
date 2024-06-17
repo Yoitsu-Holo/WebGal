@@ -4,33 +4,30 @@ namespace WebGal.Animations;
 
 class AnimationBounce : AnimationBase
 {
-	private AnimationBounceData data = new();
-	private FVector _pos;
+	private AnimationBounceData _data = new();
 	private float timepre = -1;
 
-	public override AnimationData DoAnimation(long timeOff)
+	public override void DoAnimation(ref AnimationData aniData, long timeOff)
 	{
 		float timeObs = Global.NowTime.UtcMinisecond;
-		if (timepre < 0)
-			timepre = timeObs;
+		if (timepre < 0) timepre = timeObs;
 		float dt = timeObs - timepre;
-		FVector npos = new(_pos.X + data.Delta.X * dt, _pos.Y + data.Delta.Y * dt);
 
-		if (npos.X < 0) { npos.X = 0; data.Delta.X = -data.Delta.X; }
-		if (npos.X > data.Range.X) { npos.X = data.Range.X; data.Delta.X = -data.Delta.X; }
+		FVector npos = new(aniData.PosOff.X + _data.Delta.X * dt, aniData.PosOff.Y + _data.Delta.Y * dt);
 
-		if (npos.Y < 0) { npos.Y = 0; data.Delta.Y = -data.Delta.Y; }
-		if (npos.Y > data.Range.Y) { npos.Y = data.Range.Y; data.Delta.Y = -data.Delta.Y; }
+		if (npos.X < 0) { npos.X = 0; _data.Delta.X = -_data.Delta.X; }
+		if (npos.X > _data.Range.X) { npos.X = _data.Range.X; _data.Delta.X = -_data.Delta.X; }
 
-		_pos = npos;
+		if (npos.Y < 0) { npos.Y = 0; _data.Delta.Y = -_data.Delta.Y; }
+		if (npos.Y > _data.Range.Y) { npos.Y = _data.Range.Y; _data.Delta.Y = -_data.Delta.Y; }
+
+		aniData.PosOff = npos;
 		timepre = timeObs;
-		return new() { PosOff = _pos };
 	}
 
 	public override void SetParama(object parama)
 	{
-		if (parama is AnimationBounceData p)
-			data = p;
+		if (parama is AnimationBounceData p) _data = p;
 	}
 }
 
