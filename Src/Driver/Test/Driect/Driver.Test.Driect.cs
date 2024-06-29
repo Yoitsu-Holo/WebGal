@@ -32,7 +32,7 @@ public partial class Driver
 			};
 			IAnimation animation = AnimationRegister.GetAnimation("AnimationRotate");
 			animation.SetParama(new AnimationRotateData() { Z = 2.5f, });
-			imageLayer1.AddAnimation(animation);
+			imageLayer1.AddAnimation(0, animation);
 			// imageLayer1.Animation.SetParama();
 
 			SKBitmap bitmap = new(40, 40);

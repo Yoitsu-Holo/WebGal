@@ -16,7 +16,8 @@ public interface ILayer : IHandler
 	public void SetColor(SKColor color, int imageId);
 
 	// 动画处理
-	public void AddAnimation(IAnimation animation);
+	public void AddAnimation(int id, IAnimation animation);
+	public void SetAnimationData(int id, object animationData);
 	public void ClearAnimation();
 	public bool HasAnimation(long timeOff);
 	public void DoAnimation(long timeOff);

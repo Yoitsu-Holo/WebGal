@@ -73,8 +73,6 @@ public class DoubleEndEnumerator<T>(List<T> list) : IExtendEnumerator<T>
 #pragma warning disable CS8603 // 可能返回 null 引用。
 	object IEnumerator.Current => Current; // 已经经过检测
 
-
-
 #pragma warning restore CS8603 // 可能返回 null 引用。
 
 	public void Reset() { _position = -1; }

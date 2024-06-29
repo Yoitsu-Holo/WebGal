@@ -29,7 +29,7 @@ public class LayerBase : HandlerBase, ILayer
 	public LayerStatus Status = LayerStatus.Normal;
 	protected bool _attributeChange = true;
 	protected AnimationData _animationData = new();
-	private readonly List<IAnimation> _animation = [];
+	private readonly SortedDictionary<int, IAnimation> _animation = [];
 
 
 	#region 外界交互
@@ -46,13 +46,15 @@ public class LayerBase : HandlerBase, ILayer
 	public virtual void SetColor(SKColor color, int imageId = 0) => throw new NotImplementedException();
 
 	public virtual void ResetAnimationData() { _animationData = new(); }
-	public virtual void AddAnimation(IAnimation animation) => _animation.Add(animation);
+	public virtual void AddAnimation(int id, IAnimation animation) => _animation[id] = animation;
 	public virtual void ClearAnimation() => _animation.Clear();
 	public virtual void DoAnimation(long timeOff)
 	{
 		ResetAnimationData();
-		foreach (var animation in _animation) animation.DoAnimation(ref _animationData, timeOff);
+		foreach (var animation in _animation) animation.Value.DoAnimation(ref _animationData, timeOff);
 	}
+
+	public void SetAnimationData(int id, object animationData) => _animation[id].SetParama(animationData);
 
 
 	// 设置位置属性
