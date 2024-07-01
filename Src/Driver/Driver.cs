@@ -1,5 +1,3 @@
-using System.Reflection.Metadata;
-using System.Text.Json;
 using Microsoft.JSInterop;
 using WebGal.API.Data;
 using WebGal.Handler;

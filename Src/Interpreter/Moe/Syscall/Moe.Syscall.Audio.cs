@@ -29,6 +29,8 @@ public partial class MoeInterpreter
 
 		private static async void RawRegAudioNode(int contextID, int nodeID, string type)
 		{
+			await Task.Run(() => { });  // Make Complier happy
+
 			// await Driver.RegisterAudioNodeAsync(new AudioNodeInfo() { ID = new() { ContextID = contextID, NodeID = nodeID }, Type = type });
 		}
 
