@@ -35,7 +35,8 @@ public partial class MoeInterpreter
 				new() { LayoutID = 0, },
 				(value) =>
 				{
-					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up) { Syscall.OnCLick(); Logger.Alert("Trigger"); return true; }
+					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up)
+					{ Syscall.OnCLick(); Console.WriteLine("Trigger"); return true; }
 					return false;
 				}
 			);
