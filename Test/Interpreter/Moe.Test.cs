@@ -40,6 +40,16 @@ public partial class MoeInterpreter
 					return false;
 				}
 			);
+
+			Driver.RegisteLayerAction(
+				new() { LayoutID = 0, LayerID = 5 },
+				(value) =>
+				{
+					if (value is MouseEventData mouse && mouse.Status == MouseStatus.Up)
+					{ Syscall.OnCLick(); Console.WriteLine("Button"); return true; }
+					return false;
+				}
+			);
 		}
 	}
 }

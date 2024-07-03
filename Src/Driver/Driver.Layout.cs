@@ -48,12 +48,7 @@ public partial class Driver
 		}
 	}
 
-	[JSInvokable]
-	public static void RegisteLayoutAction(string json)
-	{
-		// Todo
-		Logger.LogInfo("JS 事件处理", Global.LogLevel.Todo);
-	}
+
 	#endregion
 
 
@@ -129,16 +124,6 @@ public partial class Driver
 			response.Type = ResponseType.Fail;
 			response.Message = $"Layer:{info.LayerID} not registered";
 		}
-
-		return response;
-	}
-
-	public static Response RegisteLayoutAction(LayerIdInfo info, Func<EventArgs, bool> action)
-	{
-		Response response = CheckLayout(info);
-		if (response.Type != ResponseType.Success) return response;
-
-		_layoutManager!.Layouts[info.LayoutID].RegisterAction(new ActionBase() { Action = action });
 
 		return response;
 	}

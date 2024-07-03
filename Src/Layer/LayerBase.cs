@@ -87,3 +87,6 @@ public class LayerBase : HandlerBase, ILayer
 	public virtual object Value { get => _value; set => (_value, _dirty) = (value, true); }
 	#endregion
 }
+
+public class WidgetLayerBase : LayerBase { }
+public class ControllerLayerBase : LayerBase { }
