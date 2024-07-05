@@ -55,7 +55,7 @@ public partial class Driver
 		if (info.Font != "" && _resourceManager!.CheckFont(info.Font) == false)
 		{
 			response.Type = ResponseType.Fail;
-			response.Message = $"Image: {info.Font} is not loaded";
+			response.Message = $"Font: {info.Font} is not loaded";
 			return response;
 		}
 
@@ -82,21 +82,76 @@ public partial class Driver
 		return response;
 	}
 
-	public static Response SetTextBoxText(TextBoxText json)
+	public static Response SetTextBoxText(TextBoxText info)
 	{
-		Response response = new();
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
+
+		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
+
+		if (layer is WidgetTextBox textBox)
+		{
+			textBox.Text = info.Text;
+		}
+		else
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
+			return response;
+		}
+
 		return response;
 	}
 
-	public static Response SetTextBoxFont(TextBoxFont json)
+	public static Response SetTextBoxFont(TextBoxFont info)
 	{
-		Response response = new();
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
+
+		if (info.Font != "" && _resourceManager!.CheckFont(info.Font) == false)
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Font: {info.Font} is not loaded";
+			return response;
+		}
+
+		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
+
+		if (layer is WidgetTextBox textBox)
+		{
+			textBox.SetFontStyle(_resourceManager!.GetFont(info.Font));
+		}
+		else
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
+			return response;
+		}
+
 		return response;
 	}
 
-	public static Response SetTextBoxFontSize(TextBoxFontSize json)
+	public static Response SetTextBoxFontSize(TextBoxFontSize info)
 	{
-		Response response = new();
+		Response response;
+		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
+		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
+
+		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
+
+		if (layer is WidgetTextBox textBox)
+		{
+			textBox.SetFontSize(info.FontSize);
+		}
+		else
+		{
+			response.Type = ResponseType.Fail;
+			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
+			return response;
+		}
+
 		return response;
 	}
 	#endregion
