@@ -39,11 +39,7 @@ public partial class Driver
 
 
 		if (_resourceManager!.CheckImage(info.NormalImage.ImageName) == false)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Image: {info.NormalImage.ImageName} is not loaded";
-			return response;
-		}
+			return new($"Button: {info.NormalImage.ImageName} is not loaded");
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 		if (layer is ControllerButton buttonBox)
@@ -59,15 +55,10 @@ public partial class Driver
 
 			if (_resourceManager.CheckImage(info.FocusedImage.ImageName))
 				buttonBox.SetImage(_resourceManager.GetImage(info.FocusedImage.ImageName), info.FocusedImage.SubRect, 3);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox");
 	}
 
 	public static Response SetButtonBoxImage(ImageBoxImage info)

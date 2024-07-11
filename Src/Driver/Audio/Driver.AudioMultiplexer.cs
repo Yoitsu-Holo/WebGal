@@ -30,15 +30,10 @@ public partial class Driver
 		{
 			await audioMultiplexer.SetInputNumberAsync(info.InputChannels);
 			await audioMultiplexer.SetOutputNumberAsync(info.OutputChannels);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"AudioNode:{info.ID.NodeID} not AudioMutiplexer";
-			return response;
-		}
-
-		return response;
+			return new($"AudioNode:{info.ID.NodeID} not AudioMutiplexer");
 	}
 	#endregion
 }

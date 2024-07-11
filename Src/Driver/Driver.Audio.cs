@@ -41,7 +41,6 @@ public partial class Driver
 		Response response = CheckInit();
 		if (response.Type != ResponseType.Success) return response;
 
-
 		if (_audioManager!.AudioContexts.ContainsKey(info.ContextID) == false)
 			_audioManager.AudioContexts[info.ContextID] = await AudioContext.CreateAsync(_audioManager.JSRuntime);
 
@@ -64,17 +63,10 @@ public partial class Driver
 
 			_audioManager.AudioNodes[info.ID.NodeID] = AudioNodeRegister.GetAudioNode(info.Type);
 			await _audioManager.AudioNodes[info.ID.NodeID].SetContextAsync(context);
+			return response;
 		}
 		else
-		{
-			response = new()
-			{
-				Type = ResponseType.Fail,
-				Message = $"Audiocontext {info.ID.ContextID} not registed",
-			};
-		}
-
-		return response;
+			return new($"Audiocontext {info.ID.ContextID} not registed");
 	}
 
 	#region Driect
@@ -84,7 +76,6 @@ public partial class Driver
 		response = CheckInit(); if (response.Type != ResponseType.Success) return response;
 		response = CheckAudioNodeOutput(info.SrcID); if (response.Type != ResponseType.Success) return response;
 		response = CheckAudioNodeInput(info.DstID); if (response.Type != ResponseType.Success) return response;
-
 
 		IAudio outputNode = _audioManager!.AudioNodes[info.SrcID.NodeID];
 		IAudio inputNode = _audioManager.AudioNodes[info.DstID.NodeID];
@@ -97,33 +88,19 @@ public partial class Driver
 
 	public static Response CheckAudioContext(AudioIdInfo info)
 	{
-		Response response = new();
 		if (_audioManager is null)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = "AudioManager is NULL";
-			return response;
-		}
+			return new("AudioManager is NULL");
 		if (!_audioManager.AudioContexts.ContainsKey(info.ContextID))
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"AudioContext {info.ContextID} not find";
-			return response;
-		}
-		return response;
+			return new($"AudioContext {info.ContextID} not find");
+		return new();
 	}
 
 	public static Response CheckAudioNode(AudioIdInfo info)
 	{
 		Response response;
 		response = CheckAudioContext(info); if (response.Type != ResponseType.Success) return response;
-
 		if (!_audioManager!.AudioNodes.ContainsKey(info.NodeID))
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"AudioContext {info.ContextID}:{info.NodeID} not find";
-			return response;
-		}
+			return new($"AudioContext {info.ContextID}:{info.NodeID} not find");
 		return response;
 	}
 
@@ -132,11 +109,7 @@ public partial class Driver
 		Response response;
 		response = CheckAudioNode(info); if (response.Type != ResponseType.Success) return response;
 		if (_audioManager!.AudioNodes[info.NodeID].InputChannels() <= info.SocketID)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Error InputChannelID";
-			return response;
-		}
+			return new($"Error InputChannelID");
 		return response;
 	}
 
@@ -145,11 +118,7 @@ public partial class Driver
 		Response response;
 		response = CheckAudioNode(info); if (response.Type != ResponseType.Success) return response;
 		if (_audioManager!.AudioNodes[info.NodeID].OutputChannels() <= info.SocketID)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Error OutputChannelID";
-			return response;
-		}
+			return new($"Error OutputChannelID");
 		return response;
 	}
 	#endregion

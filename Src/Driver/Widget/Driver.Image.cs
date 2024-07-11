@@ -40,24 +40,14 @@ public partial class Driver
 
 
 		if (_resourceManager!.CheckImage(info.Image.ImageName) == false)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Image: {info.Image.ImageName} is not loaded";
-			return response;
-		}
+			return new($"Image: {info.Image.ImageName} is not loaded");
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
 		if (layer is WidgetImageBox imageBox)
-		{
 			imageBox.SetImage(_resourceManager.GetImage(info.Image.ImageName), info.Image.SubRect);
-		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return response;
-		}
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox");
 
 		return response;
 	}

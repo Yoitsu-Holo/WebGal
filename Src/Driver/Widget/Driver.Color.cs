@@ -43,14 +43,10 @@ public partial class Driver
 		if (layer is WidgetColorBox imageBox)
 		{
 			imageBox.SetColor(new SKColor(info.R, info.G, info.B, info.A));
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox");
 	}
 
 	public static Response SetColorBoxImage(ColorBoxColor json)

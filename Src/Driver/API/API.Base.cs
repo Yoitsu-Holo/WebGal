@@ -36,6 +36,12 @@ public record struct Response
 		Message = "";
 	}
 
+	public Response(string message, ResponseType type = ResponseType.Fail)
+	{
+		Type = type;
+		Message = message;
+	}
+
 	public ResponseType Type { get; set; }
 	public string Message { get; set; }
 }

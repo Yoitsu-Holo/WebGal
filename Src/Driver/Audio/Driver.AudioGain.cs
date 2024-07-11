@@ -30,15 +30,10 @@ public partial class Driver
 		{
 			float value = Math.Min(1000, Math.Max(0, info.Gain));
 			await audioGain.SetGainASync(value / 1000.0f);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"AudioNode:{info.ID.NodeID} not AudioGain";
-			return response;
-		}
-
-		return response;
+			return new($"AudioNode:{info.ID.NodeID} not AudioGain");
 	}
 	#endregion
 }

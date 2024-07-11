@@ -33,15 +33,10 @@ public partial class Driver
 			await audioSource.SetAudioBufferAsync(_resourceManager!.GetAudio(info.AudioName));
 			await audioSource.StartAsync(info.Start);
 			await audioSource.SetLoopAsync(info.Loop);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"AudioNode:{info.ID.NodeID} not AudioSource";
-			return response;
-		}
-
-		return response;
+			return new($"AudioNode:{info.ID.NodeID} not AudioSource");
 	}
 	#endregion
 }

@@ -53,33 +53,21 @@ public partial class Driver
 		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
 
 		if (info.Font != "" && _resourceManager!.CheckFont(info.Font) == false)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Font: {info.Font} is not loaded";
-			return response;
-		}
+			return new($"Font: {info.Font} is not loaded");
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 
 		if (layer is WidgetTextBox textBox)
 		{
 			textBox.Text = info.Text;
-			textBox.Style = new()
-			{
-				MarginBottom = 20
-			};
+			textBox.Style = new() { MarginBottom = 20 };
 			textBox.SetColor(SKColors.Wheat);
 			textBox.SetFontSize(info.FontSize);
 			textBox.SetFontStyle(_resourceManager!.GetFont(info.Font));
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox");
 	}
 
 	public static Response SetTextBoxText(TextBoxText info)
@@ -93,15 +81,10 @@ public partial class Driver
 		if (layer is WidgetTextBox textBox)
 		{
 			textBox.Text = info.Text;
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox");
 	}
 
 	public static Response SetTextBoxFont(TextBoxFont info)
@@ -122,15 +105,10 @@ public partial class Driver
 		if (layer is WidgetTextBox textBox)
 		{
 			textBox.SetFontStyle(_resourceManager!.GetFont(info.Font));
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox");
 	}
 
 	public static Response SetTextBoxFontSize(TextBoxFontSize info)
@@ -144,15 +122,10 @@ public partial class Driver
 		if (layer is WidgetTextBox textBox)
 		{
 			textBox.SetFontSize(info.FontSize);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetTextBox");
 	}
 	#endregion
 }

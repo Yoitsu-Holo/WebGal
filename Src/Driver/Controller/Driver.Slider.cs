@@ -45,11 +45,7 @@ public partial class Driver
 		response = CheckLayer(info.ID); if (response.Type != ResponseType.Success) return response;
 
 		if (_resourceManager!.CheckImage(info.NormalImage.ImageName) == false)
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Image: {info.NormalImage.ImageName} is not loaded";
-			return response;
-		}
+			return new($"Image: {info.NormalImage.ImageName} is not loaded");
 
 		ILayer layer = _layoutManager!.Layouts[info.ID.LayoutID].Layers[info.ID.LayerID];
 		if (layer is ControllerSliderBase sliderBox)
@@ -71,15 +67,10 @@ public partial class Driver
 
 			if (info.ThumbSize != default && info.TrackImage != default)
 				sliderBox.InitAttribute(info.TrackSize, info.ThumbSize);
+			return new();
 		}
 		else
-		{
-			response.Type = ResponseType.Fail;
-			response.Message = $"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox";
-			return response;
-		}
-
-		return response;
+			return new($"Layout:{info.ID.LayoutID} Layer:{info.ID.LayerID} not WidgetImageBox");
 	}
 
 	public static Response SetSliderBoxImage(SliderBoxImage info)
