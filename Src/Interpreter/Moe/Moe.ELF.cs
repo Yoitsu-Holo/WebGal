@@ -79,8 +79,8 @@ public partial class MoeInterpreter
 						"opera" => MoeFileType.Text_opera,
 						"form" => MoeFileType.Text_form,
 
-						"bin" => MoeFileType.Bin_font,
-						"block" => MoeFileType.Bin_block,
+						"font" => MoeFileType.Bin_font,
+						"bin" => MoeFileType.Bin_bin,
 
 						_ => MoeFileType.Void,
 					},

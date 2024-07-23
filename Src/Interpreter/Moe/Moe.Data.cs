@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebGal.Extend.Json;
@@ -44,7 +43,7 @@ public enum MoeFileType : ulong
 	Image_png = 0x1, Image_jpg = 0x2, Image_bmp = 0x4,
 	Audio_wav = 0x10, Audio_mp3 = 0x20, Audio_flac = 0x40, Audio_ogg = 0x8,
 	Text_script = 0x100, Text_form = 0x200, Text_opera = 0x400,
-	Bin_font = 0x1000, Bin_block = 0x2000,
+	Bin_font = 0x1000, Bin_bin = 0x2000,
 	Error,
 }
 

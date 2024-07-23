@@ -13,12 +13,7 @@ public partial class MoeInterpreter
 		Clear();
 
 		Response response;
-		FileInfo elfFile = new()
-		{
-			Type = FileType.Script,
-			Name = "elf",
-			URL = "/main.elf",
-		};
+		FileInfo elfFile = new() { Type = FileType.Script, Name = "elf", URL = "/main.elf", };
 
 		response = await Driver.PullFileAsync(elfFile);
 		if (response.Type != ResponseType.Success) throw new Exception(response.Message);

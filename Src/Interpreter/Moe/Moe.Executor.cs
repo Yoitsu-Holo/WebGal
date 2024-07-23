@@ -292,8 +292,9 @@ public partial class MoeInterpreter
 		}
 		else if (ast.ASTType == ASTNodeType.Return && ast.Return is not null)
 		{
-			object obj = ExpressionsExecutor.Parse(ast.Return.ReturnExp);
+			object obj = ast.Return.ReturnExp.Tokens.Count > 0 ? ExpressionsExecutor.Parse(ast.Return.ReturnExp) : new();
 			frame.ReturnData = new(obj);
+			frame.PC.Clear();
 			// Console.WriteLine($"{obj} : {frame.ReturnData[0]}");
 		}
 		else

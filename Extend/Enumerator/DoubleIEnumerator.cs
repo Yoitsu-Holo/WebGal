@@ -60,7 +60,12 @@ public class DoubleEndEnumerator<T>(List<T> list) : IExtendEnumerator<T>
 			if (_position >= 0 && _position < _list.Count)
 				return _list[_position];
 			else
+			{
+				Console.WriteLine(_list.Count);
+				foreach (var item in _list)
+					Console.WriteLine($"{item}");
 				throw new IndexOutOfRangeException();
+			}
 		}
 	}
 
