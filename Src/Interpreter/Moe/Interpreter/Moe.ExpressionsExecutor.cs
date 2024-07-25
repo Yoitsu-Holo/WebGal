@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using WebGal.Extend.Collections;
 using WebGal.Global;
 
@@ -21,6 +22,7 @@ public partial class MoeInterpreter
 			return result;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static ExpressionToken ConsumeToken(OperatorType type, IExtendEnumerator<ExpressionToken> tokens)
 		{
 			if (tokens.IsEnd)
@@ -35,6 +37,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	,		逗号
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level15(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			// return Level14();
@@ -48,6 +51,7 @@ public partial class MoeInterpreter
 		///;	<<= >>=	以逐位左移及右移赋值
 		///;	&= ^= |=	以逐位与、异或及或赋值
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level14(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			return Level13(tokens);
@@ -57,6 +61,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	?:		三元条件
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level13(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			return Level12(tokens);
@@ -65,6 +70,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	||		逻辑或
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level12(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level11(tokens);
@@ -82,6 +88,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	&&		逻辑与
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level11(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level10(tokens);
@@ -99,6 +106,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	|		逐位或（包含或）
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level10(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level9(tokens);
@@ -116,6 +124,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	^		逐位异或（排除或）
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level9(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level8(tokens);
@@ -133,6 +142,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	&		逐位与
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level8(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level7(tokens);
@@ -150,6 +160,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	== !=	分别为 = 与 ≠ 关系
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level7(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level6(tokens);
@@ -168,6 +179,7 @@ public partial class MoeInterpreter
 		///;	< <=	分别为 < 与 ≤ 的关系运算符
 		///;	> >=	分别为 > 与 ≥ 的关系运算符
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level6(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level5(tokens);
@@ -185,6 +197,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///; 	<< >>	逐位左移及右移
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level5(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level4(tokens);
@@ -202,6 +215,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	+ -		加法及减法
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level4(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level3(tokens);
@@ -220,6 +234,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		///;	* / %	乘法、除法及余数
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level3(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level2(tokens);
@@ -242,6 +257,7 @@ public partial class MoeInterpreter
 		///;	*		间接（解引用）
 		///;	&		取址
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level2(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			object result = Level1(tokens);
@@ -258,6 +274,7 @@ public partial class MoeInterpreter
 		/// <summary>
 		/// () number variable
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Level1(IExtendEnumerator<ExpressionToken> tokens)
 		{
 			OperatorType opType = tokens.IsEnd ? new() : tokens.Current.Type;
@@ -310,6 +327,7 @@ public partial class MoeInterpreter
 		}
 
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static object Calc(object v1, object v2, OperatorType type)
 		{
 			int v1i, v2i;

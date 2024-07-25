@@ -26,8 +26,8 @@ public partial class MoeInterpreter
 			FileInfo elfFile = new()
 			{
 				Type = FileType.Script,
-				Name = _elfHeader.Files[sceneName].Name,
-				URL = _elfHeader.Files[sceneName].URL,
+				Name = _elfHeader.TextFiles[sceneName].Name,
+				URL = _elfHeader.TextFiles[sceneName].URL,
 			};
 
 			response = Driver.GetScriptAsync(elfFile);
@@ -35,7 +35,7 @@ public partial class MoeInterpreter
 
 			SceneList scenes = JsonSerializer.Deserialize<SceneList>(response.Message);
 
-			_scenes[_elfHeader.Files[sceneName].Name] = scenes;
+			_scenes[_elfHeader.TextFiles[sceneName].Name] = scenes;
 		}
 
 		private static void RawSetSceneList(string sceneName) => _activeSceneList = _scenes[sceneName];

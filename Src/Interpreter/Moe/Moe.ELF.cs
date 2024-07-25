@@ -61,7 +61,7 @@ public partial class MoeInterpreter
 				if (lines.Count != 3)
 					throw new Exception("错误的参数数量" + line);
 
-				_elfHeader.Files[lines[0]] = new()
+				MoeFile moeFile = new()
 				{
 					Name = lines[0],
 					Type = lines[1] switch
@@ -86,6 +86,18 @@ public partial class MoeInterpreter
 					},
 					URL = lines[2],
 				};
+				if ((moeFile.Type & MoeFileType.Image) != 0)
+					_elfHeader.ImageFiles[moeFile.Name] = moeFile;
+				else if ((moeFile.Type & MoeFileType.Audio) != 0)
+					_elfHeader.AudioFiles[moeFile.Name] = moeFile;
+				else if ((moeFile.Type & MoeFileType.Text) != 0)
+					_elfHeader.TextFiles[moeFile.Name] = moeFile;
+				else if ((moeFile.Type & MoeFileType.Bin) != 0)
+					_elfHeader.BinFiles[moeFile.Name] = moeFile;
+				else
+					Logger.LogInfo($"未知的文件类型: {moeFile}", Global.LogLevel.Warning);
+
+
 				continue;
 			}
 
@@ -112,17 +124,13 @@ public partial class MoeInterpreter
 
 		// File Loader 预加载所有脚本和字体，图片和音频过大，不在此加载
 		List<Task> tasks = [];
-		foreach (var (_, file) in _elfHeader.Files)
-		{
-			FileInfo fileInfo;
-			if ((file.Type & MoeFileType.Text) != 0)
-				fileInfo = new() { Type = FileType.Script, Name = file.Name, URL = file.URL, };
-			else if (file.Type == MoeFileType.Bin_font)
-				fileInfo = new() { Type = FileType.Font, Name = file.Name, URL = file.URL, };
-			else
-				continue;
-			tasks.Add(Driver.PullFileAsync(fileInfo));
-		}
+		foreach (var (_, file) in _elfHeader.TextFiles)
+			tasks.Add(Driver.PullFileAsync(new FileInfo() { Type = FileType.Script, Name = file.Name, URL = file.URL, }));
+
+		foreach (var (_, file) in _elfHeader.BinFiles)
+			if (file.Type == MoeFileType.Bin_font)
+				tasks.Add(Driver.PullFileAsync(new FileInfo() { Type = FileType.Font, Name = file.Name, URL = file.URL, }));
+
 		await Task.WhenAll(tasks);
 
 
@@ -131,10 +139,8 @@ public partial class MoeInterpreter
 			_runtime.Variables[item.Key] = item.Value;
 
 		// 扫描所有脚本
-		foreach (var (_, file) in _elfHeader.Files)
+		foreach (var (_, file) in _elfHeader.TextFiles)
 		{
-			if ((file.Type & MoeFileType.Text) == 0) continue;
-
 			FileInfo fileInfo = new() { Type = FileType.Script, Name = file.Name };
 			Response response = Driver.GetScriptAsync(fileInfo);
 			if (response.Type != ResponseType.Success) throw new Exception(response.Message);

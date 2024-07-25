@@ -46,7 +46,13 @@ public partial class MoeInterpreter
 	public static void Dump()
 	{
 		Console.WriteLine(">>> Dump File: ");
-		foreach (var item in _elfHeader.Files)
+		foreach (var item in _elfHeader.ImageFiles)
+			Console.WriteLine($"{item.Value}");
+		foreach (var item in _elfHeader.AudioFiles)
+			Console.WriteLine($"{item.Value}");
+		foreach (var item in _elfHeader.TextFiles)
+			Console.WriteLine($"{item.Value}");
+		foreach (var item in _elfHeader.BinFiles)
 			Console.WriteLine($"{item.Value}");
 
 		Console.WriteLine(">>> Dump Function: ");

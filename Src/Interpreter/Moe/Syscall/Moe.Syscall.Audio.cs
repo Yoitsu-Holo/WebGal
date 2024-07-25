@@ -39,8 +39,8 @@ public partial class MoeInterpreter
 			FileInfo fileInfo = new()
 			{
 				Type = FileType.Audio,
-				Name = _elfHeader.Files[file].Name,
-				URL = _elfHeader.Files[file].URL,
+				Name = _elfHeader.AudioFiles[file].Name,
+				URL = _elfHeader.AudioFiles[file].URL,
 			};
 			if (Driver.CheckFile(fileInfo).Type == ResponseType.Fail)
 				await Driver.PullFileAsync(fileInfo);
@@ -61,8 +61,8 @@ public partial class MoeInterpreter
 			FileInfo fileInfo = new()
 			{
 				Type = FileType.Audio,
-				Name = _elfHeader.Files[file].Name,
-				URL = _elfHeader.Files[file].URL,
+				Name = _elfHeader.AudioFiles[file].Name,
+				URL = _elfHeader.AudioFiles[file].URL,
 			};
 			if (Driver.CheckFile(fileInfo).Type == ResponseType.Fail)
 				await Driver.PullFileAsync(fileInfo);
@@ -83,8 +83,8 @@ public partial class MoeInterpreter
 			FileInfo fileInfo = new()
 			{
 				Type = FileType.Audio,
-				Name = _elfHeader.Files[file].Name,
-				URL = _elfHeader.Files[file].URL,
+				Name = _elfHeader.AudioFiles[file].Name,
+				URL = _elfHeader.AudioFiles[file].URL,
 			};
 			if (Driver.CheckFile(fileInfo).Type == ResponseType.Fail)
 				await Driver.PullFileAsync(fileInfo);

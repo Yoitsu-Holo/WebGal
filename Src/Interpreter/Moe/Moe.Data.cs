@@ -9,7 +9,10 @@ namespace WebGal.MeoInterpreter;
 public class ElfHeader
 {
 	// .file 
-	public Dictionary<string, MoeFile> Files = [];
+	public Dictionary<string, MoeFile> ImageFiles = [];
+	public Dictionary<string, MoeFile> AudioFiles = [];
+	public Dictionary<string, MoeFile> TextFiles = [];
+	public Dictionary<string, MoeFile> BinFiles = [];
 	// .data
 	public Dictionary<string, MoeVariable> Datas = [];
 	// .form [Audo Gen]
@@ -21,7 +24,11 @@ public class ElfHeader
 
 	public void CLear()
 	{
-		Files.Clear();
+		ImageFiles.Clear();
+		AudioFiles.Clear();
+		TextFiles.Clear();
+		BinFiles.Clear();
+
 		Datas.Clear();
 		Forms.Clear();
 		Functions.Clear();

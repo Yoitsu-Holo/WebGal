@@ -63,15 +63,15 @@ public partial class MoeInterpreter
 				ID = new() { LayoutID = layout, LayerID = layer, },
 				Image = new()
 				{
-					ImageName = _elfHeader.Files[image].Name,
+					ImageName = _elfHeader.ImageFiles[image].Name,
 					SubRect = new() { X = subx, Y = suby, W = width, H = height },
 				},
 			};
 			FileInfo file = new()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[image].Name,
-				URL = _elfHeader.Files[image].URL,
+				Name = _elfHeader.ImageFiles[image].Name,
+				URL = _elfHeader.ImageFiles[image].URL,
 			};
 			if (Driver.CheckFile(file).Type == ResponseType.Fail)
 				await Driver.PullFileAsync(file);
@@ -90,8 +90,8 @@ public partial class MoeInterpreter
 			FileInfo file = new()
 			{
 				Type = FileType.Font,
-				Name = _elfHeader.Files[font].Name,
-				URL = _elfHeader.Files[font].URL,
+				Name = _elfHeader.BinFiles[font].Name,
+				URL = _elfHeader.BinFiles[font].URL,
 			};
 			if (Driver.CheckFile(file).Type == ResponseType.Fail)
 				await Driver.PullFileAsync(file);
@@ -116,26 +116,26 @@ public partial class MoeInterpreter
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[normal].Name,
-				URL = _elfHeader.Files[normal].URL,
+				Name = _elfHeader.ImageFiles[normal].Name,
+				URL = _elfHeader.ImageFiles[normal].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[hover].Name,
-				URL = _elfHeader.Files[hover].URL,
+				Name = _elfHeader.ImageFiles[hover].Name,
+				URL = _elfHeader.ImageFiles[hover].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[pressed].Name,
-				URL = _elfHeader.Files[pressed].URL,
+				Name = _elfHeader.ImageFiles[pressed].Name,
+				URL = _elfHeader.ImageFiles[pressed].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[focused].Name,
-				URL = _elfHeader.Files[focused].URL,
+				Name = _elfHeader.ImageFiles[focused].Name,
+				URL = _elfHeader.ImageFiles[focused].URL,
 			});
 
 			ButtonBoxInfo button = new()
@@ -155,32 +155,32 @@ public partial class MoeInterpreter
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[track].Name,
-				URL = _elfHeader.Files[track].URL,
+				Name = _elfHeader.ImageFiles[track].Name,
+				URL = _elfHeader.ImageFiles[track].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[normal].Name,
-				URL = _elfHeader.Files[normal].URL,
+				Name = _elfHeader.ImageFiles[normal].Name,
+				URL = _elfHeader.ImageFiles[normal].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[hover].Name,
-				URL = _elfHeader.Files[hover].URL,
+				Name = _elfHeader.ImageFiles[hover].Name,
+				URL = _elfHeader.ImageFiles[hover].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[pressed].Name,
-				URL = _elfHeader.Files[pressed].URL,
+				Name = _elfHeader.ImageFiles[pressed].Name,
+				URL = _elfHeader.ImageFiles[pressed].URL,
 			});
 			await Driver.PullFileAsync(new FileInfo()
 			{
 				Type = FileType.Image,
-				Name = _elfHeader.Files[focused].Name,
-				URL = _elfHeader.Files[focused].URL,
+				Name = _elfHeader.ImageFiles[focused].Name,
+				URL = _elfHeader.ImageFiles[focused].URL,
 			});
 
 			SliderBoxInfo button = new()
