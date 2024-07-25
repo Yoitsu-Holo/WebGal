@@ -61,17 +61,16 @@ public class GameManager
 		return;
 	}
 
-	#region Debug
-	/// <summary>
-	/// 测试程序接口，内部填入测试流程代码
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("Debug Only")]
-	public async Task DoTest(string gameName)
-	{
-		await Task.Run(() => { }); // Just make compiler happy
-
-		// var ret = await Driver.Test();
-	}
-	#endregion
+	// #region Debug
+	// /// <summary>
+	// /// 测试程序接口，内部填入测试流程代码
+	// /// </summary>
+	// /// <returns></returns>
+	// [Obsolete("Debug Only")]
+	// public async Task DoTest(string gameName)
+	// {
+	// 	await Task.Run(() => { }); // Just make compiler happy
+	// 	// var ret = await Driver.Test();
+	// }
+	// #endregion
 }
