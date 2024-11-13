@@ -5,7 +5,7 @@ namespace WebGal.Services.Include;
 
 public class ResourceManager(HttpClient httpClient)
 {
-	public string BasePath { get; set; } = "/Demo/";
+	public string BasePath { get; set; } = "/Demo";
 	private readonly HttpClient _httpClient = httpClient;
 
 	private readonly Dictionary<string, SKBitmap> _imageList = [];
