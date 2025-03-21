@@ -26,7 +26,7 @@ public class WidgetImageBox : LayerBase
 			return;
 		if (_dirty || force || _renderBuffer is null)
 		{
-			_renderBuffer = _imageBuffer.Resize(Size, SKFilterQuality.High);
+			_renderBuffer = _imageBuffer.Resize(Size, SKSamplingOptions.Default);
 			_dirty = false;
 		}
 

@@ -93,7 +93,7 @@ public class ControllerButton : LayerBase
 					_imageBuffer[i] = _imageBuffer[i - 1];
 
 			for (int i = 0; i < 4; i++)
-				_renderBuffer[i] = _imageBuffer[i].Resize(Size, SKFilterQuality.High);
+				_renderBuffer[i] = _imageBuffer[i].Resize(Size, SKSamplingOptions.Default);
 			_dirty = false;
 
 		}

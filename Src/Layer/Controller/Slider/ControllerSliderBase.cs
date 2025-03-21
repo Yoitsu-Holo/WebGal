@@ -32,7 +32,7 @@ public abstract class ControllerSliderBase : LayerBase
 		Visible = true;
 		Enable = true;
 
-		Name = "slider";
+        Name = "slider";
 		Text = "new slider";
 	}
 

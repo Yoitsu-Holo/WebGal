@@ -8,6 +8,7 @@ using WebGal.Handler.Event;
 using WebGal.MeoInterpreter;
 using WebGal.Services;
 using WebGal.Types;
+using CSharpMath;
 
 namespace WebGal.Pages;
 
@@ -82,6 +83,16 @@ public partial class Test// : IDisposable
 			IsAntialias = true
 		};
 		canvas.DrawCircle(1300, 740, 10, ballPaint);
+
+        var painter = new CSharpMath.SkiaSharp.MathPainter
+        {
+            LaTeX = @"    \nabla \cdot \mathbf{E} &= \frac{\rho}{\varepsilon_0}\\
+    \nabla \cdot \mathbf{B} &= 0\\
+    \nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t}\\
+    \nabla \times \mathbf{B} &= \mu_0 \mathbf{J} + \mu_0 \varepsilon_0 \frac{\partial \mathbf{E}}{\partial t}",
+			Magnification = 2,
+        };
+        painter.Draw(canvas,150,150);
 
 		RenderInfo.Record(NowTime.Minisecond - startMiniSecond);
 	}

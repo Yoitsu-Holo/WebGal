@@ -38,11 +38,14 @@ public static class RenderConfig
 	public static SKPaint DefaultTextPaint => new()
 	{
 		Color = SKColors.Black,
-		TextSize = 30,
-		FakeBoldText = true,
 		IsAntialias = true
 	};
 
+	public static SKFont DefaultTextFont => new()
+	{
+		Size = 30,
+		Embolden = true,
+	};
 	public static SKPaint DefaultPaint => new()
 	{
 		IsAntialias = true

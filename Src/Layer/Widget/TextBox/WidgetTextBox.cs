@@ -7,12 +7,14 @@ namespace WebGal.Layer.Widget;
 public class WidgetTextBox : LayerBase
 {
 	public SKPaint TextPaint { get; set; } = RenderConfig.DefaultTextPaint;
+	public SKFont TextFont { get; set; } = new();
 	public TextBoxStyle Style { get; set; } = new();
 	private readonly List<string> _textLine = [];
 
 	public virtual void SetFontSize(int fontSize)
 	{
-		TextPaint.TextSize = fontSize;
+		// TextPaint.TextSize = fontSize;
+		TextFont.Size = fontSize;
 		_dirty = true;
 	}
 
@@ -24,7 +26,8 @@ public class WidgetTextBox : LayerBase
 
 	public virtual void SetFontStyle(SKTypeface typeFace)
 	{
-		TextPaint.Typeface = typeFace;
+		// TextPaint.Typeface = typeFace;
+		TextFont.Typeface = typeFace;
 		_dirty = true;
 	}
 
@@ -41,7 +44,7 @@ public class WidgetTextBox : LayerBase
 			string s = "";
 			foreach (var c in Text)
 			{
-				float length = TextPaint.MeasureText(s + c);
+				float length = TextFont.MeasureText(s + c);
 				if (length > lineWidth || c == '\n')
 				{
 					_textLine.Add(s);
@@ -60,8 +63,8 @@ public class WidgetTextBox : LayerBase
 		for (int i = 0; i < _textLine.Count; i++)
 		{
 			startPos.Y += Style.MarginTop;
-			startPos.Y += (int)TextPaint.TextSize;
-			canvas.DrawText(_textLine[i], startPos, TextPaint);
+			startPos.Y += (int)TextFont.Size;
+			canvas.DrawText(_textLine[i], startPos, TextFont, TextPaint);
 			startPos.Y += Style.MarginBottom;
 		}
 	}
